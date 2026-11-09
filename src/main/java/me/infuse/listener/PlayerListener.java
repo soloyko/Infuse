@@ -133,6 +133,17 @@ public final class PlayerListener implements Listener {
         d.clearSparks();
     }
 
+    /** Dropped effect bottles show their name floating above them; augmented ones glow. */
+    @EventHandler(ignoreCancelled = true)
+    public void onItemSpawn(org.bukkit.event.entity.ItemSpawnEvent e) {
+        if (!plugin.getConfig().getBoolean("visuals.dropped-bottle-names", true)) return;
+        Equipped eq = plugin.items().read(e.getEntity().getItemStack());
+        if (eq == null) return;
+        e.getEntity().customName(ItemFactory.name(eq.type(), eq.augmented()));
+        e.getEntity().setCustomNameVisible(true);
+        if (eq.augmented()) e.getEntity().setGlowing(true);
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSwapHands(PlayerSwapHandItemsEvent e) {
         Player p = e.getPlayer();

@@ -11,6 +11,7 @@ import me.infuse.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -208,6 +209,16 @@ public final class CombatListener implements Listener {
     }
 
     private void tenthHit(Player attacker, PlayerData d, LivingEntity victim) {
+        for (int slot = 0; slot < 2; slot++) {
+            var eq = d.get(slot);
+            if (eq == null || !eq.type().usesHitTracker()) continue;
+            Location at = victim.getLocation().add(0, victim.getHeight() * 0.6, 0);
+            victim.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, at, 30, 0.35, 0.4, 0.35, 0,
+                    me.infuse.util.Fx.fade(eq.type().rgb(), me.infuse.util.Fx.lighten(eq.type().rgb(), 0.7), 1.4f));
+            victim.getWorld().spawnParticle(Particle.ENCHANTED_HIT, at, 15, 0.3, 0.4, 0.3, 0.2);
+            attacker.playSound(attacker.getLocation(), Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1f, 1.4f);
+            break;
+        }
         if (d.hasPassive(EffectType.FROST) && victim instanceof Player) freeze(victim, 100);
         if (d.hasPassive(EffectType.FIRE)) victim.setFireTicks(Math.max(victim.getFireTicks(), 100));
         if (d.hasPassive(EffectType.FEATHER)) {
@@ -420,6 +431,7 @@ public final class CombatListener implements Listener {
             fb.setIsIncendiary(false);
             fb.setYield(0);
             fb.getPersistentDataContainer().set(curseFireball, PersistentDataType.BYTE, (byte) 1);
+            me.infuse.util.Fx.trail(fb, EffectType.ENDER.rgb(), 60, Particle.PORTAL);
             p.setCooldown(Material.DRAGON_BREATH, cfg().getInt("effects.ender.fireball-cooldown-ticks", 30));
             p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_SHOOT, 1f, 1.2f);
         }

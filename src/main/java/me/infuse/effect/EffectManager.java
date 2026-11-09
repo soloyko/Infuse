@@ -252,6 +252,7 @@ public final class EffectManager {
             PlayerData d = plugin.data().get(p);
             if (d.isEmpty()) continue;
             movement(p, d);
+            Aura.tick(p, d, tick, cfg());
             if (tick % 5 == 0) {
                 applyAttributes(p, d);
             }
@@ -378,7 +379,7 @@ public final class EffectManager {
             long dur = plugin.sparks().durationMillis(EffectType.THIEF);
             frame = dur > 0 ? (int) Math.floor((1 - left / (double) dur) * 20) : 0;
         }
-        return Glyphs.effectComponent(e.type(), e.augmented(), d.isSlotActive(slot), frame);
+        return Glyphs.effectComponent(e.type(), e.augmented(), d.isSlotActive(slot) || d.isReadyFlash(slot), frame);
     }
 
     private static EffectType hitTrackerType(PlayerData d) {

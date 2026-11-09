@@ -133,6 +133,43 @@ public final class Fx {
         return e instanceof Firework && e.getPersistentDataContainer().has(fireworkKey, PersistentDataType.BYTE);
     }
 
+    /** A straight particle line between two points (lightning arcs, teleport paths). */
+    public static void line(Location from, Location to, int rgb, boolean sparks) {
+        World w = from.getWorld();
+        if (w == null || !w.equals(to.getWorld())) return;
+        org.bukkit.util.Vector step = to.toVector().subtract(from.toVector());
+        double len = step.length();
+        if (len < 0.01) return;
+        int points = (int) Math.min(120, len * 4);
+        step.multiply(1.0 / points);
+        Location cur = from.clone();
+        java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
+        for (int i = 0; i <= points; i++) {
+            Location at = sparks ? cur.clone().add(r.nextDouble(-0.12, 0.12), r.nextDouble(-0.12, 0.12), r.nextDouble(-0.12, 0.12)) : cur;
+            w.spawnParticle(Particle.DUST, at, 1, 0, 0, 0, 0, dust(rgb, 1.0f));
+            if (sparks && i % 3 == 0) w.spawnParticle(Particle.ELECTRIC_SPARK, at, 1, 0, 0, 0, 0);
+            cur.add(step);
+        }
+    }
+
+    /** Coloured trail following an entity for a few ticks (dashes, projectiles). */
+    public static void trail(Entity target, int rgb, int ticks, Particle extra) {
+        new BukkitRunnable() {
+            int t = 0;
+
+            @Override
+            public void run() {
+                if (t++ >= ticks || !target.isValid()) {
+                    cancel();
+                    return;
+                }
+                Location l = target.getLocation().add(0, target.getHeight() / 2, 0);
+                target.getWorld().spawnParticle(Particle.DUST, l, 3, 0.15, 0.15, 0.15, 0, dust(rgb, 1.2f));
+                if (extra != null) target.getWorld().spawnParticle(extra, l, 1, 0.05, 0.05, 0.05, 0);
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
     // ------------------------------------------------------------------ moments
 
     public static void equip(Player p, Equipped e, boolean primary) {

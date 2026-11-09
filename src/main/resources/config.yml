@@ -8,6 +8,20 @@ style:
   gradients: true
   gradient-lighten: 0.55
 
+visuals:
+  # Soft particles at your feet in the colour of each equipped effect
+  passive-aura: true
+  # Augmented effects add an orbiting wisp
+  augmented-orbit: true
+  # Signature particles while a spark is active (crimson spores for Strength, snowflakes for Frost, ...)
+  spark-aura: true
+  # Dropped effect bottles show their name above them (augmented ones glow)
+  dropped-bottle-names: true
+
+gui:
+  # /infuses opens the effects menu (false = list them in chat instead)
+  infuses-opens-menu: true
+
 allies:
   # team = players on the same scoreboard team are allies (for Heart/Invisibility/Thief etc.)
   # none = everyone else is an enemy

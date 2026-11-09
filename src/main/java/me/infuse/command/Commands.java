@@ -31,7 +31,10 @@ public final class Commands implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         switch (command.getName().toLowerCase(Locale.ROOT)) {
-            case "infuses" -> infuses(sender);
+            case "infuses" -> {
+                if (sender instanceof Player p && plugin.getConfig().getBoolean("gui.infuses-opens-menu", true)) plugin.gui().open(p);
+                else infuses(sender);
+            }
             case "controls" -> player(sender, this::controls);
             case "lspark" -> player(sender, p -> plugin.sparks().use(p, PlayerData.PRIMARY));
             case "rspark" -> player(sender, p -> plugin.sparks().use(p, PlayerData.SECONDARY));

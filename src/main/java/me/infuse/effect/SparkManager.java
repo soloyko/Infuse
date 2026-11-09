@@ -120,6 +120,7 @@ public final class SparkManager {
                 p.setVelocity(new Vector(0, cfg().getDouble("effects.feather.launch-velocity", 2.2), 0));
                 status.noFall(p, 15000);
                 d.setFeatherSlamUntil(now + dur);
+                me.infuse.util.Fx.trail(p, EffectType.FEATHER.rgb(), 20, Particle.WHITE_ASH);
                 w.playSound(p.getLocation(), Sound.ENTITY_BREEZE_JUMP, 1f, 1f);
                 w.spawnParticle(Particle.GUST, p.getLocation(), 6, 0.5, 0.2, 0.5, 0);
             }
@@ -129,6 +130,7 @@ public final class SparkManager {
                 dir.setY(Math.max(dir.getY(), 0.25));
                 p.setVelocity(dir);
                 status.noFall(p, 4000);
+                me.infuse.util.Fx.trail(p, EffectType.SPEED.rgb(), 14, Particle.CLOUD);
                 w.playSound(p.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 1.4f);
                 w.spawnParticle(Particle.CLOUD, p.getLocation(), 25, 0.3, 0.1, 0.3, 0.05);
             }
@@ -212,6 +214,7 @@ public final class SparkManager {
         safe.setPitch(p.getLocation().getPitch());
         Location from = p.getLocation();
         p.getWorld().spawnParticle(Particle.PORTAL, from.clone().add(0, 1, 0), 60, 0.4, 0.8, 0.4, 0.4);
+        me.infuse.util.Fx.line(from.clone().add(0, 1, 0), safe.clone().add(0, 1, 0), EffectType.ENDER.rgb(), false);
         p.teleport(safe);
         p.setFallDistance(0);
         p.getWorld().spawnParticle(Particle.REVERSE_PORTAL, safe.clone().add(0, 1, 0), 60, 0.4, 0.8, 0.4, 0.1);
@@ -265,6 +268,8 @@ public final class SparkManager {
             if (done >= count) break;
             if (le.equals(origin)) continue;
             le.getWorld().strikeLightningEffect(le.getLocation());
+            me.infuse.util.Fx.line(origin.getLocation().add(0, origin.getHeight() * 0.6, 0),
+                    le.getLocation().add(0, le.getHeight() * 0.6, 0), EffectType.THUNDER.rgb(), true);
             le.damage(damage, DamageSource.builder(DamageType.LIGHTNING_BOLT).withCausingEntity(source)
                     .withDirectEntity(source).build());
             done++;

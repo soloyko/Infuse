@@ -17,6 +17,7 @@ public final class PlayerData {
     private final long[] cooldownTotal = new long[2];
     private final long[] activeEnd = new long[2];
     private final boolean[] readyPinged = {true, true};
+    private final long[] readyFlashUntil = new long[2];
     private boolean offhandControls = true;
 
     // Runtime-only state
@@ -85,7 +86,14 @@ public final class PlayerData {
     public boolean consumeReady(int slot) {
         if (readyPinged[slot] || cooldownRemaining(slot) > 0) return false;
         readyPinged[slot] = true;
+        readyFlashUntil[slot] = System.currentTimeMillis() + 960;
         return true;
+    }
+
+    /** Brief glow on the HUD icon right after a cooldown finishes. */
+    public boolean isReadyFlash(int slot) {
+        long left = readyFlashUntil[slot] - System.currentTimeMillis();
+        return left > 0 && (left / 240) % 2 == 0;
     }
     public void resetCooldowns() {
         cooldownEnd[0] = cooldownEnd[1] = 0;

@@ -1,9 +1,19 @@
 package me.infuse.command;
 
 import me.infuse.InfusePlugin;
+import me.infuse.data.PlayerData;
 import me.infuse.effect.EffectType;
+import me.infuse.effect.Equipped;
+import me.infuse.effect.ItemFactory;
+import me.infuse.util.Msg;
+import me.infuse.util.Style;
+import me.infuse.util.Util;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,9 +22,19 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-/** /infuse gui — preview every effect; players with infuse.gui.take can take them. */
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The effects menu (/infuses and /infuse gui). Everyone can browse; players with
+ * infuse.gui.take can click an effect to take it.
+ */
 public final class InfuseGui implements Listener {
+    private static final int[] EFFECT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 31};
+    private static final int TOGGLE_SLOT = 49;
+    private static final int INFO_SLOT = 45;
     private final InfusePlugin plugin;
 
     public InfuseGui(InfusePlugin plugin) {
@@ -23,6 +43,7 @@ public final class InfuseGui implements Listener {
 
     private static final class Holder implements InventoryHolder {
         private Inventory inventory;
+        private boolean augmented;
 
         @Override
         public Inventory getInventory() {
@@ -31,29 +52,99 @@ public final class InfuseGui implements Listener {
     }
 
     public void open(Player p) {
+        open(p, false);
+    }
+
+    private void open(Player p, boolean augmented) {
         Holder holder = new Holder();
-        Inventory inv = Bukkit.createInventory(holder, 36, me.infuse.util.Msg.get("gui-title"));
+        holder.augmented = augmented;
+        Inventory inv = Bukkit.createInventory(holder, 54, Msg.get("gui-title"));
         holder.inventory = inv;
-        EffectType[] types = EffectType.values();
-        for (int i = 0; i < types.length; i++) {
-            inv.setItem(i, plugin.items().create(types[i], false));
-            inv.setItem(18 + i, plugin.items().create(types[i], true));
-        }
+        fill(inv, p, augmented);
         p.openInventory(inv);
+    }
+
+    private void fill(Inventory inv, Player p, boolean augmented) {
+        inv.clear();
+        Material[] border = {Material.MAGENTA_STAINED_GLASS_PANE, Material.PURPLE_STAINED_GLASS_PANE};
+        for (int i = 0; i < 54; i++) {
+            int row = i / 9, col = i % 9;
+            if (row == 0 || row == 5 || col == 0 || col == 8) {
+                inv.setItem(i, pane(border[(row + col) % 2]));
+            }
+        }
+        EffectType[] types = EffectType.values();
+        int slot = 0;
+        for (EffectType t : types) {
+            if (!t.enabled() || slot >= EFFECT_SLOTS.length) continue;
+            inv.setItem(EFFECT_SLOTS[slot++], plugin.items().create(t, augmented));
+        }
+        inv.setItem(TOGGLE_SLOT, button(augmented ? Material.NETHER_STAR : Material.GLASS_BOTTLE,
+                Style.colored(Style.caps(augmented ? "Showing: Augmented" : "Showing: Regular"), 0xD11FD1),
+                List.of(Component.text(Style.caps("Click to switch"), NamedTextColor.GRAY))));
+        inv.setItem(INFO_SLOT, info(p));
+    }
+
+    private ItemStack info(Player p) {
+        PlayerData d = plugin.data().get(p);
+        List<Component> lore = new ArrayList<>();
+        for (int slot = 0; slot < 2; slot++) {
+            Equipped e = d.get(slot);
+            Component label = Component.text(Style.caps(slot == 0 ? "Primary: " : "Secondary: "), NamedTextColor.GRAY);
+            if (e == null) {
+                lore.add(label.append(Component.text(Style.caps("empty"), NamedTextColor.DARK_GRAY)));
+            } else {
+                long rem = d.cooldownRemaining(slot);
+                lore.add(label.append(ItemFactory.name(e.type(), e.augmented()))
+                        .append(rem > 0 ? Component.text("  " + Util.time(rem), NamedTextColor.RED)
+                                : Component.text("  " + Style.caps("ready"), NamedTextColor.GREEN)));
+            }
+        }
+        lore.add(Component.empty());
+        lore.add(Component.text(Style.caps(d.offhandControls() ? "Controls: Offhand (F / Sneak+F)" : "Controls: /lspark /rspark"),
+                NamedTextColor.DARK_GRAY));
+        return button(Material.BOOK, Style.colored(Style.caps("Your Effects"), 0x7F3CFF), lore);
+    }
+
+    private static ItemStack pane(Material m) {
+        ItemStack it = new ItemStack(m);
+        ItemMeta meta = it.getItemMeta();
+        meta.setHideTooltip(true);
+        it.setItemMeta(meta);
+        return it;
+    }
+
+    private static ItemStack button(Material m, Component name, List<Component> lore) {
+        ItemStack it = new ItemStack(m);
+        ItemMeta meta = it.getItemMeta();
+        meta.displayName(name.decoration(TextDecoration.ITALIC, false));
+        meta.lore(lore.stream().map(c -> c.decoration(TextDecoration.ITALIC, false)).toList());
+        it.setItemMeta(meta);
+        return it;
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        if (!(e.getInventory().getHolder() instanceof Holder)) return;
+        if (!(e.getInventory().getHolder() instanceof Holder holder)) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player p)) return;
         if (e.getClickedInventory() != e.getView().getTopInventory()) return;
+        if (e.getSlot() == TOGGLE_SLOT) {
+            holder.augmented = !holder.augmented;
+            fill(holder.inventory, p, holder.augmented);
+            p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.6f, holder.augmented ? 1.4f : 1f);
+            return;
+        }
         ItemStack clicked = e.getCurrentItem();
-        if (clicked == null || clicked.getType().isAir()) return;
-        if (!p.hasPermission("infuse.gui.take")) return;
+        if (clicked == null || plugin.items().read(clicked) == null) return;
+        if (!p.hasPermission("infuse.gui.take")) {
+            p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.6f, 1.2f);
+            return;
+        }
         for (ItemStack left : p.getInventory().addItem(clicked.clone()).values()) {
             p.getWorld().dropItemNaturally(p.getLocation(), left);
         }
+        p.playSound(p.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.8f, 1.2f);
     }
 
     @EventHandler
