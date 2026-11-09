@@ -28,7 +28,7 @@ SUB = [0x00, 0x80, 0x40, 0xC0]
 NEW = [
     ("weaving", 28, 0.55, 0.62, 38, "web"),
     ("oozing", 150, 0.9, 0.62, 115, "slime"),
-    ("resistance", 218, 0.5, 0.86, 210, "chestplate"),
+    ("resistance", 218, 0.5, 0.86, 210, "shield"),
 ]
 
 SYMBOLS = {
@@ -49,19 +49,34 @@ OGGGGGKKGGGGGO
 ...OOOOOOOO...
 """, {"O": (22, 70, 26), "G": (111, 211, 106), "H": (205, 255, 196), "C": (66, 158, 62), "K": (18, 52, 20)}),
     "chestplate": ("""
-.OOO......OOO.
-OLLLO....OLLLO
-OLMMLOOOOLMMLO
-OLMMMLLLLMMMLO
-.OOLMMMMMMLOO.
-...OLMMMMDO...
-...OLMMMMDO...
-...OLMMMMDO...
-...OLMMMMDO...
-...OLMMMMDO...
-...OLLMMDDO...
-....OOOOOO....
-""", {"O": (34, 38, 48), "L": (236, 240, 245), "M": (170, 180, 192), "D": (110, 120, 132)}),
+.OOOO....OOOO.
+OLLLLO..OLLLLO
+OLHHMLOOLMMMDO
+OLHMMMLLMMMMDO
+OLMMMMMMMMMMDO
+.OOLHMMMMMDOO.
+..OLHMMMMMDO..
+..OLHMMMMMDO..
+..OLMMMMMDDO..
+..OLMMMMMDDO..
+..OLLMMMDDDO..
+...OOOOOOOO...
+""", {"O": (28, 32, 42), "L": (244, 247, 250), "H": (255, 255, 255), "M": (182, 191, 203), "D": (112, 122, 138)}),
+    "shield": ("""
+OOOOOOOOOOOO
+OGGGGGGGGGGO
+OGMMMMMMMMDO
+OGMMMWWMMMDO
+OGMMMWWMMMDO
+OGMWWWWWWMDO
+OGMWWWWWWMDO
+OGMMMWWMMMDO
+.OGMMWWMMDO.
+.OGMMMMMMDO.
+..OGMMMMDO..
+...OGMMDO...
+....OOOO....
+""", {"O": (24, 28, 38), "G": (232, 196, 92), "M": (176, 186, 200), "D": (104, 114, 130), "W": (250, 252, 255)}),
 }
 
 
