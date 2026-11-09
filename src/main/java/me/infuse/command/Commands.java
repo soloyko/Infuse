@@ -52,67 +52,61 @@ public final class Commands implements TabExecutor {
 
     private void player(CommandSender sender, PlayerAction action) {
         if (sender instanceof Player p) action.run(p);
-        else Msg.send(sender, "<red>Only players can use this command.");
+        else Msg.send(sender, "only-players");
     }
 
     private void infuses(CommandSender sender) {
-        sender.sendMessage(Msg.parse("<gradient:#d11fd1:#7f3cff><bold>━━━━━━━━ Infuse Effects ━━━━━━━━</bold></gradient>"));
+        Msg.send(sender, "infuses-header");
         for (EffectType t : EffectType.values()) {
+            if (!t.enabled()) continue;
             Component line = ItemFactory.name(t, false);
-            Component hover = Component.text("Passive:", t.color());
+            Component hover = ItemFactory.name(t, false).append(Component.newline()).append(Component.text("Passive:", t.color()));
             for (String s : t.passives()) hover = hover.append(Component.newline()).append(Component.text(" • " + s, NamedTextColor.GRAY));
             hover = hover.append(Component.newline()).append(Component.text("Spark:", t.color()));
             for (String s : t.sparks()) hover = hover.append(Component.newline()).append(Component.text(" • " + s, NamedTextColor.GRAY));
             sender.sendMessage(line.append(Component.text("  " + t.passives().get(0) + " | " + t.sparks().get(0), NamedTextColor.DARK_GRAY))
                     .hoverEvent(hover));
         }
-        sender.sendMessage(Msg.parse("<gray>Hover over an effect to see everything it does."));
+        Msg.send(sender, "infuses-footer");
     }
 
     private void controls(Player p) {
         PlayerData d = plugin.data().get(p);
         d.setOffhandControls(!d.offhandControls());
         plugin.data().save(d);
-        if (d.offhandControls()) {
-            Msg.send(p, "<gray>Controls set to <white>Offhand</white>: press <white>F</white> for your primary spark, "
-                    + "<white>Sneak + F</white> for your secondary spark.");
-        } else {
-            Msg.send(p, "<gray>Controls set to <white>Command Keys</white>: use <white>/lspark</white> and "
-                    + "<white>/rspark</white> (bind them with the Command Keys mod).");
-        }
+        Msg.send(p, d.offhandControls() ? "controls-offhand" : "controls-commands");
     }
 
     private void drain(Player p, int slot) {
         Equipped e = plugin.effects().unequip(p, slot);
         if (e == null) {
-            Msg.send(p, "<red>You don't have an effect in that slot.");
+            Msg.send(p, "drain-empty");
             return;
         }
         ItemStack bottle = plugin.items().create(e.type(), e.augmented());
         for (ItemStack left : p.getInventory().addItem(bottle).values()) p.getWorld().dropItemNaturally(p.getLocation(), left);
-        p.sendMessage(Msg.parse(plugin.getConfig().getString("prefix", "") + "<gray>Drained </gray>")
-                .append(ItemFactory.name(e.type(), e.augmented())).append(Msg.parse("<gray> into a bottle.</gray>")));
+        Msg.send(p, "drained", Msg.comp("effect", ItemFactory.name(e.type(), e.augmented())));
     }
 
     private void swap(Player p) {
         PlayerData d = plugin.data().get(p);
         if (d.isEmpty()) {
-            Msg.send(p, "<red>You don't have any effects equipped.");
+            Msg.send(p, "swap-empty");
             return;
         }
         d.swap();
         plugin.data().save(d);
-        Msg.send(p, "<gray>Swapped your primary and secondary effects.");
+        Msg.send(p, "swapped");
     }
 
     private Player target(CommandSender sender, String[] args, int index) {
         if (args.length <= index) {
             if (sender instanceof Player p) return p;
-            Msg.send(sender, "<red>Specify a player.");
+            Msg.send(sender, "specify-player");
             return null;
         }
         Player t = Bukkit.getPlayerExact(args[index]);
-        if (t == null) Msg.send(sender, "<red>Player not found: " + Msg.esc(args[index]));
+        if (t == null) Msg.send(sender, "player-not-found", Msg.text("player", args[index]));
         return t;
     }
 
@@ -120,7 +114,7 @@ public final class Commands implements TabExecutor {
         Player t = target(sender, args, 0);
         if (t == null) return;
         plugin.effects().clearAll(t);
-        Msg.send(sender, "<gray>Cleared <white>" + t.getName() + "</white>'s effects.");
+        Msg.send(sender, "cleared", Msg.text("player", t.getName()));
     }
 
     private void resetCooldown(CommandSender sender, String[] args) {
@@ -129,59 +123,57 @@ public final class Commands implements TabExecutor {
         PlayerData d = plugin.data().get(t);
         d.resetCooldowns();
         plugin.data().save(d);
-        Msg.send(sender, "<gray>Reset <white>" + t.getName() + "</white>'s spark cooldowns.");
+        Msg.send(sender, "cooldown-reset", Msg.text("player", t.getName()));
     }
 
     private void infuse(CommandSender sender, String[] args) {
         String sub = args.length == 0 ? "help" : args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
             case "gui" -> {
-                if (!(sender instanceof Player p)) { Msg.send(sender, "<red>Only players can open the GUI."); return; }
-                if (!p.hasPermission("infuse.gui")) { Msg.send(p, "<red>You don't have permission."); return; }
+                if (!(sender instanceof Player p)) { Msg.send(sender, "only-players"); return; }
+                if (!p.hasPermission("infuse.gui")) { Msg.send(p, "no-permission"); return; }
                 plugin.gui().open(p);
             }
             case "give" -> {
-                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "<red>You don't have permission."); return; }
-                if (args.length < 3) { Msg.send(sender, "<red>Usage: /infuse give <player> <effect> [augmented]"); return; }
+                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
+                if (args.length < 3) { Msg.send(sender, "give-usage"); return; }
                 Player t = Bukkit.getPlayerExact(args[1]);
                 EffectType type = EffectType.fromId(args[2]);
-                if (t == null || type == null) { Msg.send(sender, "<red>Unknown player or effect."); return; }
+                if (t == null || type == null) { Msg.send(sender, t == null ? "specify-player" : "unknown-effect"); return; }
                 boolean aug = args.length > 3 && Boolean.parseBoolean(args[3]);
                 for (ItemStack left : t.getInventory().addItem(plugin.items().create(type, aug)).values()) {
                     t.getWorld().dropItemNaturally(t.getLocation(), left);
                 }
-                Msg.send(sender, "<gray>Gave " + t.getName() + " a" + (aug ? "n augmented " : " ") + type.displayName() + " effect.");
+                Msg.send(sender, "gave", Msg.text("player", t.getName()), Msg.comp("effect", ItemFactory.name(type, aug)));
             }
             case "crafts" -> {
-                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "<red>You don't have permission."); return; }
-                int max = plugin.getConfig().getInt("crafting.max-crafts", 4);
+                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
                 for (EffectType t : EffectType.values()) {
-                    sender.sendMessage(ItemFactory.name(t, false)
-                            .append(Component.text(": " + plugin.data().craftCount(t) + "/" + max, NamedTextColor.GRAY)));
+                    Msg.send(sender, "crafts-line", Msg.comp("effect", ItemFactory.name(t, false)),
+                            Msg.text("count", plugin.data().craftCount(t)), Msg.text("max", plugin.crafting().maxCrafts(t)));
                 }
             }
             case "resetcrafts" -> {
-                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "<red>You don't have permission."); return; }
+                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
                 if (args.length > 1) {
                     EffectType t = EffectType.fromId(args[1]);
-                    if (t == null) { Msg.send(sender, "<red>Unknown effect."); return; }
+                    if (t == null) { Msg.send(sender, "unknown-effect"); return; }
                     plugin.data().setCraftCount(t, 0);
                 } else {
                     for (EffectType t : EffectType.values()) plugin.data().setCraftCount(t, 0);
                 }
-                Msg.send(sender, "<gray>Craft counts reset.");
+                Msg.send(sender, "crafts-reset");
             }
             case "reload" -> {
-                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "<red>You don't have permission."); return; }
+                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
                 plugin.reload();
-                Msg.send(sender, "<gray>Reloaded config.yml and recipes.yml.");
+                Msg.send(sender, "reloaded");
             }
             default -> {
-                Msg.send(sender, "<gray>/infuses, /controls, /lspark, /rspark, /ldrain, /rdrain, /swap");
-                if (sender.hasPermission("infuse.gui")) Msg.send(sender, "<gray>/infuse gui");
+                Msg.send(sender, "help");
+                if (sender.hasPermission("infuse.gui")) Msg.send(sender, "help-gui");
                 if (sender.hasPermission("infuse.admin")) {
-                    Msg.send(sender, "<gray>/infuse give <player> <effect> [augmented], /infuse crafts, "
-                            + "/infuse resetcrafts [effect], /infuse reload, /cleareffects <player>, /cooldown <player>");
+                    Msg.send(sender, "help-admin");
                 }
             }
         }

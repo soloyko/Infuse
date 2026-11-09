@@ -21,12 +21,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Util {
+    private static boolean teamAllies = true;
+
     private Util() {}
+
+    /** allies.mode: "team" (same scoreboard team = ally) or "none" (everyone else is an enemy). */
+    public static void loadAllies(org.bukkit.configuration.file.FileConfiguration cfg) {
+        teamAllies = !"none".equalsIgnoreCase(cfg.getString("allies.mode", "team"));
+    }
 
     /** Players on the same scoreboard team (main scoreboard) are allies; everyone is their own ally. */
     public static boolean isAlly(Entity a, Entity b) {
         if (a == null || b == null) return false;
         if (a.equals(b)) return true;
+        if (!teamAllies) return false;
         if (!(a instanceof Player pa) || !(b instanceof Player pb)) return false;
         Team ta = Bukkit.getScoreboardManager().getMainScoreboard().getEntryTeam(pa.getName());
         Team tb = Bukkit.getScoreboardManager().getMainScoreboard().getEntryTeam(pb.getName());

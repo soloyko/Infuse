@@ -145,8 +145,9 @@ public final class Fx {
         }
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.6f);
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, 1.2f);
-        p.showTitle(Title.title(ItemFactory.name(e.type(), e.augmented()),
-                Component.text("Equipped in your " + (primary ? "primary" : "secondary") + " slot", NamedTextColor.GRAY),
+        var effect = Msg.comp("effect", ItemFactory.name(e.type(), e.augmented()));
+        var slot = Msg.comp("slot", Msg.get(primary ? "slot-primary" : "slot-secondary"));
+        p.showTitle(Title.title(Msg.get("equip-title", effect, slot), Msg.get("equip-subtitle", effect, slot),
                 Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1500), Duration.ofMillis(500))));
     }
 

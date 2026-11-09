@@ -1,0 +1,78 @@
+# Every message the plugin sends. MiniMessage format: https://docs.advntr.dev/minimessage/format.html
+# Set a message to "" to turn it off.
+# Available everywhere: <prefix>, and <caps>text</caps> to write in small caps (ᴛɪɴʏ ᴄᴀᴘꜱ).
+# Effect names (<effect>) already come in their gradient + small caps style.
+
+prefix: "<gradient:#d11fd1:#7f3cff><bold><caps>Infuse</caps></bold></gradient> <dark_gray>»</dark_gray> "
+
+# ---------------------------------------------------------------- general
+only-players: "<prefix><red>Only players can use this command."
+no-permission: "<prefix><red>You don't have permission."
+player-not-found: "<prefix><red>Player not found: <white><player></white>"
+specify-player: "<prefix><red>Specify a player."
+unknown-effect: "<prefix><red>Unknown effect."
+
+# ---------------------------------------------------------------- equipping  (<effect>, <slot>)
+equipped: "<prefix><gray>Equipped </gray><effect><gray> in your <slot> slot.</gray>"
+equip-duplicate: "<prefix><red>You already have </red><effect><red> equipped."
+equip-full: "<prefix><red>Both slots are full. Use <white>/ldrain</white> or <white>/rdrain</white> first."
+effect-disabled: "<prefix><effect><red> is disabled on this server."
+equip-title: "<effect>"
+equip-subtitle: "<gray><caps>Equipped in your <slot> slot</caps>"
+slot-primary: "primary"
+slot-secondary: "secondary"
+
+# ---------------------------------------------------------------- sparks  (<effect>, <time>, <slot>)
+spark-empty-slot: "<prefix><red>You don't have an effect in your <slot> slot."
+spark-cooldown: "<prefix><effect><red> is on cooldown for <white><time></white>."
+spark-silenced: "<prefix><#e02424>You've been silenced! Sparks return in <white><time></white>."
+spark-disabled-world: "<prefix><red>Sparks are disabled in this world."
+ender-no-safe-spot: "<prefix><red>There's nowhere safe to teleport there."
+frozen-wind-charge: "<prefix><aqua>You're frozen and can't use wind charges!"
+heart-health: "<prefix><#ff3d7a>❤</#ff3d7a> <white><target></white> <gray>has</gray> <#ff3d7a><health></#ff3d7a><gray>/<max></gray><absorption>"
+heart-absorption: " <gold>+<amount></gold>"
+
+# ---------------------------------------------------------------- thief  (<target>, <effect>, <time>, <potion>)
+thief-vanish: "<prefix><gradient:#e02424:#ff8a8a><caps>You melt into the shadows...</caps></gradient>"
+thief-cover-blown: "<prefix><gradient:#e02424:#ff8a8a><caps>Your cover is blown!</caps></gradient>"
+thief-backstab: "<prefix><gradient:#e02424:#ff8a8a><bold><caps>Backstab!</caps></bold></gradient> <gray>You silenced <white><target></white> for <white><time></white>."
+thief-backstabbed: "<prefix><gradient:#e02424:#ff8a8a><bold><caps>Backstabbed!</caps></bold></gradient> <gray>Your sparks are silenced for <white><time></white>."
+thief-steal: "<prefix><gray>You stole </gray><#ff8a8a><potion></#ff8a8a><gray> from <white><target></white>.</gray>"
+thief-stolen: "<prefix><white><target></white><gray> stole your </gray><#ff8a8a><potion></#ff8a8a><gray>!</gray>"
+
+# ---------------------------------------------------------------- crafting & rituals
+# (<player>, <effect>, <coords>, <count>, <max>, <time>)
+craft-limit: "<prefix><effect><red> can't be crafted anymore."
+craft-broadcast: "<prefix><white><player></white><gray> crafted </gray><effect><gray> at </gray><white><coords></white> <dark_gray>(<count>/<max>)</dark_gray>"
+ritual-start: "<prefix><gray>A ritual for </gray><effect><gray> has begun at </gray><white><coords></white><gray>! It completes in </gray><white><time></white><gray>.</gray>"
+ritual-complete: "<prefix><gray>The ritual is complete! </gray><effect><gray> is waiting at </gray><white><coords></white><gray>.</gray>"
+ritual-bossbar: "<gray><caps>Ritual</caps> </gray><effect><dark_gray> | </dark_gray><white><time></white><dark_gray> | </dark_gray><gray><coords></gray>"
+ritual-complete-title: "<effect>"
+ritual-complete-subtitle: "<gray><caps>The ritual is complete</caps>"
+
+# ---------------------------------------------------------------- commands
+infuses-header: "<gradient:#d11fd1:#7f3cff><bold>━━━━━━ <caps>Infuse Effects</caps> ━━━━━━</bold></gradient>"
+infuses-footer: "<gray><caps>Hover over an effect to see everything it does.</caps>"
+controls-offhand: "<prefix><gray>Controls: <white><caps>Offhand</caps></white>. Press <white>F</white> for your primary spark, <white>Sneak + F</white> for your secondary."
+controls-commands: "<prefix><gray>Controls: <white><caps>Command Keys</caps></white>. Use <white>/lspark</white> and <white>/rspark</white> (bind them with Command Keys)."
+drain-empty: "<prefix><red>You don't have an effect in that slot."
+drained: "<prefix><gray>Drained </gray><effect><gray> into a bottle.</gray>"
+swap-empty: "<prefix><red>You don't have any effects equipped."
+swapped: "<prefix><gray>Swapped your primary and secondary effects."
+cleared: "<prefix><gray>Cleared <white><player></white>'s effects."
+cooldown-reset: "<prefix><gray>Reset <white><player></white>'s spark cooldowns."
+give-usage: "<prefix><red>Usage: /infuse give <player> <effect> [augmented]"
+gave: "<prefix><gray>Gave <white><player></white> </gray><effect><gray>.</gray>"
+crafts-line: "<effect><gray>: <count>/<max></gray>"
+crafts-reset: "<prefix><gray>Craft counts reset."
+reloaded: "<prefix><gray>Reloaded config.yml, messages.yml and recipes.yml."
+help: "<prefix><gray>/infuses, /controls, /lspark, /rspark, /ldrain, /rdrain, /swap"
+help-gui: "<prefix><gray>/infuse gui"
+help-admin: "<prefix><gray>/infuse give <player> <effect> [augmented], /infuse crafts, /infuse resetcrafts [effect], /infuse reload, /cleareffects <player>, /cooldown <player>"
+gui-title: "<gradient:#d11fd1:#7f3cff><caps>Infuse Effects</caps></gradient>"
+
+# ---------------------------------------------------------------- items
+item-passive-header: "<caps>Passive</caps>"
+item-spark-header: "<caps>Spark</caps>"
+item-line: "<dark_gray> • </dark_gray><gray><text></gray>"
+item-footer: "<dark_gray><caps>Drink to equip</caps>"

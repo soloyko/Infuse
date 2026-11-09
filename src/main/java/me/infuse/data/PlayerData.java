@@ -48,7 +48,7 @@ public final class PlayerData {
     /** True if an equipped effect grants this effect's passive (Apophis grants Fire, Emerald and Heart). */
     public boolean hasPassive(EffectType type) {
         for (Equipped e : slots) {
-            if (e != null && e.type().grants().contains(type)) return true;
+            if (e != null && e.type().enabled() && type.enabled() && e.type().grants().contains(type)) return true;
         }
         return false;
     }

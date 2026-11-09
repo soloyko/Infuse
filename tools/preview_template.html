@@ -21,6 +21,7 @@
   h2 { font-size: 20px; margin: 48px 0 6px; letter-spacing: 1px; }
   h2 small { color: var(--muted); font-size: 13px; font-weight: normal; margin-left: 8px; }
   p.lead { color: var(--muted); margin: 6px 0 0; }
+  h1, h3, h4, .toast, .bossbar .name, .chatlog, .chat, .sc { font-family: "Noto Sans", "DejaVu Sans", "Segoe UI Symbol", "Segoe UI", system-ui, sans-serif; }
   .px { image-rendering: pixelated; image-rendering: crisp-edges; }
   .panel { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line);
     border-radius: 10px; padding: 18px; }
@@ -53,7 +54,7 @@
   .toast { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); text-align: center; pointer-events: none;
     opacity: 0; transition: opacity .25s; text-shadow: 3px 3px 0 rgba(0,0,0,.45); }
   .toast.show { opacity: 1; }
-  .toast .t { font-size: 34px; font-weight: bold; }
+  .toast .t { font-size: 34px; font-weight: bold; text-shadow: none; filter: drop-shadow(3px 3px 0 rgba(0,0,0,.45)); }
   .toast .st { font-size: 15px; color: #ddd; }
   .chatlog { position: absolute; left: 10px; bottom: 150px; width: 52%; font-size: 12.5px; pointer-events: none; }
   .chatlog div { background: rgba(0,0,0,.45); padding: 1px 6px; margin-top: 1px; animation: fadeout 9s forwards; text-shadow: 1px 1px 0 #000; }
@@ -81,7 +82,7 @@
     background: var(--c); opacity: .12; filter: blur(30px); }
   .card .head { display: flex; gap: 12px; align-items: center; }
   .card .icons { display: flex; gap: 6px; --s: 2; }
-  .card h3 { margin: 0; font-size: 18px; color: var(--c); text-shadow: 0 0 18px var(--c); }
+  .card h3 { margin: 0; font-size: 19px; filter: drop-shadow(0 0 10px var(--c)); }
   .card .meta { color: var(--muted); font-size: 12px; }
   .card h4 { margin: 12px 0 4px; font-size: 12px; letter-spacing: 1.5px; color: var(--c); }
   .card ul { margin: 0; padding-left: 0; list-style: none; }
@@ -129,7 +130,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>INFUSE</h1>
+  <h1>ɪɴꜰᴜꜱᴇ</h1>
   <p class="lead">Visual preview of the plugin with your resource pack: action-bar HUD, every effect, rituals and the Apophis blind screen. Everything below uses the real pack textures.</p>
 
   <h2>HUD simulator <small>what players see above the hotbar</small></h2>
@@ -217,7 +218,17 @@ function setHit(el, effectIndex, col, scale) {
   el.style.width = 12 * scale + "px";
   el.style.height = 24 * scale + "px";
 }
-function name(e, aug) { return (aug ? "Augmented " : "") + e.name + " Effect"; }
+const SMALL = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
+function caps(t) { return t.replace(/[a-z]/gi, c => SMALL["abcdefghijklmnopqrstuvwxyz".indexOf(c.toLowerCase())]); }
+function lighten(hex, k = 0.55) {
+  const n = parseInt(hex.slice(1), 16), ch = [16, 8, 0].map(sh => (n >> sh) & 255).map(v => Math.round(v + (255 - v) * k));
+  return "#" + ch.map(v => v.toString(16).padStart(2, "0")).join("");
+}
+function grad(text, color, bold) {
+  return `<span style="background:linear-gradient(90deg,${color},${lighten(color)});-webkit-background-clip:text;background-clip:text;color:transparent;${bold ? "font-weight:bold;" : ""}">${text}</span>`;
+}
+function name(e, aug) { return caps((aug ? "Augmented " : "") + e.name + " Effect"); }
+function nameHtml(e, aug) { return grad(name(e, aug), e.color, aug); }
 function pretty(item) { return item ? item.toLowerCase().replace(/_/g, " ").replace(/ armor trim smithing template/, " trim").replace(/ smithing template/, " template") : ""; }
 
 /* ---------- effect cards ---------- */
@@ -234,10 +245,10 @@ effects.forEach((e, i) => {
   card.innerHTML = `
     <div class="head">
       <div class="icons"><div class="icon px" data-v="0"></div><div class="icon px" data-v="1"></div><div class="icon px" data-v="3"></div></div>
-      <div><h3>${e.name}</h3><div class="meta">Cooldown ${cd}s · augmented ${cd * mult}s${dur ? ` · active ${dur}s` : ""}</div></div>
+      <div><h3>${grad(caps(e.name), e.color, true)}</h3><div class="meta">Cooldown ${cd}s · augmented ${cd * mult}s${dur ? ` · active ${dur}s` : ""}</div></div>
     </div>
-    <h4>PASSIVE</h4><ul>${e.passives.map(p => `<li>${p}</li>`).join("")}</ul>
-    <h4>SPARK</h4><ul>${e.sparks.map(p => `<li>${p}</li>`).join("")}</ul>
+    <h4>${caps("Passive")}</h4><ul>${e.passives.map(p => `<li>${p}</li>`).join("")}</ul>
+    <h4>${caps("Spark")}</h4><ul>${e.sparks.map(p => `<li>${p}</li>`).join("")}</ul>
     <div class="recipes-label">Recipe${(DATA.recipes[e.id] || []).length > 1 ? "s" : ""}</div>${recipes}`;
   card.querySelectorAll(".icon").forEach(el => {
     const v = +el.dataset.v;
@@ -279,8 +290,7 @@ function durationMs(eff) { return Math.max(1, DATA.durations[eff.e.id] ?? 1) * 1
 
 function toast(t, st, color) {
   const el = document.getElementById("toast");
-  document.getElementById("toastT").textContent = t;
-  document.getElementById("toastT").style.color = color;
+  document.getElementById("toastT").innerHTML = grad(t, color, true);
   document.getElementById("toastS").textContent = st;
   el.classList.add("show");
   clearTimeout(toast._t);
@@ -289,7 +299,7 @@ function toast(t, st, color) {
 function chat(html) {
   const log = document.getElementById("chatlog");
   const d = document.createElement("div");
-  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">Infuse</span> <span style="color:#555">»</span> ${html}`;
+  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">ɪɴꜰᴜꜱᴇ</span> <span style="color:#555">»</span> ${html}`;
   log.appendChild(d);
   while (log.children.length > 6) log.firstChild.remove();
 }
@@ -312,7 +322,7 @@ function spark(i) {
   s.activeEnd = now + durationMs(eff);
   ring(eff.e.color);
   setTimeout(() => ring(eff.e.color), 120);
-  toast(name(eff.e, eff.aug), eff.e.sparks[0], eff.e.color);
+  toast(name(eff.e, eff.aug), caps(eff.e.sparks[0]), eff.e.color);
   if (eff.e.id === "heart" || eff.e.id === "apophis") state.absorption = Math.min(20, state.absorption + 4);
 }
 
@@ -367,7 +377,7 @@ document.getElementById("btnReset").onclick = () => {
 [selL, selR, document.getElementById("augL"), document.getElementById("augR")].forEach((el, idx) => el.addEventListener("change", () => {
   const i = idx % 2, eff = slotEffect(i);
   if (selL.value === selR.value) { const other = i === 0 ? selR : selL; other.value = effects.find(e => e.id !== selL.value).id; }
-  toast(name(eff.e, eff.aug), `Equipped in your ${i === 0 ? "primary" : "secondary"} slot`, eff.e.color);
+  toast(name(eff.e, eff.aug), caps(`Equipped in your ${i === 0 ? "primary" : "secondary"} slot`), eff.e.color);
   ring(eff.e.color);
 }));
 document.addEventListener("keydown", ev => {
@@ -384,7 +394,7 @@ function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.f
 function ritualChat(html) {
   const c = document.getElementById("ritualChat");
   const d = document.createElement("div");
-  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">Infuse</span> <span style="color:#555">»</span> ${html}`;
+  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">ɪɴꜰᴜꜱᴇ</span> <span style="color:#555">»</span> ${html}`;
   c.appendChild(d);
   while (c.children.length > 4) c.firstChild.remove();
 }
@@ -392,14 +402,14 @@ function startRitual() {
   const e = byId[ritualSel.value];
   stage.style.setProperty("--rc", e.color);
   ritual = { e, start: performance.now(), total: 30000 }; // 10 minutes compressed to 30 s
-  ritualChat(`<span style="color:#aaa">A ritual for the </span><b style="color:${e.color}">Augmented ${e.name} Effect</b><span style="color:#aaa"> has begun at </span>120, 64, -340 (world)<span style="color:#aaa">! It completes in </span>10:00<span style="color:#aaa">.</span>`);
+  ritualChat(`<span style="color:#aaa">A ritual for the </span>${nameHtml(e, true)}<span style="color:#aaa"> has begun at </span>120, 64, -340 (world)<span style="color:#aaa">! It completes in </span>10:00<span style="color:#aaa">.</span>`);
 }
 document.getElementById("ritualBtn").onclick = startRitual;
 function ritualFrame(now) {
   if (ritual) {
     const el = now - ritual.start, rem = Math.max(0, ritual.total - el), progress = el / ritual.total;
     const realRem = rem / ritual.total * 600000;
-    document.getElementById("bossName").innerHTML = `<span style="color:#aaa">Ritual: </span><b style="color:${ritual.e.color}">Augmented ${ritual.e.name} Effect</b><span style="color:#aaa"> — ${fmt(realRem)} — 120, 64, -340 (world)</span>`;
+    document.getElementById("bossName").innerHTML = `<span style="color:#aaa">${caps("Ritual")} </span>${nameHtml(ritual.e, true)}<span style="color:#aaa"> — ${fmt(realRem)} — 120, 64, -340 (world)</span>`;
     document.getElementById("bossFill").style.width = (rem / ritual.total * 100) + "%";
     motes.forEach((m, i) => {
       const a = now / 400 + i * Math.PI * 2 / 3;
@@ -412,7 +422,7 @@ function ritualFrame(now) {
       ritual.done = true;
       cd.textContent = "✦";
       stage.animate([{ filter: "brightness(3)" }, { filter: "brightness(1)" }], { duration: 900 });
-      ritualChat(`<span style="color:#aaa">The ritual is complete! The </span><b style="color:${ritual.e.color}">Augmented ${ritual.e.name} Effect</b><span style="color:#aaa"> is waiting at </span>120, 64, -340 (world)<span style="color:#aaa">.</span>`);
+      ritualChat(`<span style="color:#aaa">The ritual is complete! The </span>${nameHtml(ritual.e, true)}<span style="color:#aaa"> is waiting at </span>120, 64, -340 (world)<span style="color:#aaa">.</span>`);
     }
   }
   requestAnimationFrame(ritualFrame);

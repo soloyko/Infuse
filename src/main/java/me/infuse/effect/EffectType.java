@@ -60,9 +60,11 @@ public enum EffectType {
     APOPHIS("Apophis", 0xD11FD1, true,
             List.of("Combine Fire, Emerald and Heart's effects", "Have a custom nametag"),
             List.of("Activate Fire, Emerald and Heart's sparks", "Upon hitting a player blind their screen")),
-    THIEF("Thief", 0xE02424, false,
-            List.of("Hidden from the tablist"),
-            List.of("Vanish from nearby players", "Your icon shows how long your cover lasts"));
+    THIEF("Thief", 0xE02424, true,
+            List.of("Hidden from enemies' tablists", "Every 10 hits steal a random potion effect from your target",
+                    "Mobs lose track of you while you sneak"),
+            List.of("Vanish from enemies for 15 seconds",
+                    "Your first hit from the shadows backstabs for +50% damage and silences their sparks"));
 
     private final String displayName;
     private final int rgb;
@@ -78,7 +80,23 @@ public enum EffectType {
         this.sparks = sparks;
     }
 
-    public String displayName() { return displayName; }
+    private static final java.util.Map<EffectType, String> NAME_OVERRIDES = new java.util.EnumMap<>(EffectType.class);
+    private static final Set<EffectType> DISABLED = EnumSet.noneOf(EffectType.class);
+
+    /** Applies display-name overrides and enabled flags from config (effects.<id>.display-name / enabled). */
+    public static void loadOverrides(org.bukkit.configuration.file.FileConfiguration cfg) {
+        NAME_OVERRIDES.clear();
+        DISABLED.clear();
+        for (EffectType t : values()) {
+            String name = cfg.getString("effects." + t.id() + ".display-name", "");
+            if (name != null && !name.isBlank()) NAME_OVERRIDES.put(t, name);
+            if (!cfg.getBoolean("effects." + t.id() + ".enabled", true)) DISABLED.add(t);
+        }
+    }
+
+    public boolean enabled() { return !DISABLED.contains(this); }
+
+    public String displayName() { return NAME_OVERRIDES.getOrDefault(this, displayName); }
     public int rgb() { return rgb; }
     public TextColor color() { return TextColor.color(rgb); }
     public boolean usesHitTracker() { return usesHitTracker; }

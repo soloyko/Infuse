@@ -47,6 +47,7 @@ public final class RecipeManager {
     private void register(String id, ConfigurationSection sec) {
         EffectType type = EffectType.fromId(sec.getString("effect", id));
         if (type == null) throw new IllegalArgumentException("unknown effect " + sec.getString("effect"));
+        if (!type.enabled() || !sec.getBoolean("enabled", true)) return;
         List<String> shape = sec.getStringList("shape");
         if (shape.isEmpty() || shape.size() > 3) throw new IllegalArgumentException("shape must have 1-3 rows");
         NamespacedKey key = new NamespacedKey(plugin, "recipe_" + id.toLowerCase());

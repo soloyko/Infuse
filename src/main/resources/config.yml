@@ -1,5 +1,17 @@
 # Infuse configuration. Times are in seconds unless stated otherwise.
-prefix: "<gradient:#d11fd1:#7f3cff><bold>Infuse</bold></gradient> <dark_gray>»</dark_gray> "
+# All chat/title/bossbar text lives in messages.yml. Run /infuse reload after editing.
+
+style:
+  # Effect names like "ᴀᴜɢᴍᴇɴᴛᴇᴅ ᴛʜɪᴇꜰ ᴇꜰꜰᴇᴄᴛ"
+  small-caps: true
+  # Effect names fade from the effect's colour to a lighter shade
+  gradients: true
+  gradient-lighten: 0.55
+
+allies:
+  # team = players on the same scoreboard team are allies (for Heart/Invisibility/Thief etc.)
+  # none = everyone else is an enemy
+  mode: team
 
 resource-pack:
   # Direct download link to InfusePack.zip (e.g. a GitHub release asset). Leave empty to not send a pack.
@@ -16,28 +28,44 @@ brewing:
 crafting:
   # Effects can only be crafted from a brewing stand's crafting table (only when replace-with-crafting is on).
   require-brewing-stand: true
-  # Total crafts allowed per effect: the 1st is augmented (starts a ritual), the rest are regular.
+  # Total crafts allowed per effect (-1 = unlimited).
   max-crafts: 4
+  # How many of the first crafts are augmented. Each augmented craft starts a ritual.
+  augmented-crafts: 1
+  # Per-effect overrides, e.g.  ender: 2   or   thief: -1
+  per-effect-max: {}
+  per-effect-augmented: {}
   broadcast-coordinates: true
 
 ritual:
   duration-seconds: 600
+  # Per-effect overrides, e.g.  apophis: 900
+  per-effect-seconds: {}
   bossbar: true
+
+sparks:
+  # Worlds where sparks can't be used (passives still work), e.g. [world_nether, spawn]
+  disabled-worlds: []
 
 controls:
   # New players start with Offhand controls (F = primary spark, Sneak + F = secondary spark).
   default-offhand: true
 
 death:
-  # Primary drops if equipped, otherwise secondary.
   drop-effect: true
+  # primary-first (primary drops, or secondary if there is no primary), secondary-first, random, both, none
+  drop-mode: primary-first
+  # Only drop effects when killed by another player
+  only-when-killed-by-player: false
 
 hud:
   enabled: true
   update-ticks: 4
-  # Spaces between the icons in the action bar.
+  # Spaces used for <gap> below.
   spacing: 2
   hit-tracker: true
+  # Action bar layout (MiniMessage). Placeholders: <left> <right> <hits> <gap>
+  format: "<left><gap><hits><gap><right>"
 
 # Spark cooldowns for regular effects. Augmented effects use cooldown x augmented-multiplier.
 cooldowns:
@@ -72,6 +100,10 @@ durations:
   apophis: 15
   thief: 15
 
+# Every effect also accepts:
+#   enabled: false                 -> can't be crafted, equipped or used
+#   display-name: "Rogue"           -> rename it everywhere
+#   extra-potions: ["NIGHT_VISION:0"] -> extra potion effects (NAME:amplifier) while equipped
 effects:
   emerald:
     looting-level: 5
@@ -133,6 +165,10 @@ effects:
     chain-targets: 3
     chain-radius: 6
     chain-damage: 4
+  thief:
+    backstab-bonus-percent: 50
+    silence-seconds: 8
+    steal-max-seconds: 30
   apophis:
     nametag-prefix: "<dark_purple>☠ </dark_purple>"
     blind-ticks: 60

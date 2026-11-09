@@ -1,6 +1,8 @@
 package me.infuse.effect;
 
 import me.infuse.InfusePlugin;
+import me.infuse.util.Msg;
+import me.infuse.util.Style;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -36,15 +38,13 @@ public final class ItemFactory {
         meta.displayName(name(type, augmented));
 
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Passive:", type.color()).decoration(TextDecoration.ITALIC, false)
-                .decorate(TextDecoration.BOLD));
+        lore.add(Style.colored(plainCaps("item-passive-header"), type.rgb()).decorate(TextDecoration.BOLD));
         for (String line : type.passives()) lore.add(line(line));
         lore.add(Component.empty());
-        lore.add(Component.text("Spark:", type.color()).decoration(TextDecoration.ITALIC, false)
-                .decorate(TextDecoration.BOLD));
+        lore.add(Style.colored(plainCaps("item-spark-header"), type.rgb()).decorate(TextDecoration.BOLD));
         for (String line : type.sparks()) lore.add(line(line));
         lore.add(Component.empty());
-        lore.add(Component.text("Drink to equip", NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.add(Msg.get("item-footer").decoration(TextDecoration.ITALIC, false));
         meta.lore(lore);
 
         meta.setEnchantmentGlintOverride(augmented);
@@ -62,14 +62,16 @@ public final class ItemFactory {
     }
 
     public static Component name(EffectType type, boolean augmented) {
-        Component c = Component.text((augmented ? "Augmented " : "") + type.displayName() + " Effect", type.color())
-                .decoration(TextDecoration.ITALIC, false);
-        return augmented ? c.decorate(TextDecoration.BOLD) : c;
+        return Style.effectName(type, augmented);
+    }
+
+    /** A header like "ᴘᴀꜱꜱɪᴠᴇ" taken from messages.yml as plain text (so it can be recoloured). */
+    private static String plainCaps(String key) {
+        return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(Msg.get(key));
     }
 
     private static Component line(String text) {
-        return Component.text(" • ", NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text(text, NamedTextColor.GRAY));
+        return Msg.get("item-line", Msg.text("text", text)).decoration(TextDecoration.ITALIC, false);
     }
 
     /** Returns the effect stored on an item, or null if it isn't an effect bottle. */

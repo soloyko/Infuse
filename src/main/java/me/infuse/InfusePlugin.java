@@ -26,11 +26,12 @@ public final class InfusePlugin extends JavaPlugin {
     private RecipeManager recipes;
     private RitualManager rituals;
     private InfuseGui gui;
+    private CraftingListener crafting;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        Msg.setPrefix(getConfig().getString("prefix"));
+        loadSettings();
         me.infuse.util.Fx.init(this);
         Status status = new Status();
         data = new DataManager(this);
@@ -48,7 +49,8 @@ public final class InfusePlugin extends JavaPlugin {
         var pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerListener(this), this);
         pm.registerEvents(new CombatListener(this, status), this);
-        pm.registerEvents(new CraftingListener(this), this);
+        crafting = new CraftingListener(this);
+        pm.registerEvents(crafting, this);
         pm.registerEvents(gui, this);
 
         Commands commands = new Commands(this);
@@ -73,8 +75,18 @@ public final class InfusePlugin extends JavaPlugin {
 
     public void reload() {
         reloadConfig();
-        Msg.setPrefix(getConfig().getString("prefix"));
+        loadSettings();
         recipes.load();
+        for (Player p : Bukkit.getOnlinePlayers()) effects.refresh(p);
+    }
+
+    private void loadSettings() {
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+        Msg.load(this);
+        me.infuse.util.Style.load(getConfig());
+        me.infuse.effect.EffectType.loadOverrides(getConfig());
+        me.infuse.util.Util.loadAllies(getConfig());
     }
 
     public DataManager data() { return data; }
@@ -84,4 +96,5 @@ public final class InfusePlugin extends JavaPlugin {
     public RecipeManager recipes() { return recipes; }
     public RitualManager rituals() { return rituals; }
     public InfuseGui gui() { return gui; }
+    public CraftingListener crafting() { return crafting; }
 }

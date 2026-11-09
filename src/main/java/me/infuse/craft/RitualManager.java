@@ -71,7 +71,8 @@ public final class RitualManager {
     }
 
     public void begin(EffectType type, Location location) {
-        long total = plugin.getConfig().getLong("ritual.duration-seconds", 600) * 1000L;
+        long total = plugin.getConfig().getLong("ritual.per-effect-seconds." + type.id(),
+                plugin.getConfig().getLong("ritual.duration-seconds", 600)) * 1000L;
         Location loc = location.getBlock().getLocation();
         Ritual r = new Ritual(type, loc, System.currentTimeMillis() + total, total);
         rituals.add(r);
@@ -80,9 +81,8 @@ public final class RitualManager {
             for (Player p : Bukkit.getOnlinePlayers()) p.showBossBar(r.bar);
         }
         save();
-        Msg.broadcast("<gray>A ritual for the </gray><" + Msg.hex(type.rgb()) + "><bold>Augmented " + type.displayName()
-                + " Effect</bold></" + Msg.hex(type.rgb()) + "><gray> has begun at </gray><white>" + Util.coords(loc)
-                + "</white><gray>! It completes in </gray><white>" + Util.time(total) + "</white><gray>.</gray>");
+        Msg.broadcast("ritual-start", Msg.comp("effect", ItemFactory.name(type, true)),
+                Msg.text("coords", Util.coords(loc)), Msg.text("time", Util.time(total)));
         loc.getWorld().playSound(loc, Sound.BLOCK_END_PORTAL_SPAWN, 2f, 1.2f);
     }
 
@@ -110,9 +110,8 @@ public final class RitualManager {
 
     private void updateBar(Ritual r) {
         long rem = Math.max(0, r.end - System.currentTimeMillis());
-        r.bar.name(Component.text("Ritual: ", NamedTextColor.GRAY)
-                .append(ItemFactory.name(r.type, true))
-                .append(Component.text(" — " + Util.time(rem) + " — " + Util.coords(r.location), NamedTextColor.GRAY)));
+        r.bar.name(Msg.get("ritual-bossbar", Msg.comp("effect", ItemFactory.name(r.type, true)),
+                Msg.text("time", Util.time(rem)), Msg.text("coords", Util.coords(r.location))));
         r.bar.progress(Math.max(0f, Math.min(1f, rem / (float) r.total)));
     }
 
@@ -189,12 +188,12 @@ public final class RitualManager {
         w.playSound(drop, Sound.UI_TOAST_CHALLENGE_COMPLETE, 2f, 1f);
         for (Player p : w.getPlayers()) {
             if (p.getLocation().distanceSquared(drop) > 64 * 64) continue;
-            p.showTitle(Title.title(ItemFactory.name(r.type, true), Component.text("The ritual is complete", NamedTextColor.GRAY),
+            var eff = Msg.comp("effect", ItemFactory.name(r.type, true));
+            p.showTitle(Title.title(Msg.get("ritual-complete-title", eff), Msg.get("ritual-complete-subtitle", eff),
                     Title.Times.times(Duration.ofMillis(200), Duration.ofMillis(2500), Duration.ofMillis(800))));
         }
-        Msg.broadcast("<gray>The ritual is complete! The </gray><" + Msg.hex(r.type.rgb()) + "><bold>Augmented "
-                + r.type.displayName() + " Effect</bold></" + Msg.hex(r.type.rgb()) + "><gray> is waiting at </gray><white>"
-                + Util.coords(r.location) + "</white><gray>.</gray>");
+        Msg.broadcast("ritual-complete", Msg.comp("effect", ItemFactory.name(r.type, true)),
+                Msg.text("coords", Util.coords(r.location)));
     }
 
     private void hideBar(Ritual r) {

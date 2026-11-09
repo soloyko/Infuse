@@ -55,6 +55,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -170,6 +171,30 @@ public final class CombatListener implements Listener {
             });
         }
 
+        // Thief: attacking from the shadows backstabs and ends the vanish
+        if (d.isSparkActive(EffectType.THIEF) && !sweep) {
+            dmg *= 1 + cfg().getDouble("effects.thief.backstab-bonus-percent", 50) / 100.0;
+            long silence = (long) (cfg().getDouble("effects.thief.silence-seconds", 8) * 1000);
+            d.setSparkActive(EffectType.THIEF, 0);
+            for (int slot = 0; slot < 2; slot++) {
+                if (d.get(slot) != null && d.get(slot).type() == EffectType.THIEF) d.setSlotActive(slot, 0);
+            }
+            String time = Util.time(silence);
+            String targetName = victim instanceof Player vp ? vp.getName() : victim.getName();
+            if (victim instanceof Player vp && silence > 0) {
+                status.silence(vp, silence);
+                Msg.send(vp, "thief-backstabbed", Msg.text("target", attacker.getName()), Msg.text("time", time));
+            }
+            Msg.send(attacker, "thief-backstab", Msg.text("target", targetName), Msg.text("time", time));
+            victim.getWorld().spawnParticle(Particle.DUST, victim.getLocation().add(0, 1.2, 0), 40, 0.3, 0.5, 0.3, 0,
+                    me.infuse.util.Fx.dust(EffectType.THIEF.rgb(), 1.6f));
+            victim.getWorld().spawnParticle(Particle.SWEEP_ATTACK, victim.getLocation().add(0, 1, 0), 3, 0.3, 0.3, 0.3, 0);
+            victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 0.6f);
+            victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_TRIDENT_HIT, 1f, 0.6f);
+            me.infuse.util.Fx.vanish(attacker, false);
+            Bukkit.getScheduler().runTask(plugin, () -> plugin.effects().syncThieves());
+        }
+
         // Every-10-hits passives
         if (!sweep) {
             d.setHits(d.hits() + 1);
@@ -191,13 +216,38 @@ public final class CombatListener implements Listener {
                 w.setVelocity(new Vector(0, -1, 0));
             });
         }
+        if (d.hasPassive(EffectType.THIEF)) steal(attacker, victim);
         if (d.hasPassive(EffectType.HEART)) {
             String name = victim instanceof Player vp ? vp.getName() : victim.getName();
-            Msg.send(attacker, "<#ff3d7a>❤</#ff3d7a> <white>" + Msg.esc(name) + "</white> <gray>has</gray> <#ff3d7a>"
-                    + String.format("%.1f", victim.getHealth()) + "</#ff3d7a><gray>/" + String.format("%.0f", Util.maxHealth(victim))
-                    + " health" + (victim.getAbsorptionAmount() > 0
-                    ? " <gold>+" + String.format("%.1f", victim.getAbsorptionAmount()) + "</gold>" : "") + "</gray>");
+            double abs = victim.getAbsorptionAmount();
+            Msg.send(attacker, "heart-health", Msg.text("target", name),
+                    Msg.text("health", String.format("%.1f", victim.getHealth())),
+                    Msg.text("max", String.format("%.0f", Util.maxHealth(victim))),
+                    Msg.comp("absorption", abs > 0
+                            ? Msg.get("heart-absorption", Msg.text("amount", String.format("%.1f", abs)))
+                            : Component.empty()));
         }
+    }
+
+    /** Thief: take one random (non-passive) potion effect from the target. */
+    private void steal(Player thief, LivingEntity victim) {
+        List<PotionEffect> stealable = new ArrayList<>();
+        for (PotionEffect pe : victim.getActivePotionEffects()) {
+            if (!pe.isAmbient()) stealable.add(pe);
+        }
+        if (stealable.isEmpty()) return;
+        PotionEffect pe = stealable.get(ThreadLocalRandom.current().nextInt(stealable.size()));
+        victim.removePotionEffect(pe.getType());
+        int maxTicks = cfg().getInt("effects.thief.steal-max-seconds", 30) * 20;
+        int ticks = pe.isInfinite() ? maxTicks : Math.min(pe.getDuration(), maxTicks);
+        thief.addPotionEffect(new PotionEffect(pe.getType(), ticks, pe.getAmplifier(), false, true, true));
+        String potion = pe.getType().getKey().getKey().replace('_', ' ');
+        Msg.send(thief, "thief-steal", Msg.text("potion", potion),
+                Msg.text("target", victim instanceof Player vp ? vp.getName() : victim.getName()));
+        if (victim instanceof Player vp) Msg.send(vp, "thief-stolen", Msg.text("potion", potion), Msg.text("target", thief.getName()));
+        victim.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, victim.getLocation().add(0, 1, 0), 25, 0.3, 0.5, 0.3, 0,
+                me.infuse.util.Fx.fade(EffectType.THIEF.rgb(), 0xFFD700, 1.3f));
+        thief.playSound(thief.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1f, 0.6f);
     }
 
     private void ranged(EntityDamageByEntityEvent e, Projectile proj, Player shooter, LivingEntity victim) {
@@ -359,7 +409,7 @@ public final class CombatListener implements Listener {
         if (item.getType() == Material.WIND_CHARGE && status.isFrozen(p)
                 && (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)) {
             e.setCancelled(true);
-            Msg.send(p, "<aqua>You're frozen and can't use wind charges!");
+            Msg.send(p, "frozen-wind-charge");
             return;
         }
         if (item.getType() == Material.DRAGON_BREATH && data(p).hasPassive(EffectType.ENDER)
@@ -377,7 +427,10 @@ public final class CombatListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onTarget(EntityTargetLivingEntityEvent e) {
-        if (e.getTarget() instanceof Player p && e.getEntity() instanceof Mob && data(p).hasPassive(EffectType.INVISIBILITY)) {
+        if (!(e.getTarget() instanceof Player p) || !(e.getEntity() instanceof Mob)) return;
+        PlayerData d = data(p);
+        if (d.hasPassive(EffectType.INVISIBILITY)
+                || (d.hasPassive(EffectType.THIEF) && (p.isSneaking() || d.isSparkActive(EffectType.THIEF)))) {
             e.setCancelled(true);
         }
     }

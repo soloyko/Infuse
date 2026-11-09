@@ -12,6 +12,13 @@ public final class Status {
     private final Map<UUID, Long> cursed = new ConcurrentHashMap<>();
     private final Map<UUID, Long> jumpDebuff = new ConcurrentHashMap<>();
     private final Map<UUID, Long> noFall = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> silenced = new ConcurrentHashMap<>();
+
+    public void silence(Entity e, long millis) { extend(silenced, e, millis); }
+    public long silencedRemaining(Entity e) {
+        Long until = silenced.get(e.getUniqueId());
+        return until == null ? 0 : Math.max(0, until - System.currentTimeMillis());
+    }
 
     public void freeze(Entity e, long millis) { extend(frozen, e, millis); }
     public boolean isFrozen(Entity e) { return active(frozen, e); }
@@ -45,5 +52,6 @@ public final class Status {
         frozen.values().removeIf(t -> t <= now);
         cursed.values().removeIf(t -> t <= now);
         noFall.values().removeIf(t -> t <= now);
+        silenced.values().removeIf(t -> t <= now);
     }
 }

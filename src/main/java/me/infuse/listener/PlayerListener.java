@@ -77,50 +77,60 @@ public final class PlayerListener implements Listener {
         Equipped eq = plugin.items().read(e.getItem());
         if (eq == null) return;
         Player p = e.getPlayer();
+        if (!eq.type().enabled()) {
+            e.setCancelled(true);
+            Msg.send(p, "effect-disabled", Msg.comp("effect", ItemFactory.name(eq.type(), eq.augmented())));
+            return;
+        }
         EffectManager.EquipResult result = plugin.effects().equip(p, eq);
         switch (result) {
             case DUPLICATE -> {
                 e.setCancelled(true);
-                Msg.send(p, "<red>You already have the " + eq.type().displayName() + " effect equipped.");
+                Msg.send(p, "equip-duplicate", Msg.comp("effect", ItemFactory.name(eq.type(), eq.augmented())));
             }
             case FULL -> {
                 e.setCancelled(true);
-                Msg.send(p, "<red>Both of your slots are full. Use <white>/ldrain</white> or <white>/rdrain</white> first.");
+                Msg.send(p, "equip-full");
             }
             case PRIMARY, SECONDARY -> {
-                p.sendMessage(Msg.parse(prefixed("<gray>Equipped </gray>"))
-                        .append(ItemFactory.name(eq.type(), eq.augmented()))
-                        .append(Msg.parse("<gray> in your " + (result == EffectManager.EquipResult.PRIMARY ? "primary" : "secondary")
-                                + " slot.</gray>")));
-                me.infuse.util.Fx.equip(p, eq, result == EffectManager.EquipResult.PRIMARY);
+                boolean primary = result == EffectManager.EquipResult.PRIMARY;
+                Msg.send(p, "equipped", Msg.comp("effect", ItemFactory.name(eq.type(), eq.augmented())),
+                        Msg.comp("slot", Msg.get(primary ? "slot-primary" : "slot-secondary")));
+                me.infuse.util.Fx.equip(p, eq, primary);
                 e.setReplacement(ItemStack.empty());
             }
         }
     }
 
-    private String prefixed(String s) {
-        return plugin.getConfig().getString("prefix", "") + s;
-    }
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onDeath(PlayerDeathEvent e) {
-        if (!plugin.getConfig().getBoolean("death.drop-effect", true)) return;
         Player p = e.getEntity();
+        String mode = plugin.getConfig().getString("death.drop-mode", "primary-first").toLowerCase();
+        if (!plugin.getConfig().getBoolean("death.drop-effect", true) || mode.equals("none")) return;
+        if (plugin.getConfig().getBoolean("death.only-when-killed-by-player", false) && p.getKiller() == null) return;
         PlayerData d = plugin.data().get(p);
-        // Primary drops if equipped; otherwise the secondary drops.
-        int slot = d.get(PlayerData.PRIMARY) != null ? PlayerData.PRIMARY
-                : d.get(PlayerData.SECONDARY) != null ? PlayerData.SECONDARY : -1;
-        if (slot < 0) return;
-        Equipped lost = plugin.effects().unequip(p, slot);
-        if (lost == null) return;
-        ItemStack bottle = plugin.items().create(lost.type(), lost.augmented());
-        if (e.getKeepInventory()) {
-            p.getWorld().dropItemNaturally(p.getLocation(), bottle);
-        } else {
-            e.getDrops().add(bottle);
+        boolean hasP = d.get(PlayerData.PRIMARY) != null, hasS = d.get(PlayerData.SECONDARY) != null;
+        if (!hasP && !hasS) return;
+        java.util.List<Integer> slots = new java.util.ArrayList<>();
+        switch (mode) {
+            case "both" -> {
+                if (hasP) slots.add(PlayerData.PRIMARY);
+                if (hasS) slots.add(PlayerData.SECONDARY);
+            }
+            case "secondary-first" -> slots.add(hasS ? PlayerData.SECONDARY : PlayerData.PRIMARY);
+            case "random" -> slots.add(hasP && hasS
+                    ? java.util.concurrent.ThreadLocalRandom.current().nextInt(2) : hasP ? PlayerData.PRIMARY : PlayerData.SECONDARY);
+            default -> slots.add(hasP ? PlayerData.PRIMARY : PlayerData.SECONDARY); // primary-first
+        }
+        for (int slot : slots) {
+            Equipped lost = plugin.effects().unequip(p, slot);
+            if (lost == null) continue;
+            ItemStack bottle = plugin.items().create(lost.type(), lost.augmented());
+            if (e.getKeepInventory()) p.getWorld().dropItemNaturally(p.getLocation(), bottle);
+            else e.getDrops().add(bottle);
+            me.infuse.util.Fx.effectLost(p.getLocation(), lost.type());
         }
         d.clearSparks();
-        me.infuse.util.Fx.effectLost(p.getLocation(), lost.type());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

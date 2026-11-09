@@ -55,14 +55,29 @@ public final class SparkManager {
         PlayerData d = plugin.data().get(p);
         Equipped e = d.get(slot);
         if (e == null) {
-            Msg.send(p, "<red>You don't have an effect in your " + (slot == 0 ? "primary" : "secondary") + " slot.");
+            Msg.send(p, "spark-empty-slot", Msg.comp("slot", Msg.get(slot == 0 ? "slot-primary" : "slot-secondary")));
+            return;
+        }
+        var name = me.infuse.effect.ItemFactory.name(e.type(), e.augmented());
+        if (!e.type().enabled()) {
+            Msg.send(p, "effect-disabled", Msg.comp("effect", name));
+            return;
+        }
+        if (cfg().getStringList("sparks.disabled-worlds").contains(p.getWorld().getName())) {
+            me.infuse.util.Fx.sparkFail(p);
+            Msg.send(p, "spark-disabled-world");
+            return;
+        }
+        long silenced = status.silencedRemaining(p);
+        if (silenced > 0) {
+            me.infuse.util.Fx.sparkFail(p);
+            Msg.send(p, "spark-silenced", Msg.text("time", Util.time(silenced)));
             return;
         }
         long rem = d.cooldownRemaining(slot);
         if (rem > 0) {
             me.infuse.util.Fx.sparkFail(p);
-            Msg.send(p, "<red>Your " + e.type().displayName() + " spark is on cooldown for <white>"
-                    + Util.time(rem) + "</white>.");
+            Msg.send(p, "spark-cooldown", Msg.comp("effect", name), Msg.text("time", Util.time(rem)));
             return;
         }
         if (!activate(p, d, e.type())) {
@@ -121,13 +136,15 @@ public final class SparkManager {
             case INVISIBILITY -> invisibilityRing(p, dur);
             case OCEAN -> whirlhole(p, dur);
             case THIEF -> {
-                d.setSparkActive(type, now + dur);
+                long until = now + dur;
+                d.setSparkActive(type, until);
                 me.infuse.util.Fx.vanish(p, true);
-                Msg.send(p, "<#e02424>You vanish into the shadows.");
+                Msg.send(p, "thief-vanish");
                 Bukkit.getScheduler().runTask(plugin, () -> plugin.effects().syncThieves());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (p.isOnline() && !d.isSparkActive(EffectType.THIEF) && d.hasPassive(EffectType.THIEF)) {
-                        Msg.send(p, "<#e02424>Your cover is blown!");
+                    // Only if the vanish ran out on its own (a backstab ends it early with its own message)
+                    if (p.isOnline() && d.sparkActiveUntil(EffectType.THIEF) == until) {
+                        Msg.send(p, "thief-cover-blown");
                         me.infuse.util.Fx.vanish(p, false);
                     }
                 }, dur / 50 + 2);
@@ -188,7 +205,7 @@ public final class SparkManager {
                 : eye.clone().add(dir.clone().multiply(range));
         Location safe = findSafe(target);
         if (safe == null) {
-            Msg.send(p, "<red>There's nowhere safe to teleport there.");
+            Msg.send(p, "ender-no-safe-spot");
             return false;
         }
         safe.setYaw(p.getLocation().getYaw());

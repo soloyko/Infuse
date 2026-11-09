@@ -189,6 +189,22 @@ public final class EffectManager {
         if (d.hasPassive(EffectType.FROST) && onIceOrSnow(p)) speed = Math.max(speed, 2);
         if (speed >= 0) want.put(PotionEffectType.SPEED, speed);
 
+        // Extra potions from config: effects.<id>.extra-potions: ["STRENGTH:0", "night_vision:0"]
+        java.util.Set<PotionEffectType> managed = new java.util.HashSet<>(MANAGED);
+        for (EffectType t : EffectType.values()) {
+            for (String entry : cfg().getStringList("effects." + t.id() + ".extra-potions")) {
+                String[] parts = entry.split(":");
+                PotionEffectType pt = org.bukkit.Registry.EFFECT.get(
+                        NamespacedKey.minecraft(parts[0].trim().toLowerCase(java.util.Locale.ROOT)));
+                if (pt == null) continue;
+                managed.add(pt);
+                if (!d.hasPassive(t)) continue;
+                int amp = 0;
+                try { if (parts.length > 1) amp = Integer.parseInt(parts[1].trim()); } catch (NumberFormatException ignored) { }
+                want.merge(pt, amp, Math::max);
+            }
+        }
+
         for (Map.Entry<PotionEffectType, Integer> e : want.entrySet()) {
             PotionEffect existing = p.getPotionEffect(e.getKey());
             if (existing != null && !existing.isAmbient() && existing.getAmplifier() >= e.getValue()) continue;
@@ -197,7 +213,7 @@ public final class EffectManager {
             }
             p.addPotionEffect(new PotionEffect(e.getKey(), 70, e.getValue(), true, false, true));
         }
-        for (PotionEffectType type : MANAGED) {
+        for (PotionEffectType type : managed) {
             if (want.containsKey(type)) continue;
             PotionEffect existing = p.getPotionEffect(type);
             if (existing != null && existing.isAmbient() && existing.getDuration() <= 100) p.removePotionEffect(type);
@@ -342,10 +358,12 @@ public final class EffectManager {
                 if (since < 150) col = 10;
                 else if (since < 600) col = 11 + (int) ((since - 150) / 150);
                 else col = Math.min(9, d.hits());
-                middle = gap.append(Glyphs.hitComponent(tracker, col));
+                middle = Glyphs.hitComponent(tracker, col);
             }
         }
-        p.sendActionBar(left.append(middle).append(gap).append(right));
+        Component hits = middle;
+        p.sendActionBar(Msg.parse(cfg().getString("hud.format", "<left><gap><hits><gap><right>"),
+                Msg.comp("left", left), Msg.comp("right", right), Msg.comp("hits", hits), Msg.comp("gap", gap)));
     }
 
     private Component slotGlyph(PlayerData d, int slot) {

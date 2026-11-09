@@ -22,6 +22,19 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
 - Augmented effects have half the spark cooldown (`cooldowns.augmented-multiplier`).
 - On death: the primary drops if equipped, otherwise the secondary.
 
+## Customising
+
+- **`messages.yml`**: every chat message, title, boss bar and item line (MiniMessage). Use `<caps>text</caps>` for small caps; set a message to `""` to hide it.
+- **`config.yml`**:
+  - `style`: small-caps and gradient effect names
+  - `allies.mode`: `team` or `none`
+  - per-effect `enabled`, `display-name` and `extra-potions`
+  - `death.drop-mode`: `primary-first`, `secondary-first`, `random`, `both`, `none`
+  - per-effect craft limits, augmented craft counts and ritual lengths
+  - `sparks.disabled-worlds`
+  - `hud.format`
+- **`recipes.yml`**: every recipe; add `enabled: false` to turn one off.
+
 ## Crafting
 
 - Right-clicking a brewing stand opens a crafting table (`brewing.replace-with-crafting: false` restores brewing).

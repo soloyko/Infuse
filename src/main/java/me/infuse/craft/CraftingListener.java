@@ -43,8 +43,21 @@ public final class CraftingListener implements Listener {
         return replaceBrewing() && plugin.getConfig().getBoolean("crafting.require-brewing-stand", true);
     }
 
-    private int maxCrafts() {
-        return plugin.getConfig().getInt("crafting.max-crafts", 4);
+    /** Total crafts allowed for an effect (crafting.per-effect-max overrides crafting.max-crafts; -1 = unlimited). */
+    public int maxCrafts(EffectType type) {
+        return plugin.getConfig().getInt("crafting.per-effect-max." + type.id(),
+                plugin.getConfig().getInt("crafting.max-crafts", 4));
+    }
+
+    /** How many of the first crafts are augmented (each one starts a ritual). */
+    public int augmentedCrafts(EffectType type) {
+        return plugin.getConfig().getInt("crafting.per-effect-augmented." + type.id(),
+                plugin.getConfig().getInt("crafting.augmented-crafts", 1));
+    }
+
+    private boolean limitReached(EffectType type, int count) {
+        int max = maxCrafts(type);
+        return max >= 0 && count >= max;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -82,11 +95,11 @@ public final class CraftingListener implements Listener {
             return;
         }
         int count = plugin.data().craftCount(type);
-        if (count >= maxCrafts()) {
+        if (!type.enabled() || limitReached(type, count)) {
             inv.setResult(null);
             return;
         }
-        inv.setResult(plugin.items().create(type, count == 0));
+        inv.setResult(plugin.items().create(type, count < augmentedCrafts(type)));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -97,8 +110,8 @@ public final class CraftingListener implements Listener {
         if (!(e.getWhoClicked() instanceof Player p)) return;
         if (requireStand() && !openStands.containsKey(p.getUniqueId())) return;
         int count = plugin.data().craftCount(type);
-        if (count >= maxCrafts()) {
-            Msg.send(p, "<red>The " + type.displayName() + " effect can't be crafted anymore.");
+        if (!type.enabled() || limitReached(type, count)) {
+            Msg.send(p, "craft-limit", Msg.comp("effect", me.infuse.effect.ItemFactory.name(type, false)));
             return;
         }
         CraftingInventory inv = e.getInventory();
@@ -109,7 +122,7 @@ public final class CraftingListener implements Listener {
         Location where = openStands.getOrDefault(p.getUniqueId(),
                 inv.getLocation() != null ? inv.getLocation() : p.getLocation());
         me.infuse.util.Fx.crafted(where, type);
-        if (count == 0) {
+        if (count < augmentedCrafts(type)) {
             p.closeInventory();
             plugin.rituals().begin(type, where);
         } else {
@@ -118,10 +131,11 @@ public final class CraftingListener implements Listener {
                 p.getWorld().dropItemNaturally(p.getLocation(), left);
             }
             if (plugin.getConfig().getBoolean("crafting.broadcast-coordinates", true)) {
-                Msg.broadcast("<white>" + Msg.esc(p.getName()) + "</white><gray> crafted the </gray><"
-                        + Msg.hex(type.rgb()) + ">" + type.displayName() + " Effect</" + Msg.hex(type.rgb())
-                        + "><gray> at </gray><white>" + Util.coords(where) + "</white><gray>. ("
-                        + (count + 1) + "/" + maxCrafts() + ")</gray>");
+                int max = maxCrafts(type);
+                Msg.broadcast("craft-broadcast", Msg.text("player", p.getName()),
+                        Msg.comp("effect", me.infuse.effect.ItemFactory.name(type, false)),
+                        Msg.text("coords", Util.coords(where)), Msg.text("count", count + 1),
+                        Msg.text("max", max < 0 ? "∞" : String.valueOf(max)));
             }
         }
         Bukkit.getScheduler().runTask(plugin, p::updateInventory);

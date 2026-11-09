@@ -32,7 +32,7 @@ public final class InfuseGui implements Listener {
 
     public void open(Player p) {
         Holder holder = new Holder();
-        Inventory inv = Bukkit.createInventory(holder, 36, Component.text("Infuse Effects"));
+        Inventory inv = Bukkit.createInventory(holder, 36, me.infuse.util.Msg.get("gui-title"));
         holder.inventory = inv;
         EffectType[] types = EffectType.values();
         for (int i = 0; i < types.length; i++) {
