@@ -65,7 +65,7 @@ public final class RecipeManager {
             }
             recipe.setIngredient(symbol.charAt(0), new RecipeChoice.MaterialChoice(mats));
         }
-        Bukkit.addRecipe(recipe);
+        Bukkit.addRecipe(recipe, true);
         recipes.put(key, type);
     }
 
@@ -76,7 +76,7 @@ public final class RecipeManager {
     }
 
     public void unregister() {
-        for (NamespacedKey key : recipes.keySet()) Bukkit.removeRecipe(key);
+        for (NamespacedKey key : recipes.keySet()) Bukkit.removeRecipe(key, true);
         recipes.clear();
     }
 

@@ -65,6 +65,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         plugin.data().unload(e.getPlayer().getUniqueId());
+        plugin.effects().forget(e.getPlayer().getUniqueId());
     }
 
     @EventHandler

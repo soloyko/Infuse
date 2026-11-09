@@ -149,6 +149,26 @@ public final class Commands implements TabExecutor {
                 }
                 Msg.send(sender, "gave", Msg.text("player", t.getName()), Msg.comp("effect", ItemFactory.name(type, aug)));
             }
+            case "info" -> {
+                if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
+                Player t = target(sender, args, 1);
+                if (t == null) return;
+                PlayerData d = plugin.data().get(t);
+                Msg.send(sender, "info-header", Msg.text("player", t.getName()));
+                for (int slot = 0; slot < 2; slot++) {
+                    Equipped e = d.get(slot);
+                    var slotName = Msg.get(slot == 0 ? "slot-primary" : "slot-secondary");
+                    if (e == null) {
+                        Msg.send(sender, "info-slot-empty", Msg.comp("slot", slotName));
+                        continue;
+                    }
+                    long rem = d.cooldownRemaining(slot);
+                    Msg.send(sender, rem > 0 ? "info-slot-cooldown" : "info-slot-ready", Msg.comp("slot", slotName),
+                            Msg.comp("effect", ItemFactory.name(e.type(), e.augmented())),
+                            Msg.text("time", me.infuse.util.Util.time(rem)));
+                }
+                Msg.send(sender, "info-controls", Msg.text("controls", d.offhandControls() ? "Offhand" : "Command Keys"));
+            }
             case "crafts" -> {
                 if (!sender.hasPermission("infuse.admin")) { Msg.send(sender, "no-permission"); return; }
                 for (EffectType t : EffectType.values()) {
@@ -191,7 +211,7 @@ public final class Commands implements TabExecutor {
         if (!name.equals("infuse")) return List.of();
         if (args.length == 1) {
             List<String> subs = new ArrayList<>(List.of("gui"));
-            if (sender.hasPermission("infuse.admin")) subs.addAll(List.of("give", "crafts", "resetcrafts", "reload"));
+            if (sender.hasPermission("infuse.admin")) subs.addAll(List.of("give", "info", "crafts", "resetcrafts", "reload"));
             return filter(subs, args[0]);
         }
         if (args[0].equalsIgnoreCase("give")) {
@@ -200,6 +220,7 @@ public final class Commands implements TabExecutor {
             if (args.length == 4) return filter(List.of("true", "false"), args[3]);
         }
         if (args[0].equalsIgnoreCase("resetcrafts") && args.length == 2) return filter(effectIds(), args[1]);
+        if (args[0].equalsIgnoreCase("info") && args.length == 2) return players(args[1]);
         return List.of();
     }
 

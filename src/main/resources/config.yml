@@ -56,6 +56,8 @@ ritual:
   # Per-effect overrides, e.g.  apophis: 900
   per-effect-seconds: {}
   bossbar: true
+  # Spinning augmented bottle and countdown floating above the brewing stand
+  hologram: true
 
 sparks:
   # Worlds where sparks can't be used (passives still work), e.g. [world_nether, spawn]

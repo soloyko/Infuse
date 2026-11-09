@@ -8,6 +8,8 @@ A Paper **1.21.11** plugin for an Infuse-style SMP: craftable effects with passi
 gradle build
 ```
 
+`gradle test` checks the HUD glyphs against the resource pack fonts and validates recipes, messages and config.
+
 Outputs:
 - `build/libs/Infuse-1.0.0.jar` – the plugin (drop into `plugins/`)
 - `build/InfusePack.zip` – the resource pack (from `/resourcepack`, MIT, by TurboJax)
@@ -55,6 +57,7 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
 | `/cleareffects <player>` | Clear a player's effects (`infuse.admin`) |
 | `/cooldown <player>` | Reset a player's cooldowns (`infuse.admin`) |
 | `/infuse give <player> <effect> [augmented]` | Give an effect bottle (`infuse.admin`) |
+| `/infuse info <player>` | Show a player's effects and cooldowns (`infuse.admin`) |
 | `/infuse crafts`, `/infuse resetcrafts [effect]` | View / reset craft counts (`infuse.admin`) |
 | `/infuse reload` | Reload `config.yml` and `recipes.yml` (`infuse.admin`) |
 

@@ -40,6 +40,8 @@ public final class RitualManager {
         final long end;
         final long total;
         final BossBar bar;
+        org.bukkit.entity.ItemDisplay bottle;
+        org.bukkit.entity.TextDisplay label;
 
         Ritual(EffectType type, Location location, long end, long total) {
             this.type = type;
@@ -62,7 +64,10 @@ public final class RitualManager {
     public void stop() {
         if (task != null) task.cancel();
         save();
-        for (Ritual r : rituals) hideBar(r);
+        for (Ritual r : rituals) {
+            hideBar(r);
+            removeDisplays(r);
+        }
         rituals.clear();
     }
 
@@ -105,6 +110,7 @@ public final class RitualManager {
             }
             if (ticks % 2 == 0) updateBar(r);
             particles(r);
+            displays(r);
         }
     }
 
@@ -170,6 +176,7 @@ public final class RitualManager {
 
     private void finish(Ritual r) {
         hideBar(r);
+        removeDisplays(r);
         World w = r.location.getWorld();
         if (w == null) return;
         Location drop = r.location.clone().add(0.5, 1.2, 0.5);
@@ -194,6 +201,50 @@ public final class RitualManager {
         }
         Msg.broadcast("ritual-complete", Msg.comp("effect", ItemFactory.name(r.type, true)),
                 Msg.text("coords", Util.coords(r.location)));
+    }
+
+    /** Floating, spinning augmented bottle with a live name + countdown above the ritual. */
+    private void displays(Ritual r) {
+        if (!plugin.getConfig().getBoolean("ritual.hologram", true)) return;
+        World w = r.location.getWorld();
+        if (w == null || !w.isChunkLoaded(r.location.getBlockX() >> 4, r.location.getBlockZ() >> 4)) return;
+        Location top = r.location.clone().add(0.5, 2.0, 0.5);
+        if (r.bottle == null || !r.bottle.isValid()) {
+            r.bottle = w.spawn(top, org.bukkit.entity.ItemDisplay.class, d -> {
+                d.setItemStack(plugin.items().create(r.type, true));
+                d.setPersistent(false);
+                d.setGlowing(true);
+                d.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+                d.setInterpolationDuration(10);
+                d.setTeleportDuration(10);
+            });
+        }
+        if (r.label == null || !r.label.isValid()) {
+            r.label = w.spawn(top.clone().add(0, 0.85, 0), org.bukkit.entity.TextDisplay.class, d -> {
+                d.setPersistent(false);
+                d.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+                d.setBackgroundColor(org.bukkit.Color.fromARGB(90, 10, 5, 20));
+                d.setShadowed(true);
+                d.setAlignment(org.bukkit.entity.TextDisplay.TextAlignment.CENTER);
+            });
+        }
+        // Spin and bob the bottle (interpolated client-side between updates)
+        float angle = (float) (ticks * 0.6 % (Math.PI * 2));
+        double bob = Math.sin(ticks * 0.35) * 0.12;
+        r.bottle.setInterpolationDelay(0);
+        r.bottle.setTransformation(new org.bukkit.util.Transformation(
+                new org.joml.Vector3f(0, (float) bob, 0), new org.joml.AxisAngle4f(angle, 0, 1, 0),
+                new org.joml.Vector3f(0.9f, 0.9f, 0.9f), new org.joml.AxisAngle4f()));
+        long rem = Math.max(0, r.end - System.currentTimeMillis());
+        r.label.text(Msg.get("ritual-hologram", Msg.comp("effect", ItemFactory.name(r.type, true)),
+                Msg.text("time", Util.time(rem))));
+    }
+
+    private void removeDisplays(Ritual r) {
+        if (r.bottle != null) r.bottle.remove();
+        if (r.label != null) r.label.remove();
+        r.bottle = null;
+        r.label = null;
     }
 
     private void hideBar(Ritual r) {

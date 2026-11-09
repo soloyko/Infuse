@@ -49,6 +49,8 @@ public final class EffectManager {
     public final NamespacedKey frostJump;
     private BukkitTask tickTask;
     private final Set<UUID> vanishedFrom = new HashSet<>();
+    /** viewer -> targets this plugin unlisted from that viewer's tablist (so we only re-list our own). */
+    private final Map<UUID, Set<UUID>> unlistedBy = new HashMap<>();
     private long tick;
 
     public EffectManager(InfusePlugin plugin, Status status) {
@@ -68,12 +70,21 @@ public final class EffectManager {
     public void stop() {
         if (tickTask != null) tickTask.cancel();
         for (Player viewer : Bukkit.getOnlinePlayers()) {
+            Set<UUID> ours = unlistedBy.getOrDefault(viewer.getUniqueId(), Set.of());
             for (Player target : Bukkit.getOnlinePlayers()) {
-                if (!viewer.isListed(target)) viewer.listPlayer(target);
+                if (ours.contains(target.getUniqueId()) && !viewer.isListed(target)) viewer.listPlayer(target);
                 if (vanishedFrom.contains(target.getUniqueId())) viewer.showEntity(plugin, target);
             }
         }
         vanishedFrom.clear();
+        unlistedBy.clear();
+    }
+
+    /** Forget tablist state for a player who left (they get a fresh tablist on rejoin). */
+    public void forget(UUID id) {
+        unlistedBy.remove(id);
+        unlistedBy.values().forEach(set -> set.remove(id));
+        vanishedFrom.remove(id);
     }
 
     /**
@@ -89,9 +100,12 @@ public final class EffectManager {
             for (Player viewer : online) {
                 if (viewer.equals(target)) continue;
                 boolean enemy = !Util.isAlly(viewer, target);
-                boolean listed = viewer.isListed(target);
-                if (thief && enemy && listed) viewer.unlistPlayer(target);
-                else if ((!thief || !enemy) && !listed) viewer.listPlayer(target);
+                Set<UUID> ours = unlistedBy.computeIfAbsent(viewer.getUniqueId(), k -> new HashSet<>());
+                if (thief && enemy) {
+                    if (viewer.isListed(target) && viewer.unlistPlayer(target)) ours.add(target.getUniqueId());
+                } else if (ours.remove(target.getUniqueId()) && !viewer.isListed(target)) {
+                    viewer.listPlayer(target);
+                }
                 if (vanish && enemy) viewer.hideEntity(plugin, target);
                 else if (vanishedFrom.contains(target.getUniqueId())) viewer.showEntity(plugin, target);
             }

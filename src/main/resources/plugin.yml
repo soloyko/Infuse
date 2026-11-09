@@ -28,7 +28,7 @@ commands:
     permission: infuse.admin
   infuse:
     description: Infuse menu and admin commands.
-    usage: /infuse <gui|give|crafts|resetcrafts|reload>
+    usage: /infuse <gui|give|info|crafts|resetcrafts|reload>
 permissions:
   infuse.admin:
     description: Admin commands (/cleareffects, /cooldown, /infuse give/crafts/resetcrafts/reload).
