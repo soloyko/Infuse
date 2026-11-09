@@ -10,8 +10,6 @@ import java.util.Set;
 /**
  * Every effect, in the same order as the rows of the resource pack's icon sheet
  * (assets/infuse/textures/icons/effects.png and hit_tracker.png).
- * Row 15 of the sheets (the red eye, "Thief") is reserved until its abilities are known;
- * add it after APOPHIS so the row index lines up.
  */
 public enum EffectType {
     EMERALD("Emerald", 0x3EE05A, false,
@@ -61,7 +59,10 @@ public enum EffectType {
             List.of("Strike enemies with lightning and make a thunderstorm")),
     APOPHIS("Apophis", 0xD11FD1, true,
             List.of("Combine Fire, Emerald and Heart's effects", "Have a custom nametag"),
-            List.of("Activate Fire, Emerald and Heart's sparks", "Upon hitting a player blind their screen"));
+            List.of("Activate Fire, Emerald and Heart's sparks", "Upon hitting a player blind their screen")),
+    THIEF("Thief", 0xE02424, false,
+            List.of("Hidden from the tablist"),
+            List.of("Vanish from nearby players", "Your icon shows how long your cover lasts"));
 
     private final String displayName;
     private final int rgb;

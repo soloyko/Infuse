@@ -128,3 +128,13 @@ recipes:
       T: NETHERITE_UPGRADE_SMITHING_TEMPLATE
       N: NETHERITE_INGOT
       S: NETHER_STAR
+  thief:
+    effect: thief
+    shape: ["GEG", "HLH", "RSR"]
+    ingredients:
+      G: GOLDEN_APPLE
+      E: ENDER_EYE
+      H: PLAYER_HEAD
+      L: LEAD
+      R: RABBIT_FOOT
+      S: SCULK_CATALYST

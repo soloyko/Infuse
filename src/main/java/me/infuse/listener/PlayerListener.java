@@ -41,6 +41,7 @@ public final class PlayerListener implements Listener {
                 AttributeModifier.Operation.ADD_SCALAR, false);
         plugin.effects().refresh(p);
         plugin.rituals().showBars(p);
+        plugin.effects().syncThieves();
         sendPack(p);
     }
 

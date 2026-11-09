@@ -27,6 +27,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,7 @@ public final class EffectManager {
     public final NamespacedKey hasteSpark;
     public final NamespacedKey frostJump;
     private BukkitTask tickTask;
+    private final Set<UUID> vanishedFrom = new HashSet<>();
     private long tick;
 
     public EffectManager(InfusePlugin plugin, Status status) {
@@ -64,6 +67,37 @@ public final class EffectManager {
 
     public void stop() {
         if (tickTask != null) tickTask.cancel();
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            for (Player target : Bukkit.getOnlinePlayers()) {
+                if (!viewer.isListed(target)) viewer.listPlayer(target);
+                if (vanishedFrom.contains(target.getUniqueId())) viewer.showEntity(plugin, target);
+            }
+        }
+        vanishedFrom.clear();
+    }
+
+    /**
+     * Thief: holders are unlisted from non-allies' tablists; while the spark is active they are
+     * hidden from non-allies entirely.
+     */
+    public void syncThieves() {
+        var online = Bukkit.getOnlinePlayers();
+        for (Player target : online) {
+            PlayerData td = plugin.data().get(target);
+            boolean thief = td.hasPassive(EffectType.THIEF);
+            boolean vanish = thief && td.isSparkActive(EffectType.THIEF);
+            for (Player viewer : online) {
+                if (viewer.equals(target)) continue;
+                boolean enemy = !Util.isAlly(viewer, target);
+                boolean listed = viewer.isListed(target);
+                if (thief && enemy && listed) viewer.unlistPlayer(target);
+                else if ((!thief || !enemy) && !listed) viewer.listPlayer(target);
+                if (vanish && enemy) viewer.hideEntity(plugin, target);
+                else if (vanishedFrom.contains(target.getUniqueId())) viewer.showEntity(plugin, target);
+            }
+            if (vanish) vanishedFrom.add(target.getUniqueId());
+            else vanishedFrom.remove(target.getUniqueId());
+        }
     }
 
     private FileConfiguration cfg() { return plugin.getConfig(); }
@@ -212,6 +246,7 @@ public final class EffectManager {
                 hud(p, d);
             }
         }
+        if (tick % 10 == 0) syncThieves();
         if (tick % 20 == 0) {
             status.cleanup();
             cleanupJumpDebuffs();
@@ -316,6 +351,12 @@ public final class EffectManager {
         long rem = d.cooldownRemaining(slot);
         long total = d.cooldownTotal(slot);
         int frame = rem > 0 && total > 0 ? (int) Math.ceil(rem * 20.0 / total) : 0;
+        if (e.type() == EffectType.THIEF && d.isSparkActive(EffectType.THIEF)) {
+            // While vanished, the icon darkens as the cover runs out
+            long left = Math.max(0, d.sparkActiveUntil(EffectType.THIEF) - System.currentTimeMillis());
+            long dur = plugin.sparks().durationMillis(EffectType.THIEF);
+            frame = dur > 0 ? (int) Math.floor((1 - left / (double) dur) * 20) : 0;
+        }
         return Glyphs.effectComponent(e.type(), e.augmented(), d.isSlotActive(slot), frame);
     }
 

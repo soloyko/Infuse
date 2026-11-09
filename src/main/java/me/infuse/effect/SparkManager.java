@@ -115,6 +115,18 @@ public final class SparkManager {
             case THUNDER -> thunder(p);
             case INVISIBILITY -> invisibilityRing(p, dur);
             case OCEAN -> whirlhole(p, dur);
+            case THIEF -> {
+                d.setSparkActive(type, now + dur);
+                w.spawnParticle(Particle.LARGE_SMOKE, p.getLocation().add(0, 1, 0), 40, 0.4, 0.8, 0.4, 0.02);
+                w.playSound(p.getLocation(), Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 1f, 0.8f);
+                Msg.send(p, "<#e02424>You vanish into the shadows.");
+                Bukkit.getScheduler().runTask(plugin, () -> plugin.effects().syncThieves());
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (p.isOnline() && !d.isSparkActive(EffectType.THIEF) && d.hasPassive(EffectType.THIEF)) {
+                        Msg.send(p, "<#e02424>Your cover is blown!");
+                    }
+                }, dur / 50 + 2);
+            }
             case APOPHIS -> {
                 fire(p);
                 emerald(p, d, now, durationMillis(EffectType.EMERALD));

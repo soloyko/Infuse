@@ -56,6 +56,7 @@ cooldowns:
   strength: 60
   thunder: 60
   apophis: 60
+  thief: 60
 
 # How long sparks stay active.
 durations:
@@ -69,6 +70,7 @@ durations:
   regeneration: 15
   strength: 15
   apophis: 15
+  thief: 15
 
 effects:
   emerald:

@@ -64,6 +64,11 @@ public final class PlayerData {
         return until != null && until > System.currentTimeMillis();
     }
 
+    public long sparkActiveUntil(EffectType type) {
+        Long until = sparkActiveUntil.get(type);
+        return until == null ? 0 : until;
+    }
+
     public void setSparkActive(EffectType type, long untilMillis) { sparkActiveUntil.put(type, untilMillis); }
     public void clearSparks() { sparkActiveUntil.clear(); }
 

@@ -16,7 +16,7 @@ Host the zip somewhere with a direct download link and set `resource-pack.url` (
 
 ## Effects
 
-Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regeneration, Speed, Strength, Thunder, Apophis. Run `/infuses` in game for what each does.
+Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regeneration, Speed, Strength, Thunder, Apophis, Thief. Run `/infuses` in game for what each does.
 
 - Players have two slots: **primary** (left) and **secondary** (right). Drink an effect bottle to equip it.
 - Augmented effects have half the spark cooldown (`cooldowns.augmented-multiplier`).
