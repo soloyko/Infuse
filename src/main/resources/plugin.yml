@@ -1,0 +1,41 @@
+name: Infuse
+version: '${version}'
+main: me.infuse.InfusePlugin
+api-version: '1.21.11'
+description: Infuse SMP effects - passives, sparks, rituals and custom recipes.
+commands:
+  infuses:
+    description: Shows what every effect does.
+  controls:
+    description: Switch between Offhand and Command Key spark controls.
+  lspark:
+    description: Activate the spark in your primary (left) slot.
+  rspark:
+    description: Activate the spark in your secondary (right) slot.
+  ldrain:
+    description: Turn your primary effect back into a bottle.
+  rdrain:
+    description: Turn your secondary effect back into a bottle.
+  swap:
+    description: Swap your primary and secondary effects.
+  cleareffects:
+    description: Clear a player's effects.
+    usage: /cleareffects <player>
+    permission: infuse.admin
+  cooldown:
+    description: Reset a player's spark cooldowns.
+    usage: /cooldown <player>
+    permission: infuse.admin
+  infuse:
+    description: Infuse menu and admin commands.
+    usage: /infuse <gui|give|crafts|resetcrafts|reload>
+permissions:
+  infuse.admin:
+    description: Admin commands (/cleareffects, /cooldown, /infuse give/crafts/resetcrafts/reload).
+    default: op
+  infuse.gui:
+    description: Open /infuse gui to preview effects.
+    default: op
+  infuse.gui.take:
+    description: Take effects out of /infuse gui.
+    default: op

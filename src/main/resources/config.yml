@@ -1,0 +1,136 @@
+# Infuse configuration. Times are in seconds unless stated otherwise.
+prefix: "<gradient:#d11fd1:#7f3cff><bold>Infuse</bold></gradient> <dark_gray>»</dark_gray> "
+
+resource-pack:
+  # Direct download link to InfusePack.zip (e.g. a GitHub release asset). Leave empty to not send a pack.
+  url: ""
+  # Optional SHA-1 of the zip (40 hex characters) so clients cache it.
+  sha1: ""
+  required: false
+  prompt: "<light_purple>Infuse needs its resource pack to show effect icons."
+
+brewing:
+  # Right-clicking a brewing stand opens a crafting table instead. Set to false to re-enable brewing.
+  replace-with-crafting: true
+
+crafting:
+  # Effects can only be crafted from a brewing stand's crafting table (only when replace-with-crafting is on).
+  require-brewing-stand: true
+  # Total crafts allowed per effect: the 1st is augmented (starts a ritual), the rest are regular.
+  max-crafts: 4
+  broadcast-coordinates: true
+
+ritual:
+  duration-seconds: 600
+  bossbar: true
+
+controls:
+  # New players start with Offhand controls (F = primary spark, Sneak + F = secondary spark).
+  default-offhand: true
+
+death:
+  # Primary drops if equipped, otherwise secondary.
+  drop-effect: true
+
+hud:
+  enabled: true
+  update-ticks: 4
+  # Spaces between the icons in the action bar.
+  spacing: 2
+  hit-tracker: true
+
+# Spark cooldowns for regular effects. Augmented effects use cooldown x augmented-multiplier.
+cooldowns:
+  augmented-multiplier: 0.5
+  emerald: 60
+  ender: 60
+  feather: 60
+  fire: 60
+  frost: 60
+  haste: 60
+  heart: 60
+  invisibility: 60
+  ocean: 60
+  regeneration: 60
+  speed: 60
+  strength: 60
+  thunder: 60
+  apophis: 60
+
+# How long sparks stay active.
+durations:
+  emerald: 30
+  ender: 10
+  feather: 12
+  frost: 15
+  haste: 15
+  invisibility: 10
+  ocean: 6
+  regeneration: 15
+  strength: 15
+  apophis: 15
+
+effects:
+  emerald:
+    looting-level: 5
+    exp-multiplier: 1.5
+    spark-exp-multiplier: 3.0
+    enchant-levels: [10, 20, 30]
+  ender:
+    glow-radius: 16
+    fireball-cooldown-ticks: 30
+    teleport-range: 15
+    curse-seconds: 10
+    kill-bosses: false
+  feather:
+    launch-velocity: 2.2
+    slam-damage: 12
+    wind-charge-speed: 1.6
+    wind-charge-cooldown-ticks: 5
+  fire:
+    spark-radius: 5
+    spark-fire-ticks: 100
+    lava-swim-speed: 0.35
+  frost:
+    jump-reduction: 0.5
+    snow-swim-speed: 0.3
+  haste:
+    fortune-level: 5
+    unbreaking-level: 10
+    spark-attack-speed: 4
+  heart:
+    bonus-health: 10
+    max-absorption: 40
+    food-absorption: 4
+    egap-absorption: 20
+    spark-heal-to: 40
+    spark-heal-radius: 8
+  invisibility:
+    blind-ticks: 100
+    ring-radius: 2.5
+  ocean:
+    drown-radius: 6
+    drown-only-in-water: true
+    air-drain-per-second: 60
+    trident-pull: 1.6
+    whirlhole-range: 20
+    whirlhole-radius: 7
+    whirlhole-pull: 0.35
+  regeneration:
+    saturation-bonus: 3
+    lifesteal-percent: 30
+  speed:
+    max-stacks: 3
+    stack-reset-seconds: 3
+    dash-velocity: 2.2
+  strength:
+    shield-disable-ticks: 200
+  thunder:
+    spark-radius: 10
+    storm-seconds: 60
+    chain-targets: 3
+    chain-radius: 6
+    chain-damage: 4
+  apophis:
+    nametag-prefix: "<dark_purple>☠ </dark_purple>"
+    blind-ticks: 60

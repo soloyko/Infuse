@@ -1,0 +1,130 @@
+# Effect recipes (crafted in the brewing stand's crafting table).
+# shape: up to 3 rows of 3 characters, space = empty slot.
+# ingredients: a material name, or a list of materials (any of them works).
+# Several recipes can give the same effect (see ender / ender_egg).
+recipes:
+  strength:
+    effect: strength
+    shape: ["KTK", "SRA", "KTK"]
+    ingredients:
+      K: WITHER_SKELETON_SKULL
+      T: NETHERITE_UPGRADE_SMITHING_TEMPLATE
+      S: NETHERITE_SWORD
+      A: NETHERITE_AXE
+      R: WITHER_ROSE
+  thunder:
+    effect: thunder
+    shape: ["BHB", "TCT", "BHB"]
+    ingredients:
+      B: BOLT_ARMOR_TRIM_SMITHING_TEMPLATE
+      H: HEAVY_CORE
+      T: TRIDENT
+      C: CREEPER_HEAD
+  haste:
+    effect: haste
+    shape: ["DBD", "GOG", "DPD"]
+    ingredients:
+      D: DIAMOND_BLOCK
+      B: BEACON
+      G: GOLD_BLOCK
+      O: DEEPSLATE_EMERALD_ORE
+      P: NETHERITE_PICKAXE
+  frost:
+    effect: frost
+    shape: ["FLF", "GIG", "FLF"]
+    ingredients:
+      F: FLOW_ARMOR_TRIM_SMITHING_TEMPLATE
+      L: PEARLESCENT_FROGLIGHT
+      G: GOAT_HORN
+      I: BLUE_ICE
+  emerald:
+    effect: emerald
+    shape: ["WTW", "XBX", "CKC"]
+    ingredients:
+      W: WILD_ARMOR_TRIM_SMITHING_TEMPLATE
+      T: TOTEM_OF_UNDYING
+      X: EXPERIENCE_BOTTLE
+      B: EMERALD_BLOCK
+      C: ENDER_CHEST
+      K: OMINOUS_TRIAL_KEY
+  speed:
+    effect: speed
+    shape: ["RHR", "DSE", "RBR"]
+    ingredients:
+      R: RABBIT_FOOT
+      H: RABBIT_HIDE
+      D: DUNE_ARMOR_TRIM_SMITHING_TEMPLATE
+      E: EYE_ARMOR_TRIM_SMITHING_TEMPLATE
+      S: DIAMOND_HORSE_ARMOR
+      B: NETHERITE_BOOTS
+  heart:
+    effect: heart
+    shape: ["PTP", "GBG", "PTP"]
+    ingredients:
+      # Any potion works (potion contents are ignored)
+      P: [POTION, SPLASH_POTION, LINGERING_POTION]
+      T: TOTEM_OF_UNDYING
+      G: ENCHANTED_GOLDEN_APPLE
+      B: BEETROOT
+  regeneration:
+    effect: regeneration
+    shape: ["CHC", "LAL", "CMC"]
+    ingredients:
+      C: END_CRYSTAL
+      H: HONEY_BLOCK
+      L: PEARLESCENT_FROGLIGHT
+      A: AXOLOTL_BUCKET
+      M: GLISTERING_MELON_SLICE
+  feather:
+    effect: feather
+    shape: ["RCR", "FHF", "RCR"]
+    ingredients:
+      R: BREEZE_ROD
+      C: COBWEB
+      F: FEATHER
+      H: HEAVY_CORE
+  invisibility:
+    effect: invisibility
+    shape: ["ECE", "SKS", "ECE"]
+    ingredients:
+      E: ENDER_EYE
+      C: RECOVERY_COMPASS
+      S: ECHO_SHARD
+      K: OMINOUS_TRIAL_KEY
+  fire:
+    effect: fire
+    shape: ["ROR", "NMN", "ROR"]
+    ingredients:
+      R: RIB_ARMOR_TRIM_SMITHING_TEMPLATE
+      O: CRYING_OBSIDIAN
+      N: NETHERITE_INGOT
+      M: FIRE_CHARGE
+  ocean:
+    effect: ocean
+    shape: ["PHP", "TCT", "PHP"]
+    ingredients:
+      P: PRISMARINE_BRICKS
+      H: HEART_OF_THE_SEA
+      T: TRIDENT
+      C: CONDUIT
+  ender:
+    effect: ender
+    shape: ["DSD", "SES", "DSD"]
+    ingredients:
+      D: DRAGON_HEAD
+      S: SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE
+      E: ENDER_EYE
+  ender_egg:
+    effect: ender
+    shape: ["DSD", "SES", "DSD"]
+    ingredients:
+      D: DRAGON_HEAD
+      S: SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE
+      E: DRAGON_EGG
+  apophis:
+    effect: apophis
+    shape: ["TNT", "NSN", "TNT"]
+    ingredients:
+      T: NETHERITE_UPGRADE_SMITHING_TEMPLATE
+      N: NETHERITE_INGOT
+      S: NETHER_STAR
