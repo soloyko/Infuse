@@ -114,6 +114,9 @@ cooldowns:
   thunder: 60
   apophis: 60
   thief: 60
+  weaving: 60
+  oozing: 60
+  resistance: 60
 
 # How long sparks stay active.
 durations:
@@ -128,6 +131,9 @@ durations:
   strength: 15
   apophis: 15
   thief: 15
+  weaving: 3
+  oozing: 8
+  resistance: 5
 
 # Every effect also accepts:
 #   enabled: false                 -> can't be crafted, equipped or used
@@ -198,6 +204,29 @@ effects:
     backstab-bonus-percent: 50
     silence-seconds: 8
     steal-max-seconds: 30
+  weaving:
+    trap-seconds: 3
+    arrow-web-seconds: 3
+    snare-radius: 6
+  oozing:
+    knockback-reduction: 0.15
+    max-bounce: 1.3
+    slime-seconds: 5
+    slime-threshold-hearts: 4
+    slime-cooldown-seconds: 60
+    slime-count: 2
+    slime-size: 2
+    slime-lifetime-seconds: 20
+    jump-boost: 2
+    slam-damage: 8
+    splash-radius: 3
+  resistance:
+    explosion-reduction: 0.3
+    mace-reduction: 0.3
+    absorption-per-proc: 8
+    max-absorption: 16
+    reflect-percent: 30
+    ally-radius: 6
   apophis:
     nametag-prefix: "<dark_purple>☠ </dark_purple>"
     blind-ticks: 60

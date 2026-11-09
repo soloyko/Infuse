@@ -123,6 +123,7 @@ public final class CombatListener implements Listener {
         if (d.featherSlamUntil() > now && !sweep) {
             dmg = Math.max(dmg, cfg().getDouble("effects.feather.slam-damage", 12));
             d.setFeatherSlamUntil(0);
+            plugin.sparks().endEarly(attacker, d, EffectType.FEATHER);
             victim.getWorld().spawnParticle(Particle.EXPLOSION, victim.getLocation(), 2);
             victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1f, 1f);
         }
@@ -177,9 +178,7 @@ public final class CombatListener implements Listener {
             dmg *= 1 + cfg().getDouble("effects.thief.backstab-bonus-percent", 50) / 100.0;
             long silence = (long) (cfg().getDouble("effects.thief.silence-seconds", 8) * 1000);
             d.setSparkActive(EffectType.THIEF, 0);
-            for (int slot = 0; slot < 2; slot++) {
-                if (d.get(slot) != null && d.get(slot).type() == EffectType.THIEF) d.setSlotActive(slot, 0);
-            }
+            plugin.sparks().endEarly(attacker, d, EffectType.THIEF);
             String time = Util.time(silence);
             String targetName = victim instanceof Player vp ? vp.getName() : victim.getName();
             if (victim instanceof Player vp && silence > 0) {

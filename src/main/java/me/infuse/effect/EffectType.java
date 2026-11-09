@@ -64,7 +64,23 @@ public enum EffectType {
             List.of("Hidden from enemies' tablists", "Every 10 hits steal a random potion effect from your target",
                     "Mobs lose track of you while you sneak"),
             List.of("Vanish from enemies for 15 seconds",
-                    "Your first hit from the shadows backstabs for +50% damage and silences their sparks"));
+                    "Your first hit from the shadows backstabs for +50% damage and silences their sparks")),
+    WEAVING("Weaving", 0xC9A27A, true,
+            List.of("Permanent Weaving", "Break cobwebs instantly", "Every 10 hits traps the target in a cobweb for 3s",
+                    "Fully charged arrows leave a cobweb where they land", "Speed II while touching cobwebs"),
+            List.of("Web Snare: enemies within 6 blocks are rooted in webs for 3s",
+                    "Rooted enemies can't use wind charges or ender pearls")),
+    OOZING("Oozing", 0x4FD27A, true,
+            List.of("No fall damage, you bounce instead", "Take 15% less knockback",
+                    "Every 10 hits slimes the target for 5s (slowed, can't sprint)",
+                    "Below 4 hearts, 2 slimes burst out to fight your attacker (60s cooldown)"),
+            List.of("Gelatinous Form for 8s: jump higher and ignore knockback",
+                    "Landing on an enemy deals 4 hearts and splashes nearby enemies")),
+    RESISTANCE("Resistance", 0x7F9FE0, true,
+            List.of("Permanent Resistance I", "Shields recover from being disabled twice as fast",
+                    "30% less damage from explosions and maces", "Every 10 hits you take grants 4 absorption hearts"),
+            List.of("Bulwark for 5s: Resistance IV and no knockback", "Reflect 30% of melee damage",
+                    "Allies within 6 blocks get Resistance II"));
 
     private final String displayName;
     private final int rgb;

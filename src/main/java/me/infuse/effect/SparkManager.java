@@ -50,6 +50,19 @@ public final class SparkManager {
         return (long) (cfg().getDouble("durations." + type.id(), 0) * 1000);
     }
 
+    /** Ends a spark early (Thief backstab, Feather slam landing) so its cooldown starts now. */
+    public void endEarly(Player p, PlayerData d, EffectType type) {
+        long now = System.currentTimeMillis();
+        for (int slot = 0; slot < 2; slot++) {
+            Equipped e = d.get(slot);
+            if (e == null || !e.type().grants().contains(type)) continue;
+            long total = d.cooldownTotal(slot);
+            if (d.cooldownRemaining(slot) > total) d.setCooldownRaw(slot, now + total, total);
+            d.setSlotActive(slot, 0);
+        }
+        plugin.data().save(d);
+    }
+
     /** Uses the spark in a slot (0 = primary/left, 1 = secondary/right). */
     public void use(Player p, int slot) {
         PlayerData d = plugin.data().get(p);
@@ -77,7 +90,12 @@ public final class SparkManager {
         long rem = d.cooldownRemaining(slot);
         if (rem > 0) {
             me.infuse.util.Fx.sparkFail(p);
-            Msg.send(p, "spark-cooldown", Msg.comp("effect", name), Msg.text("time", Util.time(rem)));
+            long activeLeft = rem - d.cooldownTotal(slot);
+            if (activeLeft > 0) {
+                Msg.send(p, "spark-active", Msg.comp("effect", name), Msg.text("time", Util.time(activeLeft)));
+            } else {
+                Msg.send(p, "spark-cooldown", Msg.comp("effect", name), Msg.text("time", Util.time(rem)));
+            }
             return;
         }
         if (!activate(p, d, e.type())) {
@@ -86,9 +104,11 @@ public final class SparkManager {
         }
         me.infuse.util.Fx.spark(p, e.type());
         long now = System.currentTimeMillis();
-        d.setCooldown(slot, (long) (cooldownMillis(e) * plugin.resonance().cooldownMultiplier(d.xp(slot))));
-        plugin.resonance().gain(p, d, slot, plugin.resonance().reward("spark", 20));
         long duration = durationMillis(e.type());
+        long cooldown = (long) (cooldownMillis(e) * plugin.resonance().cooldownMultiplier(d.xp(slot)));
+        // The cooldown only starts once the spark's effect has ended
+        d.setCooldown(slot, cooldown, duration);
+        plugin.resonance().gain(p, d, slot, plugin.resonance().reward("spark", 20));
         d.setSlotActive(slot, now + Math.max(duration, 1000));
         plugin.effects().refresh(p);
         plugin.data().save(d);
@@ -152,6 +172,28 @@ public final class SparkManager {
                     }
                 }, dur / 50 + 2);
             }
+            case WEAVING -> webSnare(p, dur);
+            case OOZING -> {
+                d.setSparkActive(type, now + dur);
+                d.setAirFall(0);
+                w.playSound(p.getLocation(), Sound.BLOCK_SLIME_BLOCK_PLACE, 1f, 0.6f);
+                w.playSound(p.getLocation(), Sound.ENTITY_SLIME_SQUISH, 1f, 0.8f);
+                w.spawnParticle(Particle.ITEM_SLIME, p.getLocation().add(0, 1, 0), 40, 0.4, 0.6, 0.4, 0.1);
+            }
+            case RESISTANCE -> {
+                d.setSparkActive(type, now + dur);
+                int ticks = (int) (dur / 50);
+                Util.potion(p, PotionEffectType.RESISTANCE, 3, ticks, false);
+                double r = cfg().getDouble("effects.resistance.ally-radius", 6);
+                for (Player ally : w.getPlayers()) {
+                    if (ally.equals(p) || !Util.isAlly(p, ally) || ally.getLocation().distanceSquared(p.getLocation()) > r * r) continue;
+                    Util.potion(ally, PotionEffectType.RESISTANCE, 1, ticks, false);
+                    me.infuse.util.Fx.line(p.getLocation().add(0, 1, 0), ally.getLocation().add(0, 1, 0), EffectType.RESISTANCE.rgb(), false);
+                }
+                w.playSound(p.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 0.6f);
+                w.playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.5f, 1.6f);
+                me.infuse.util.Fx.helix(p, EffectType.RESISTANCE.rgb(), (int) Math.min(40, ticks), 1.0);
+            }
             case APOPHIS -> {
                 fire(p);
                 emerald(p, d, now, durationMillis(EffectType.EMERALD));
@@ -164,6 +206,47 @@ public final class SparkManager {
     }
 
     // ------------------------------------------------------------------ individual sparks
+
+    private void webSnare(Player p, long dur) {
+        double r = cfg().getDouble("effects.weaving.snare-radius", 6);
+        World w = p.getWorld();
+        int rooted = 0;
+        for (LivingEntity le : Util.enemiesNear(p, p.getLocation(), r)) {
+            plugin.tempBlocks().place(le.getLocation().getBlock(), org.bukkit.Material.COBWEB, dur);
+            plugin.tempBlocks().place(le.getEyeLocation().getBlock(), org.bukkit.Material.COBWEB, dur);
+            Util.potion(le, PotionEffectType.SLOWNESS, 3, (int) (dur / 50), false);
+            status.root(le, dur);
+            if (le instanceof Player t) Msg.send(t, "weaving-rooted", Msg.text("time", Util.time(dur)));
+            me.infuse.util.Fx.line(p.getLocation().add(0, 1, 0), le.getLocation().add(0, 1, 0), 0xF5F5F0, false);
+            rooted++;
+        }
+        // Web burst rings
+        for (double rr = 1; rr <= r; rr += 1.25) me.infuse.util.Fx.ring(p.getLocation().add(0, 0.2, 0), 0xEDEDE6, rr, (int) (rr * 10), 1.0f);
+        w.spawnParticle(Particle.WHITE_ASH, p.getLocation().add(0, 1, 0), 80, r / 2, 1, r / 2, 0);
+        w.playSound(p.getLocation(), Sound.ENTITY_SPIDER_AMBIENT, 1f, 0.7f);
+        w.playSound(p.getLocation(), Sound.BLOCK_WOOL_PLACE, 1f, 0.6f);
+        if (rooted == 0) w.playSound(p.getLocation(), Sound.ENTITY_SPIDER_STEP, 1f, 1f);
+    }
+
+    /** Gelatinous Form: landing on enemies hits them and splashes slime around. */
+    public void oozingSlam(Player p) {
+        double dmg = cfg().getDouble("effects.oozing.slam-damage", 8);
+        double splash = cfg().getDouble("effects.oozing.splash-radius", 3);
+        World w = p.getWorld();
+        boolean hit = false;
+        for (LivingEntity le : Util.enemiesNear(p, p.getLocation(), splash)) {
+            double dist = le.getLocation().distance(p.getLocation());
+            if (dist <= 1.6) {
+                le.damage(dmg, p);
+                hit = true;
+            }
+            Util.potion(le, PotionEffectType.SLOWNESS, 1, 60, false);
+            status.slime(le, 3000);
+        }
+        w.spawnParticle(Particle.ITEM_SLIME, p.getLocation(), hit ? 60 : 25, splash / 2, 0.2, splash / 2, 0.1);
+        me.infuse.util.Fx.shockwave(p.getLocation(), EffectType.OOZING.rgb(), splash);
+        w.playSound(p.getLocation(), hit ? Sound.ENTITY_SLIME_ATTACK : Sound.BLOCK_SLIME_BLOCK_FALL, 1f, 0.7f);
+    }
 
     private void emerald(Player p, PlayerData d, long now, long dur) {
         d.setSparkActive(EffectType.EMERALD, now + dur);

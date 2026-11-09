@@ -13,6 +13,14 @@ public final class Status {
     private final Map<UUID, Long> jumpDebuff = new ConcurrentHashMap<>();
     private final Map<UUID, Long> noFall = new ConcurrentHashMap<>();
     private final Map<UUID, Long> silenced = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> rooted = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> slimed = new ConcurrentHashMap<>();
+
+    public void root(Entity e, long millis) { extend(rooted, e, millis); }
+    public boolean isRooted(Entity e) { return active(rooted, e); }
+
+    public void slime(Entity e, long millis) { extend(slimed, e, millis); }
+    public boolean isSlimed(Entity e) { return active(slimed, e); }
 
     public void silence(Entity e, long millis) { extend(silenced, e, millis); }
     public long silencedRemaining(Entity e) {
@@ -53,5 +61,7 @@ public final class Status {
         cursed.values().removeIf(t -> t <= now);
         noFall.values().removeIf(t -> t <= now);
         silenced.values().removeIf(t -> t <= now);
+        rooted.values().removeIf(t -> t <= now);
+        slimed.values().removeIf(t -> t <= now);
     }
 }

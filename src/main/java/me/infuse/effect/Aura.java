@@ -85,6 +85,19 @@ final class Aura {
             w.spawnParticle(Particle.CLOUD, feet, 2, 0.25, 0, 0.25, 0.01);
             w.spawnParticle(Particle.DUST, feet, 2, 0.3, 0.1, 0.3, 0, Fx.dust(EffectType.FEATHER.rgb(), 1f));
         }
+        if (d.isSparkActive(EffectType.OOZING)) {
+            w.spawnParticle(Particle.ITEM_SLIME, feet.clone().add(0, 0.2, 0), 3, 0.3, 0.1, 0.3, 0);
+            w.spawnParticle(Particle.DUST, body, 2, 0.35, 0.6, 0.35, 0, Fx.dust(EffectType.OOZING.rgb(), 1.1f));
+        }
+        if (d.isSparkActive(EffectType.RESISTANCE)) {
+            double a = tick * 0.25;
+            for (int i = 0; i < 4; i++) {
+                double ang = a + i * Math.PI / 2;
+                w.spawnParticle(Particle.DUST, feet.clone().add(Math.cos(ang) * 0.9, 1.0, Math.sin(ang) * 0.9),
+                        1, 0, 0.3, 0, 0, Fx.dust(EffectType.RESISTANCE.rgb(), 1.3f));
+            }
+            w.spawnParticle(Particle.ENCHANTED_HIT, body, 1, 0.4, 0.5, 0.4, 0);
+        }
         if (d.isSparkActive(EffectType.THIEF)) {
             // Only the thief sees their own shadow trail
             p.spawnParticle(Particle.SMOKE, feet.clone().add(0, 0.2, 0), 4, 0.25, 0.1, 0.25, 0.01);

@@ -24,6 +24,9 @@ public final class PlayerData {
     // Runtime-only state
     private final Map<EffectType, Long> sparkActiveUntil = new EnumMap<>(EffectType.class);
     private int hits;
+    private int takenHits;
+    private long oozingSlimesAt;
+    private float airFall;
     private long hitProcAt;
     private int speedStacks;
     private long lastHitAt;
@@ -81,8 +84,13 @@ public final class PlayerData {
     public long cooldownRemaining(int slot) { return Math.max(0, cooldownEnd[slot] - System.currentTimeMillis()); }
     public long cooldownTotal(int slot) { return cooldownTotal[slot]; }
     public void setCooldown(int slot, long totalMillis) {
+        setCooldown(slot, totalMillis, 0);
+    }
+
+    /** Starts a cooldown that begins after {@code delayMillis} (the spark's active duration). */
+    public void setCooldown(int slot, long totalMillis, long delayMillis) {
         cooldownTotal[slot] = totalMillis;
-        cooldownEnd[slot] = System.currentTimeMillis() + totalMillis;
+        cooldownEnd[slot] = System.currentTimeMillis() + Math.max(0, delayMillis) + totalMillis;
         readyPinged[slot] = false;
     }
 
@@ -112,6 +120,12 @@ public final class PlayerData {
     public boolean offhandControls() { return offhandControls; }
     public void setOffhandControls(boolean v) { offhandControls = v; }
 
+    public int takenHits() { return takenHits; }
+    public void setTakenHits(int v) { takenHits = v; }
+    public long oozingSlimesAt() { return oozingSlimesAt; }
+    public void setOozingSlimesAt(long t) { oozingSlimesAt = t; }
+    public float airFall() { return airFall; }
+    public void setAirFall(float f) { airFall = f; }
     public int hits() { return hits; }
     public void setHits(int hits) { this.hits = hits; }
     public long hitProcAt() { return hitProcAt; }

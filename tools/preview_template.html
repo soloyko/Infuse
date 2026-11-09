@@ -286,7 +286,7 @@ function cooldownMs(eff) {
   const base = (DATA.cooldowns[eff.e.id] ?? 60) * (eff.aug ? (DATA.cooldowns["augmented-multiplier"] ?? 0.5) : 1);
   return base * 1000 / SPEED;
 }
-function durationMs(eff) { return Math.max(1, DATA.durations[eff.e.id] ?? 1) * 1000 / SPEED; }
+function durationMs(eff) { return (DATA.durations[eff.e.id] ?? 0) * 1000 / SPEED; }
 
 function toast(t, st, color) {
   const el = document.getElementById("toast");
@@ -318,8 +318,8 @@ function spark(i) {
     return;
   }
   s.cdTotal = cooldownMs(eff);
-  s.cdEnd = now + s.cdTotal;
   s.activeEnd = now + durationMs(eff);
+  s.cdEnd = s.activeEnd + s.cdTotal; // cooldown starts when the spark ends
   ring(eff.e.color);
   setTimeout(() => ring(eff.e.color), 120);
   toast(name(eff.e, eff.aug), caps(eff.e.sparks[0]), eff.e.color);
@@ -343,7 +343,7 @@ function render() {
   [0, 1].forEach(i => {
     const s = state.slots[i], eff = slotEffect(i);
     const rem = Math.max(0, s.cdEnd - now);
-    let frame = rem > 0 ? Math.ceil(rem * 20 / s.cdTotal) : 0;
+    let frame = rem > 0 && rem <= s.cdTotal ? Math.ceil(rem * 20 / s.cdTotal) : 0;
     const sinceReady = now - s.cdEnd;
     const flash = s.cdEnd > 0 && sinceReady > 0 && sinceReady < 960 && Math.floor(sinceReady / 240) % 2 === 0;
     const active = now < s.activeEnd || flash;

@@ -28,6 +28,7 @@ public final class InfusePlugin extends JavaPlugin {
     private InfuseGui gui;
     private CraftingListener crafting;
     private me.infuse.effect.Resonance resonance;
+    private me.infuse.util.TempBlocks tempBlocks;
 
     @Override
     public void onEnable() {
@@ -38,6 +39,7 @@ public final class InfusePlugin extends JavaPlugin {
         data = new DataManager(this);
         items = new ItemFactory(this);
         resonance = new me.infuse.effect.Resonance(this);
+        tempBlocks = new me.infuse.util.TempBlocks(this);
         items.setResonance(resonance);
         effects = new EffectManager(this, status);
         sparks = new SparkManager(this, status);
@@ -52,6 +54,7 @@ public final class InfusePlugin extends JavaPlugin {
         var pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerListener(this), this);
         pm.registerEvents(new CombatListener(this, status), this);
+        pm.registerEvents(new me.infuse.listener.NewEffectsListener(this, status), this);
         crafting = new CraftingListener(this);
         pm.registerEvents(crafting, this);
         pm.registerEvents(gui, this);
@@ -71,6 +74,7 @@ public final class InfusePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (effects != null) effects.stop();
+        if (tempBlocks != null) tempBlocks.clearAll();
         if (rituals != null) rituals.stop();
         if (recipes != null) recipes.unregister();
         if (data != null) data.saveAll();
@@ -101,4 +105,5 @@ public final class InfusePlugin extends JavaPlugin {
     public InfuseGui gui() { return gui; }
     public CraftingListener crafting() { return crafting; }
     public me.infuse.effect.Resonance resonance() { return resonance; }
+    public me.infuse.util.TempBlocks tempBlocks() { return tempBlocks; }
 }

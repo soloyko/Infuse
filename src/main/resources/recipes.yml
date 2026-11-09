@@ -138,3 +138,24 @@ recipes:
       L: LEAD
       R: RABBIT_FOOT
       S: SCULK_CATALYST
+  weaving:
+    effect: weaving
+    shape: ["CFC", "FTF", "CFC"]
+    ingredients:
+      C: COBWEB
+      F: FERMENTED_SPIDER_EYE
+      T: SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE
+  oozing:
+    effect: oozing
+    shape: ["SMS", "MHM", "SMS"]
+    ingredients:
+      S: SLIME_BLOCK
+      M: MAGMA_CREAM
+      H: HEAVY_CORE
+  resistance:
+    effect: resistance
+    shape: ["NSN", "SGS", "NSN"]
+    ingredients:
+      N: NETHERITE_INGOT
+      S: SHIELD
+      G: ENCHANTED_GOLDEN_APPLE

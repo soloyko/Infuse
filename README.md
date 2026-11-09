@@ -18,10 +18,11 @@ Host the zip somewhere with a direct download link and set `resource-pack.url` (
 
 ## Effects
 
-Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regeneration, Speed, Strength, Thunder, Apophis, Thief. Run `/infuses` in game for what each does.
+Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regeneration, Speed, Strength, Thunder, Apophis, Thief, Weaving, Oozing, Resistance. Run `/infuses` in game for what each does.
 
 - Players have two slots: **primary** (left) and **secondary** (right). Drink an effect bottle to equip it.
 - Augmented effects have half the spark cooldown (`cooldowns.augmented-multiplier`).
+- A spark's cooldown starts when its effect ends (e.g. Bulwark's 5 seconds), not when it's cast.
 - On death: the primary drops if equipped, otherwise the secondary.
 
 ## Customising

@@ -38,7 +38,8 @@ import java.util.UUID;
 public final class EffectManager {
     private static final List<PotionEffectType> MANAGED = List.of(
             PotionEffectType.LUCK, PotionEffectType.FIRE_RESISTANCE, PotionEffectType.SPEED,
-            PotionEffectType.INVISIBILITY, PotionEffectType.DOLPHINS_GRACE, PotionEffectType.WATER_BREATHING);
+            PotionEffectType.INVISIBILITY, PotionEffectType.DOLPHINS_GRACE, PotionEffectType.WATER_BREATHING,
+            PotionEffectType.WEAVING, PotionEffectType.RESISTANCE, PotionEffectType.JUMP_BOOST);
 
     private final InfusePlugin plugin;
     private final Status status;
@@ -47,6 +48,7 @@ public final class EffectManager {
     public final NamespacedKey hasteMining;
     public final NamespacedKey hasteSpark;
     public final NamespacedKey frostJump;
+    public final NamespacedKey resistanceAbsorption;
     private BukkitTask tickTask;
     private final Set<UUID> vanishedFrom = new HashSet<>();
     /** viewer -> targets this plugin unlisted from that viewer's tablist (so we only re-list our own). */
@@ -61,6 +63,7 @@ public final class EffectManager {
         this.hasteMining = new NamespacedKey(plugin, "haste_mining");
         this.hasteSpark = new NamespacedKey(plugin, "haste_spark");
         this.frostJump = new NamespacedKey(plugin, "frost_jump");
+        this.resistanceAbsorption = new NamespacedKey(plugin, "resistance_absorption");
     }
 
     public void start() {
@@ -182,6 +185,9 @@ public final class EffectManager {
                 AttributeModifier.Operation.ADD_NUMBER, heart);
         Util.modifier(p, Attribute.MAX_ABSORPTION, heartAbsorption, cfg().getDouble("effects.heart.max-absorption", 40),
                 AttributeModifier.Operation.ADD_NUMBER, heart);
+        Util.modifier(p, Attribute.MAX_ABSORPTION, resistanceAbsorption,
+                cfg().getDouble("effects.resistance.max-absorption", 16), AttributeModifier.Operation.ADD_NUMBER,
+                d.hasPassive(EffectType.RESISTANCE));
         double max = Util.maxHealth(p);
         if (p.getHealth() > max) p.setHealth(max);
 
@@ -203,6 +209,12 @@ public final class EffectManager {
         int speed = -1;
         if (d.hasPassive(EffectType.SPEED)) speed = d.speedStacks();
         if (d.hasPassive(EffectType.FROST) && onIceOrSnow(p)) speed = Math.max(speed, 2);
+        if (d.hasPassive(EffectType.WEAVING)) {
+            want.put(PotionEffectType.WEAVING, 0);
+            if (nearCobweb(p)) speed = Math.max(speed, 1);
+        }
+        if (d.hasPassive(EffectType.RESISTANCE)) want.put(PotionEffectType.RESISTANCE, 0);
+        if (d.isSparkActive(EffectType.OOZING)) want.put(PotionEffectType.JUMP_BOOST, cfg().getInt("effects.oozing.jump-boost", 2));
         if (speed >= 0) want.put(PotionEffectType.SPEED, speed);
 
         // Extra potions from config: effects.<id>.extra-potions: ["STRENGTH:0", "night_vision:0"]
@@ -248,6 +260,14 @@ public final class EffectManager {
         }
     }
 
+    private static boolean nearCobweb(Player p) {
+        Block feet = p.getLocation().getBlock();
+        for (int x = -1; x <= 1; x++) for (int y = -1; y <= 1; y++) for (int z = -1; z <= 1; z++) {
+            if (feet.getRelative(x, y, z).getType() == Material.COBWEB) return true;
+        }
+        return false;
+    }
+
     private static boolean onIceOrSnow(Player p) {
         Block feet = p.getLocation().getBlock();
         Block below = feet.getRelative(0, -1, 0);
@@ -291,6 +311,15 @@ public final class EffectManager {
 
     private void movement(Player p, PlayerData d) {
         if (p.getGameMode() == GameMode.SPECTATOR || p.isFlying()) return;
+        if (d.isSparkActive(EffectType.OOZING)) {
+            //noinspection deprecation
+            if (!p.isOnGround()) {
+                d.setAirFall(Math.max(d.airFall(), p.getFallDistance()));
+            } else {
+                if (d.airFall() > 1.2f) plugin.sparks().oozingSlam(p);
+                d.setAirFall(0);
+            }
+        }
         boolean lava = d.hasPassive(EffectType.FIRE) && p.isInLava();
         boolean snow = d.hasPassive(EffectType.FROST) && inPowderSnow(p);
         if (snow) p.setFreezeTicks(0);
@@ -374,7 +403,7 @@ public final class EffectManager {
                 int col;
                 if (since < 150) col = 10;
                 else if (since < 600) col = 11 + (int) ((since - 150) / 150);
-                else col = Math.min(9, d.hits());
+                else col = Math.min(9, tracker == EffectType.RESISTANCE ? d.takenHits() : d.hits());
                 middle = Glyphs.hitComponent(tracker, col);
             }
         }
@@ -388,7 +417,8 @@ public final class EffectManager {
         if (e == null) return Component.empty();
         long rem = d.cooldownRemaining(slot);
         long total = d.cooldownTotal(slot);
-        int frame = rem > 0 && total > 0 ? (int) Math.ceil(rem * 20.0 / total) : 0;
+        // While the spark is still active (cooldown not started yet) the icon stays bright
+        int frame = rem > 0 && total > 0 && rem <= total ? (int) Math.ceil(rem * 20.0 / total) : 0;
         if (e.type() == EffectType.THIEF && d.isSparkActive(EffectType.THIEF)) {
             // While vanished, the icon darkens as the cover runs out
             long left = Math.max(0, d.sparkActiveUntil(EffectType.THIEF) - System.currentTimeMillis());
