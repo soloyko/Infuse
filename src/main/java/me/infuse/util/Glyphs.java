@@ -8,7 +8,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 /**
  * Maps effect state to the font characters defined by the resource pack.
  * <p>
- * effects.json: 60 rows (15 effects x 4 variants: regular, augmented, regular-active, augmented-active)
+ * effects.json: 4 rows per effect (regular, augmented, regular-active, augmented-active); rows 60-71 hold
+ * extra icons (Weaving, Oozing, Resistance) made by tools/make_icons.py, ready for new effects
  * by 21 columns (cooldown frames, 0 = ready, 20 = darkest). Row k, column c is the character
  * {@code ((0xE0 + c) << 8) | low(k)} with {@code low(k) = {0x00,0x80,0x40,0xC0}[k % 4] + k / 4 + 1}.
  * <p>

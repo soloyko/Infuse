@@ -44,7 +44,8 @@ class PackAndConfigTest {
     @Test
     void effectIconGlyphsMatchFont() throws Exception {
         JsonArray rows = chars("effects");
-        assertEquals(EffectType.values().length * 4, rows.size(), "one block of 4 rows per effect");
+        assertTrue(rows.size() >= EffectType.values().length * 4, "one block of 4 rows per effect");
+        assertEquals(0, rows.size() % 4, "rows come in blocks of 4");
         for (EffectType t : EffectType.values()) {
             for (int variant = 0; variant < 4; variant++) {
                 String row = rows.get(t.iconIndex() * 4 + variant).getAsString();
@@ -55,6 +56,23 @@ class PackAndConfigTest {
                 }
             }
         }
+    }
+
+    @Test
+    void reservedIconRowsFollowTheSameCharacterPattern() throws Exception {
+        // Extra icons (Weaving, Oozing, Resistance) sit after the last EffectType row
+        JsonArray rows = chars("effects");
+        int[] sub = {0x00, 0x80, 0x40, 0xC0};
+        for (int k = 0; k < rows.size(); k++) {
+            String row = rows.get(k).getAsString();
+            for (int c = 0; c < Glyphs.FRAMES; c++) {
+                assertEquals((char) (((0xE0 + c) << 8) | (sub[k % 4] + k / 4 + 1)), row.charAt(c), "row " + k + " col " + c);
+            }
+        }
+        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(PACK.resolve("textures/icons/effects.png").toFile());
+        assertEquals(rows.size() * 24, img.getHeight(), "effects.png height matches font rows");
+        java.awt.image.BufferedImage hits = javax.imageio.ImageIO.read(PACK.resolve("textures/icons/hit_tracker.png").toFile());
+        assertEquals(chars("hit_tracker").size() * 24, hits.getHeight(), "hit_tracker.png height matches font rows");
     }
 
     @Test
