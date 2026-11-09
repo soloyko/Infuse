@@ -108,6 +108,7 @@ public final class CraftingListener implements Listener {
 
         Location where = openStands.getOrDefault(p.getUniqueId(),
                 inv.getLocation() != null ? inv.getLocation() : p.getLocation());
+        me.infuse.util.Fx.crafted(where, type);
         if (count == 0) {
             p.closeInventory();
             plugin.rituals().begin(type, where);

@@ -3,7 +3,10 @@ package me.infuse.craft;
 import me.infuse.InfusePlugin;
 import me.infuse.effect.EffectType;
 import me.infuse.effect.ItemFactory;
+import me.infuse.util.Fx;
 import me.infuse.util.Msg;
+import net.kyori.adventure.title.Title;
+import java.time.Duration;
 import me.infuse.util.Util;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -116,15 +119,54 @@ public final class RitualManager {
     private void particles(Ritual r) {
         World w = r.location.getWorld();
         if (w == null || !w.isChunkLoaded(r.location.getBlockX() >> 4, r.location.getBlockZ() >> 4)) return;
-        Location c = r.location.clone().add(0.5, 1.2, 0.5);
-        double a = ticks * 0.4;
-        for (int i = 0; i < 3; i++) {
-            double ang = a + i * Math.PI * 2 / 3;
-            w.spawnParticle(Particle.DUST, c.clone().add(Math.cos(ang) * 1.5, 0, Math.sin(ang) * 1.5), 2, 0.05, 0.3, 0.05,
-                    new Particle.DustOptions(org.bukkit.Color.fromRGB(r.type.rgb()), 1.5f));
+        int rgb = r.type.rgb();
+        int light = Fx.lighten(rgb, 0.6);
+        Location base = r.location.clone().add(0.5, 0.1, 0.5);
+        Location c = base.clone().add(0, 1.1, 0);
+        long rem = r.end - System.currentTimeMillis();
+        double progress = 1 - Math.max(0, rem) / (double) r.total;
+        double t = ticks * 0.25;
+
+        // Rotating double rune circle on the ground
+        Fx.ring(base, rgb, 3.0, 36, 1.1f);
+        for (int i = 0; i < 6; i++) {
+            double a = t + i * Math.PI / 3;
+            w.spawnParticle(Particle.DUST, base.clone().add(Math.cos(a) * 2.2, 0, Math.sin(a) * 2.2), 2, 0.05, 0, 0.05, 0,
+                    Fx.dust(light, 1.4f));
+            w.spawnParticle(Particle.ENCHANT, base.clone().add(Math.cos(-a) * 3.0, 0.3, Math.sin(-a) * 3.0), 3, 0, 0.2, 0, 0.5);
         }
-        w.spawnParticle(Particle.ENCHANT, c, 20, 0.6, 0.6, 0.6, 1);
-        w.spawnParticle(Particle.END_ROD, c.clone().add(0, 1, 0), 2, 0.05, 2, 0.05, 0.01);
+        // Three orbiting motes that rise as the ritual progresses
+        double orbitY = 0.2 + progress * 2.5;
+        for (int i = 0; i < 3; i++) {
+            double a = t * 1.6 + i * Math.PI * 2 / 3;
+            w.spawnParticle(Particle.DUST_COLOR_TRANSITION, base.clone().add(Math.cos(a) * 1.4, orbitY, Math.sin(a) * 1.4),
+                    3, 0.05, 0.05, 0.05, 0, Fx.fade(rgb, light, 1.6f));
+        }
+        // Core
+        w.spawnParticle(Particle.ENCHANT, c, 25, 0.5, 0.5, 0.5, 1.2);
+        w.spawnParticle(Particle.DUST, c, 4, 0.15, 0.15, 0.15, 0, Fx.dust(rgb, 2f));
+        // Beam to the sky, brighter near the end
+        int beam = progress > 0.9 ? 20 : 8;
+        for (int i = 0; i < beam; i++) {
+            w.spawnParticle(Particle.END_ROD, c.clone().add(0, 1 + i * 2.5 + (ticks % 5) * 0.5, 0), 1, 0.02, 0.2, 0.02, 0);
+        }
+        // Heartbeat every 5 seconds, faster in the last minute
+        int beatEvery = rem < 60_000 ? 4 : 10;
+        if (ticks % beatEvery == 0) {
+            w.playSound(c, Sound.BLOCK_BEACON_AMBIENT, 1.5f, 0.6f + (float) progress);
+            Fx.shockwave(base, rgb, 3.5);
+        }
+        // Final countdown for nearby players
+        if (rem <= 10_000 && ticks % 2 == 0) {
+            long s = (rem + 999) / 1000;
+            for (Player p : w.getPlayers()) {
+                if (p.getLocation().distanceSquared(c) > 64 * 64) continue;
+                p.showTitle(Title.title(Component.text(String.valueOf(s), r.type.color()),
+                        ItemFactory.name(r.type, true),
+                        Title.Times.times(Duration.ZERO, Duration.ofMillis(1100), Duration.ZERO)));
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 0.5f + (10 - s) * 0.12f);
+            }
+        }
     }
 
     private void finish(Ritual r) {
@@ -139,7 +181,17 @@ public final class RitualManager {
         item.setInvulnerable(true);
         item.setCanMobPickup(false);
         w.strikeLightningEffect(r.location);
+        Fx.firework(drop.clone().add(0, 1.5, 0), r.type.rgb(), true);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> Fx.firework(drop.clone().add(1.2, 3, 0), r.type.rgb(), false), 6L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> Fx.firework(drop.clone().add(-1.2, 3.5, 0.8), r.type.rgb(), false), 12L);
+        w.spawnParticle(Particle.TOTEM_OF_UNDYING, drop, 120, 0.5, 1.2, 0.5, 0.6);
+        Fx.shockwave(r.location.clone().add(0.5, 0, 0.5), r.type.rgb(), 6);
         w.playSound(drop, Sound.UI_TOAST_CHALLENGE_COMPLETE, 2f, 1f);
+        for (Player p : w.getPlayers()) {
+            if (p.getLocation().distanceSquared(drop) > 64 * 64) continue;
+            p.showTitle(Title.title(ItemFactory.name(r.type, true), Component.text("The ritual is complete", NamedTextColor.GRAY),
+                    Title.Times.times(Duration.ofMillis(200), Duration.ofMillis(2500), Duration.ofMillis(800))));
+        }
         Msg.broadcast("<gray>The ritual is complete! The </gray><" + Msg.hex(r.type.rgb()) + "><bold>Augmented "
                 + r.type.displayName() + " Effect</bold></" + Msg.hex(r.type.rgb()) + "><gray> is waiting at </gray><white>"
                 + Util.coords(r.location) + "</white><gray>.</gray>");

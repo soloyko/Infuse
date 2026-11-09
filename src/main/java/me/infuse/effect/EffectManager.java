@@ -242,6 +242,9 @@ public final class EffectManager {
             if (tick % 20 == 0) {
                 second(p, d);
             }
+            for (int slot = 0; slot < 2; slot++) {
+                if (d.get(slot) != null && d.consumeReady(slot)) me.infuse.util.Fx.sparkReady(p, d.get(slot).type());
+            }
             if (tick % hudEvery == 0 && cfg().getBoolean("hud.enabled", true)) {
                 hud(p, d);
             }

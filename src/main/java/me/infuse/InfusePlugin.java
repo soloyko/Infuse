@@ -31,6 +31,7 @@ public final class InfusePlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         Msg.setPrefix(getConfig().getString("prefix"));
+        me.infuse.util.Fx.init(this);
         Status status = new Status();
         data = new DataManager(this);
         items = new ItemFactory(this);

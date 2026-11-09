@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Infuse — Visual Preview</title>
+<style>
+  :root {
+    --bg: #0e0b14; --panel: #17121f; --panel2: #1f1829; --line: #2e2440; --text: #ece6f5; --muted: #9a8fb0;
+    --accent: #d11fd1; --accent2: #7f3cff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+  body { background:
+      radial-gradient(1200px 600px at 10% -10%, #2a0f3a 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, #1b1046 0%, transparent 60%), var(--bg); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 18px 80px; }
+  h1 { font-size: 44px; margin: 0; letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h2 { font-size: 20px; margin: 48px 0 6px; letter-spacing: 1px; }
+  h2 small { color: var(--muted); font-size: 13px; font-weight: normal; margin-left: 8px; }
+  p.lead { color: var(--muted); margin: 6px 0 0; }
+  .px { image-rendering: pixelated; image-rendering: crisp-edges; }
+  .panel { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px; }
+
+  /* ---------- HUD simulator ---------- */
+  .screen { position: relative; height: 380px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+    background: linear-gradient(180deg, #6fa8ff 0%, #a9d0ff 45%, #7cbf5a 45.2%, #5c9c40 70%, #4a7f33 100%); }
+  .screen::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.35)); pointer-events: none; }
+  .crosshair { position: absolute; left: 50%; top: 42%; width: 18px; height: 18px; transform: translate(-50%,-50%); }
+  .crosshair::before, .crosshair::after { content: ""; position: absolute; background: rgba(255,255,255,.85); }
+  .crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
+  .crosshair::after { top: 8px; left: 0; height: 2px; width: 18px; }
+  .gui { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); width: calc(182px * var(--s)); --s: 2.4; }
+  .hotbar { height: calc(22px * var(--s)); background: rgba(0,0,0,.55); border: calc(1px * var(--s)) solid #8b8b8b;
+    box-shadow: inset 0 0 0 calc(1px * var(--s)) #373737; display: grid; grid-template-columns: repeat(9, 1fr); }
+  .hotbar div { border-right: calc(1px * var(--s)) solid rgba(139,139,139,.6); }
+  .hotbar div.sel { outline: calc(2px * var(--s)) solid #fff; outline-offset: calc(-1px * var(--s)); }
+  .stats { display: flex; justify-content: space-between; margin-bottom: calc(2px * var(--s)); }
+  .hearts, .food { display: flex; gap: calc(-1px * var(--s)); font-size: calc(9px * var(--s)); line-height: 1;
+    text-shadow: 0 0 0 #000, 1px 1px 0 #3a0000; }
+  .hearts span { color: #ff2b2b; }
+  .hearts span.abs { color: #ffd700; }
+  .food span { color: #c7843b; }
+  .xp { height: calc(5px * var(--s)); background: #1d1d1d; border: 1px solid #000; margin-bottom: calc(1px * var(--s)); position: relative; }
+  .xp i { position: absolute; inset: 0; width: 46%; background: linear-gradient(#a6ff5a, #5bc23a); }
+  .actionbar { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(58px * var(--s));
+    display: flex; align-items: flex-end; gap: calc(4px * var(--s)); }
+  .icon { width: calc(24px * var(--s)); height: calc(24px * var(--s)); background-repeat: no-repeat; }
+  .hit { width: calc(12px * var(--s)); height: calc(24px * var(--s)); background-repeat: no-repeat; }
+  .toast { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); text-align: center; pointer-events: none;
+    opacity: 0; transition: opacity .25s; text-shadow: 3px 3px 0 rgba(0,0,0,.45); }
+  .toast.show { opacity: 1; }
+  .toast .t { font-size: 34px; font-weight: bold; }
+  .toast .st { font-size: 15px; color: #ddd; }
+  .chatlog { position: absolute; left: 10px; bottom: 150px; width: 52%; font-size: 12.5px; pointer-events: none; }
+  .chatlog div { background: rgba(0,0,0,.45); padding: 1px 6px; margin-top: 1px; animation: fadeout 9s forwards; text-shadow: 1px 1px 0 #000; }
+  @keyframes fadeout { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+  .ring { position: absolute; left: 50%; top: 60%; width: 20px; height: 20px; border-radius: 50%; border: 3px solid;
+    transform: translate(-50%,-50%) scaleY(.35); pointer-events: none; animation: ring .7s ease-out forwards; }
+  @keyframes ring { from { width: 20px; height: 20px; opacity: 1; } to { width: 420px; height: 420px; opacity: 0; } }
+
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 14px; }
+  .controls label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+  select, button { font: inherit; color: var(--text); background: #241b33; border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; width: 100%; }
+  button { cursor: pointer; background: linear-gradient(180deg, #33244a, #251a37); }
+  button:hover { border-color: var(--accent); }
+  button:active { transform: translateY(1px); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row input { accent-color: var(--accent); }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  kbd { background: #2a2038; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: 12px; }
+
+  /* ---------- Effects ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-top: 14px; }
+  .card { position: relative; background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line);
+    border-radius: 10px; padding: 16px; overflow: hidden; }
+  .card::before { content: ""; position: absolute; inset: -40% -40% auto auto; width: 220px; height: 220px; border-radius: 50%;
+    background: var(--c); opacity: .12; filter: blur(30px); }
+  .card .head { display: flex; gap: 12px; align-items: center; }
+  .card .icons { display: flex; gap: 6px; --s: 2; }
+  .card h3 { margin: 0; font-size: 18px; color: var(--c); text-shadow: 0 0 18px var(--c); }
+  .card .meta { color: var(--muted); font-size: 12px; }
+  .card h4 { margin: 12px 0 4px; font-size: 12px; letter-spacing: 1.5px; color: var(--c); }
+  .card ul { margin: 0; padding-left: 0; list-style: none; }
+  .card li { padding-left: 16px; position: relative; color: #d9d1e6; font-size: 13.5px; }
+  .card li::before { content: "★"; position: absolute; left: 0; color: var(--c); font-size: 11px; top: 2px; }
+  .recipe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 12px; padding: 6px; background: #8b8b8b;
+    border: 2px solid; border-color: #fff #555 #555 #fff; border-radius: 3px; width: 100%; }
+  .recipe div { background: #8b8b8b; box-shadow: inset 2px 2px 0 #373737, inset -2px -2px 0 #fff; height: 46px;
+    font-size: 9.5px; line-height: 1.15; color: #1b1b1b; display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 3px; word-break: break-word; }
+  .recipe div.empty { color: transparent; }
+  .recipes-label { color: var(--muted); font-size: 11px; margin-top: 10px; }
+
+  /* ---------- Ritual ---------- */
+  .bossbar { max-width: 620px; margin: 10px auto 0; text-align: center; }
+  .bossbar .name { font-size: 14px; text-shadow: 2px 2px 0 #000; }
+  .bossbar .bar { height: 10px; margin-top: 4px; background: #3b1a45; border: 1px solid #000; position: relative; }
+  .bossbar .bar i { position: absolute; inset: 0; background: linear-gradient(#e57bff, #b03ccf); width: 100%; transition: width .9s linear; }
+  .ritual-stage { position: relative; height: 260px; margin-top: 14px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 50% 85%, #1a0f22 0%, #07050a 70%); }
+  .stand { position: absolute; left: 50%; bottom: 40px; width: 40px; height: 40px; transform: translateX(-50%);
+    background: linear-gradient(#5b5b5b, #3b3b3b); border-top: 6px solid #f2c94c; border-radius: 3px; }
+  .beam { position: absolute; left: 50%; bottom: 80px; width: 6px; height: 200px; transform: translateX(-50%);
+    background: linear-gradient(to top, var(--rc), transparent); filter: blur(1px); opacity: .85; animation: beam 1.6s ease-in-out infinite; }
+  @keyframes beam { 50% { opacity: .45; width: 10px; } }
+  .runes { position: absolute; left: 50%; bottom: -105px; width: 300px; height: 300px; margin-left: -150px; border-radius: 50%;
+    border: 2px dashed var(--rc); transform: scaleY(.22); animation: spin 8s linear infinite; opacity: .8; }
+  .runes.inner { width: 200px; height: 200px; margin-left: -100px; bottom: -55px; animation-direction: reverse; animation-duration: 5s; border-style: dotted; }
+  @keyframes spin { from { transform: scaleY(.22) rotate(0); } to { transform: scaleY(.22) rotate(360deg); } }
+  .mote { position: absolute; width: 8px; height: 8px; border-radius: 2px; background: var(--rc); box-shadow: 0 0 12px var(--rc); }
+  .countdown { position: absolute; left: 0; right: 0; top: 30px; text-align: center; font-size: 46px; font-weight: bold;
+    color: var(--rc); text-shadow: 3px 3px 0 rgba(0,0,0,.6); }
+
+  /* ---------- Apophis ---------- */
+  .apo { position: relative; aspect-ratio: 16 / 9; max-width: 640px; margin: 14px auto 0; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--line); background: linear-gradient(180deg, #6fa8ff, #a9d0ff 45%, #7cbf5a 45.2%, #4a7f33); cursor: pointer; }
+  .apo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .15s; }
+  .apo.blind img { opacity: 1; }
+  .apo .tap { position: absolute; inset: auto 0 12px 0; text-align: center; color: #fff; text-shadow: 2px 2px 0 #000; font-size: 13px; }
+
+  .chat { font-size: 13.5px; background: rgba(0,0,0,.35); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+  .chat div { padding: 2px 0; }
+  footer { margin-top: 60px; color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>INFUSE</h1>
+  <p class="lead">Visual preview of the plugin with your resource pack: action-bar HUD, every effect, rituals and the Apophis blind screen. Everything below uses the real pack textures.</p>
+
+  <h2>HUD simulator <small>what players see above the hotbar</small></h2>
+  <div class="screen" id="screen">
+    <div class="crosshair"></div>
+    <div class="chatlog" id="chatlog"></div>
+    <div class="toast" id="toast"><div class="t" id="toastT"></div><div class="st" id="toastS"></div></div>
+    <div class="actionbar" id="actionbar" style="--s:2.4">
+      <div class="icon px" id="iconL"></div>
+      <div class="hit px" id="hitT"></div>
+      <div class="icon px" id="iconR"></div>
+    </div>
+    <div class="gui">
+      <div class="stats">
+        <div class="hearts" id="hearts"></div>
+        <div class="food" id="food"></div>
+      </div>
+      <div class="xp"><i></i></div>
+      <div class="hotbar"><div class="sel"></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
+  </div>
+  <div class="controls">
+    <div>
+      <label>Primary slot (left)</label>
+      <select id="selL"></select>
+      <div class="row" style="margin-top:6px"><input type="checkbox" id="augL" checked><label for="augL" style="margin:0">Augmented</label></div>
+    </div>
+    <div>
+      <label>Secondary slot (right)</label>
+      <select id="selR"></select>
+      <div class="row" style="margin-top:6px"><input type="checkbox" id="augR"><label for="augR" style="margin:0">Augmented</label></div>
+    </div>
+    <div>
+      <label>Sparks</label>
+      <div class="row"><button id="btnL">Left spark</button><button id="btnR">Right spark</button></div>
+    </div>
+    <div>
+      <label>Combat</label>
+      <div class="row"><button id="btnHit">Hit something</button><button id="btnReset">Reset</button></div>
+    </div>
+  </div>
+  <p class="hint">Keys: <kbd>F</kbd> left spark · <kbd>Shift</kbd>+<kbd>F</kbd> right spark · <kbd>Space</kbd> hit. Cooldowns are sped up 10x here. The icon glows while a spark is active, then darkens and refills as the cooldown runs. The middle counter tracks the "every 10 hits" passives.</p>
+
+  <h2>Effects <small>regular · augmented · active</small></h2>
+  <div class="grid" id="grid"></div>
+
+  <h2>Rituals <small>the first craft of each effect</small></h2>
+  <div class="panel">
+    <div class="row" style="max-width:420px"><select id="ritualSel"></select><button id="ritualBtn" style="width:auto;white-space:nowrap">Start demo</button></div>
+    <div class="bossbar"><div class="name" id="bossName">Ritual: —</div><div class="bar"><i id="bossFill"></i></div></div>
+    <div class="ritual-stage" id="stage">
+      <div class="runes"></div><div class="runes inner"></div><div class="beam"></div><div class="stand"></div>
+      <div class="countdown" id="countdown"></div>
+    </div>
+    <div class="chat" id="ritualChat"></div>
+  </div>
+
+  <h2>Apophis spark <small>hitting a player blinds their screen</small></h2>
+  <div class="apo" id="apo"><img class="px" alt="Apophis blind overlay" src="__COVER_PNG__"><div class="tap">Tap to get hit</div></div>
+
+  <footer>Resource pack art © TurboJax (MIT). Preview built from the plugin's EffectType, config.yml and recipes.yml.</footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const EFFECTS_PNG = "__EFFECTS_PNG__";
+const HITS_PNG = "__HITS_PNG__";
+const SUB = [0, 1, 2, 3];
+const effects = DATA.effects;
+const byId = Object.fromEntries(effects.map((e, i) => [e.id, {...e, index: i}]));
+
+/* ---------- sprite helpers ---------- */
+function setIcon(el, effectIndex, aug, active, frame, scale) {
+  const k = effectIndex * 4 + (aug ? 1 : 0) + (active ? 2 : 0);
+  const s = 24 * scale;
+  el.style.backgroundImage = `url(${EFFECTS_PNG})`;
+  el.style.backgroundSize = `${504 * scale}px ${1440 * scale}px`;
+  el.style.backgroundPosition = `${-frame * s}px ${-k * s}px`;
+  el.style.width = el.style.height = s + "px";
+}
+function setHit(el, effectIndex, col, scale) {
+  el.style.backgroundImage = `url(${HITS_PNG})`;
+  el.style.backgroundSize = `${168 * scale}px ${360 * scale}px`;
+  el.style.backgroundPosition = `${-col * 12 * scale}px ${-effectIndex * 24 * scale}px`;
+  el.style.width = 12 * scale + "px";
+  el.style.height = 24 * scale + "px";
+}
+function name(e, aug) { return (aug ? "Augmented " : "") + e.name + " Effect"; }
+function pretty(item) { return item ? item.toLowerCase().replace(/_/g, " ").replace(/ armor trim smithing template/, " trim").replace(/ smithing template/, " template") : ""; }
+
+/* ---------- effect cards ---------- */
+const grid = document.getElementById("grid");
+effects.forEach((e, i) => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.setProperty("--c", e.color);
+  const cd = DATA.cooldowns[e.id] ?? 60;
+  const mult = DATA.cooldowns["augmented-multiplier"] ?? 0.5;
+  const dur = DATA.durations[e.id];
+  const recipes = (DATA.recipes[e.id] || []).map(r =>
+    `<div class="recipe">${r.grid.map(x => `<div class="${x ? "" : "empty"}" title="${x || ""}">${pretty(x) || "·"}</div>`).join("")}</div>`).join("");
+  card.innerHTML = `
+    <div class="head">
+      <div class="icons"><div class="icon px" data-v="0"></div><div class="icon px" data-v="1"></div><div class="icon px" data-v="3"></div></div>
+      <div><h3>${e.name}</h3><div class="meta">Cooldown ${cd}s · augmented ${cd * mult}s${dur ? ` · active ${dur}s` : ""}</div></div>
+    </div>
+    <h4>PASSIVE</h4><ul>${e.passives.map(p => `<li>${p}</li>`).join("")}</ul>
+    <h4>SPARK</h4><ul>${e.sparks.map(p => `<li>${p}</li>`).join("")}</ul>
+    <div class="recipes-label">Recipe${(DATA.recipes[e.id] || []).length > 1 ? "s" : ""}</div>${recipes}`;
+  card.querySelectorAll(".icon").forEach(el => {
+    const v = +el.dataset.v;
+    setIcon(el, i, v & 1, v & 2, 0, 2);
+  });
+  grid.appendChild(card);
+});
+// Subtle cooldown shimmer on card icons
+let shimmer = 0;
+setInterval(() => {
+  shimmer = (shimmer + 1) % 42;
+  const f = shimmer < 21 ? shimmer : 41 - shimmer;
+  document.querySelectorAll(".card").forEach((card, i) => {
+    const el = card.querySelector('.icon[data-v="0"]');
+    setIcon(el, i, 0, 0, f, 2);
+  });
+}, 120);
+
+/* ---------- HUD simulator ---------- */
+const selL = document.getElementById("selL"), selR = document.getElementById("selR");
+const ritualSel = document.getElementById("ritualSel");
+for (const sel of [selL, selR, ritualSel]) {
+  effects.forEach(e => sel.add(new Option(e.name, e.id)));
+}
+selL.value = "ender"; selR.value = "fire"; ritualSel.value = "ender";
+
+const SCALE = 2.4, SPEED = 10;
+const state = { slots: [{cdEnd: 0, cdTotal: 1, activeEnd: 0}, {cdEnd: 0, cdTotal: 1, activeEnd: 0}], hits: 0, procAt: 0, absorption: 0 };
+
+function slotEffect(i) {
+  const sel = i === 0 ? selL : selR;
+  return { e: byId[sel.value], aug: document.getElementById(i === 0 ? "augL" : "augR").checked };
+}
+function cooldownMs(eff) {
+  const base = (DATA.cooldowns[eff.e.id] ?? 60) * (eff.aug ? (DATA.cooldowns["augmented-multiplier"] ?? 0.5) : 1);
+  return base * 1000 / SPEED;
+}
+function durationMs(eff) { return Math.max(1, DATA.durations[eff.e.id] ?? 1) * 1000 / SPEED; }
+
+function toast(t, st, color) {
+  const el = document.getElementById("toast");
+  document.getElementById("toastT").textContent = t;
+  document.getElementById("toastT").style.color = color;
+  document.getElementById("toastS").textContent = st;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove("show"), 1600);
+}
+function chat(html) {
+  const log = document.getElementById("chatlog");
+  const d = document.createElement("div");
+  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">Infuse</span> <span style="color:#555">»</span> ${html}`;
+  log.appendChild(d);
+  while (log.children.length > 6) log.firstChild.remove();
+}
+function ring(color) {
+  const r = document.createElement("div");
+  r.className = "ring";
+  r.style.borderColor = color;
+  document.getElementById("screen").appendChild(r);
+  setTimeout(() => r.remove(), 800);
+}
+
+function spark(i) {
+  const s = state.slots[i], eff = slotEffect(i), now = performance.now();
+  if (now < s.cdEnd) {
+    chat(`<span style="color:#ff5555">Your ${eff.e.name} spark is on cooldown for <span style="color:#fff">${Math.ceil((s.cdEnd - now) / 1000 * SPEED)}s</span>.</span>`);
+    return;
+  }
+  s.cdTotal = cooldownMs(eff);
+  s.cdEnd = now + s.cdTotal;
+  s.activeEnd = now + durationMs(eff);
+  ring(eff.e.color);
+  setTimeout(() => ring(eff.e.color), 120);
+  toast(name(eff.e, eff.aug), eff.e.sparks[0], eff.e.color);
+  if (eff.e.id === "heart" || eff.e.id === "apophis") state.absorption = Math.min(20, state.absorption + 4);
+}
+
+function hit() {
+  state.hits++;
+  if (state.hits >= 10) {
+    state.hits = 0;
+    state.procAt = performance.now();
+    const t = [0, 1].map(slotEffect).find(x => x.e.hits);
+    if (t) chat(`<span style="color:${t.e.color}">${t.e.name}</span> <span style="color:#aaa">10th hit triggered!</span>`);
+  }
+  const scr = document.getElementById("screen");
+  scr.animate([{ transform: "translateX(0)" }, { transform: "translateX(-3px)" }, { transform: "translateX(2px)" }, { transform: "translateX(0)" }], { duration: 140 });
+}
+
+function render() {
+  const now = performance.now();
+  [0, 1].forEach(i => {
+    const s = state.slots[i], eff = slotEffect(i);
+    const rem = Math.max(0, s.cdEnd - now);
+    let frame = rem > 0 ? Math.ceil(rem * 20 / s.cdTotal) : 0;
+    const active = now < s.activeEnd;
+    if (eff.e.id === "thief" && active) frame = Math.floor((1 - (s.activeEnd - now) / durationMs(eff)) * 20);
+    setIcon(document.getElementById(i === 0 ? "iconL" : "iconR"), eff.e.index, eff.aug, active, frame, SCALE);
+  });
+  const tracker = [0, 1].map(slotEffect).find(x => x.e.hits);
+  const hitEl = document.getElementById("hitT");
+  if (tracker) {
+    const since = now - state.procAt;
+    const col = since < 150 ? 10 : since < 600 ? 11 + Math.floor((since - 150) / 150) : Math.min(9, state.hits);
+    setHit(hitEl, tracker.e.index, col, SCALE);
+    hitEl.style.display = "";
+  } else hitEl.style.display = "none";
+
+  const heart = [0, 1].map(slotEffect).some(x => x.e.id === "heart" || x.e.id === "apophis");
+  const hearts = document.getElementById("hearts");
+  const n = heart ? 15 : 10, abs = Math.ceil(state.absorption / 2);
+  hearts.innerHTML = Array.from({ length: Math.min(n, 10) + abs }, (_, j) => `<span class="${j >= Math.min(n, 10) ? "abs" : ""}">❤</span>`).join("")
+    + (n > 10 ? `<span style="font-size:.7em;color:#ffb3b3;margin-left:4px">+${(n - 10)}</span>` : "");
+  document.getElementById("food").innerHTML = Array(10).fill('<span>●</span>').join("");
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+document.getElementById("btnL").onclick = () => spark(0);
+document.getElementById("btnR").onclick = () => spark(1);
+document.getElementById("btnHit").onclick = hit;
+document.getElementById("btnReset").onclick = () => {
+  state.slots.forEach(s => { s.cdEnd = 0; s.activeEnd = 0; });
+  state.hits = 0; state.absorption = 0;
+};
+[selL, selR, document.getElementById("augL"), document.getElementById("augR")].forEach((el, idx) => el.addEventListener("change", () => {
+  const i = idx % 2, eff = slotEffect(i);
+  if (selL.value === selR.value) { const other = i === 0 ? selR : selL; other.value = effects.find(e => e.id !== selL.value).id; }
+  toast(name(eff.e, eff.aug), `Equipped in your ${i === 0 ? "primary" : "secondary"} slot`, eff.e.color);
+  ring(eff.e.color);
+}));
+document.addEventListener("keydown", ev => {
+  if (["INPUT", "SELECT"].includes(document.activeElement.tagName)) return;
+  if (ev.key.toLowerCase() === "f") { ev.preventDefault(); spark(ev.shiftKey ? 1 : 0); }
+  if (ev.code === "Space") { ev.preventDefault(); hit(); }
+});
+
+/* ---------- Ritual demo ---------- */
+const stage = document.getElementById("stage");
+const motes = Array.from({ length: 3 }, () => { const m = document.createElement("div"); m.className = "mote"; stage.appendChild(m); return m; });
+let ritual = null;
+function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+function ritualChat(html) {
+  const c = document.getElementById("ritualChat");
+  const d = document.createElement("div");
+  d.innerHTML = `<span style="background:linear-gradient(90deg,#d11fd1,#7f3cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:bold">Infuse</span> <span style="color:#555">»</span> ${html}`;
+  c.appendChild(d);
+  while (c.children.length > 4) c.firstChild.remove();
+}
+function startRitual() {
+  const e = byId[ritualSel.value];
+  stage.style.setProperty("--rc", e.color);
+  ritual = { e, start: performance.now(), total: 30000 }; // 10 minutes compressed to 30 s
+  ritualChat(`<span style="color:#aaa">A ritual for the </span><b style="color:${e.color}">Augmented ${e.name} Effect</b><span style="color:#aaa"> has begun at </span>120, 64, -340 (world)<span style="color:#aaa">! It completes in </span>10:00<span style="color:#aaa">.</span>`);
+}
+document.getElementById("ritualBtn").onclick = startRitual;
+function ritualFrame(now) {
+  if (ritual) {
+    const el = now - ritual.start, rem = Math.max(0, ritual.total - el), progress = el / ritual.total;
+    const realRem = rem / ritual.total * 600000;
+    document.getElementById("bossName").innerHTML = `<span style="color:#aaa">Ritual: </span><b style="color:${ritual.e.color}">Augmented ${ritual.e.name} Effect</b><span style="color:#aaa"> — ${fmt(realRem)} — 120, 64, -340 (world)</span>`;
+    document.getElementById("bossFill").style.width = (rem / ritual.total * 100) + "%";
+    motes.forEach((m, i) => {
+      const a = now / 400 + i * Math.PI * 2 / 3;
+      m.style.left = `calc(50% + ${Math.cos(a) * 90}px - 4px)`;
+      m.style.bottom = `${60 + progress * 150 + Math.sin(a) * 14}px`;
+    });
+    const cd = document.getElementById("countdown");
+    cd.textContent = realRem <= 10000 && rem > 0 ? Math.ceil(realRem / 1000) : "";
+    if (rem <= 0 && !ritual.done) {
+      ritual.done = true;
+      cd.textContent = "✦";
+      stage.animate([{ filter: "brightness(3)" }, { filter: "brightness(1)" }], { duration: 900 });
+      ritualChat(`<span style="color:#aaa">The ritual is complete! The </span><b style="color:${ritual.e.color}">Augmented ${ritual.e.name} Effect</b><span style="color:#aaa"> is waiting at </span>120, 64, -340 (world)<span style="color:#aaa">.</span>`);
+    }
+  }
+  requestAnimationFrame(ritualFrame);
+}
+requestAnimationFrame(ritualFrame);
+startRitual();
+
+/* ---------- Apophis ---------- */
+const apo = document.getElementById("apo");
+apo.onclick = () => { apo.classList.add("blind"); setTimeout(() => apo.classList.remove("blind"), 3000); };
+</script>
+</body>
+</html>

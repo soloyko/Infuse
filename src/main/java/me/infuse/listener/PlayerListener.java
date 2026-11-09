@@ -92,7 +92,7 @@ public final class PlayerListener implements Listener {
                         .append(ItemFactory.name(eq.type(), eq.augmented()))
                         .append(Msg.parse("<gray> in your " + (result == EffectManager.EquipResult.PRIMARY ? "primary" : "secondary")
                                 + " slot.</gray>")));
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.4f);
+                me.infuse.util.Fx.equip(p, eq, result == EffectManager.EquipResult.PRIMARY);
                 e.setReplacement(ItemStack.empty());
             }
         }
@@ -120,6 +120,7 @@ public final class PlayerListener implements Listener {
             e.getDrops().add(bottle);
         }
         d.clearSparks();
+        me.infuse.util.Fx.effectLost(p.getLocation(), lost.type());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

@@ -60,11 +60,16 @@ public final class SparkManager {
         }
         long rem = d.cooldownRemaining(slot);
         if (rem > 0) {
+            me.infuse.util.Fx.sparkFail(p);
             Msg.send(p, "<red>Your " + e.type().displayName() + " spark is on cooldown for <white>"
                     + Util.time(rem) + "</white>.");
             return;
         }
-        if (!activate(p, d, e.type())) return;
+        if (!activate(p, d, e.type())) {
+            me.infuse.util.Fx.sparkFail(p);
+            return;
+        }
+        me.infuse.util.Fx.spark(p, e.type());
         long now = System.currentTimeMillis();
         d.setCooldown(slot, cooldownMillis(e));
         long duration = durationMillis(e.type());
@@ -117,13 +122,13 @@ public final class SparkManager {
             case OCEAN -> whirlhole(p, dur);
             case THIEF -> {
                 d.setSparkActive(type, now + dur);
-                w.spawnParticle(Particle.LARGE_SMOKE, p.getLocation().add(0, 1, 0), 40, 0.4, 0.8, 0.4, 0.02);
-                w.playSound(p.getLocation(), Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 1f, 0.8f);
+                me.infuse.util.Fx.vanish(p, true);
                 Msg.send(p, "<#e02424>You vanish into the shadows.");
                 Bukkit.getScheduler().runTask(plugin, () -> plugin.effects().syncThieves());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     if (p.isOnline() && !d.isSparkActive(EffectType.THIEF) && d.hasPassive(EffectType.THIEF)) {
                         Msg.send(p, "<#e02424>Your cover is blown!");
+                        me.infuse.util.Fx.vanish(p, false);
                     }
                 }, dur / 50 + 2);
             }

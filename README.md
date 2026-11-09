@@ -46,3 +46,7 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
 | `/infuse reload` | Reload `config.yml` and `recipes.yml` (`infuse.admin`) |
 
 Allies (for sparks like Invisibility and Heart) are players on the same scoreboard team.
+
+## Visual preview
+
+Open `docs/preview.html` in a browser for an interactive preview of the HUD, every effect, rituals and the Apophis blind screen using the real pack textures. Regenerate it after changing effects, config or recipes with `python3 tools/build_preview.py`.

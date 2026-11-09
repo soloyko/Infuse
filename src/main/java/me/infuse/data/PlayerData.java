@@ -16,6 +16,7 @@ public final class PlayerData {
     private final long[] cooldownEnd = new long[2];
     private final long[] cooldownTotal = new long[2];
     private final long[] activeEnd = new long[2];
+    private final boolean[] readyPinged = {true, true};
     private boolean offhandControls = true;
 
     // Runtime-only state
@@ -77,6 +78,14 @@ public final class PlayerData {
     public void setCooldown(int slot, long totalMillis) {
         cooldownTotal[slot] = totalMillis;
         cooldownEnd[slot] = System.currentTimeMillis() + totalMillis;
+        readyPinged[slot] = false;
+    }
+
+    /** True exactly once when a slot's cooldown finishes. */
+    public boolean consumeReady(int slot) {
+        if (readyPinged[slot] || cooldownRemaining(slot) > 0) return false;
+        readyPinged[slot] = true;
+        return true;
     }
     public void resetCooldowns() {
         cooldownEnd[0] = cooldownEnd[1] = 0;

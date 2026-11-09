@@ -81,6 +81,11 @@ public final class CombatListener implements Listener {
 
     // ------------------------------------------------------------------ damage dealt
 
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onFxFirework(EntityDamageByEntityEvent e) {
+        if (me.infuse.util.Fx.isFxFirework(e.getDamager())) e.setCancelled(true);
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof LivingEntity victim)) return;
@@ -336,7 +341,7 @@ public final class CombatListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onProjectileHit(ProjectileHitEvent e) {
         if (e.getEntity() instanceof SmallFireball fb && fb.getPersistentDataContainer().has(curseFireball, PersistentDataType.BYTE)) {
-            fb.getWorld().spawnParticle(Particle.DRAGON_BREATH, fb.getLocation(), 30, 0.3, 0.3, 0.3, 0.02);
+            fb.getWorld().spawnParticle(Particle.DRAGON_BREATH, fb.getLocation(), 30, 0.3, 0.3, 0.3, 0.02, 1.0f);
             if (e.getHitEntity() == null) {
                 e.setCancelled(true);
                 fb.remove();
