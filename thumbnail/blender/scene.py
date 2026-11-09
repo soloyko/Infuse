@@ -169,8 +169,8 @@ def skin_box(name, w, h, d, u, v, inflate=0.0, pivot_y=0.0):
     return bpy.data.objects.new(name, me)
 
 
-def part(name, w, h, d, uv, ov, inflate, pivot_y=0.0):
-    holder = link(bpy.data.objects.new(name, None))
+def part(name, w, h, d, uv, ov, inflate, pivot_y=0.0, parent=root):
+    holder = link(bpy.data.objects.new(name, None), parent)
     link(skin_box(name + '_base', w, h, d, *uv, 0, pivot_y), holder)
     link(skin_box(name + '_layer', w, h, d, *ov, inflate, pivot_y), holder)
     return holder
@@ -209,27 +209,38 @@ def voxel_sprite(name, sprite, emit=0.0, emit_chars=None, emit_strength=2.0):
 
 
 # ------------------------------------------------------------------- character
-head = part('head', 8, 8, 8, (0, 0), (32, 0), 0.5)
-place(head, (fx(0.475), fy(0.29), 0), (0.1, -0.6, 0.03))
+# Connected rig: body at the character origin, head on the neck, arms on the shoulders.
+CHAR_YAW = -0.5
+HEAD_ROT = (0.12, -0.2, 0.03)              # pitch down a little, look further left
+ARM_R_ROT = (-1.65, 0.3, 0.55)            # raised forward/up toward the apple
+ARM_L_ROT = (0.3, 0.0, 0.12)               # hanging slightly back
 
-body = part('body', 8, 12, 4, (16, 16), (16, 32), 0.25)
-place(body, (fx(0.53), fy(0.29) - 10.1, -1.5), (0.05, -0.75, 0))
+char = link(bpy.data.objects.new('character', None))
+char_pos = Vector((fx(0.49), fy(0.31) - 10, 0))
+place(char, tuple(char_pos), (0, CHAR_YAW, 0))
+
+part('body', 8, 12, 4, (16, 16), (16, 32), 0.25, 0, char)
+head = part('head', 8, 8, 8, (0, 0), (32, 0), 0.5, 4, char)
+place(head, (0, 6, 0), HEAD_ROT)
+arm_r = part('arm_r', 4, 12, 4, (40, 16), (40, 32), 0.25, -4, char)
+place(arm_r, (-6, 4, 0), ARM_R_ROT)
+arm_l = part('arm_l', 4, 12, 4, (32, 48), (48, 48), 0.25, -4, char)
+place(arm_l, (6, 4, 0), ARM_L_ROT)
 
 
-def limb(name, uv, ov, shoulder, direction):
-    a = part(name, 4, 12, 4, uv, ov, 0.25, -6)
-    a.location = shoulder
-    a.rotation_mode = 'QUATERNION'
-    a.rotation_quaternion = Vector((0, -1, 0)).rotation_difference(Vector(direction).normalized())
-    return a
+def rig_point(local, joint, joint_rot):
+    """Layout-space position of a point given in a joint's local space."""
+    m_char = Euler((0, CHAR_YAW, 0), 'ZYX').to_matrix()
+    m_joint = Euler(joint_rot, 'ZYX').to_matrix()
+    return char_pos + m_char @ (Vector(joint) + m_joint @ Vector(local))
 
 
-limb('arm_r', (40, 16), (40, 32), (-2.5, 0.3, -5), (-2.7, -2.4, 12))
-limb('arm_l', (32, 48), (48, 48), (fx(0.64), fy(0.47), -3.5), (0.25, -1, -0.15))
+hand = rig_point((0, -10.5, 0), (-6, 4, 0), ARM_R_ROT)
+print('head centre', rig_point((0, 4, 0), (0, 6, 0), HEAD_ROT), 'hand', hand)
 
 # --------------------------------------------------------------------- items
 apple = voxel_sprite('apple', APPLE, emit=0.15, emit_chars='kKl', emit_strength=6)
-place(apple, (fx(0.315) * 31 / 40, fy(0.42) * 31 / 40, 9), (0, 0.35, 0.05), 0.27)
+place(apple, tuple(hand + Vector((-1.6, 2.6, 0.8))), (0, 0.35, 0.05), 0.27)
 
 sword = voxel_sprite('sword', SWORD, emit=0.0, emit_chars='LW', emit_strength=0.8)
 place(sword, (fx(0.35) * 1.15, fy(0.25) * 1.15, -6), (0, 0, math.pi / 2 + 0.12), 0.78)
