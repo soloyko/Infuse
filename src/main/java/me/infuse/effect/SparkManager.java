@@ -86,7 +86,8 @@ public final class SparkManager {
         }
         me.infuse.util.Fx.spark(p, e.type());
         long now = System.currentTimeMillis();
-        d.setCooldown(slot, cooldownMillis(e));
+        d.setCooldown(slot, (long) (cooldownMillis(e) * plugin.resonance().cooldownMultiplier(d.xp(slot))));
+        plugin.resonance().gain(p, d, slot, plugin.resonance().reward("spark", 20));
         long duration = durationMillis(e.type());
         d.setSlotActive(slot, now + Math.max(duration, 1000));
         plugin.effects().refresh(p);

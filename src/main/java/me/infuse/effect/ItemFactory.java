@@ -25,13 +25,29 @@ public final class ItemFactory {
 
     private final NamespacedKey typeKey;
     private final NamespacedKey augKey;
+    private final NamespacedKey xpKey;
+    private Resonance resonance;
+
+    public void setResonance(Resonance r) { this.resonance = r; }
+
+    public int readXp(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return 0;
+        Integer v = item.getItemMeta().getPersistentDataContainer().get(xpKey, PersistentDataType.INTEGER);
+        return v == null ? 0 : v;
+    }
 
     public ItemFactory(InfusePlugin plugin) {
         this.typeKey = new NamespacedKey(plugin, "effect");
         this.augKey = new NamespacedKey(plugin, "augmented");
+        this.xpKey = new NamespacedKey(plugin, "resonance_xp");
     }
 
     public ItemStack create(EffectType type, boolean augmented) {
+        return create(type, augmented, 0);
+    }
+
+    /** A bottle carrying Resonance XP (shown in the lore when above zero). */
+    public ItemStack create(EffectType type, boolean augmented, int xp) {
         ItemStack item = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         meta.setColor(Color.fromRGB(type.rgb()));
@@ -44,6 +60,9 @@ public final class ItemFactory {
         lore.add(Style.colored(plainCaps("item-spark-header"), type.rgb()).decorate(TextDecoration.BOLD));
         for (String line : type.sparks()) lore.add(line(line));
         lore.add(Component.empty());
+        if (xp > 0 && resonance != null) {
+            lore.add(Style.colored(resonance.label(xp), type.rgb()).decoration(TextDecoration.ITALIC, false));
+        }
         lore.add(Msg.get("item-footer").decoration(TextDecoration.ITALIC, false));
         meta.lore(lore);
 
@@ -54,6 +73,7 @@ public final class ItemFactory {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(typeKey, PersistentDataType.STRING, type.id());
         pdc.set(augKey, PersistentDataType.BOOLEAN, augmented);
+        if (xp > 0) pdc.set(xpKey, PersistentDataType.INTEGER, xp);
         item.setItemMeta(meta);
         // Hide the vanilla "No Effects" potion line
         item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay()

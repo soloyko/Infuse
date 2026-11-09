@@ -40,6 +40,11 @@ thief-backstabbed: "<prefix><gradient:#e02424:#ff8a8a><bold><caps>Backstabbed!</
 thief-steal: "<prefix><gray>You stole </gray><#ff8a8a><potion></#ff8a8a><gray> from <white><target></white>.</gray>"
 thief-stolen: "<prefix><white><target></white><gray> stole your </gray><#ff8a8a><potion></#ff8a8a><gray>!</gray>"
 
+# ---------------------------------------------------------------- resonance  (<effect>, <level>)
+resonance-levelup: "<prefix><effect><gray> reached </gray><gradient:#ffd36b:#ffb02e><bold><caps>Resonance</caps> <level></bold></gradient><gray>! Its cooldown is shorter.</gray>"
+resonance-title: "<gradient:#ffd36b:#ffb02e><bold><caps>Resonance</caps> <level></bold></gradient>"
+resonance-subtitle: "<effect>"
+
 # ---------------------------------------------------------------- crafting & rituals
 # (<player>, <effect>, <coords>, <count>, <max>, <time>)
 craft-limit: "<prefix><effect><red> can't be crafted anymore."
@@ -66,8 +71,8 @@ give-usage: "<prefix><red>Usage: /infuse give <player> <effect> [augmented]"
 gave: "<prefix><gray>Gave <white><player></white> </gray><effect><gray>.</gray>"
 info-header: "<prefix><gray><caps>Effects of</caps> <white><player></white>"
 info-slot-empty: "<dark_gray>  • <gray><slot>:</gray> <caps>empty</caps>"
-info-slot-ready: "<dark_gray>  • <gray><slot>:</gray> <effect> <green><caps>ready</caps></green>"
-info-slot-cooldown: "<dark_gray>  • <gray><slot>:</gray> <effect> <red><time></red>"
+info-slot-ready: "<dark_gray>  • <gray><slot>:</gray> <effect> <gold><resonance></gold> <green><caps>ready</caps></green>"
+info-slot-cooldown: "<dark_gray>  • <gray><slot>:</gray> <effect> <gold><resonance></gold> <red><time></red>"
 info-controls: "<dark_gray>  • <gray><caps>Controls</caps>: <white><controls></white>"
 crafts-line: "<effect><gray>: <count>/<max></gray>"
 crafts-reset: "<prefix><gray>Craft counts reset."

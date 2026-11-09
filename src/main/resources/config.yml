@@ -83,6 +83,19 @@ hud:
   # Action bar layout (MiniMessage). Placeholders: <left> <right> <hits> <gap>
   format: "<left><gap><hits><gap><right>"
 
+# Resonance: effects level up with use. Each level cuts that effect's spark cooldown.
+# XP stays on the bottle when it's drained or dropped.
+resonance:
+  enabled: true
+  # XP needed for each level (I, II, III, ...). Add more numbers for more levels.
+  levels: [0, 150, 450]
+  cooldown-reduction-per-level: 0.1
+  xp:
+    spark: 20
+    tenth-hit: 5
+    player-kill: 50
+    mob-kill: 1
+
 # Spark cooldowns for regular effects. Augmented effects use cooldown x augmented-multiplier.
 cooldowns:
   augmented-multiplier: 0.5

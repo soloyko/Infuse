@@ -133,6 +133,7 @@ public final class EffectManager {
         } else {
             return EquipResult.FULL;
         }
+        d.setXp(result == EquipResult.PRIMARY ? PlayerData.PRIMARY : PlayerData.SECONDARY, 0);
         refresh(p);
         plugin.data().save(d);
         return result;
@@ -144,6 +145,7 @@ public final class EffectManager {
         Equipped e = d.get(slot);
         if (e == null) return null;
         d.set(slot, null);
+        d.setXp(slot, 0);
         d.setSlotActive(slot, 0);
         d.setHits(0);
         d.setSpeedStacks(0);

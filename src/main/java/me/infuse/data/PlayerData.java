@@ -16,6 +16,7 @@ public final class PlayerData {
     private final long[] cooldownEnd = new long[2];
     private final long[] cooldownTotal = new long[2];
     private final long[] activeEnd = new long[2];
+    private final int[] xp = new int[2];
     private final boolean[] readyPinged = {true, true};
     private final long[] readyFlashUntil = new long[2];
     private boolean offhandControls = true;
@@ -36,11 +37,14 @@ public final class PlayerData {
     public UUID id() { return id; }
 
     public Equipped get(int slot) { return slots[slot]; }
+    public int xp(int slot) { return xp[slot]; }
+    public void setXp(int slot, int value) { xp[slot] = Math.max(0, value); }
     public void set(int slot, Equipped e) { slots[slot] = e; }
     public boolean isEmpty() { return slots[0] == null && slots[1] == null; }
 
     public void swap() {
         swap(slots); swap(cooldownEnd); swap(cooldownTotal); swap(activeEnd);
+        int t = xp[0]; xp[0] = xp[1]; xp[1] = t;
     }
 
     private static void swap(Object[] a) { Object t = a[0]; a[0] = a[1]; a[1] = t; }

@@ -96,6 +96,7 @@ public final class InfuseGui implements Listener {
             } else {
                 long rem = d.cooldownRemaining(slot);
                 lore.add(label.append(ItemFactory.name(e.type(), e.augmented()))
+                        .append(Component.text("  " + me.infuse.effect.Resonance.roman(plugin.resonance().level(d.xp(slot))), NamedTextColor.GOLD))
                         .append(rem > 0 ? Component.text("  " + Util.time(rem), NamedTextColor.RED)
                                 : Component.text("  " + Style.caps("ready"), NamedTextColor.GREEN)));
             }

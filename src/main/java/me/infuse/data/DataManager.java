@@ -50,6 +50,8 @@ public final class DataManager {
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
         data.set(PlayerData.PRIMARY, readSlot(yml.getConfigurationSection("primary")));
         data.set(PlayerData.SECONDARY, readSlot(yml.getConfigurationSection("secondary")));
+        data.setXp(PlayerData.PRIMARY, yml.getInt("primary.xp"));
+        data.setXp(PlayerData.SECONDARY, yml.getInt("secondary.xp"));
         data.setOffhandControls(yml.getBoolean("offhand-controls", plugin.getConfig().getBoolean("controls.default-offhand", true)));
         for (int slot = 0; slot < 2; slot++) {
             data.setCooldownRaw(slot, yml.getLong("cooldown." + slot + ".end"), yml.getLong("cooldown." + slot + ".total"));
@@ -68,6 +70,8 @@ public final class DataManager {
         YamlConfiguration yml = new YamlConfiguration();
         writeSlot(yml, "primary", data.get(PlayerData.PRIMARY));
         writeSlot(yml, "secondary", data.get(PlayerData.SECONDARY));
+        if (data.get(PlayerData.PRIMARY) != null) yml.set("primary.xp", data.xp(PlayerData.PRIMARY));
+        if (data.get(PlayerData.SECONDARY) != null) yml.set("secondary.xp", data.xp(PlayerData.SECONDARY));
         yml.set("offhand-controls", data.offhandControls());
         for (int slot = 0; slot < 2; slot++) {
             yml.set("cooldown." + slot + ".end", data.cooldownEndRaw(slot));
