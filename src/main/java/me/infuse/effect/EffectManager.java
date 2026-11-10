@@ -181,7 +181,7 @@ public final class EffectManager {
 
     private void applyAttributes(Player p, PlayerData d) {
         boolean heart = d.hasPassive(EffectType.HEART);
-        Util.modifier(p, Attribute.MAX_HEALTH, heartHealth, cfg().getDouble("effects.heart.bonus-health", 10),
+        Util.modifier(p, Attribute.MAX_HEALTH, heartHealth, me.infuse.effect.Tune.d(p, "effects.heart.bonus-health", 10),
                 AttributeModifier.Operation.ADD_NUMBER, heart);
         Util.modifier(p, Attribute.MAX_ABSORPTION, heartAbsorption, cfg().getDouble("effects.heart.max-absorption", 40),
                 AttributeModifier.Operation.ADD_NUMBER, heart);
@@ -207,7 +207,7 @@ public final class EffectManager {
             want.put(PotionEffectType.WATER_BREATHING, 0);
         }
         int speed = -1;
-        if (d.hasPassive(EffectType.SPEED)) speed = d.speedStacks();
+        if (d.hasPassive(EffectType.SPEED)) speed = d.speedStacks() + (d.isAugmented(EffectType.SPEED) ? 1 : 0);
         if (d.hasPassive(EffectType.FROST) && onIceOrSnow(p)) speed = Math.max(speed, 2);
         if (d.hasPassive(EffectType.WEAVING)) {
             want.put(PotionEffectType.WEAVING, 0);
@@ -349,7 +349,7 @@ public final class EffectManager {
         applyPotions(p, d);
 
         if (d.hasPassive(EffectType.ENDER)) {
-            double r = cfg().getDouble("effects.ender.glow-radius", 16);
+            double r = me.infuse.effect.Tune.d(p, "effects.ender.glow-radius", 16);
             for (LivingEntity le : Util.enemiesNear(p, p.getLocation(), r)) {
                 if (le instanceof Player) Util.potion(le, PotionEffectType.GLOWING, 0, 30, false);
             }
@@ -422,7 +422,7 @@ public final class EffectManager {
         if (e.type() == EffectType.THIEF && d.isSparkActive(EffectType.THIEF)) {
             // While vanished, the icon darkens as the cover runs out
             long left = Math.max(0, d.sparkActiveUntil(EffectType.THIEF) - System.currentTimeMillis());
-            long dur = plugin.sparks().durationMillis(EffectType.THIEF);
+            long dur = plugin.sparks().durationFor(d, EffectType.THIEF);
             frame = dur > 0 ? (int) Math.floor((1 - left / (double) dur) * 20) : 0;
         }
         return Glyphs.effectComponent(e.type(), e.augmented(), d.isSlotActive(slot) || d.isReadyFlash(slot), frame);

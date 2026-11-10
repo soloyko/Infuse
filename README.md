@@ -21,7 +21,7 @@ Host the zip somewhere with a direct download link and set `resource-pack.url` (
 Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regeneration, Speed, Strength, Thunder, Apophis, Thief, Weaving, Oozing, Resistance. Run `/infuses` in game for what each does.
 
 - Players have two slots: **primary** (left) and **secondary** (right). Drink an effect bottle to equip it.
-- Augmented effects have half the spark cooldown (`cooldowns.augmented-multiplier`).
+- Augmented effects have half the spark cooldown (`cooldowns.augmented-multiplier`), sparks that last 25% longer (`durations.augmented-multiplier`), and a unique bonus each (stronger numbers under `augmented:` in `config.yml`, listed on the bottle).
 - A spark's cooldown starts when its effect ends (e.g. Bulwark's 5 seconds), not when it's cast.
 - On death: the primary drops if equipped, otherwise the secondary.
 

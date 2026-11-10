@@ -112,6 +112,7 @@ public final class CombatListener implements Listener {
         if (d.hasPassive(EffectType.STRENGTH) && !(victim instanceof Player)) dmg *= 2;
         if (d.isSparkActive(EffectType.STRENGTH) && !e.isCritical()) {
             dmg *= 1.5;
+            if (d.isAugmented(EffectType.STRENGTH)) dmg *= 1 + cfg().getDouble("augmented.strength.crit-bonus-percent", 25) / 100.0;
             victim.getWorld().spawnParticle(Particle.CRIT, victim.getLocation().add(0, 1, 0), 12, 0.3, 0.5, 0.3, 0.2);
             victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
         }
@@ -119,9 +120,14 @@ public final class CombatListener implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> disableShield(vp, cfg().getInt("effects.strength.shield-disable-ticks", 200)));
         }
 
+        // Augmented Frost: frozen enemies take extra damage
+        if (d.isAugmented(EffectType.FROST) && status.isFrozen(victim)) {
+            dmg *= 1 + cfg().getDouble("augmented.frost.frozen-bonus-percent", 20) / 100.0;
+        }
+
         // Feather slam
         if (d.featherSlamUntil() > now && !sweep) {
-            dmg = Math.max(dmg, cfg().getDouble("effects.feather.slam-damage", 12));
+            dmg = Math.max(dmg, me.infuse.effect.Tune.d(attacker, "effects.feather.slam-damage", 12));
             d.setFeatherSlamUntil(0);
             plugin.sparks().endEarly(attacker, d, EffectType.FEATHER);
             victim.getWorld().spawnParticle(Particle.EXPLOSION, victim.getLocation(), 2);
@@ -139,7 +145,7 @@ public final class CombatListener implements Listener {
 
         // Apophis: blind screen
         if (d.isSparkActive(EffectType.APOPHIS) && victim instanceof Player vp) {
-            int ticks = cfg().getInt("effects.apophis.blind-ticks", 60);
+            int ticks = me.infuse.effect.Tune.i(attacker, "effects.apophis.blind-ticks", 60);
             vp.showTitle(Title.title(Glyphs.apophisCover(), Component.empty(),
                     Title.Times.times(Duration.ZERO, Duration.ofMillis(ticks * 50L), Duration.ofMillis(500))));
             Util.potion(vp, PotionEffectType.BLINDNESS, 0, ticks, false);
@@ -156,7 +162,7 @@ public final class CombatListener implements Listener {
         // Regeneration
         if (d.hasPassive(EffectType.REGENERATION)) Util.potion(attacker, PotionEffectType.REGENERATION, 1, 20, false);
         if (d.isSparkActive(EffectType.REGENERATION)) {
-            double heal = dmg * cfg().getDouble("effects.regeneration.lifesteal-percent", 30) / 100.0;
+            double heal = dmg * me.infuse.effect.Tune.d(attacker, "effects.regeneration.lifesteal-percent", 30) / 100.0;
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (!attacker.isDead()) attacker.setHealth(Math.min(Util.maxHealth(attacker), attacker.getHealth() + heal));
             });
@@ -164,7 +170,7 @@ public final class CombatListener implements Listener {
 
         // Speed: stacking speed + halved invincibility frames
         if (d.hasPassive(EffectType.SPEED) && !sweep) {
-            d.setSpeedStacks(Math.min(cfg().getInt("effects.speed.max-stacks", 3), d.speedStacks() + 1));
+            d.setSpeedStacks(Math.min(me.infuse.effect.Tune.i(attacker, "effects.speed.max-stacks", 3), d.speedStacks() + 1));
             d.setLastHitAt(now);
             plugin.effects().applyPotions(attacker, d);
             Bukkit.getScheduler().runTask(plugin, () -> {
@@ -175,8 +181,8 @@ public final class CombatListener implements Listener {
 
         // Thief: attacking from the shadows backstabs and ends the vanish
         if (d.isSparkActive(EffectType.THIEF) && !sweep) {
-            dmg *= 1 + cfg().getDouble("effects.thief.backstab-bonus-percent", 50) / 100.0;
-            long silence = (long) (cfg().getDouble("effects.thief.silence-seconds", 8) * 1000);
+            dmg *= 1 + me.infuse.effect.Tune.d(attacker, "effects.thief.backstab-bonus-percent", 50) / 100.0;
+            long silence = (long) (me.infuse.effect.Tune.d(attacker, "effects.thief.silence-seconds", 8) * 1000);
             d.setSparkActive(EffectType.THIEF, 0);
             plugin.sparks().endEarly(attacker, d, EffectType.THIEF);
             String time = Util.time(silence);
@@ -280,7 +286,7 @@ public final class CombatListener implements Listener {
         }
         // Invisibility: fully charged bow shot blinds
         if (d.hasPassive(EffectType.INVISIBILITY) && proj instanceof AbstractArrow arrow && arrow.isCritical()) {
-            Util.potion(victim, PotionEffectType.BLINDNESS, 0, cfg().getInt("effects.invisibility.blind-ticks", 100), false);
+            Util.potion(victim, PotionEffectType.BLINDNESS, 0, me.infuse.effect.Tune.i(shooter, "effects.invisibility.blind-ticks", 100), false);
         }
         if (proj instanceof Trident) {
             if (d.hasPassive(EffectType.OCEAN) && victim instanceof Player vp) {
@@ -496,6 +502,9 @@ public final class CombatListener implements Listener {
                     ? plugin.resonance().reward("player-kill", 50) : plugin.resonance().reward("mob-kill", 1));
         }
         if (killer == null || e.getEntity() instanceof Player || !data(killer).hasPassive(EffectType.EMERALD)) return;
+        if (data(killer).isAugmented(EffectType.EMERALD)) {
+            e.setDroppedExp((int) (e.getDroppedExp() * cfg().getDouble("augmented.emerald.mob-exp-multiplier", 2.0)));
+        }
         int looting = cfg().getInt("effects.emerald.looting-level", 5);
         List<ItemStack> extra = new ArrayList<>();
         for (ItemStack drop : e.getDrops()) {

@@ -46,6 +46,12 @@ public final class SparkManager {
         return (long) (seconds * 1000);
     }
 
+    /** Spark duration for this player: augmented sparks last longer (durations.augmented-multiplier). */
+    public long durationFor(PlayerData d, EffectType type) {
+        long base = durationMillis(type);
+        return d != null && d.isAugmented(type) ? (long) (base * cfg().getDouble("durations.augmented-multiplier", 1.25)) : base;
+    }
+
     public long durationMillis(EffectType type) {
         return (long) (cfg().getDouble("durations." + type.id(), 0) * 1000);
     }
@@ -104,7 +110,7 @@ public final class SparkManager {
         }
         me.infuse.util.Fx.spark(p, e.type());
         long now = System.currentTimeMillis();
-        long duration = durationMillis(e.type());
+        long duration = durationFor(d, e.type());
         long cooldown = (long) (cooldownMillis(e) * plugin.resonance().cooldownMultiplier(d.xp(slot)));
         // The cooldown only starts once the spark's effect has ended
         d.setCooldown(slot, cooldown, duration);
@@ -116,11 +122,14 @@ public final class SparkManager {
 
     private boolean activate(Player p, PlayerData d, EffectType type) {
         long now = System.currentTimeMillis();
-        long dur = durationMillis(type);
+        long dur = durationFor(d, type);
         World w = p.getWorld();
         switch (type) {
             case STRENGTH, HASTE, REGENERATION -> {
                 d.setSparkActive(type, now + dur);
+                if (type == EffectType.HASTE && d.isAugmented(EffectType.HASTE)) {
+                    Util.potion(p, PotionEffectType.HASTE, cfg().getInt("augmented.haste.spark-haste-level", 3) - 1, (int) (dur / 50), false);
+                }
                 w.playSound(p.getLocation(), Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1f, 1.4f);
                 w.spawnParticle(Particle.DUST, p.getLocation().add(0, 1, 0), 40, 0.5, 0.8, 0.5,
                         new Particle.DustOptions(Color.fromRGB(type.rgb()), 1.4f));
@@ -208,7 +217,7 @@ public final class SparkManager {
     // ------------------------------------------------------------------ individual sparks
 
     private void webSnare(Player p, long dur) {
-        double r = cfg().getDouble("effects.weaving.snare-radius", 6);
+        double r = me.infuse.effect.Tune.d(p, "effects.weaving.snare-radius", 6);
         World w = p.getWorld();
         int rooted = 0;
         for (LivingEntity le : Util.enemiesNear(p, p.getLocation(), r)) {
@@ -268,8 +277,8 @@ public final class SparkManager {
     }
 
     private void fire(Player p) {
-        double r = cfg().getDouble("effects.fire.spark-radius", 5);
-        int ticks = cfg().getInt("effects.fire.spark-fire-ticks", 100);
+        double r = me.infuse.effect.Tune.d(p, "effects.fire.spark-radius", 5);
+        int ticks = me.infuse.effect.Tune.i(p, "effects.fire.spark-fire-ticks", 100);
         for (LivingEntity le : Util.enemiesNear(p, p.getLocation(), r)) {
             le.setFireTicks(Math.max(le.getFireTicks(), ticks));
         }
@@ -282,7 +291,7 @@ public final class SparkManager {
     }
 
     private boolean enderTeleport(Player p) {
-        double range = cfg().getDouble("effects.ender.teleport-range", 15);
+        double range = me.infuse.effect.Tune.d(p, "effects.ender.teleport-range", 15);
         Location eye = p.getEyeLocation();
         Vector dir = eye.getDirection().normalize();
         RayTraceResult hit = p.getWorld().rayTraceBlocks(eye, dir, range, FluidCollisionMode.NEVER, true);
@@ -344,7 +353,7 @@ public final class SparkManager {
     }
 
     public void chain(Player source, LivingEntity origin) {
-        int count = cfg().getInt("effects.thunder.chain-targets", 3);
+        int count = me.infuse.effect.Tune.i(source, "effects.thunder.chain-targets", 3);
         double radius = cfg().getDouble("effects.thunder.chain-radius", 6);
         double damage = cfg().getDouble("effects.thunder.chain-damage", 4);
         int done = 0;
@@ -362,7 +371,7 @@ public final class SparkManager {
 
     private void invisibilityRing(Player p, long dur) {
         Location center = p.getLocation().clone();
-        double r = cfg().getDouble("effects.invisibility.ring-radius", 2.5);
+        double r = me.infuse.effect.Tune.d(p, "effects.invisibility.ring-radius", 2.5);
         Set<UUID> hiddenAllies = new HashSet<>();
         new BukkitRunnable() {
             int ticks = 0;
@@ -425,8 +434,8 @@ public final class SparkManager {
         RayTraceResult hit = p.getWorld().rayTraceBlocks(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true);
         Location center = hit != null ? hit.getHitPosition().toLocation(p.getWorld()).add(0, 1, 0)
                 : eye.clone().add(eye.getDirection().multiply(8));
-        double radius = cfg().getDouble("effects.ocean.whirlhole-radius", 7);
-        double pull = cfg().getDouble("effects.ocean.whirlhole-pull", 0.35);
+        double radius = me.infuse.effect.Tune.d(p, "effects.ocean.whirlhole-radius", 7);
+        double pull = me.infuse.effect.Tune.d(p, "effects.ocean.whirlhole-pull", 0.35);
         new BukkitRunnable() {
             int ticks = 0;
             final int max = (int) (dur / 50);

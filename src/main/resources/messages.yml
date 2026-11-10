@@ -90,5 +90,6 @@ gui-title: "<gradient:#d11fd1:#7f3cff><caps>Infuse Effects</caps></gradient>"
 # ---------------------------------------------------------------- items
 item-passive-header: "<caps>Passive</caps>"
 item-spark-header: "<caps>Spark</caps>"
+item-augmented-header: "<caps>Augmented Bonus</caps>"
 item-line: "<dark_gray> • </dark_gray><gray><text></gray>"
 item-footer: "<dark_gray><caps>Drink to equip</caps>"
