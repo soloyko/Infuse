@@ -60,12 +60,6 @@ public final class ItemFactory {
         lore.add(Style.colored(plainCaps("item-spark-header"), type.rgb()).decorate(TextDecoration.BOLD));
         for (String line : type.sparks()) lore.add(line(line));
         lore.add(Component.empty());
-        if (augmented && Tune.BONUS.containsKey(type)) {
-            lore.add(Component.empty());
-            lore.add(Style.colored(plainCaps("item-augmented-header"), 0xFFD36B).decorate(TextDecoration.BOLD));
-            lore.add(line(Tune.summary()));
-            for (String b : Tune.BONUS.get(type)) lore.add(line(b));
-        }
         if (xp > 0 && resonance != null) {
             lore.add(Style.colored(resonance.label(xp), type.rgb()).decoration(TextDecoration.ITALIC, false));
         }

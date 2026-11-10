@@ -61,14 +61,6 @@ public final class PlayerData {
         return false;
     }
 
-    /** True if an augmented effect in either slot grants this effect (Apophis grants Fire, Emerald, Heart). */
-    public boolean isAugmented(EffectType type) {
-        for (Equipped e : slots) {
-            if (e != null && e.augmented() && e.type().grants().contains(type)) return true;
-        }
-        return false;
-    }
-
     public boolean hasEquipped(EffectType type) {
         for (Equipped e : slots) {
             if (e != null && e.type() == type) return true;

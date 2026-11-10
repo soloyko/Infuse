@@ -35,7 +35,6 @@ public final class InfusePlugin extends JavaPlugin {
         saveDefaultConfig();
         loadSettings();
         me.infuse.util.Fx.init(this);
-        me.infuse.effect.Tune.setup(this);
         Status status = new Status();
         data = new DataManager(this);
         items = new ItemFactory(this);

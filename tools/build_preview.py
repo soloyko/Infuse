@@ -34,14 +34,6 @@ def parse_effects():
     return out
 
 
-def parse_bonus():
-    src = (ROOT / "src/main/java/me/infuse/effect/Tune.java").read_text()
-    out = {}
-    for m in re.finditer(r'Map\.entry\(EffectType\.([A-Z]+), List\.of\((.*?)\)\)', src, re.S):
-        out[m.group(1).lower()] = re.findall(r'"((?:[^"\\]|\\.)*)"', m.group(2))
-    return out
-
-
 def parse_recipes():
     data = yaml.safe_load((ROOT / "src/main/resources/recipes.yml").read_text())["recipes"]
     out = {}
@@ -66,7 +58,7 @@ recipes = parse_recipes()
 config = cfg()
 data = {
     "effects": effects, "recipes": recipes,
-    "cooldowns": config["cooldowns"], "durations": config["durations"], "bonus": parse_bonus(),
+    "cooldowns": config["cooldowns"], "durations": config["durations"],
 }
 
 html = (ROOT / "tools/preview_template.html").read_text()

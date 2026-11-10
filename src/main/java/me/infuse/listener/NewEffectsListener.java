@@ -101,7 +101,7 @@ public final class NewEffectsListener implements Listener {
             if (vd.takenHits() >= 10) {
                 vd.setTakenHits(0);
                 vd.setHitProcAt(System.currentTimeMillis());
-                double add = me.infuse.effect.Tune.d(vp, "effects.resistance.absorption-per-proc", 8);
+                double add = cfg().getDouble("effects.resistance.absorption-per-proc", 8);
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     var attr = vp.getAttribute(org.bukkit.attribute.Attribute.MAX_ABSORPTION);
                     double max = attr == null ? 0 : attr.getValue();
@@ -117,7 +117,7 @@ public final class NewEffectsListener implements Listener {
         // Bulwark: reflect melee damage
         if (vd.isSparkActive(EffectType.RESISTANCE) && damager instanceof LivingEntity melee
                 && e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
-            double reflect = e.getDamage() * me.infuse.effect.Tune.d(vp, "effects.resistance.reflect-percent", 30) / 100.0;
+            double reflect = e.getDamage() * cfg().getDouble("effects.resistance.reflect-percent", 30) / 100.0;
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (melee.isValid() && !melee.isDead()) {
                     melee.damage(reflect, DamageSource.builder(DamageType.THORNS).withCausingEntity(vp).withDirectEntity(vp).build());
@@ -149,7 +149,7 @@ public final class NewEffectsListener implements Listener {
     }
 
     private void spawnSlimes(Player owner, Player target) {
-        int count = me.infuse.effect.Tune.i(owner, "effects.oozing.slime-count", 2);
+        int count = cfg().getInt("effects.oozing.slime-count", 2);
         int lifetime = cfg().getInt("effects.oozing.slime-lifetime-seconds", 20) * 20;
         for (int i = 0; i < count; i++) {
             Location at = owner.getLocation().add((i - (count - 1) / 2.0) * 1.2, 0.5, 0);
@@ -248,7 +248,7 @@ public final class NewEffectsListener implements Listener {
             return;
         }
         if (d.hasPassive(EffectType.OOZING)) {
-            e.setKnockback(e.getKnockback().multiply(1 - me.infuse.effect.Tune.d(p, "effects.oozing.knockback-reduction", 0.15)));
+            e.setKnockback(e.getKnockback().multiply(1 - cfg().getDouble("effects.oozing.knockback-reduction", 0.15)));
         }
     }
 

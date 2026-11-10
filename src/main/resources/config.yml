@@ -120,8 +120,6 @@ cooldowns:
 
 # How long sparks stay active.
 durations:
-  # Augmented sparks last this much longer
-  augmented-multiplier: 1.25
   emerald: 30
   ender: 10
   feather: 12
@@ -136,53 +134,6 @@ durations:
   weaving: 3
   oozing: 8
   resistance: 5
-
-# Augmented effects use these values instead of the ones under effects: (same keys),
-# plus a few augmented-only extras.
-augmented:
-  emerald:
-    mob-exp-multiplier: 2.0
-  ender:
-    glow-radius: 24
-    teleport-range: 25
-  feather:
-    slam-damage: 16
-  fire:
-    spark-radius: 8
-    spark-fire-ticks: 160
-  frost:
-    frozen-bonus-percent: 20
-  haste:
-    spark-haste-level: 3
-  heart:
-    bonus-health: 14
-  invisibility:
-    ring-radius: 4
-    blind-ticks: 160
-  ocean:
-    whirlhole-radius: 10
-    whirlhole-pull: 0.5
-  regeneration:
-    lifesteal-percent: 50
-  speed:
-    max-stacks: 5
-  strength:
-    crit-bonus-percent: 25
-  thunder:
-    chain-targets: 5
-  apophis:
-    blind-ticks: 100
-  thief:
-    backstab-bonus-percent: 100
-    silence-seconds: 12
-  weaving:
-    snare-radius: 9
-  oozing:
-    knockback-reduction: 0.3
-    slime-count: 3
-  resistance:
-    reflect-percent: 50
-    absorption-per-proc: 12
 
 # Every effect also accepts:
 #   enabled: false                 -> can't be crafted, equipped or used
