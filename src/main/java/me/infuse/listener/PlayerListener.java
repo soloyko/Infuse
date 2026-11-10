@@ -95,9 +95,6 @@ public final class PlayerListener implements Listener {
             }
             case PRIMARY, SECONDARY -> {
                 boolean primary = result == EffectManager.EquipResult.PRIMARY;
-                PlayerData pd = plugin.data().get(p);
-                pd.setXp(primary ? PlayerData.PRIMARY : PlayerData.SECONDARY, plugin.items().readXp(e.getItem()));
-                plugin.data().save(pd);
                 Msg.send(p, "equipped", Msg.comp("effect", ItemFactory.name(eq.type(), eq.augmented())),
                         Msg.comp("slot", Msg.get(primary ? "slot-primary" : "slot-secondary")));
                 me.infuse.util.Fx.equip(p, eq, primary);
@@ -127,10 +124,9 @@ public final class PlayerListener implements Listener {
             default -> slots.add(hasP ? PlayerData.PRIMARY : PlayerData.SECONDARY); // primary-first
         }
         for (int slot : slots) {
-            int xp = d.xp(slot);
             Equipped lost = plugin.effects().unequip(p, slot);
             if (lost == null) continue;
-            ItemStack bottle = plugin.items().create(lost.type(), lost.augmented(), xp);
+            ItemStack bottle = plugin.items().create(lost.type(), lost.augmented());
             if (e.getKeepInventory()) p.getWorld().dropItemNaturally(p.getLocation(), bottle);
             else e.getDrops().add(bottle);
             me.infuse.util.Fx.effectLost(p.getLocation(), lost.type());

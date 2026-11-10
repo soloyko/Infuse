@@ -81,13 +81,12 @@ public final class Commands implements TabExecutor {
     }
 
     private void drain(Player p, int slot) {
-        int xp = plugin.data().get(p).xp(slot);
         Equipped e = plugin.effects().unequip(p, slot);
         if (e == null) {
             Msg.send(p, "drain-empty");
             return;
         }
-        ItemStack bottle = plugin.items().create(e.type(), e.augmented(), xp);
+        ItemStack bottle = plugin.items().create(e.type(), e.augmented());
         for (ItemStack left : p.getInventory().addItem(bottle).values()) p.getWorld().dropItemNaturally(p.getLocation(), left);
         Msg.send(p, "drained", Msg.comp("effect", ItemFactory.name(e.type(), e.augmented())));
     }
@@ -166,8 +165,7 @@ public final class Commands implements TabExecutor {
                     long rem = d.cooldownRemaining(slot);
                     Msg.send(sender, rem > 0 ? "info-slot-cooldown" : "info-slot-ready", Msg.comp("slot", slotName),
                             Msg.comp("effect", ItemFactory.name(e.type(), e.augmented())),
-                            Msg.text("time", me.infuse.util.Util.time(rem)),
-                            Msg.text("resonance", plugin.resonance().label(d.xp(slot))));
+                            Msg.text("time", me.infuse.util.Util.time(rem)));
                 }
                 Msg.send(sender, "info-controls", Msg.text("controls", d.offhandControls() ? "Offhand" : "Command Keys"));
             }

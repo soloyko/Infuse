@@ -209,11 +209,6 @@ public final class CombatListener implements Listener {
 
     private void tenthHit(Player attacker, PlayerData d, LivingEntity victim) {
         for (int slot = 0; slot < 2; slot++) {
-            if (d.get(slot) != null && d.get(slot).type().usesHitTracker()) {
-                plugin.resonance().gain(attacker, d, slot, plugin.resonance().reward("tenth-hit", 5));
-            }
-        }
-        for (int slot = 0; slot < 2; slot++) {
             var eq = d.get(slot);
             if (eq == null || !eq.type().usesHitTracker()) continue;
             Location at = victim.getLocation().add(0, victim.getHeight() * 0.6, 0);
@@ -490,11 +485,6 @@ public final class CombatListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onDeath(EntityDeathEvent e) {
         Player killer = e.getEntity().getKiller();
-        if (killer != null && !killer.equals(e.getEntity())) {
-            PlayerData kd = data(killer);
-            plugin.resonance().gainAll(killer, kd, e.getEntity() instanceof Player
-                    ? plugin.resonance().reward("player-kill", 50) : plugin.resonance().reward("mob-kill", 1));
-        }
         if (killer == null || e.getEntity() instanceof Player || !data(killer).hasPassive(EffectType.EMERALD)) return;
         int looting = cfg().getInt("effects.emerald.looting-level", 5);
         List<ItemStack> extra = new ArrayList<>();

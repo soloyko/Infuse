@@ -110,7 +110,6 @@ public final class NewEffectsListener implements Listener {
                 vp.getWorld().spawnParticle(Particle.DUST, vp.getLocation().add(0, 1, 0), 30, 0.4, 0.6, 0.4, 0,
                         Fx.dust(EffectType.RESISTANCE.rgb(), 1.3f));
                 vp.playSound(vp.getLocation(), Sound.ITEM_ARMOR_EQUIP_NETHERITE, 1f, 1.2f);
-                plugin.resonance().gainAll(vp, vd, plugin.resonance().reward("tenth-hit", 5));
             }
         }
 

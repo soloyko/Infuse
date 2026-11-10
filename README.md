@@ -38,10 +38,6 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
   - `hud.format`
 - **`recipes.yml`**: every recipe; add `enabled: false` to turn one off.
 
-## Resonance
-
-Effects level up as you use them. Sparks, 10th-hit procs and kills give Resonance XP to the equipped effect. Each level (I → II → III by default) cuts that effect's spark cooldown by 10%. The XP stays on the bottle when it's drained or dropped, so leveled bottles are worth fighting over. Configure it under `resonance:` in `config.yml`.
-
 ## Crafting
 
 - Right-clicking a brewing stand opens a crafting table (`brewing.replace-with-crafting: false` restores brewing).

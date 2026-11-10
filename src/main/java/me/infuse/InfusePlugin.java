@@ -27,7 +27,6 @@ public final class InfusePlugin extends JavaPlugin {
     private RitualManager rituals;
     private InfuseGui gui;
     private CraftingListener crafting;
-    private me.infuse.effect.Resonance resonance;
     private me.infuse.util.TempBlocks tempBlocks;
 
     @Override
@@ -38,9 +37,7 @@ public final class InfusePlugin extends JavaPlugin {
         Status status = new Status();
         data = new DataManager(this);
         items = new ItemFactory(this);
-        resonance = new me.infuse.effect.Resonance(this);
         tempBlocks = new me.infuse.util.TempBlocks(this);
-        items.setResonance(resonance);
         effects = new EffectManager(this, status);
         sparks = new SparkManager(this, status);
         recipes = new RecipeManager(this);
@@ -104,6 +101,5 @@ public final class InfusePlugin extends JavaPlugin {
     public RitualManager rituals() { return rituals; }
     public InfuseGui gui() { return gui; }
     public CraftingListener crafting() { return crafting; }
-    public me.infuse.effect.Resonance resonance() { return resonance; }
     public me.infuse.util.TempBlocks tempBlocks() { return tempBlocks; }
 }
