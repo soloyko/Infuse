@@ -32,7 +32,6 @@ import java.util.List;
  * infuse.gui.take can click an effect to take it.
  */
 public final class InfuseGui implements Listener {
-    private static final int[] EFFECT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 31};
     private static final int TOGGLE_SLOT = 49;
     private static final int INFO_SLOT = 45;
     private final InfusePlugin plugin;
@@ -73,16 +72,42 @@ public final class InfuseGui implements Listener {
                 inv.setItem(i, pane(border[(row + col) % 2]));
             }
         }
-        EffectType[] types = EffectType.values();
-        int slot = 0;
-        for (EffectType t : types) {
-            if (!t.enabled() || slot >= EFFECT_SLOTS.length) continue;
-            inv.setItem(EFFECT_SLOTS[slot++], plugin.items().create(t, augmented));
-        }
+        List<EffectType> shown = new ArrayList<>();
+        for (EffectType t : EffectType.values()) if (t.enabled()) shown.add(t);
+        int[] slots = layout(shown.size());
+        for (int i = 0; i < slots.length; i++) inv.setItem(slots[i], plugin.items().create(shown.get(i), augmented));
         inv.setItem(TOGGLE_SLOT, button(augmented ? Material.NETHER_STAR : Material.GLASS_BOTTLE,
                 Style.colored(Style.caps(augmented ? "Showing: Augmented" : "Showing: Regular"), 0xD11FD1),
                 List.of(Component.text(Style.caps("Click to switch"), NamedTextColor.GRAY))));
         inv.setItem(INFO_SLOT, info(p));
+    }
+
+    /**
+     * Slots for {@code n} effects inside the border (rows 1-4, 7 per row). Full rows fill left to
+     * right; the last row is centred (skipping the middle column when its count is even).
+     */
+    static int[] layout(int n) {
+        n = Math.min(n, 28);
+        int[] out = new int[n];
+        int idx = 0;
+        int rows = (n + 6) / 7;
+        for (int r = 0; r < rows; r++) {
+            int inRow = Math.min(7, n - r * 7);
+            int base = (r + 1) * 9;
+            List<Integer> cols = new ArrayList<>();
+            if (inRow == 7) {
+                for (int c = 1; c <= 7; c++) cols.add(c);
+            } else {
+                int start = 4 - inRow / 2;
+                for (int c = 0; c < inRow; c++) {
+                    int col = start + c;
+                    if (inRow % 2 == 0 && col >= 4) col++;
+                    cols.add(col);
+                }
+            }
+            for (int c : cols) out[idx++] = base + c;
+        }
+        return out;
     }
 
     private ItemStack info(Player p) {
