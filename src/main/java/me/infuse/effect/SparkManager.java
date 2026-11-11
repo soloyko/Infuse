@@ -374,6 +374,8 @@ public final class SparkManager {
                     cancel();
                     return;
                 }
+                int now = ticks;
+                ticks += 2; // advance first so an error below can never keep the ring alive
                 World w = center.getWorld();
                 Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(0x111111), 1.6f);
                 for (int i = 0; i < 40; i++) {
@@ -381,7 +383,7 @@ public final class SparkManager {
                     w.spawnParticle(Particle.DUST, center.clone().add(Math.cos(a) * r, 0.15, Math.sin(a) * r),
                             1, 0.02, 0.05, 0.02, dust);
                 }
-                if (ticks % 10 == 0) {
+                if (now % 10 == 0) {
                     for (Player other : w.getPlayers()) {
                         boolean inside = other.getLocation().distanceSquared(center) <= r * r
                                 && Math.abs(other.getLocation().getY() - center.getY()) < 3;
@@ -400,7 +402,6 @@ public final class SparkManager {
                         }
                     }
                 }
-                ticks += 2;
             }
 
             private void finish() {
@@ -433,10 +434,12 @@ public final class SparkManager {
 
             @Override
             public void run() {
-                if (ticks >= max || !p.isOnline()) {
+                if (ticks >= max || !p.isOnline() || center.getWorld() == null) {
                     cancel();
                     return;
                 }
+                int now = ticks;
+                ticks += 2; // advance first so an error below can never keep the whirlhole alive
                 World w = center.getWorld();
                 angle += 0.5;
                 for (int arm = 0; arm < 4; arm++) {
@@ -451,13 +454,12 @@ public final class SparkManager {
                     Vector toCenter = center.toVector().subtract(le.getLocation().toVector());
                     if (toCenter.lengthSquared() < 0.01) continue;
                     le.setVelocity(le.getVelocity().multiply(0.5).add(toCenter.normalize().multiply(pull)));
-                    if (ticks % 20 == 0 && le.getLocation().distanceSquared(center) < 4) {
+                    if (now % 20 == 0 && le.getLocation().distanceSquared(center) < 4) {
                         if (le instanceof Player t) t.setRemainingAir(Math.max(0, t.getRemainingAir() - 60));
-                        le.damage(2.0, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).build());
+                        le.damage(2.0, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
                     }
                 }
-                if (ticks % 20 == 0) w.playSound(center, Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 1f, 0.8f);
-                ticks += 2;
+                if (now % 20 == 0) w.playSound(center, Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 1f, 0.8f);
             }
         }.runTaskTimer(plugin, 0L, 2L);
     }
