@@ -7,7 +7,7 @@ recipes:
     effect: strength
     shape: ["KTK", "SRA", "KTK"]
     ingredients:
-      K: WITHER_SKELETON_SKULL
+      K: PLAYER_HEAD
       T: NETHERITE_UPGRADE_SMITHING_TEMPLATE
       S: NETHERITE_SWORD
       A: NETHERITE_AXE
@@ -17,7 +17,7 @@ recipes:
     shape: ["BHB", "TCT", "BHB"]
     ingredients:
       B: BOLT_ARMOR_TRIM_SMITHING_TEMPLATE
-      H: HEAVY_CORE
+      H: CHISELED_TUFF
       T: TRIDENT
       C: CREEPER_HEAD
   haste:
@@ -36,17 +36,17 @@ recipes:
       F: FLOW_ARMOR_TRIM_SMITHING_TEMPLATE
       L: PEARLESCENT_FROGLIGHT
       G: GOAT_HORN
-      I: BLUE_ICE
+      I: PITCHER_POD
   emerald:
     effect: emerald
     shape: ["WTW", "XBX", "CKC"]
     ingredients:
       W: WILD_ARMOR_TRIM_SMITHING_TEMPLATE
-      T: TOTEM_OF_UNDYING
-      X: EXPERIENCE_BOTTLE
+      T: SNIFFER_EGG
+      X: OMINOUS_BOTTLE
       B: EMERALD_BLOCK
       C: ENDER_CHEST
-      K: OMINOUS_TRIAL_KEY
+      K: ENCHANTING_TABLE
   speed:
     effect: speed
     shape: ["RHR", "DSE", "RBR"]
@@ -74,36 +74,37 @@ recipes:
       H: HONEY_BLOCK
       L: PEARLESCENT_FROGLIGHT
       A: AXOLOTL_BUCKET
-      M: GLISTERING_MELON_SLICE
+      M: SUSPICIOUS_STEW
   feather:
     effect: feather
     shape: ["RCR", "FHF", "RCR"]
     ingredients:
       R: BREEZE_ROD
-      C: COBWEB
+      C: PHANTOM_MEMBRANE
       F: FEATHER
       H: HEAVY_CORE
   invisibility:
     effect: invisibility
-    shape: ["ECE", "SKS", "ECE"]
+    shape: ["EDE", "SKS", "ECE"]
     ingredients:
       E: ENDER_EYE
+      D: MUSIC_DISC_5
       C: RECOVERY_COMPASS
-      S: ECHO_SHARD
+      S: SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE
       K: OMINOUS_TRIAL_KEY
   fire:
     effect: fire
     shape: ["ROR", "NMN", "ROR"]
     ingredients:
       R: RIB_ARMOR_TRIM_SMITHING_TEMPLATE
-      O: CRYING_OBSIDIAN
+      O: RESPAWN_ANCHOR
       N: NETHERITE_INGOT
-      M: FIRE_CHARGE
+      M: MAGMA_CREAM
   ocean:
     effect: ocean
     shape: ["PHP", "TCT", "PHP"]
     ingredients:
-      P: PRISMARINE_BRICKS
+      P: PRISMARINE_SHARD
       H: HEART_OF_THE_SEA
       T: TRIDENT
       C: CONDUIT
