@@ -137,11 +137,11 @@ public final class SwordItems {
         }
         lore.add(Component.empty());
 
-        section(lore, type, "Passive", type.passive().name(), type.passive().description(), null);
-        section(lore, type, "On Hit", type.onHit().name(), type.onHit().description(), null);
+        section(lore, type, Component.text("Passive"), type.passive().name(), type.passive().description(), null);
+        section(lore, type, Component.text("On Hit"), type.onHit().name(), type.onHit().description(), null);
         for (AbilitySlot slot : AbilitySlot.values()) {
             AbilityInfo info = type.ability(slot);
-            section(lore, type, slot.trigger(), info.name(), info.description(), s.cooldown(slot) + "s");
+            section(lore, type, slot.label(plugin.settings().trigger), info.name(), info.description(), s.cooldown(slot) + "s");
         }
         lore.add(Component.empty());
         Component stats = Text.plain("⚔ ", type.color())
@@ -159,10 +159,11 @@ public final class SwordItems {
         return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
     }
 
-    private void section(List<Component> lore, SwordType type, String label, String name, String description,
+    private void section(List<Component> lore, SwordType type, Component label, String name, String description,
                          @Nullable String cooldown) {
         Component header = Text.plain("▸ ", type.color())
-                .append(Text.plain(label + ": ", NamedTextColor.GRAY))
+                .append(label.color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false))
+                .append(Text.plain(": ", NamedTextColor.GRAY))
                 .append(Text.plain(name, type.color()).decoration(TextDecoration.BOLD, true));
         if (cooldown != null) {
             header = header.append(Text.plain("  ⌛ " + cooldown, NamedTextColor.DARK_GRAY));

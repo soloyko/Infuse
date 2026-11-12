@@ -23,6 +23,9 @@ public final class Settings {
 
     public enum PackMode { SELF_HOST, URL, NONE }
 
+    /** Which input fires abilities. */
+    public enum Trigger { OFFHAND, RIGHT_CLICK, BOTH }
+
     public record Recipe(boolean enabled, List<String> shape, Map<Character, Material> ingredients) {
     }
 
@@ -43,7 +46,7 @@ public final class Settings {
     public final boolean deathMessages;
     public final boolean protectDroppedSwords;
     public final Set<String> disabledWorlds;
-    public final boolean swapHandSecondary;
+    public final Trigger trigger;
 
     public final PackMode packMode;
     public final boolean packRequired;
@@ -71,7 +74,12 @@ public final class Settings {
         heldAura = c.getBoolean("settings.held-aura", true);
         deathMessages = c.getBoolean("settings.death-messages", true);
         protectDroppedSwords = c.getBoolean("settings.protect-dropped-swords", true);
-        swapHandSecondary = c.getBoolean("controls.swap-hand-secondary", false);
+        String triggerName = c.getString("controls.trigger", "offhand").toLowerCase(Locale.ROOT).replace('_', '-');
+        trigger = switch (triggerName) {
+            case "right-click", "rightclick", "click" -> Trigger.RIGHT_CLICK;
+            case "both" -> Trigger.BOTH;
+            default -> Trigger.OFFHAND;
+        };
         Set<String> worlds = new HashSet<>();
         for (String w : c.getStringList("settings.disabled-worlds")) {
             worlds.add(w.toLowerCase(Locale.ROOT));
@@ -114,12 +122,12 @@ public final class Settings {
                     readRecipe(s.getConfigurationSection("recipe"), type, log));
             swords.put(type, sword);
             revisions.put(type, Objects.hash(sword.attackDamage, sword.attackSpeed, sword.primaryCooldown,
-                    sword.secondaryCooldown, unbreakable, ITEM_FORMAT));
+                    sword.secondaryCooldown, unbreakable, trigger == Trigger.RIGHT_CLICK, ITEM_FORMAT));
         }
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 4;
+    private static final int ITEM_FORMAT = 5;
 
     private static Recipe readRecipe(ConfigurationSection r, SwordType type, Logger log) {
         if (r == null) {

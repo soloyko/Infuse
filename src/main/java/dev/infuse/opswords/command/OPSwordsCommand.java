@@ -194,16 +194,17 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         for (String line : Text.wrap(type.bio(), 55)) {
             sender.sendMessage(Component.text("  " + line, NamedTextColor.GRAY).decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC));
         }
-        infoLine(sender, type, "Passive", type.passive().name(), type.passive().description(), -1);
-        infoLine(sender, type, "On Hit", type.onHit().name(), type.onHit().description(), -1);
+        infoLine(sender, type, Component.text("Passive"), type.passive().name(), type.passive().description(), -1);
+        infoLine(sender, type, Component.text("On Hit"), type.onHit().name(), type.onHit().description(), -1);
         for (AbilitySlot slot : AbilitySlot.values()) {
-            infoLine(sender, type, slot.trigger(), type.ability(slot).name(), type.ability(slot).description(),
+            infoLine(sender, type, slot.label(plugin.settings().trigger), type.ability(slot).name(), type.ability(slot).description(),
                     plugin.settings().sword(type).cooldown(slot));
         }
     }
 
-    private static void infoLine(CommandSender sender, SwordType type, String label, String name, String description, int cooldown) {
-        Component line = Component.text("  ▸ " + label + ": ", NamedTextColor.GRAY)
+    private static void infoLine(CommandSender sender, SwordType type, Component label, String name, String description, int cooldown) {
+        Component line = Component.text("  ▸ ", NamedTextColor.GRAY).append(label.color(NamedTextColor.GRAY))
+                .append(Component.text(": ", NamedTextColor.GRAY))
                 .append(Component.text(name, type.color()));
         if (cooldown >= 0) {
             line = line.append(Component.text(" (" + cooldown + "s)", NamedTextColor.DARK_GRAY));

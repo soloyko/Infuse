@@ -11,9 +11,12 @@ model (bundled resource pack), a passive, an on-hit effect and two activated abi
 
 | Control (sword in main hand) | Does |
 | --- | --- |
-| Right-Click | Primary ability |
-| Sneak + Right-Click | Secondary ability |
-| Swap-hand key (F) | Secondary ability too, if `controls.swap-hand-secondary` is on |
+| Swap-hand key (**F**) | First ability |
+| Sneak + **F** | Second ability |
+
+Right-click stays a normal sword. Rebound the swap-hand key? Tooltips and the action bar show
+your own key. `controls.trigger` in `config.yml` switches to right-click (`right-click`) or
+allows both (`both`).
 
 While a sword is held the action bar shows both cooldowns, a chime plays when an ability is
 ready again, and other players see a faint themed aura around it. Kills get their own death
@@ -21,7 +24,7 @@ messages ("Steve was frozen solid by Alex wielding ❄ Everwinter").
 
 ## The swords
 
-| Sword | Passive (while held) | On hit | Right-Click | Sneak + Right-Click |
+| Sword | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
 | 🐉 **Wyrmsbane** · Dragon | Resistance I, +50% knockback resistance | 25%: +4 bonus damage | **Dragon Breath** (12s): 8-pulse cone of dragonfire | **Wyrm Dive** (30s): launch up, crash down in a shockwave, no fall damage |
 | 🔥 **Cinderwing** · Phoenix | Fire Resistance; **Rebirth**: a killing blow revives you at half health (every 5 min) | Ignites; 15%: combustion splash | **Ember Volley** (6s): 3 exploding fireballs (no block fire) | **Firestorm** (25s): expanding ring of fire |
@@ -135,7 +138,7 @@ Other permissions: `opswords.use` (abilities and passives, default everyone),
   `ability-damage-multiplier-vs-players` (tone abilities down for PvP only), `disabled-worlds`,
   `unbreakable`, `protect-dropped-swords` (dropped swords never despawn and glow).
 - Cosmetics: `action-bar-hud`, `ability-ready-sound`, `held-aura`, `death-messages`.
-- `controls.swap-hand-secondary`, `crafting.unique-swords`.
+- `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`.
 - Changes apply on `/opswords reload`; swords players already own update the next time they're held.
 
 ## For developers

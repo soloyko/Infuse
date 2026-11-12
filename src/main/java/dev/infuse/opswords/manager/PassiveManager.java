@@ -184,7 +184,8 @@ public final class PassiveManager {
 
     private Component slot(Player player, SwordType type, AbilitySlot slot) {
         long left = plugin.cooldowns().remaining(player.getUniqueId(), type, slot);
-        Component label = Text.plain(slot.shortTrigger() + " ", NamedTextColor.GRAY);
+        Component label = slot.shortLabel(plugin.settings().trigger).color(NamedTextColor.GRAY)
+                .append(Text.plain(" ", NamedTextColor.GRAY));
         String name = type.ability(slot).name();
         if (left <= 0) {
             return label.append(Text.plain(name, type.color())).append(Text.plain(" ✔", NamedTextColor.GREEN));

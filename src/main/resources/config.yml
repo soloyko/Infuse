@@ -3,10 +3,9 @@
 # ║  15 legendary swords with 3D models and unique abilities ║
 # ╚══════════════════════════════════════════════════════════╝
 #
-# Controls (while holding a sword):
-#   Right-Click          -> primary ability
-#   Sneak + Right-Click  -> secondary ability
-#   Swap-hand key (F)    -> secondary ability too, if controls.swap-hand-secondary is on
+# Controls (while holding a sword, see controls.trigger):
+#   Swap-hand key (F)          -> first ability
+#   Sneak + swap-hand key (F)  -> second ability
 #
 # /opswords reload applies changes. Swords players already own update
 # automatically the next time they hold them.
@@ -36,9 +35,12 @@ settings:
   disabled-worlds: []
 
 controls:
-  # Pressing the swap-hand key (F) with a sword fires its secondary ability instead of
-  # swapping hands. Sneak + Right-Click keeps working either way.
-  swap-hand-secondary: false
+  # How abilities are fired while holding a sword:
+  #   offhand     - swap-hand key (F by default) = first ability, Sneak + F = second ability.
+  #                 Right-click stays a normal sword. Tooltips show each player's own key.
+  #   right-click - Right-Click = first ability, Sneak + Right-Click = second ability
+  #   both        - either works
+  trigger: offhand
 
 resource-pack:
   # self-host: the plugin serves the bundled pack from a small built-in web server.
