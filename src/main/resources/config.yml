@@ -6,6 +6,7 @@
 # Controls (while holding a sword):
 #   Right-Click          -> primary ability
 #   Sneak + Right-Click  -> secondary ability
+#   Swap-hand key (F)    -> secondary ability too, if controls.swap-hand-secondary is on
 #
 # /opswords reload applies changes. Swords players already own update
 # automatically the next time they hold them.
@@ -18,12 +19,26 @@ settings:
   abilities-hit-players: true
   # Multiplies all ability damage (not normal melee damage).
   ability-damage-multiplier: 1.0
+  # Extra multiplier for ability damage against players, on top of the one above.
+  # Lower it if abilities feel too strong in PvP (e.g. 0.75).
+  ability-damage-multiplier-vs-players: 1.0
   # Shows ability cooldowns on the action bar while a sword is held.
   action-bar-hud: true
+  # Plays a chime when an ability comes off cooldown while you hold the sword.
+  ability-ready-sound: true
+  # Faint themed particles around a held sword (hidden while invisible).
+  held-aura: true
+  # Custom death messages for kills with an OP sword, e.g. "Steve was frozen solid by Alex".
+  death-messages: true
   # Dropped OP swords never despawn, can't be destroyed and glow.
   protect-dropped-swords: true
   # Abilities do nothing in these worlds.
   disabled-worlds: []
+
+controls:
+  # Pressing the swap-hand key (F) with a sword fires its secondary ability instead of
+  # swapping hands. Sneak + Right-Click keeps working either way.
+  swap-hand-secondary: false
 
 resource-pack:
   # self-host: the plugin serves the bundled pack from a small built-in web server.
@@ -52,6 +67,9 @@ crafting:
   enabled: true
   # Broadcasts a message when someone forges an OP sword.
   announce: true
+  # Legendary mode: each sword can only be crafted once per server. Admins can still
+  # /opswords give, and /opswords unforge <sword> allows it to be crafted again.
+  unique-swords: false
 
 # Per-sword settings.
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)

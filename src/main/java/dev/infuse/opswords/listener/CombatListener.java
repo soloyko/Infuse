@@ -4,6 +4,10 @@ import dev.infuse.opswords.OPSwordsPlugin;
 import dev.infuse.opswords.ability.Fx;
 import dev.infuse.opswords.sword.SwordType;
 import dev.infuse.opswords.util.Text;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -18,7 +22,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.Bukkit;
 
 /** Melee procs and the damage immunities granted by swords. */
 public final class CombatListener implements Listener {
@@ -106,9 +109,28 @@ public final class CombatListener implements Listener {
         });
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onDeath(PlayerDeathEvent event) {
-        plugin.status().forget(event.getPlayer());
+        Player victim = event.getPlayer();
+        plugin.status().forget(victim);
+        if (!plugin.settings().deathMessages || event.deathMessage() == null
+                || !(event.getDamageSource().getCausingEntity() instanceof Player killer) || killer == victim) {
+            return;
+        }
+        SwordType type = plugin.items().heldType(killer);
+        if (type == null) {
+            return;
+        }
+        ItemStack sword = killer.getInventory().getItemInMainHand();
+        Component swordName = Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+                .hoverEvent(sword.asHoverEvent());
+        event.deathMessage(Component.text()
+                .append(victim.displayName())
+                .append(Component.text(" was " + type.deathVerb() + " by ", NamedTextColor.GRAY))
+                .append(killer.displayName())
+                .append(Component.text(" wielding the ", NamedTextColor.GRAY))
+                .append(swordName)
+                .build());
     }
 
     @EventHandler

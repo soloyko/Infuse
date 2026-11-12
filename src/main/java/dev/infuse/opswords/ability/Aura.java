@@ -1,0 +1,78 @@
+package dev.infuse.opswords.ability;
+
+import dev.infuse.opswords.sword.SwordType;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Faint themed particles around a held sword, shown to everyone except the holder (in first
+ * person they would spawn right in front of the camera). Runs every 10 ticks.
+ */
+public final class Aura {
+
+    private Aura() {
+    }
+
+    public static void play(Player player, SwordType type, long tick) {
+        if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) || player.isInvisible()
+                || player.getGameMode() == org.bukkit.GameMode.SPECTATOR) {
+            return; // never give away an invisible player
+        }
+        Location at = swordPoint(player);
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        switch (type) {
+            case DRAGON -> show(player, Particle.DRAGON_BREATH, at, 1, 0.15, 0.25, 0.15, 0.005, 0.6f);
+            case VOID -> show(player, Particle.REVERSE_PORTAL, at, 2, 0.15, 0.3, 0.15, 0.01);
+            case INFERNO -> show(player, Particle.SMALL_FLAME, at, 2, 0.12, 0.3, 0.12, 0.005);
+            case FROST -> show(player, Particle.SNOWFLAKE, at, 1, 0.15, 0.3, 0.15, 0.005);
+            case STORM -> {
+                if (r.nextInt(3) == 0) {
+                    show(player, Particle.ELECTRIC_SPARK, at, 2, 0.15, 0.3, 0.15, 0.05);
+                }
+            }
+            case EMERALD -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.HAPPY_VILLAGER, at, 1, 0.15, 0.3, 0.15, 0);
+                }
+            }
+            case CRIMSON -> show(player, Particle.DUST, at, 2, 0.12, 0.3, 0.12, 0, Fx.dust(0xB32E49, 0.7f));
+            case SOLAR -> show(player, Particle.WAX_ON, at, 1, 0.15, 0.3, 0.15, 0);
+            case SHADOW -> show(player, Particle.SMOKE, at, 2, 0.12, 0.3, 0.12, 0.005);
+            case COSMIC -> show(player, r.nextBoolean() ? Particle.END_ROD : Particle.ENCHANT,
+                    at, 1, 0.15, 0.3, 0.15, 0.005);
+        }
+    }
+
+    private static void show(Player holder, Particle particle, Location at, int count, double dx, double dy, double dz, double speed) {
+        show(holder, particle, at, count, dx, dy, dz, speed, null);
+    }
+
+    private static <T> void show(Player holder, Particle particle, Location at, int count, double dx, double dy, double dz,
+                                 double speed, T data) {
+        for (Player viewer : at.getWorld().getPlayers()) {
+            if (viewer != holder && viewer.canSee(holder) && viewer.getLocation().distanceSquared(at) < 48 * 48) {
+                viewer.spawnParticle(particle, at, count, dx, dy, dz, speed, data);
+            }
+        }
+    }
+
+    /** Roughly where the blade is when held in the main hand. */
+    private static Location swordPoint(Player player) {
+        Location base = player.getLocation();
+        Vector forward = base.getDirection().setY(0);
+        if (forward.lengthSquared() < 1.0E-4) {
+            forward = new Vector(0, 0, 1);
+        }
+        forward.normalize();
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX());
+        if (player.getMainHand() == org.bukkit.inventory.MainHand.LEFT) {
+            right.multiply(-1);
+        }
+        return base.add(right.multiply(0.45)).add(forward.multiply(0.35)).add(0, 1.0, 0);
+    }
+}

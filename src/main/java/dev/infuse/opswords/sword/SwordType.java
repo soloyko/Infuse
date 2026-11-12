@@ -130,6 +130,22 @@ public enum SwordType {
         return slot == AbilitySlot.PRIMARY ? primary : secondary;
     }
 
+    /** Used in death messages: "Steve was {verb} by Alex". */
+    public String deathVerb() {
+        return switch (this) {
+            case DRAGON -> "torn apart";
+            case VOID -> "erased from existence";
+            case INFERNO -> "reduced to ashes";
+            case FROST -> "frozen solid";
+            case STORM -> "struck down";
+            case EMERALD -> "reclaimed by nature";
+            case CRIMSON -> "drained dry";
+            case SOLAR -> "burned to a crisp";
+            case SHADOW -> "assassinated";
+            case COSMIC -> "sent into orbit";
+        };
+    }
+
     public NamespacedKey itemModel() {
         return new NamespacedKey(MODEL_NAMESPACE, id);
     }

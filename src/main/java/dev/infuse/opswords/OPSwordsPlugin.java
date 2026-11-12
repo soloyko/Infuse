@@ -3,11 +3,12 @@ package dev.infuse.opswords;
 import dev.infuse.opswords.ability.AbilityRegistry;
 import dev.infuse.opswords.ability.Combat;
 import dev.infuse.opswords.command.OPSwordsCommand;
-import dev.infuse.opswords.gui.SwordMenu;
+import dev.infuse.opswords.gui.Menu;
 import dev.infuse.opswords.listener.AbilityListener;
 import dev.infuse.opswords.listener.CombatListener;
 import dev.infuse.opswords.listener.ItemListener;
 import dev.infuse.opswords.manager.CooldownManager;
+import dev.infuse.opswords.manager.ForgeRegistry;
 import dev.infuse.opswords.manager.PassiveManager;
 import dev.infuse.opswords.manager.StatusManager;
 import dev.infuse.opswords.pack.ResourcePackService;
@@ -32,6 +33,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
     private AbilityRegistry abilities;
     private RecipeService recipes;
     private ResourcePackService resourcePack;
+    private ForgeRegistry forges;
 
     @Override
     public void onEnable() {
@@ -46,12 +48,14 @@ public final class OPSwordsPlugin extends JavaPlugin {
         abilities = new AbilityRegistry(this);
         recipes = new RecipeService(this);
         resourcePack = new ResourcePackService(this);
+        forges = new ForgeRegistry(this);
+        forges.load();
 
         var pm = Bukkit.getPluginManager();
         pm.registerEvents(new AbilityListener(this), this);
         pm.registerEvents(new CombatListener(this), this);
         pm.registerEvents(new ItemListener(this), this);
-        pm.registerEvents(new SwordMenu.Listener(), this);
+        pm.registerEvents(new Menu.Listener(), this);
         pm.registerEvents(resourcePack, this);
         abilities.registerListeners();
 
@@ -93,6 +97,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
     public void reload() {
         reloadConfig();
         settings = Settings.load(getConfig(), getLogger());
+        forges.load();
         recipes.unregisterAll();
         recipes.registerAll();
         resourcePack.stop();
@@ -140,5 +145,9 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
     public ResourcePackService resourcePack() {
         return resourcePack;
+    }
+
+    public ForgeRegistry forges() {
+        return forges;
     }
 }

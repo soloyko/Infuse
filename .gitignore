@@ -5,3 +5,5 @@ out/
 *.iml
 .vscode/
 run/
+__pycache__/
+*.pyc

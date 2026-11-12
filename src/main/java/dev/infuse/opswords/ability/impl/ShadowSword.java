@@ -215,7 +215,8 @@ public final class ShadowSword extends SwordAbility implements Listener {
                 continue;
             }
             hideGear(player); // the server re-sends real gear whenever it changes
-            player.spawnParticle(Particle.SMOKE, player.getLocation().add(0, 0.2, 0), 3, 0.2, 0.05, 0.2, 0.01);
+            int secondsLeft = (veiled.get(id) - now + 19) / 20;
+            tell(player, Text.plain("🌑 Veiled ", type.color()).append(Text.plain(secondsLeft + "s", NamedTextColor.GRAY)));
         }
     }
 

@@ -83,7 +83,11 @@ public final class Combat {
                 .build();
         abilityDamageDepth++;
         try {
-            target.damage(amount * plugin.settings().abilityDamageMultiplier, source);
+            double multiplier = plugin.settings().abilityDamageMultiplier;
+            if (target instanceof Player) {
+                multiplier *= plugin.settings().playerDamageMultiplier;
+            }
+            target.damage(amount * multiplier, source);
         } finally {
             abilityDamageDepth--;
         }

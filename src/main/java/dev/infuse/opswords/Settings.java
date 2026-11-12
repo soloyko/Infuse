@@ -36,9 +36,14 @@ public final class Settings {
     public final boolean unbreakable;
     public final boolean abilitiesHitPlayers;
     public final double abilityDamageMultiplier;
+    public final double playerDamageMultiplier;
     public final boolean actionBarHud;
+    public final boolean readySound;
+    public final boolean heldAura;
+    public final boolean deathMessages;
     public final boolean protectDroppedSwords;
     public final Set<String> disabledWorlds;
+    public final boolean swapHandSecondary;
 
     public final PackMode packMode;
     public final boolean packRequired;
@@ -51,6 +56,7 @@ public final class Settings {
 
     public final boolean craftingEnabled;
     public final boolean craftingAnnounce;
+    public final boolean uniqueSwords;
 
     private final Map<SwordType, Sword> swords;
     private final Map<SwordType, Integer> revisions;
@@ -59,8 +65,13 @@ public final class Settings {
         unbreakable = c.getBoolean("settings.unbreakable", true);
         abilitiesHitPlayers = c.getBoolean("settings.abilities-hit-players", true);
         abilityDamageMultiplier = Math.max(0, c.getDouble("settings.ability-damage-multiplier", 1.0));
+        playerDamageMultiplier = Math.max(0, c.getDouble("settings.ability-damage-multiplier-vs-players", 1.0));
         actionBarHud = c.getBoolean("settings.action-bar-hud", true);
+        readySound = c.getBoolean("settings.ability-ready-sound", true);
+        heldAura = c.getBoolean("settings.held-aura", true);
+        deathMessages = c.getBoolean("settings.death-messages", true);
         protectDroppedSwords = c.getBoolean("settings.protect-dropped-swords", true);
+        swapHandSecondary = c.getBoolean("controls.swap-hand-secondary", false);
         Set<String> worlds = new HashSet<>();
         for (String w : c.getStringList("settings.disabled-worlds")) {
             worlds.add(w.toLowerCase(Locale.ROOT));
@@ -83,6 +94,7 @@ public final class Settings {
 
         craftingEnabled = c.getBoolean("crafting.enabled", true);
         craftingAnnounce = c.getBoolean("crafting.announce", true);
+        uniqueSwords = c.getBoolean("crafting.unique-swords", false);
 
         swords = new EnumMap<>(SwordType.class);
         revisions = new EnumMap<>(SwordType.class);
@@ -107,7 +119,7 @@ public final class Settings {
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 1;
+    private static final int ITEM_FORMAT = 3;
 
     private static Recipe readRecipe(ConfigurationSection r, SwordType type, Logger log) {
         if (r == null) {

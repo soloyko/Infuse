@@ -1,12 +1,15 @@
 package dev.infuse.opswords.listener;
 
 import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.manager.ForgeRegistry;
 import dev.infuse.opswords.sword.SwordType;
 import dev.infuse.opswords.util.Text;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -67,33 +70,61 @@ public final class ItemListener implements Listener {
             }
             return;
         }
-        boolean allowed = plugin.settings().craftingEnabled && plugin.settings().sword(type).enabled()
-                && event.getView().getPlayer().hasPermission("opswords.craft");
+        Player crafter = event.getView().getPlayer() instanceof Player p ? p : null;
+        boolean allowed = crafter != null && plugin.settings().craftingEnabled && plugin.settings().sword(type).enabled()
+                && crafter.hasPermission("opswords.craft")
+                && !(plugin.settings().uniqueSwords && plugin.forges().isForged(type));
         for (ItemStack stack : event.getInventory().getMatrix()) {
             if (plugin.items().isSword(stack)) {
                 allowed = false; // don't let one OP sword be eaten to craft another
                 break;
             }
         }
-        event.getInventory().setResult(allowed ? plugin.items().create(type) : null);
+        event.getInventory().setResult(allowed ? plugin.items().createForged(type, crafter.getName()) : null);
+    }
+
+    /** Legendary mode: if two players race to craft the same sword, only the first one gets it. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onCraftCheck(CraftItemEvent event) {
+        SwordType type = event.getRecipe() instanceof Keyed keyed ? plugin.recipes().typeOf(keyed.getKey()) : null;
+        if (type != null && plugin.settings().uniqueSwords && plugin.forges().isForged(type)) {
+            event.setCancelled(true);
+            event.getInventory().setResult(null);
+            ForgeRegistry.Forged forged = plugin.forges().get(type);
+            Text.send(event.getWhoClicked(), "<red>The " + type.displayName() + " has already been forged"
+                    + (forged != null ? " by " + forged.name() : "") + ".");
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCraft(CraftItemEvent event) {
-        if (!plugin.settings().craftingAnnounce || !(event.getWhoClicked() instanceof Player player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
         SwordType type = event.getRecipe() instanceof Keyed keyed ? plugin.recipes().typeOf(keyed.getKey()) : null;
         if (type == null || event.getCurrentItem() == null || event.getCurrentItem().isEmpty()) {
             return;
         }
+        if (plugin.settings().uniqueSwords) {
+            plugin.forges().record(type, player);
+        }
+        if (!plugin.settings().craftingAnnounce) {
+            return;
+        }
         Component name = Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
-                .hoverEvent(plugin.items().create(type).asHoverEvent());
-        Bukkit.broadcast(Text.PREFIX
+                .hoverEvent(event.getCurrentItem().asHoverEvent());
+        Component message = Text.PREFIX
                 .append(Component.text(player.getName(), NamedTextColor.WHITE))
                 .append(Component.text(" has forged the ", NamedTextColor.GRAY))
                 .append(name)
-                .append(Component.text("!", NamedTextColor.GRAY)));
+                .append(Component.text("!", NamedTextColor.GRAY));
+        if (plugin.settings().uniqueSwords) {
+            message = message.append(Component.text(" It is the only one in existence.", NamedTextColor.GOLD));
+        }
+        Bukkit.broadcast(message);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.playSound(online.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1.2f);
+        }
     }
 
     @EventHandler

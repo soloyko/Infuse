@@ -110,9 +110,11 @@ public final class StormSword extends SwordAbility {
                 Location to = Combat.center(current);
                 Fx.arc(from, to, p -> {
                     Fx.particle(p, Particle.ELECTRIC_SPARK, 1, 0.02, 0);
-                    Fx.particle(p, Particle.DUST, 1, 0.02, 0, Fx.dust(SPARK_BLUE, 0.9f));
+                    Fx.particle(p, Particle.DUST, 1, 0.02, 0, Fx.dust(SPARK_BLUE, 1.4f));
+                    Fx.particle(p, Particle.END_ROD, 1, 0.01, 0);
                 });
                 Fx.particle(to, Particle.ELECTRIC_SPARK, 25, 0.35, 0.25);
+                Fx.particle(to, Particle.FLASH, 1, 0, 0, Color.fromRGB(0xBFE3FF));
                 Fx.sound(to, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 1.2f + hops * 0.1f);
                 combat().damage(player, current, 7);
                 applyEffect(current, PotionEffectType.SLOWNESS, 30, 2);

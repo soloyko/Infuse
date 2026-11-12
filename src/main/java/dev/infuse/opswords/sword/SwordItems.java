@@ -27,22 +27,35 @@ public final class SwordItems {
     /** Vanilla ids, so the tooltip shows "13 Attack Damage" the same way vanilla weapons do. */
     private static final NamespacedKey BASE_ATTACK_DAMAGE = NamespacedKey.minecraft("base_attack_damage");
     private static final NamespacedKey BASE_ATTACK_SPEED = NamespacedKey.minecraft("base_attack_speed");
-    private static final int LORE_WIDTH = 38;
+    private static final int LORE_WIDTH = 42;
 
     private final OPSwordsPlugin plugin;
     private final NamespacedKey typeKey;
     private final NamespacedKey revisionKey;
+    private final NamespacedKey forgerKey;
 
     public SwordItems(OPSwordsPlugin plugin) {
         this.plugin = plugin;
         this.typeKey = new NamespacedKey(plugin, "sword");
         this.revisionKey = new NamespacedKey(plugin, "revision");
+        this.forgerKey = new NamespacedKey(plugin, "forged_by");
     }
 
     public ItemStack create(SwordType type) {
         ItemStack item = ItemStack.of(Material.NETHERITE_SWORD);
         item.editMeta(meta -> {
             meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id());
+            applyStats(meta, type);
+        });
+        return item;
+    }
+
+    /** A crafted sword: like {@link #create} but signed with the crafter's name. */
+    public ItemStack createForged(SwordType type, String forgerName) {
+        ItemStack item = ItemStack.of(Material.NETHERITE_SWORD);
+        item.editMeta(meta -> {
+            meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id());
+            meta.getPersistentDataContainer().set(forgerKey, PersistentDataType.STRING, forgerName);
             applyStats(meta, type);
         });
         return item;
@@ -93,7 +106,7 @@ public final class SwordItems {
 
         meta.itemName(Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
                 .decoration(TextDecoration.BOLD, true));
-        meta.lore(lore(type, s));
+        meta.lore(lore(type, s, meta.getPersistentDataContainer().get(forgerKey, PersistentDataType.STRING)));
         meta.setItemModel(type.itemModel());
         meta.setRarity(ItemRarity.EPIC);
         meta.setUnbreakable(settings.unbreakable);
@@ -108,9 +121,12 @@ public final class SwordItems {
         meta.getPersistentDataContainer().set(revisionKey, PersistentDataType.INTEGER, settings.revision(type));
     }
 
-    private List<Component> lore(SwordType type, Settings.Sword s) {
+    private List<Component> lore(SwordType type, Settings.Sword s, @Nullable String forger) {
         List<Component> lore = new ArrayList<>();
         lore.add(Text.plain("Legendary Blade", type.accent()).decoration(TextDecoration.ITALIC, true));
+        if (forger != null) {
+            lore.add(Text.plain("Forged by ", NamedTextColor.DARK_GRAY).append(Text.plain(forger, NamedTextColor.GRAY)));
+        }
         lore.add(Component.empty());
 
         section(lore, type, "Passive", type.passive().name(), type.passive().description(), null);
@@ -134,7 +150,6 @@ public final class SwordItems {
         for (String line : Text.wrap(description, LORE_WIDTH)) {
             lore.add(Text.plain("   " + line, NamedTextColor.WHITE));
         }
-        lore.add(Component.empty());
     }
 
     public NamespacedKey typeKey() {

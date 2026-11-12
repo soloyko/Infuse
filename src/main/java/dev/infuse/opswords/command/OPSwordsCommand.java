@@ -1,6 +1,7 @@
 package dev.infuse.opswords.command;
 
 import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.gui.RecipeMenu;
 import dev.infuse.opswords.gui.SwordMenu;
 import dev.infuse.opswords.sword.AbilitySlot;
 import dev.infuse.opswords.sword.SwordType;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** /opswords give | menu | list | info | pack | resetcooldowns | reload */
+/** /opswords give | menu | list | info | recipes | pack | resetcooldowns | unforge | reload */
 public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
 
     private static final String ADMIN = "opswords.admin";
@@ -41,6 +42,8 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         switch (sub) {
             case "give" -> give(sender, label, args);
             case "menu", "gui" -> menu(sender);
+            case "recipes", "recipe", "craft" -> recipes(sender, args);
+            case "unforge" -> unforge(sender, args);
             case "list" -> list(sender);
             case "info" -> info(sender, args);
             case "pack" -> pack(sender, args);
@@ -54,12 +57,14 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
     private void help(CommandSender sender, String label) {
         Text.send(sender, "<gray>Commands:");
         line(sender, "/" + label + " list", "Show all swords");
+        line(sender, "/" + label + " recipes [sword]", "How to craft each sword");
         line(sender, "/" + label + " info [sword]", "Show what a sword does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
         if (sender.hasPermission(ADMIN)) {
             line(sender, "/" + label + " give <player> <sword|all>", "Give swords");
             line(sender, "/" + label + " menu", "Take swords from a menu");
             line(sender, "/" + label + " resetcooldowns [player]", "Clear ability cooldowns");
+            line(sender, "/" + label + " unforge <sword>", "Legendary mode: allow a sword to be crafted again");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -129,6 +134,31 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         new SwordMenu(plugin).open(player);
     }
 
+    private void recipes(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            Text.send(sender, "<red>Only players can open the recipe book.");
+            return;
+        }
+        SwordType type = args.length >= 2 ? SwordType.byId(args[1]) : null;
+        (type == null ? RecipeMenu.overview(plugin) : RecipeMenu.recipe(plugin, type)).open(player);
+    }
+
+    private void unforge(CommandSender sender, String[] args) {
+        if (denied(sender)) {
+            return;
+        }
+        SwordType type = args.length >= 2 ? SwordType.byId(args[1]) : null;
+        if (type == null) {
+            Text.send(sender, "<gray>Usage: <white>/opswords unforge <sword></white>. Swords: " + String.join(", ", ids()));
+            return;
+        }
+        if (plugin.forges().clear(type)) {
+            Text.send(sender, "<gray>The " + type.displayName() + " can be forged again.");
+        } else {
+            Text.send(sender, "<gray>The " + type.displayName() + " hasn't been forged.");
+        }
+    }
+
     private void list(CommandSender sender) {
         Text.send(sender, "<gray>Hover a sword to see what it does:");
         for (SwordType type : SwordType.values()) {
@@ -141,6 +171,11 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                             + type.ability(AbilitySlot.SECONDARY).name(), NamedTextColor.DARK_GRAY));
             if (!enabled) {
                 line = line.append(Component.text(" (disabled)", NamedTextColor.RED));
+            } else if (plugin.settings().uniqueSwords) {
+                var forged = plugin.forges().get(type);
+                line = line.append(forged == null
+                        ? Component.text(" (not yet forged)", NamedTextColor.GOLD)
+                        : Component.text(" (forged by " + forged.name() + ")", NamedTextColor.GRAY));
             }
             sender.sendMessage(line);
         }
@@ -234,9 +269,9 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         boolean admin = sender.hasPermission(ADMIN);
         List<String> options = new ArrayList<>();
         if (args.length == 1) {
-            options.addAll(List.of("list", "info", "pack"));
+            options.addAll(List.of("list", "info", "recipes", "pack"));
             if (admin) {
-                options.addAll(List.of("give", "menu", "resetcooldowns", "reload"));
+                options.addAll(List.of("give", "menu", "resetcooldowns", "unforge", "reload"));
             }
         } else if (args.length == 2) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -248,7 +283,12 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                         }
                     }
                 }
-                case "info" -> options.addAll(ids());
+                case "info", "recipes", "recipe" -> options.addAll(ids());
+                case "unforge" -> {
+                    if (admin) {
+                        options.addAll(ids());
+                    }
+                }
                 default -> {
                 }
             }

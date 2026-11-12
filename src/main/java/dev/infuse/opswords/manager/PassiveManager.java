@@ -1,6 +1,7 @@
 package dev.infuse.opswords.manager;
 
 import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.ability.Aura;
 import dev.infuse.opswords.ability.Combat;
 import dev.infuse.opswords.sword.AbilitySlot;
 import dev.infuse.opswords.sword.SwordType;
@@ -8,6 +9,8 @@ import dev.infuse.opswords.util.Text;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -91,11 +94,22 @@ public final class PassiveManager {
         }
         syncEffects(player, wanted);
 
-        if (!fullTick || type == null) {
+        if (!fullTick) {
+            return;
+        }
+        for (CooldownManager.Ready ready : plugin.cooldowns().pollReady(player.getUniqueId())) {
+            if (ready.type() == type && usable) {
+                announceReady(player, ready);
+            }
+        }
+        if (type == null) {
             return;
         }
         if (usable) {
             plugin.abilities().get(type).tickHeld(player, runs);
+            if (plugin.settings().heldAura) {
+                Aura.play(player, type, runs);
+            }
         }
         if (plugin.settings().actionBarHud && usable && hudPausedUntil.getOrDefault(player.getUniqueId(), 0) <= Bukkit.getCurrentTick()) {
             player.sendActionBar(hud(player, type));
@@ -147,6 +161,18 @@ public final class PassiveManager {
     public void actionBar(Player player, Component message) {
         player.sendActionBar(message);
         hudPausedUntil.put(player.getUniqueId(), Bukkit.getCurrentTick() + 30);
+    }
+
+    private void announceReady(Player player, CooldownManager.Ready ready) {
+        if (plugin.settings().readySound) {
+            float pitch = ready.slot() == AbilitySlot.PRIMARY ? 1.6f : 1.2f;
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.PLAYERS, 0.6f, pitch);
+        }
+        if (plugin.settings().actionBarHud) {
+            actionBar(player, Text.plain("✔ ", NamedTextColor.GREEN)
+                    .append(Text.plain(ready.type().ability(ready.slot()).name(), ready.type().color()))
+                    .append(Text.plain(" is ready", NamedTextColor.GRAY)));
+        }
     }
 
     private Component hud(Player player, SwordType type) {

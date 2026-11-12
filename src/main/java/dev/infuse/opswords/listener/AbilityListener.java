@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 /** Right-click / sneak + right-click with a sword in the main hand fires its abilities. */
@@ -44,6 +45,21 @@ public final class AbilityListener implements Listener {
             return; // let players open doors, chests, etc. without firing an ability
         }
         plugin.abilities().activate(player, type, player.isSneaking() ? AbilitySlot.SECONDARY : AbilitySlot.PRIMARY);
+    }
+
+    /** Optional: the swap-hand key (F) fires the secondary ability instead of swapping. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSwapHands(PlayerSwapHandItemsEvent event) {
+        if (!plugin.settings().swapHandSecondary) {
+            return;
+        }
+        Player player = event.getPlayer();
+        SwordType type = plugin.items().heldType(player); // the swap hasn't happened yet
+        if (type == null) {
+            return;
+        }
+        event.setCancelled(true);
+        plugin.abilities().activate(player, type, AbilitySlot.SECONDARY);
     }
 
     @SuppressWarnings("deprecation")

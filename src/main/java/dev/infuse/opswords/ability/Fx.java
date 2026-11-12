@@ -1,13 +1,17 @@
 package dev.infuse.opswords.ability;
 
+import com.destroystokyo.paper.ParticleBuilder;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
@@ -21,17 +25,42 @@ public final class Fx {
         return new Particle.DustOptions(Color.fromRGB(rgb), size);
     }
 
+    /** Particles closer than this to a player's eyes are not sent to that player (they'd fill the screen). */
+    private static final double FACE_CLEARANCE_SQ = 1.6 * 1.6;
+    private static final double VIEW_RANGE_SQ = 96 * 96;
+
     public static void particle(Location at, Particle particle, int count, double spread, double speed) {
-        at.getWorld().spawnParticle(particle, at, count, spread, spread, spread, speed, null, true);
+        emit(at, particle, count, spread, spread, spread, speed, null);
     }
 
     public static <T> void particle(Location at, Particle particle, int count, double spread, double speed, T data) {
-        at.getWorld().spawnParticle(particle, at, count, spread, spread, spread, speed, data, true);
+        emit(at, particle, count, spread, spread, spread, speed, data);
     }
 
     /** Spawns one particle moving in {@code direction} at {@code speed}. */
     public static void directional(Location at, Particle particle, Vector direction, double speed) {
-        at.getWorld().spawnParticle(particle, at, 0, direction.getX(), direction.getY(), direction.getZ(), speed, null, true);
+        emit(at, particle, 0, direction.getX(), direction.getY(), direction.getZ(), speed, null);
+    }
+
+    /**
+     * Sends a particle to every player who can see it from a distance (long-range "forced" particles),
+     * except players whose eyes are right next to it: in first person those render huge and cover
+     * the screen, e.g. a burst centred on the caster's own chest.
+     */
+    private static <T> void emit(Location at, Particle particle, int count, double dx, double dy, double dz,
+                                 double speed, T data) {
+        List<Player> receivers = new ArrayList<>();
+        for (Player viewer : at.getWorld().getPlayers()) {
+            double d = viewer.getEyeLocation().distanceSquared(at);
+            if (d > FACE_CLEARANCE_SQ && d < VIEW_RANGE_SQ) {
+                receivers.add(viewer);
+            }
+        }
+        if (receivers.isEmpty()) {
+            return;
+        }
+        new ParticleBuilder(particle).location(at).count(count).offset(dx, dy, dz).extra(speed).data(data)
+                .force(true).receivers(receivers).spawn();
     }
 
     /** Spawns {@code count} particles flying outward from {@code center} in random directions. */

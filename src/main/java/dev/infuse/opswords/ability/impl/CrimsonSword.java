@@ -81,7 +81,7 @@ public final class CrimsonSword extends SwordAbility {
                     Location p = center.clone().add(right.clone().multiply(s)).subtract(dir.clone().multiply(s * s * 0.25));
                     Fx.particle(p, Particle.DUST, 1, 0.02, 0, Fx.dust(Math.abs(s) > 1.1 ? DARK_RED : RED, 1.4f));
                 }
-                if (steps % 2 == 0) {
+                if (steps % 2 == 0 && steps >= 4) { // not right in the caster's face
                     Fx.particle(center, Particle.SWEEP_ATTACK, 1, 0, 0);
                 }
                 for (LivingEntity target : combat().nearby(player, center, 2.0)) {
