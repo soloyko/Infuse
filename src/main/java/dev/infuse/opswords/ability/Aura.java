@@ -28,14 +28,14 @@ public final class Aura {
         switch (type) {
             case DRAGON -> show(player, Particle.DRAGON_BREATH, at, 1, 0.15, 0.25, 0.15, 0.005, 0.6f);
             case VOID -> show(player, Particle.REVERSE_PORTAL, at, 2, 0.15, 0.3, 0.15, 0.01);
-            case INFERNO -> show(player, Particle.SMALL_FLAME, at, 2, 0.12, 0.3, 0.12, 0.005);
+            case PHOENIX -> show(player, Particle.SMALL_FLAME, at, 2, 0.12, 0.3, 0.12, 0.005);
             case FROST -> show(player, Particle.SNOWFLAKE, at, 1, 0.15, 0.3, 0.15, 0.005);
             case STORM -> {
                 if (r.nextInt(3) == 0) {
                     show(player, Particle.ELECTRIC_SPARK, at, 2, 0.15, 0.3, 0.15, 0.05);
                 }
             }
-            case EMERALD -> {
+            case VERDANT -> {
                 if (tick % 2 == 0) {
                     show(player, Particle.HAPPY_VILLAGER, at, 1, 0.15, 0.3, 0.15, 0);
                 }
@@ -45,6 +45,15 @@ public final class Aura {
             case SHADOW -> show(player, Particle.SMOKE, at, 2, 0.12, 0.3, 0.12, 0.005);
             case COSMIC -> show(player, r.nextBoolean() ? Particle.END_ROD : Particle.ENCHANT,
                     at, 1, 0.15, 0.3, 0.15, 0.005);
+            case TIDE -> show(player, Particle.FALLING_WATER, at, 2, 0.15, 0.3, 0.15, 0);
+            case PLAGUE -> show(player, Particle.ENTITY_EFFECT, at, 1, 0.15, 0.3, 0.15, 0, org.bukkit.Color.fromRGB(0x9CD64A));
+            case CHRONO -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.ENCHANT, at, 3, 0.2, 0.3, 0.2, 0.3);
+                }
+            }
+            case SOUL -> show(player, Particle.SOUL, at, 1, 0.15, 0.3, 0.15, 0.01);
+            case ECHO -> show(player, Particle.SCULK_CHARGE_POP, at, 1, 0.15, 0.3, 0.15, 0.005);
         }
     }
 

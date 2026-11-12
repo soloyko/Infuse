@@ -1,15 +1,20 @@
 package dev.infuse.opswords.ability;
 
 import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.ability.impl.ChronoSword;
 import dev.infuse.opswords.ability.impl.CosmicSword;
 import dev.infuse.opswords.ability.impl.CrimsonSword;
 import dev.infuse.opswords.ability.impl.DragonSword;
-import dev.infuse.opswords.ability.impl.EmeraldSword;
+import dev.infuse.opswords.ability.impl.EchoSword;
 import dev.infuse.opswords.ability.impl.FrostSword;
-import dev.infuse.opswords.ability.impl.InfernoSword;
+import dev.infuse.opswords.ability.impl.PhoenixSword;
+import dev.infuse.opswords.ability.impl.PlagueSword;
 import dev.infuse.opswords.ability.impl.ShadowSword;
 import dev.infuse.opswords.ability.impl.SolarSword;
+import dev.infuse.opswords.ability.impl.SoulSword;
 import dev.infuse.opswords.ability.impl.StormSword;
+import dev.infuse.opswords.ability.impl.TideSword;
+import dev.infuse.opswords.ability.impl.VerdantSword;
 import dev.infuse.opswords.ability.impl.VoidSword;
 import dev.infuse.opswords.api.SwordAbilityEvent;
 import dev.infuse.opswords.sword.AbilitySlot;
@@ -34,15 +39,20 @@ public final class AbilityRegistry {
     public AbilityRegistry(OPSwordsPlugin plugin) {
         this.plugin = plugin;
         register(new DragonSword(plugin));
-        register(new VoidSword(plugin));
-        register(new InfernoSword(plugin));
+        register(new PhoenixSword(plugin));
         register(new FrostSword(plugin));
         register(new StormSword(plugin));
-        register(new EmeraldSword(plugin));
+        register(new TideSword(plugin));
+        register(new VerdantSword(plugin));
+        register(new PlagueSword(plugin));
         register(new CrimsonSword(plugin));
         register(new SolarSword(plugin));
-        register(new ShadowSword(plugin));
+        register(new VoidSword(plugin));
         register(new CosmicSword(plugin));
+        register(new ChronoSword(plugin));
+        register(new ShadowSword(plugin));
+        register(new SoulSword(plugin));
+        register(new EchoSword(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
                 throw new IllegalStateException("No ability registered for " + type);
@@ -76,7 +86,7 @@ public final class AbilityRegistry {
             if (!player.hasPermission("opswords.use")) {
                 plugin.passives().actionBar(player, Text.plain("You can't use OP Sword abilities.", NamedTextColor.RED));
             } else if (!plugin.settings().sword(type).enabled()) {
-                plugin.passives().actionBar(player, Text.plain("The " + type.displayName() + " is disabled.", NamedTextColor.RED));
+                plugin.passives().actionBar(player, Text.plain(type.swordName() + " is disabled on this server.", NamedTextColor.RED));
             } else {
                 plugin.passives().actionBar(player, Text.plain("Abilities are disabled in this world.", NamedTextColor.RED));
             }

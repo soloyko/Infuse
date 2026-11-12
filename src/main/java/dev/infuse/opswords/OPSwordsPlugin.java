@@ -38,6 +38,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        mergeNewDefaults();
         settings = Settings.load(getConfig(), getLogger());
 
         items = new SwordItems(this);
@@ -95,13 +96,21 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
     /** Re-reads config.yml and re-applies everything that depends on it. */
     public void reload() {
-        reloadConfig();
+        reloadConfig(); // pick up the user's edits first, then merge so nothing on disk is overwritten
+        mergeNewDefaults();
         settings = Settings.load(getConfig(), getLogger());
         forges.load();
         recipes.unregisterAll();
         recipes.registerAll();
         resourcePack.stop();
         resourcePack.start();
+    }
+
+    /** Adds settings and swords from newer versions to an existing config.yml, keeping the user's values. */
+    private void mergeNewDefaults() {
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+        reloadConfig(); // read the merged values back from disk, not just the in-memory defaults
     }
 
     /** Permission, per-sword toggle and disabled-world checks in one place. */

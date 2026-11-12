@@ -23,7 +23,7 @@ public final class RecipeMenu {
 
     /** All ten swords; click one to see how to craft it. */
     public static Menu overview(OPSwordsPlugin plugin) {
-        Menu menu = new Menu(4, Text.mm("<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <dark_gray>Recipes")) {
+        Menu menu = new Menu(SwordMenu.ROWS, Text.mm("<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <dark_gray>Recipes")) {
         };
         SwordType[] types = SwordType.values();
         for (int i = 0; i < types.length && i < SwordMenu.SLOTS.length; i++) {
@@ -43,7 +43,7 @@ public final class RecipeMenu {
 
     /** The crafting grid for one sword. */
     public static Menu recipe(OPSwordsPlugin plugin, SwordType type) {
-        Menu menu = new Menu(5, Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+        Menu menu = new Menu(5, Text.sword(type)
                 .append(Component.text(" Recipe", NamedTextColor.DARK_GRAY))) {
         };
         Settings settings = plugin.settings();

@@ -1,6 +1,6 @@
 # ╔══════════════════════════════════════════════════════════╗
 # ║                      OP SWORDS                           ║
-# ║  10 legendary swords with 3D models and unique abilities ║
+# ║  15 legendary swords with 3D models and unique abilities ║
 # ╚══════════════════════════════════════════════════════════╝
 #
 # Controls (while holding a sword):
@@ -71,12 +71,12 @@ crafting:
   # /opswords give, and /opswords unforge <sword> allows it to be crafted again.
   unique-swords: false
 
-# Per-sword settings.
+# Per-sword settings. Keys are the sword ids (see /opswords list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds
 #   recipe                       : shaped crafting recipe; S is always a netherite sword in the defaults
 swords:
-  dragon:
+  dragon:        # Wyrmsbane
     enabled: true
     attack-damage: 13
     attack-speed: 1.6
@@ -85,25 +85,16 @@ swords:
       enabled: true
       shape: ["BHB", "NSN", "BEB"]
       ingredients: {B: DRAGON_BREATH, H: DRAGON_HEAD, N: NETHERITE_INGOT, E: END_CRYSTAL, S: NETHERITE_SWORD}
-  void:
-    enabled: true
-    attack-damage: 12
-    attack-speed: 1.6
-    cooldowns: {primary: 8, secondary: 35}
-    recipe:
-      enabled: true
-      shape: ["OEO", "CSC", "OEO"]
-      ingredients: {O: CRYING_OBSIDIAN, E: ENDER_EYE, C: END_CRYSTAL, S: NETHERITE_SWORD}
-  inferno:
+  phoenix:       # Cinderwing
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
     cooldowns: {primary: 6, secondary: 25}
     recipe:
       enabled: true
-      shape: ["BFB", "MSM", "BNB"]
-      ingredients: {B: BLAZE_ROD, F: FIRE_CHARGE, M: MAGMA_BLOCK, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
-  frost:
+      shape: ["BFB", "TST", "BMB"]
+      ingredients: {B: BLAZE_ROD, F: FIRE_CHARGE, T: TOTEM_OF_UNDYING, M: MAGMA_BLOCK, S: NETHERITE_SWORD}
+  frost:         # Everwinter
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -112,34 +103,52 @@ swords:
       enabled: true
       shape: ["IPI", "DSD", "IPI"]
       ingredients: {I: BLUE_ICE, P: POWDER_SNOW_BUCKET, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
-  storm:
+  storm:         # Stormcaller
     enabled: true
     attack-damage: 12
     attack-speed: 1.7
     cooldowns: {primary: 10, secondary: 28}
     recipe:
       enabled: true
-      shape: ["LHL", "CSC", "LTL"]
-      ingredients: {L: LIGHTNING_ROD, H: HEART_OF_THE_SEA, C: COPPER_BLOCK, T: TRIDENT, S: NETHERITE_SWORD}
-  emerald:
+      shape: ["LBL", "CSC", "LBL"]
+      ingredients: {L: LIGHTNING_ROD, B: BREEZE_ROD, C: COPPER_BLOCK, S: NETHERITE_SWORD}
+  tide:          # Tidebreaker
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 8, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["NHN", "PSP", "NTN"]
+      ingredients: {N: NAUTILUS_SHELL, H: HEART_OF_THE_SEA, P: PRISMARINE_CRYSTALS, T: TRIDENT, S: NETHERITE_SWORD}
+  verdant:       # Elderbloom
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
     cooldowns: {primary: 14, secondary: 40}
     recipe:
       enabled: true
-      shape: ["EGE", "ESE", "ETE"]
-      ingredients: {E: EMERALD_BLOCK, G: GOLDEN_APPLE, T: TOTEM_OF_UNDYING, S: NETHERITE_SWORD}
-  crimson:
+      shape: ["EGE", "MSM", "EGE"]
+      ingredients: {E: EMERALD_BLOCK, G: GOLDEN_APPLE, M: MOSS_BLOCK, S: NETHERITE_SWORD}
+  plague:        # Pestilence
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["WFW", "PSP", "WFW"]
+      ingredients: {W: WITHER_ROSE, F: FERMENTED_SPIDER_EYE, P: POISONOUS_POTATO, S: NETHERITE_SWORD}
+  crimson:       # Sanguine
+    enabled: true
+    attack-damage: 11
+    attack-speed: 2.0
     cooldowns: {primary: 9, secondary: 30}
     recipe:
       enabled: true
       shape: ["RGR", "FSF", "RNR"]
       ingredients: {R: REDSTONE_BLOCK, G: GHAST_TEAR, F: CRIMSON_FUNGUS, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
-  solar:
+  solar:         # Solaris
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -148,16 +157,16 @@ swords:
       enabled: true
       shape: ["GBG", "LSL", "GLG"]
       ingredients: {G: GOLD_BLOCK, B: BEACON, L: GLOWSTONE, S: NETHERITE_SWORD}
-  shadow:
+  void:          # Voidreaver
     enabled: true
-    attack-damage: 12
-    attack-speed: 1.8
-    cooldowns: {primary: 10, secondary: 35}
+    attack-damage: 13
+    attack-speed: 1.5
+    cooldowns: {primary: 8, secondary: 35}
     recipe:
       enabled: true
-      shape: ["ECE", "PSP", "ECE"]
-      ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, P: PHANTOM_MEMBRANE, S: NETHERITE_SWORD}
-  cosmic:
+      shape: ["OEO", "CSC", "OEO"]
+      ingredients: {O: CRYING_OBSIDIAN, E: ENDER_EYE, C: END_CRYSTAL, S: NETHERITE_SWORD}
+  cosmic:        # Starfall
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -166,3 +175,39 @@ swords:
       enabled: true
       shape: ["APA", "NSN", "APA"]
       ingredients: {A: AMETHYST_BLOCK, P: ENDER_PEARL, N: NETHER_STAR, S: NETHERITE_SWORD}
+  chrono:        # Aeon
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 14, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["CRC", "DSD", "CRC"]
+      ingredients: {C: CLOCK, R: RECOVERY_COMPASS, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
+  shadow:        # Umbra
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["PNP", "OSO", "PNP"]
+      ingredients: {P: PHANTOM_MEMBRANE, N: NETHERITE_SCRAP, O: OBSIDIAN, S: NETHERITE_SWORD}
+  soul:          # Gravecaller
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 25, secondary: 32}
+    recipe:
+      enabled: true
+      shape: ["LKL", "BSB", "LKL"]
+      ingredients: {L: SOUL_LANTERN, K: WITHER_SKELETON_SKULL, B: BONE_BLOCK, S: NETHERITE_SWORD}
+  echo:          # Deepwhisper
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["ECE", "HSH", "ECE"]
+      ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, H: SCULK_SHRIEKER, S: NETHERITE_SWORD}

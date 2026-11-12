@@ -113,7 +113,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             leftover.values().forEach(rest -> target.getWorld().dropItemNaturally(target.getLocation(), rest));
         }
         Component what = types.size() == 1
-                ? Text.gradient(types.get(0).emoji() + " " + types.get(0).displayName(), types.get(0).color(), types.get(0).accent())
+                ? Text.sword(types.get(0))
                 : Component.text("all " + types.size() + " OP swords", NamedTextColor.GOLD);
         Text.send(sender, Component.text("Gave ", NamedTextColor.GRAY).append(what)
                 .append(Component.text(" to " + target.getName() + ".", NamedTextColor.GRAY)));
@@ -153,22 +153,22 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (plugin.forges().clear(type)) {
-            Text.send(sender, "<gray>The " + type.displayName() + " can be forged again.");
+            Text.send(sender, "<gray>" + type.swordName() + " can be forged again.");
         } else {
-            Text.send(sender, "<gray>The " + type.displayName() + " hasn't been forged.");
+            Text.send(sender, "<gray>" + type.swordName() + " hasn't been forged.");
         }
     }
 
     private void list(CommandSender sender) {
-        Text.send(sender, "<gray>Hover a sword to see what it does:");
+        Text.send(sender, "<gray>Hover a sword to see what it does, click for details:");
         for (SwordType type : SwordType.values()) {
             boolean enabled = plugin.settings().sword(type).enabled();
-            Component name = Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+            Component name = Text.sword(type)
                     .hoverEvent(plugin.items().create(type).asHoverEvent())
                     .clickEvent(ClickEvent.runCommand("/opswords info " + type.id()));
             Component line = Component.text("  ").append(name)
-                    .append(Component.text("  " + type.ability(AbilitySlot.PRIMARY).name() + " / "
-                            + type.ability(AbilitySlot.SECONDARY).name(), NamedTextColor.DARK_GRAY));
+                    .append(Component.text("  " + type.title(), NamedTextColor.DARK_GRAY))
+                    .append(Component.text("  (" + type.id() + ")", NamedTextColor.DARK_GRAY));
             if (!enabled) {
                 line = line.append(Component.text(" (disabled)", NamedTextColor.RED));
             } else if (plugin.settings().uniqueSwords) {
@@ -189,7 +189,11 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             return;
         }
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Text.gradient("  " + type.emoji() + " " + type.displayName(), type.color(), type.accent()));
+        sender.sendMessage(Component.text("  ").append(Text.sword(type).decorate(net.kyori.adventure.text.format.TextDecoration.BOLD))
+                .append(Component.text("  " + type.title(), type.accent())));
+        for (String line : Text.wrap(type.bio(), 55)) {
+            sender.sendMessage(Component.text("  " + line, NamedTextColor.GRAY).decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC));
+        }
         infoLine(sender, type, "Passive", type.passive().name(), type.passive().description(), -1);
         infoLine(sender, type, "On Hit", type.onHit().name(), type.onHit().description(), -1);
         for (AbilitySlot slot : AbilitySlot.values()) {

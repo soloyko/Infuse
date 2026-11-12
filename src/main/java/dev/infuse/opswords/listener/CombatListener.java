@@ -122,13 +122,13 @@ public final class CombatListener implements Listener {
             return;
         }
         ItemStack sword = killer.getInventory().getItemInMainHand();
-        Component swordName = Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+        Component swordName = Text.sword(type)
                 .hoverEvent(sword.asHoverEvent());
         event.deathMessage(Component.text()
                 .append(victim.displayName())
                 .append(Component.text(" was " + type.deathVerb() + " by ", NamedTextColor.GRAY))
                 .append(killer.displayName())
-                .append(Component.text(" wielding the ", NamedTextColor.GRAY))
+                .append(Component.text(" wielding ", NamedTextColor.GRAY))
                 .append(swordName)
                 .build());
     }

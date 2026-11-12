@@ -119,7 +119,7 @@ public final class Settings {
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 3;
+    private static final int ITEM_FORMAT = 4;
 
     private static Recipe readRecipe(ConfigurationSection r, SwordType type, Logger log) {
         if (r == null) {

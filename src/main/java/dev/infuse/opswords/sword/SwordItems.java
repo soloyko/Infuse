@@ -12,6 +12,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -104,7 +105,7 @@ public final class SwordItems {
         Settings settings = plugin.settings();
         Settings.Sword s = settings.sword(type);
 
-        meta.itemName(Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+        meta.itemName(Text.sword(type)
                 .decoration(TextDecoration.BOLD, true));
         meta.lore(lore(type, s, meta.getPersistentDataContainer().get(forgerKey, PersistentDataType.STRING)));
         meta.setItemModel(type.itemModel());
@@ -117,15 +118,22 @@ public final class SwordItems {
         meta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(
                 BASE_ATTACK_SPEED, s.attackSpeed() - 4.0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         plugin.abilities().get(type).addAttributes(meta);
+        // The tooltip shows its own compact stat line instead of vanilla's attribute block.
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
 
+        meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id()); // migrates old ids
         meta.getPersistentDataContainer().set(revisionKey, PersistentDataType.INTEGER, settings.revision(type));
     }
 
     private List<Component> lore(SwordType type, Settings.Sword s, @Nullable String forger) {
         List<Component> lore = new ArrayList<>();
-        lore.add(Text.plain("Legendary Blade", type.accent()).decoration(TextDecoration.ITALIC, true));
+        lore.add(Text.plain(type.title(), type.accent()).append(Text.plain("  ·  Legendary", NamedTextColor.DARK_GRAY)));
         if (forger != null) {
             lore.add(Text.plain("Forged by ", NamedTextColor.DARK_GRAY).append(Text.plain(forger, NamedTextColor.GRAY)));
+        }
+        lore.add(Component.empty());
+        for (String line : Text.wrap(type.bio(), LORE_WIDTH)) {
+            lore.add(Text.plain(line, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, true));
         }
         lore.add(Component.empty());
 
@@ -135,7 +143,20 @@ public final class SwordItems {
             AbilityInfo info = type.ability(slot);
             section(lore, type, slot.trigger(), info.name(), info.description(), s.cooldown(slot) + "s");
         }
+        lore.add(Component.empty());
+        Component stats = Text.plain("⚔ ", type.color())
+                .append(Text.plain(trim(s.attackDamage()) + " Damage", NamedTextColor.WHITE))
+                .append(Text.plain("   ⏱ ", type.color()))
+                .append(Text.plain(trim(s.attackSpeed()) + " Speed", NamedTextColor.WHITE));
+        if (plugin.settings().unbreakable) {
+            stats = stats.append(Text.plain("   ∞ ", type.color())).append(Text.plain("Unbreakable", NamedTextColor.WHITE));
+        }
+        lore.add(stats);
         return lore;
+    }
+
+    private static String trim(double value) {
+        return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
     }
 
     private void section(List<Component> lore, SwordType type, String label, String name, String description,

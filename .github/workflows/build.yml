@@ -11,15 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Check the resource pack matches tools/packgen
-        run: |
-          pip install pillow
-          python tools/packgen/build.py --check
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

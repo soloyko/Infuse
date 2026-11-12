@@ -49,6 +49,11 @@ public final class Text {
         return out;
     }
 
+    /** A sword's name ("🐉 Wyrmsbane") in its gradient colours. */
+    public static Component sword(dev.infuse.opswords.sword.SwordType type) {
+        return gradient(type.displayName(), type.color(), type.accent());
+    }
+
     /** Greedy word wrap for tooltip lines. */
     public static List<String> wrap(String text, int width) {
         List<String> lines = new ArrayList<>();

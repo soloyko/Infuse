@@ -91,7 +91,7 @@ public final class ItemListener implements Listener {
             event.setCancelled(true);
             event.getInventory().setResult(null);
             ForgeRegistry.Forged forged = plugin.forges().get(type);
-            Text.send(event.getWhoClicked(), "<red>The " + type.displayName() + " has already been forged"
+            Text.send(event.getWhoClicked(), "<red>" + type.swordName() + " has already been forged"
                     + (forged != null ? " by " + forged.name() : "") + ".");
         }
     }
@@ -111,11 +111,11 @@ public final class ItemListener implements Listener {
         if (!plugin.settings().craftingAnnounce) {
             return;
         }
-        Component name = Text.gradient(type.emoji() + " " + type.displayName(), type.color(), type.accent())
+        Component name = Text.sword(type)
                 .hoverEvent(event.getCurrentItem().asHoverEvent());
         Component message = Text.PREFIX
                 .append(Component.text(player.getName(), NamedTextColor.WHITE))
-                .append(Component.text(" has forged the ", NamedTextColor.GRAY))
+                .append(Component.text(" has forged ", NamedTextColor.GRAY))
                 .append(name)
                 .append(Component.text("!", NamedTextColor.GRAY));
         if (plugin.settings().uniqueSwords) {

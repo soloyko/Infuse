@@ -1,0 +1,278 @@
+package dev.infuse.opswords.ability.impl;
+
+import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.ability.Combat;
+import dev.infuse.opswords.ability.Fx;
+import dev.infuse.opswords.ability.SwordAbility;
+import dev.infuse.opswords.sword.SwordType;
+import dev.infuse.opswords.util.Text;
+import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Gravecaller, the Soul Sword: necromancy.
+ * Passive Soul Siphon, on-hit Soul Rend, RC Spectral Hounds, Sneak+RC Wail of the Damned.
+ * <p>
+ * Hounds are tamed wolves tagged with {@code opswords:hound}; they never outlive their 15 seconds,
+ * their owner's session, a chunk unload or a restart.
+ */
+public final class SoulSword extends SwordAbility implements Listener {
+
+    private static final int HOUND_TICKS = 300;
+    private static final int SOUL_BLUE = 0x6FD8F0;
+
+    private final NamespacedKey houndKey;
+    private final Map<UUID, List<UUID>> hounds = new HashMap<>();
+
+    public SoulSword(OPSwordsPlugin plugin) {
+        super(plugin, SwordType.SOUL);
+        this.houndKey = new NamespacedKey(plugin, "hound");
+    }
+
+    private boolean isHound(Entity entity) {
+        return entity.getPersistentDataContainer().has(houndKey);
+    }
+
+    @EventHandler
+    public void onKill(EntityDeathEvent event) {
+        if (isHound(event.getEntity())) {
+            event.getDrops().clear();
+            event.setDroppedExp(0);
+            return;
+        }
+        Player killer = event.getEntity().getKiller();
+        if (killer == null || plugin.items().heldType(killer) != type || !plugin.canUse(killer, type)) {
+            return;
+        }
+        combat().heal(killer, 4);
+        applyEffect(killer, PotionEffectType.ABSORPTION, 200, 0);
+        Location from = Combat.center(event.getEntity());
+        Fx.line(from, Combat.center(killer), 0.4, p -> Fx.particle(p, Particle.SOUL, 1, 0.05, 0.01));
+        Fx.sound(from, Sound.PARTICLE_SOUL_ESCAPE, 1.2f, 1f);
+    }
+
+    @Override
+    public void onMelee(Player player, LivingEntity target, EntityDamageByEntityEvent event) {
+        if (!chance(0.2)) {
+            return;
+        }
+        event.setDamage(event.getDamage() + 4);
+        Location at = Combat.center(target);
+        Fx.particle(at, Particle.SOUL, 12, 0.3, 0.04);
+        Fx.particle(at, Particle.SCULK_SOUL, 6, 0.3, 0.02);
+        Fx.sound(at, Sound.PARTICLE_SOUL_ESCAPE, 1f, 0.8f);
+    }
+
+    /** Spectral Hounds: three soul wolves that hunt your target for 15 seconds. */
+    @Override
+    public boolean primary(Player player) {
+        LivingEntity prey = combat().lookTarget(player, 24, 0.8);
+        if (prey == null) {
+            List<LivingEntity> near = combat().nearby(player, player.getLocation(), 16);
+            prey = near.isEmpty() ? null : near.get(0);
+        }
+        dismiss(player);
+        List<UUID> pack = new ArrayList<>();
+        Location base = player.getLocation();
+        for (int i = 0; i < 3; i++) {
+            double a = i * 2 * Math.PI / 3;
+            Location spot = Combat.safeSpot(base.clone().add(Math.cos(a) * 1.5, 0, Math.sin(a) * 1.5));
+            if (spot == null) {
+                spot = base.clone();
+            }
+            LivingEntity huntTarget = prey;
+            Wolf wolf = base.getWorld().spawn(spot, Wolf.class, w -> {
+                w.setTamed(true);
+                w.setOwner(player);
+                w.setCollarColor(DyeColor.LIGHT_BLUE);
+                w.customName(Text.gradient("Spectral Hound", type.color(), type.accent()));
+                w.setCustomNameVisible(false);
+                w.setGlowing(true);
+                w.setPersistent(false);
+                w.setSitting(false);
+                w.getPersistentDataContainer().set(houndKey, PersistentDataType.STRING, player.getUniqueId().toString());
+                setBase(w, Attribute.MAX_HEALTH, 30);
+                setBase(w, Attribute.ATTACK_DAMAGE, 4);
+                setBase(w, Attribute.MOVEMENT_SPEED, 0.42);
+                w.setHealth(30);
+                if (huntTarget != null) {
+                    w.setTarget(huntTarget);
+                }
+            });
+            pack.add(wolf.getUniqueId());
+            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SOUL, 20, 0.3, 0.05);
+            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SCULK_SOUL, 10, 0.3, 0.02);
+        }
+        hounds.put(player.getUniqueId(), pack);
+        Fx.sound(base, Sound.ENTITY_WOLF_GROWL, 1.2f, 0.6f);
+        Fx.sound(base, Sound.PARTICLE_SOUL_ESCAPE, 1.5f, 0.7f);
+
+        new BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks += 5;
+                List<UUID> current = hounds.get(player.getUniqueId());
+                if (current != pack) {
+                    cancel(); // dismissed or replaced
+                    return;
+                }
+                if (ticks >= HOUND_TICKS || !player.isOnline()) {
+                    dismiss(player);
+                    cancel();
+                    return;
+                }
+                for (UUID id : pack) {
+                    if (Bukkit.getEntity(id) instanceof Wolf wolf && wolf.isValid()) {
+                        Fx.particle(wolf.getLocation().add(0, 0.6, 0), Particle.SOUL, 1, 0.25, 0.01);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 5L, 5L);
+        return true;
+    }
+
+    private static void setBase(LivingEntity entity, Attribute attribute, double value) {
+        AttributeInstance instance = entity.getAttribute(attribute);
+        if (instance != null) {
+            instance.setBaseValue(value);
+        }
+    }
+
+    /** Removes a player's hounds with a puff of souls. */
+    private void dismiss(Player player) {
+        List<UUID> pack = hounds.remove(player.getUniqueId());
+        if (pack == null) {
+            return;
+        }
+        for (UUID id : pack) {
+            if (Bukkit.getEntity(id) instanceof Wolf wolf) {
+                Fx.particle(wolf.getLocation().add(0, 0.5, 0), Particle.SOUL, 15, 0.3, 0.05);
+                wolf.remove();
+            }
+        }
+    }
+
+    /** Hounds respect abilities-hit-players. */
+    @EventHandler(ignoreCancelled = true)
+    public void onHoundTarget(EntityTargetLivingEntityEvent event) {
+        if (isHound(event.getEntity()) && event.getTarget() instanceof Player && !plugin.settings().abilitiesHitPlayers) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        dismiss(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onOwnerDeath(PlayerDeathEvent event) {
+        dismiss(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onUnload(EntitiesUnloadEvent event) {
+        for (Entity entity : event.getEntities()) {
+            if (isHound(entity)) {
+                entity.remove(); // never saved with the chunk
+            }
+        }
+    }
+
+    @EventHandler
+    public void onLoad(EntitiesLoadEvent event) {
+        for (Entity entity : event.getEntities()) {
+            if (isHound(entity)) {
+                entity.remove(); // leftovers from a crash
+            }
+        }
+    }
+
+    /** Wail of the Damned: wither, weaken and scatter every enemy around you. */
+    @Override
+    public boolean secondary(Player player) {
+        Location center = player.getLocation();
+        List<LivingEntity> targets = combat().nearby(player, center, 10);
+        if (targets.isEmpty()) {
+            tell(player, "No enemies nearby.");
+            return false;
+        }
+        Fx.sound(center, Sound.ENTITY_GHAST_HURT, 1.5f, 0.5f);
+        Fx.sound(center, Sound.ENTITY_VEX_CHARGE, 1.2f, 0.5f);
+        Fx.sound(center, Sound.PARTICLE_SOUL_ESCAPE, 2f, 0.6f);
+        new BukkitRunnable() {
+            double radius = 1;
+
+            @Override
+            public void run() {
+                if (radius > 10 || player.getWorld() != center.getWorld()) {
+                    cancel();
+                    return;
+                }
+                Location ring = center.clone().add(0, 0.3, 0);
+                Fx.ring(ring, radius, (int) (radius * 9), p -> Fx.particle(p, Particle.SCULK_SOUL, 1, 0.05, 0.02));
+                Fx.ring(ring.clone().add(0, 0.8, 0), radius, (int) (radius * 4), p -> Fx.particle(p, Particle.SOUL, 1, 0.05, 0.02));
+                radius += 1;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+        for (LivingEntity target : targets) {
+            combat().damage(player, target, 5);
+            applyEffect(target, PotionEffectType.WITHER, 60, 0);
+            applyEffect(target, PotionEffectType.WEAKNESS, 80, 1);
+            if (target instanceof Player) {
+                applyEffect(target, PotionEffectType.BLINDNESS, 40, 0);
+            }
+            if (target instanceof Mob mob && mob.getTarget() == player) {
+                mob.setTarget(null);
+            }
+            Combat.knockback(target, center, 1.2, 0.4);
+            Fx.particle(Combat.center(target), Particle.SOUL, 10, 0.3, 0.05);
+        }
+        Fx.particle(center.clone().add(0, 1, 0), Particle.DUST, 20, 0.6, 0, Fx.dust(SOUL_BLUE, 1.5f));
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+        for (UUID owner : new ArrayList<>(hounds.keySet())) {
+            for (UUID id : hounds.getOrDefault(owner, List.of())) {
+                Entity e = Bukkit.getEntity(id);
+                if (e != null) {
+                    e.remove();
+                }
+            }
+        }
+        hounds.clear();
+    }
+}
