@@ -1,0 +1,150 @@
+# ╔══════════════════════════════════════════════════════════╗
+# ║                      OP SWORDS                           ║
+# ║  10 legendary swords with 3D models and unique abilities ║
+# ╚══════════════════════════════════════════════════════════╝
+#
+# Controls (while holding a sword):
+#   Right-Click          -> primary ability
+#   Sneak + Right-Click  -> secondary ability
+#
+# /opswords reload applies changes. Swords players already own update
+# automatically the next time they hold them.
+
+settings:
+  # Swords never lose durability.
+  unbreakable: true
+  # Abilities can damage other players (PvP). World PvP settings and
+  # protection plugins that cancel player damage are still respected.
+  abilities-hit-players: true
+  # Multiplies all ability damage (not normal melee damage).
+  ability-damage-multiplier: 1.0
+  # Shows ability cooldowns on the action bar while a sword is held.
+  action-bar-hud: true
+  # Dropped OP swords never despawn, can't be destroyed and glow.
+  protect-dropped-swords: true
+  # Abilities do nothing in these worlds.
+  disabled-worlds: []
+
+resource-pack:
+  # self-host: the plugin serves the bundled pack from a small built-in web server.
+  # url:       send the pack from your own link (for example a merged server pack).
+  # none:      don't send anything (you handle the pack yourself).
+  mode: self-host
+  # true = players must accept the pack or they're disconnected.
+  required: false
+  # Shown on the download prompt. MiniMessage format.
+  prompt: "<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <gray>uses a resource pack for its 3D sword models."
+  self-host:
+    # This port must be open to players (TCP). On a shared host, use an extra port
+    # your host gave you.
+    port: 8163
+    bind-address: "0.0.0.0"
+    # Address players download the pack from. Leave blank to use the address each
+    # player typed to join (works for most servers).
+    public-address: ""
+  url:
+    link: ""
+    # SHA-1 of the zip. Leave blank and the plugin downloads the pack once on
+    # startup to work it out.
+    sha1: ""
+
+crafting:
+  enabled: true
+  # Broadcasts a message when someone forges an OP sword.
+  announce: true
+
+# Per-sword settings.
+#   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
+#   cooldowns                    : seconds
+#   recipe                       : shaped crafting recipe; S is always a netherite sword in the defaults
+swords:
+  dragon:
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["BHB", "NSN", "BEB"]
+      ingredients: {B: DRAGON_BREATH, H: DRAGON_HEAD, N: NETHERITE_INGOT, E: END_CRYSTAL, S: NETHERITE_SWORD}
+  void:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 8, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["OEO", "CSC", "OEO"]
+      ingredients: {O: CRYING_OBSIDIAN, E: ENDER_EYE, C: END_CRYSTAL, S: NETHERITE_SWORD}
+  inferno:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 6, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["BFB", "MSM", "BNB"]
+      ingredients: {B: BLAZE_ROD, F: FIRE_CHARGE, M: MAGMA_BLOCK, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
+  frost:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["IPI", "DSD", "IPI"]
+      ingredients: {I: BLUE_ICE, P: POWDER_SNOW_BUCKET, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
+  storm:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 10, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["LHL", "CSC", "LTL"]
+      ingredients: {L: LIGHTNING_ROD, H: HEART_OF_THE_SEA, C: COPPER_BLOCK, T: TRIDENT, S: NETHERITE_SWORD}
+  emerald:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 14, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["EGE", "ESE", "ETE"]
+      ingredients: {E: EMERALD_BLOCK, G: GOLDEN_APPLE, T: TOTEM_OF_UNDYING, S: NETHERITE_SWORD}
+  crimson:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 9, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["RGR", "FSF", "RNR"]
+      ingredients: {R: REDSTONE_BLOCK, G: GHAST_TEAR, F: CRIMSON_FUNGUS, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
+  solar:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 9, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["GBG", "LSL", "GLG"]
+      ingredients: {G: GOLD_BLOCK, B: BEACON, L: GLOWSTONE, S: NETHERITE_SWORD}
+  shadow:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.8
+    cooldowns: {primary: 10, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["ECE", "PSP", "ECE"]
+      ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, P: PHANTOM_MEMBRANE, S: NETHERITE_SWORD}
+  cosmic:
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["APA", "NSN", "APA"]
+      ingredients: {A: AMETHYST_BLOCK, P: ENDER_PEARL, N: NETHER_STAR, S: NETHERITE_SWORD}

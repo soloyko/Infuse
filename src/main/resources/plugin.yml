@@ -1,0 +1,33 @@
+name: OPSwords
+version: '${version}'
+main: dev.infuse.opswords.OPSwordsPlugin
+api-version: '1.21.11'
+description: 10 OP swords with 3D models and unique abilities.
+authors: [Infuse]
+
+commands:
+  opswords:
+    description: OP Swords commands.
+    usage: /<command> help
+    aliases: [opsword, swords]
+
+permissions:
+  opswords.admin:
+    description: Give swords, open the sword menu, reset cooldowns and reload.
+    default: op
+    children:
+      opswords.use: true
+      opswords.craft: true
+      opswords.pack: true
+  opswords.use:
+    description: Use sword abilities and passives.
+    default: true
+  opswords.craft:
+    description: Craft OP swords.
+    default: true
+  opswords.pack:
+    description: Re-download the resource pack with /opswords pack.
+    default: true
+  opswords.bypass.cooldown:
+    description: Use abilities with no cooldown.
+    default: false
