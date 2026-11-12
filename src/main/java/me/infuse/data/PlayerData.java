@@ -19,6 +19,7 @@ public final class PlayerData {
     private final boolean[] readyPinged = {true, true};
     private final long[] readyFlashUntil = new long[2];
     private boolean offhandControls = true;
+    private final java.util.Set<UUID> trusted = new java.util.LinkedHashSet<>();
 
     // Runtime-only state
     private final Map<EffectType, Long> sparkActiveUntil = new EnumMap<>(EffectType.class);
@@ -112,6 +113,9 @@ public final class PlayerData {
 
     public boolean isSlotActive(int slot) { return activeEnd[slot] > System.currentTimeMillis(); }
     public void setSlotActive(int slot, long untilMillis) { activeEnd[slot] = untilMillis; }
+
+    public java.util.Set<UUID> trusted() { return trusted; }
+    public boolean trusts(UUID other) { return trusted.contains(other); }
 
     public boolean offhandControls() { return offhandControls; }
     public void setOffhandControls(boolean v) { offhandControls = v; }

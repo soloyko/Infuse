@@ -50,6 +50,12 @@ public final class DataManager {
         YamlConfiguration yml = YamlConfiguration.loadConfiguration(file);
         data.set(PlayerData.PRIMARY, readSlot(yml.getConfigurationSection("primary")));
         data.set(PlayerData.SECONDARY, readSlot(yml.getConfigurationSection("secondary")));
+        for (String s : yml.getStringList("trusted")) {
+            try {
+                data.trusted().add(UUID.fromString(s));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
         data.setOffhandControls(yml.getBoolean("offhand-controls", plugin.getConfig().getBoolean("controls.default-offhand", true)));
         for (int slot = 0; slot < 2; slot++) {
             data.setCooldownRaw(slot, yml.getLong("cooldown." + slot + ".end"), yml.getLong("cooldown." + slot + ".total"));
@@ -69,6 +75,7 @@ public final class DataManager {
         writeSlot(yml, "primary", data.get(PlayerData.PRIMARY));
         writeSlot(yml, "secondary", data.get(PlayerData.SECONDARY));
         yml.set("offhand-controls", data.offhandControls());
+        yml.set("trusted", data.trusted().stream().map(UUID::toString).toList());
         for (int slot = 0; slot < 2; slot++) {
             yml.set("cooldown." + slot + ".end", data.cooldownEndRaw(slot));
             yml.set("cooldown." + slot + ".total", data.cooldownTotal(slot));

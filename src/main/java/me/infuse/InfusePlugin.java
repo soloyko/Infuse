@@ -2,6 +2,7 @@ package me.infuse;
 
 import me.infuse.command.Commands;
 import me.infuse.command.InfuseGui;
+import me.infuse.command.TrustCommand;
 import me.infuse.craft.CraftingListener;
 import me.infuse.craft.RecipeManager;
 import me.infuse.craft.RitualManager;
@@ -36,6 +37,7 @@ public final class InfusePlugin extends JavaPlugin {
         me.infuse.util.Fx.init(this);
         Status status = new Status();
         data = new DataManager(this);
+        me.infuse.util.Util.setTrust((a, b) -> data.get(a).trusts(b));
         items = new ItemFactory(this);
         tempBlocks = new me.infuse.util.TempBlocks(this);
         effects = new EffectManager(this, status);
@@ -56,8 +58,17 @@ public final class InfusePlugin extends JavaPlugin {
         pm.registerEvents(crafting, this);
         pm.registerEvents(gui, this);
 
+        TrustCommand trustCmd = new TrustCommand(this);
+        for (String name : new String[]{"trust", "untrust"}) {
+            PluginCommand cmd = getCommand(name);
+            if (cmd != null) {
+                cmd.setExecutor(trustCmd);
+                cmd.setTabCompleter(trustCmd);
+            }
+        }
         Commands commands = new Commands(this);
         for (String name : getDescription().getCommands().keySet()) {
+            if (name.equals("trust") || name.equals("untrust")) continue;
             PluginCommand cmd = getCommand(name);
             if (cmd != null) {
                 cmd.setExecutor(commands);

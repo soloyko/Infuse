@@ -18,6 +18,12 @@ commands:
     description: Turn your secondary effect back into a bottle.
   swap:
     description: Swap your primary and secondary effects.
+  trust:
+    description: Trust a player so your abilities treat them as an ally.
+    usage: /trust <player|list>
+  untrust:
+    description: Stop trusting a player.
+    usage: /untrust <player>
   cleareffects:
     description: Clear a player's effects.
     usage: /cleareffects <player>

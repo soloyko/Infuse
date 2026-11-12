@@ -54,6 +54,7 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
 | `/lspark`, `/rspark` | Activate primary / secondary spark |
 | `/ldrain`, `/rdrain` | Turn an effect back into a bottle |
 | `/swap` | Swap primary and secondary |
+| `/trust <player>`, `/trust list`, `/untrust <player>` | Trusted players are allies: your abilities don't hit them and ally abilities (heals, Bulwark, Invisibility ring) include them |
 | `/infuse gui` | Preview effects (`infuse.gui`), take them (`infuse.gui.take`) |
 | `/cleareffects <player>` | Clear a player's effects (`infuse.admin`) |
 | `/cooldown <player>` | Reset a player's cooldowns (`infuse.admin`) |
@@ -62,7 +63,7 @@ Emerald, Ender, Feather, Fire, Frost, Haste, Heart, Invisibility, Ocean, Regener
 | `/infuse crafts`, `/infuse resetcrafts [effect]` | View / reset craft counts (`infuse.admin`) |
 | `/infuse reload` | Reload `config.yml` and `recipes.yml` (`infuse.admin`) |
 
-Allies (for sparks like Invisibility and Heart) are players on the same scoreboard team.
+Allies are players either of you trusted with `/trust`, plus (with `allies.mode: team`) players on the same scoreboard team.
 
 ## Visual preview
 

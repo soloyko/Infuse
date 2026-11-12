@@ -56,6 +56,19 @@ ritual-hologram: "<effect>\n<gray><caps>Ritual</caps></gray> <white><time></whit
 ritual-complete-title: "<effect>"
 ritual-complete-subtitle: "<gray><caps>The ritual is complete</caps>"
 
+# ---------------------------------------------------------------- trust  (<player>, <count>, <players>, <max>)
+trusted: "<prefix><gray>You now trust <white><player></white>. Your abilities treat them as an ally."
+trusted-notify: "<prefix><white><player></white><gray> trusted you.</gray>"
+untrusted: "<prefix><gray>You no longer trust <white><player></white>."
+untrusted-notify: "<prefix><white><player></white><gray> no longer trusts you.</gray>"
+trust-already: "<prefix><red>You already trust <white><player></white>."
+trust-not-trusted: "<prefix><red>You don't trust <white><player></white>."
+trust-self: "<prefix><red>You can't trust yourself."
+trust-full: "<prefix><red>You can only trust <max> players. Use <white>/untrust</white> first."
+trust-list: "<prefix><gray><caps>Trusted</caps> (<count>): <white><players></white>"
+trust-list-empty: "<prefix><gray>You don't trust anyone yet. Use <white>/trust <dark_gray>[</dark_gray>player<dark_gray>]</dark_gray></white>."
+untrust-usage: "<prefix><red>Usage: /untrust <dark_gray>[</dark_gray>player<dark_gray>]</dark_gray>"
+
 # ---------------------------------------------------------------- commands
 infuses-header: "<gradient:#d11fd1:#7f3cff><bold>━━━━━━ <caps>Infuse Effects</caps> ━━━━━━</bold></gradient>"
 infuses-footer: "<gray><caps>Hover over an effect to see everything it does.</caps>"
@@ -77,7 +90,7 @@ info-controls: "<dark_gray>  • <gray><caps>Controls</caps>: <white><controls><
 crafts-line: "<effect><gray>: <count>/<max></gray>"
 crafts-reset: "<prefix><gray>Craft counts reset."
 reloaded: "<prefix><gray>Reloaded config.yml, messages.yml and recipes.yml."
-help: "<prefix><gray>/infuses, /controls, /lspark, /rspark, /ldrain, /rdrain, /swap"
+help: "<prefix><gray>/infuses, /controls, /lspark, /rspark, /ldrain, /rdrain, /swap, /trust, /untrust"
 help-gui: "<prefix><gray>/infuse gui"
 help-admin: "<prefix><gray>/infuse give <player> <effect> [augmented], /infuse info <player>, /infuse crafts, /infuse resetcrafts [effect], /infuse reload, /cleareffects <player>, /cooldown <player>"
 gui-title: "<gradient:#d11fd1:#7f3cff><caps>Infuse Effects</caps></gradient>"

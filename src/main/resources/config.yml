@@ -23,9 +23,13 @@ gui:
   infuses-opens-menu: true
 
 allies:
-  # team = players on the same scoreboard team are allies (for Heart/Invisibility/Thief etc.)
-  # none = everyone else is an enemy
+  # team = players on the same scoreboard team are also allies (on top of /trust)
+  # none = only /trust makes allies
   mode: team
+
+trust:
+  # Most players someone can /trust (0 = unlimited)
+  max: 0
 
 resource-pack:
   # Direct download link to InfusePack.zip (e.g. a GitHub release asset). Leave empty to not send a pack.

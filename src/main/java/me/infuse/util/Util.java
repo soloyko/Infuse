@@ -31,11 +31,21 @@ public final class Util {
     }
 
     /** Players on the same scoreboard team (main scoreboard) are allies; everyone is their own ally. */
+    /** Answers "does player A trust player B" (set by the plugin from /trust data). */
+    private static java.util.function.BiPredicate<java.util.UUID, java.util.UUID> trust = (x, y) -> false;
+
+    public static void setTrust(java.util.function.BiPredicate<java.util.UUID, java.util.UUID> t) { trust = t; }
+
+    /**
+     * Allies: yourself, players either of you trusted with /trust, and (allies.mode: team)
+     * players on the same scoreboard team.
+     */
     public static boolean isAlly(Entity a, Entity b) {
         if (a == null || b == null) return false;
         if (a.equals(b)) return true;
-        if (!teamAllies) return false;
         if (!(a instanceof Player pa) || !(b instanceof Player pb)) return false;
+        if (trust.test(pa.getUniqueId(), pb.getUniqueId()) || trust.test(pb.getUniqueId(), pa.getUniqueId())) return true;
+        if (!teamAllies) return false;
         Team ta = Bukkit.getScoreboardManager().getMainScoreboard().getEntryTeam(pa.getName());
         Team tb = Bukkit.getScoreboardManager().getMainScoreboard().getEntryTeam(pb.getName());
         return ta != null && ta.equals(tb);
