@@ -101,6 +101,26 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         Fx.ring(player.getLocation().add(0, 0.2, 0), 2.5, 30, p -> Fx.particle(p, Particle.FLAME, 2, 0.05, 0.05));
         Fx.sound(at, Sound.ITEM_TOTEM_USE, 0.7f, 1.4f);
         Fx.sound(at, Sound.ENTITY_BLAZE_SHOOT, 1.2f, 0.5f);
+        // wings of fire unfold from your back, and a ring of flame bursts up around you
+        Vector back = player.getLocation().getDirection().setY(0);
+        if (back.lengthSquared() < 1.0E-4) {
+            back = new Vector(0, 0, 1);
+        }
+        back.normalize().multiply(-1);
+        Vector side = new Vector(-back.getZ(), 0, back.getX());
+        for (int w = -1; w <= 1; w += 2) {
+            Vector out = side.clone().multiply(w).add(back.clone().multiply(0.35)).normalize();
+            Location wingRoot = at.clone().add(back.clone().multiply(0.3)).add(0, 0.6, 0);
+            fx().slash(wingRoot.clone().add(out.clone().multiply(0.3)), out.clone().setY(0.55), w * 1.2, 0xFF8A2A, 2.4f, 6);
+            int ww = w;
+            displays().later(3, () -> fx().slash(wingRoot.clone().add(out.clone().multiply(0.2)), out.clone().setY(0.9), ww * 1.3,
+                    0xFFD24A, 2.0f, 6));
+        }
+        for (int i = 0; i < 10; i++) {
+            double a = i * Math.PI / 5;
+            fx().flamePillar(Combat.ground(player.getLocation().add(Math.cos(a) * 2.6, 1.5, Math.sin(a) * 2.6)), 0.9f, 2.2f, 16, false);
+        }
+        fx().beam(player.getLocation(), player.getLocation().add(0, 9, 0), 0xFFB52E, 1.6f, 12);
         for (LivingEntity target : combat().nearby(player, at, 5)) {
             combat().damage(player, target, 4);
             target.setFireTicks(Math.max(target.getFireTicks(), 100));

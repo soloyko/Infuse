@@ -50,6 +50,14 @@ public final class CombatListener implements Listener {
         if (plugin.settings().meleeSlashes && !event.isCancelled()) {
             plugin.fx().melee(player.getEyeLocation(), player.getEyeLocation().getDirection(), Combat.center(target),
                     type.color().value(), type.accent().value(), type.meleeStyle());
+            if (event.isCritical()) {
+                // a crit lands harder: a second, brighter cut across the first and a flare
+                org.bukkit.Location at = Combat.center(target);
+                int accent = dev.infuse.customs.ability.Fx3D.bright(type.accent().value());
+                plugin.fx().cut(at, player.getEyeLocation().getDirection(), Math.PI / 2 + 0.5, 0.5, accent, 1.6f, 3);
+                plugin.fx().burst(at, dev.infuse.customs.ability.Fx3D.bright(type.color().value()), 1.6f);
+                Fx.particle(at, Particle.CRIT, 14, 0.3, 0.25);
+            }
         }
     }
 

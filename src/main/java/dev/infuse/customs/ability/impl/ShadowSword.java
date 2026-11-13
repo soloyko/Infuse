@@ -135,6 +135,15 @@ public final class ShadowSword extends SwordAbility implements Listener {
         Fx.particle(destination.clone().add(0, 1, 0), Particle.LARGE_SMOKE, 25, 0.3, 0.02);
         Fx.sound(destination, Sound.ENTITY_PHANTOM_BITE, 1f, 0.8f);
         fx().cut(Combat.center(target), destination.getDirection(), 2.4, 0.5, 0x6A4CA8, 1.6f, 3);
+        // you step out of one shadow rift and into another; shadows rise out of the ground and grab the target
+        org.bukkit.util.Vector across = destination.toVector().subtract(from.toVector());
+        fx().rift(from.clone().add(0, 1, 0), across, 0x6A4CA8, 2.0f, 20);
+        fx().rift(destination.clone().add(0, 1, 0), across, 0x6A4CA8, 1.6f, 16);
+        for (int i = 0; i < 3; i++) {
+            double a = i * Math.PI * 2 / 3;
+            Location root = target.getLocation().add(Math.cos(a) * 1.3, 0.1, Math.sin(a) * 1.3);
+            fx().tendril(root, () -> target.isValid() ? Combat.center(target) : null, 0x3B2766, 0.7f, 6, null);
+        }
         fx().burst(Combat.center(target), 0x9D7BFF, 1.6f);
         combat().damage(player, target, 6);
         applyEffect(target, PotionEffectType.BLINDNESS, 40, 0);

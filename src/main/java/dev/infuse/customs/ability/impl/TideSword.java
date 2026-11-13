@@ -84,6 +84,10 @@ public final class TideSword extends SwordAbility {
                     return;
                 }
                 Location at = player.getLocation().add(0, 0.8, 0);
+                // a spiralling wake of water left behind the surge
+                if (ticks % 2 == 0) {
+                    fx().wave(at.clone().subtract(dir.clone().multiply(0.8)), dir, ticks % 4 == 0 ? 0x3FA9F5 : 0x9FE0FF, 1.6f, 6);
+                }
                 Fx.particle(at, Particle.SPLASH, 12, 0.4, 0.1);
                 Fx.particle(at, Particle.FALLING_WATER, 6, 0.4, 0);
                 Fx.particle(at, Particle.DUST, 4, 0.35, 0, Fx.dust(TEAL, 1.5f));

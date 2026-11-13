@@ -126,6 +126,14 @@ public final class VoidSword extends SwordAbility {
         BlockDisplay core = displays().block(center, Material.BLACK_CONCRETE.createBlockData(), new Vector3f(0.1f),
                 new Quaternionf(), 90);
         core.setBrightness(new org.bukkit.entity.Display.Brightness(0, 0));
+        // a tilted, spinning accretion disk of light around the black core
+        org.bukkit.entity.ItemDisplay disk = fx().spawn(center, dev.infuse.customs.ability.Fx3D.Shape.RING, 0xB26BFF,
+                new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f), new Vector3f(0.5f, 1, 0.5f),
+                        new Quaternionf()), org.bukkit.entity.Display.Billboard.FIXED, 95);
+        org.bukkit.entity.ItemDisplay inner = fx().spawn(center, dev.infuse.customs.ability.Fx3D.Shape.RING, 0xFF8AE0,
+                new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f), new Vector3f(0.3f, 1, 0.3f),
+                        new Quaternionf()), org.bukkit.entity.Display.Billboard.FIXED, 95);
+        org.bukkit.entity.ItemDisplay lens = fx().orb(center, 0x5A1E9E, 3.2f, 95);
 
         new BukkitRunnable() {
             int ticks;
@@ -134,6 +142,9 @@ public final class VoidSword extends SwordAbility {
             public void run() {
                 if (!alive(player) || player.getWorld() != center.getWorld()) {
                     displays().remove(core);
+                    displays().remove(disk);
+                    displays().remove(inner);
+                    displays().remove(lens);
                     cancel();
                     return;
                 }
@@ -144,6 +155,13 @@ public final class VoidSword extends SwordAbility {
                             new Vector3f(), 5);
                 }
                 drawVortex(center, ticks);
+                if (ticks % 4 == 1) {
+                    float grow = Math.min(1f, ticks / 12f);
+                    Displays.animate(disk, new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f).rotateY(ticks * 0.16f),
+                            new Vector3f(4.6f * grow, 1, 4.6f * grow), new Quaternionf()), 4);
+                    Displays.animate(inner, new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f).rotateY(-ticks * 0.24f),
+                            new Vector3f(2.6f * grow, 1, 2.6f * grow), new Quaternionf()), 4);
+                }
                 if (ticks % 2 == 0) {
                     pull(player, center);
                 }
@@ -154,6 +172,15 @@ public final class VoidSword extends SwordAbility {
                     Fx.sound(center, Sound.BLOCK_BEACON_AMBIENT, 1.5f, 0.5f);
                 }
                 if (ticks >= 80) {
+                    Displays.animate(disk, new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f),
+                            new Vector3f(0.1f, 1, 0.1f), new Quaternionf()), 3);
+                    Displays.animate(inner, new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateX(0.45f),
+                            new Vector3f(0.1f, 1, 0.1f), new Quaternionf()), 3);
+                    displays().later(4, () -> {
+                        displays().remove(disk);
+                        displays().remove(inner);
+                        displays().remove(lens);
+                    });
                     Displays.animateBlock(core, new Vector3f(0.02f), new Quaternionf(), new Vector3f(), 2);
                     displays().later(3, () -> displays().remove(core));
                     implode(player, center);

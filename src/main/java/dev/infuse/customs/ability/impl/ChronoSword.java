@@ -1,5 +1,9 @@
 package dev.infuse.customs.ability.impl;
 
+import dev.infuse.customs.ability.Displays;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
 import dev.infuse.customs.CustomsPlugin;
 import dev.infuse.customs.ability.Combat;
 import dev.infuse.customs.ability.Fx;
@@ -109,6 +113,15 @@ public final class ChronoSword extends SwordAbility implements Listener {
         fx().shockwave(center.clone().subtract(0, 1, 0), 0xC9FFFB, 5f, 10);
         Map<Projectile, Vector> frozen = new HashMap<>();
         Map<Fireball, Vector> frozenPower = new HashMap<>();
+        // the hands of a giant clock turn on the ground under the frozen moment
+        Location face = center.clone().subtract(0, 0.9, 0);
+        face.setYaw(0);
+        face.setPitch(0);
+        org.bukkit.entity.ItemDisplay longHand = fx().spawn(face, dev.infuse.customs.ability.Fx3D.Shape.BEAM, 0x9FF5F0,
+                clockHand(0, 4.6f, 0.9f), org.bukkit.entity.Display.Billboard.FIXED, 92);
+        org.bukkit.entity.ItemDisplay shortHand = fx().spawn(face, dev.infuse.customs.ability.Fx3D.Shape.BEAM, 0x5FE3E0,
+                clockHand(1.2, 2.8f, 1.2f), org.bukkit.entity.Display.Billboard.FIXED, 92);
+        org.bukkit.entity.ItemDisplay pivot = fx().orb(face.clone().add(0, 0.2, 0), 0xC9FFFB, 1.2f, 92);
 
         new BukkitRunnable() {
             int ticks;
@@ -116,11 +129,20 @@ public final class ChronoSword extends SwordAbility implements Listener {
             @Override
             public void run() {
                 if (!alive(player) || player.getWorld() != center.getWorld() || ticks++ >= 80) {
+                    fx().fade(longHand, dev.infuse.customs.ability.Fx3D.Shape.BEAM, 0x9FF5F0, 1, 2);
+                    fx().fade(shortHand, dev.infuse.customs.ability.Fx3D.Shape.BEAM, 0x5FE3E0, 1, 2);
+                    fx().fade(pivot, dev.infuse.customs.ability.Fx3D.Shape.GLOW, 0xC9FFFB, 1, 2);
                     release();
                     cancel();
                     return;
                 }
                 drawClock(center, radius, ticks);
+                if (ticks % 2 == 0) {
+                    // ticking: the long hand jumps each second, the short one creeps
+                    double longAngle = Math.floor(ticks / 20.0) * Math.PI / 6 + (ticks % 20 < 2 ? 0 : 0);
+                    Displays.animate(longHand, clockHand(longAngle, 4.6f, 0.9f), ticks % 20 == 0 ? 3 : 2);
+                    Displays.animate(shortHand, clockHand(1.2 + ticks * 0.012, 2.8f, 1.2f), 2);
+                }
                 if (ticks % 10 == 0) {
                     Fx.sound(center, Sound.BLOCK_NOTE_BLOCK_HAT, 0.8f, ticks % 20 == 0 ? 1.8f : 1.4f);
                 }
@@ -244,5 +266,14 @@ public final class ChronoSword extends SwordAbility implements Listener {
     @Override
     public void shutdown() {
         history.clear();
+    }
+
+    /** A clock hand lying on the ground: a beam from the centre outwards at {@code angle}. */
+    private static org.bukkit.util.Transformation clockHand(double angle, float length, float width) {
+        float x = (float) Math.cos(angle);
+        float z = (float) Math.sin(angle);
+        Quaternionf flat = new Quaternionf().rotationTo(0, 1, 0, x, 0, z);
+        return new org.bukkit.util.Transformation(new Vector3f(x * length / 2, 0, z * length / 2), flat,
+                new Vector3f(width, length, width), new Quaternionf());
     }
 }

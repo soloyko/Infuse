@@ -126,6 +126,14 @@ fx().beam(boomStart, boomEnd, 0xB8FFF8, 0.6f, 7);
         Fx.sound(center, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 2f, 1f);
         Fx.sound(center, Sound.ENTITY_WARDEN_ROAR, 0.6f, 1.2f);
         fx().shockwave(center, 0x0F7C78, 14f, 16);
+        // sculk tears through the ground around you and shriekers' spines burst up
+        fx().crack(center, 0x0F7C78, 6.5f, 60);
+        for (int i = 0; i < 8; i++) {
+            double a = i * Math.PI / 4 + 0.2;
+            Location spot = Combat.ground(center.clone().add(Math.cos(a) * 3.4, 1.5, Math.sin(a) * 3.4));
+            int delay = i;
+            displays().later(2 + delay, () -> fx().spike(spot, org.bukkit.Material.SCULK.createBlockData(), 1.6f, 0.65f, 0.3, 40));
+        }
         fx().shockwave(center, 0x1FB5B0, 9f, 12);
         for (int i = 0; i < 4; i++) {
             int delay = i * 4;
