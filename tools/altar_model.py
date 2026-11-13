@@ -20,13 +20,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ASSETS = os.path.join(ROOT, 'resourcepack', 'assets', 'customs')
 DEFAULT_TINT = 0x9FD8FF  # pale blue, when nothing is on the altar
 
-# textures for the pedestal (drawn by this script) and the glow layer
+# textures for the pedestal (drawn pixel by pixel below) and the glow layer
 T = {
-    'dark_band': 'customs:item/altar/ped_dark_band',
-    'dark_top': 'customs:item/altar/ped_dark_top',
+    'side': 'customs:item/altar/ped_side',
+    'top_cap': 'customs:item/altar/ped_top',
+    'base_top': 'customs:item/altar/ped_base_top',
     'dark': 'customs:item/altar/ped_dark',
-    'pillar': 'customs:item/altar/ped_pillar',
-    'top': 'customs:item/altar/ped_top',
+    'window': 'customs:item/altar/ped_window',
     'rune': 'customs:item/altar/rune',
     'sigil': 'customs:item/altar/sigil',
     'crystal': 'customs:item/altar/crystal',
@@ -73,40 +73,40 @@ def sides(side, top=None, bottom=None):
     return out
 
 
-def slab(frm, to, top='dark_top'):
-    """A dark slab: banded sides (light edge on top, shadow below) and a rimmed top."""
-    el = box(frm, to, {'north': 'dark_band', 'south': 'dark_band', 'east': 'dark_band', 'west': 'dark_band',
-                       'up': top, 'down': 'dark'})
-    return full_uv(el)
-
-
-PILLAR = (3.0, 2.6, 13.0, 12.9)  # x1, y1, x2, y2 of the pillar (it is square: z matches x)
+# The pedestal is built on whole pixels, and every side face samples the same front-view drawing
+# (SIDE below) at its own position, so one texel is one model pixel everywhere: crisp like a
+# vanilla block. Rows are listed top (y 16) to bottom (y 0).
+#   D dark  d dark band  r rim  m mid  f frame line  q bevel  p pillar  h highlight  w window  . unused
+SIDE = [
+    ".rrrrrrrrrrrrrr.",  # top slab: lit rim
+    ".DDDDDDDDDDDDDD.",  # top slab
+    "..dddddddddddd..",  # capital
+    "...fffppppfff...",  # brackets flare into the capital
+    "...qffppppffq...",
+    "...qfpffffpfq...",  # frame, panel top
+    "...qfpfhwfpfq...",  # panel window
+    "...qfpfhwfpfq...",
+    "...qfpfhwfpfq...",
+    "...qfpfhwfpfq...",
+    "...qfpffffpfq...",  # panel bottom
+    "...qfppppppfq...",
+    "...qffffffffq...",  # frame bottom
+    ".mmmmmmmmmmmmmm.",  # upper base step
+    "rrrrrrrrrrrrrrrr",  # base: lit rim
+    "DDDDDDDDDDDDDDDD",  # base
+]
 
 
 def base_elements():
-    x1, y1, x2, y2 = PILLAR
-    els = [
-        # two-tier dark base
-        slab([0, 0, 0], [16, 1.4, 16]),
-        slab([1.2, 1.4, 1.2], [14.8, 2.6, 14.8]),
-        # the pale pillar, with a framed panel on every face
-        full_uv(box([x1, y1, x1], [x2, y2, x2], 'pillar', faces='nsew')),
-        # dark capital and the heavy top slab, its top face pale
-        slab([2.2, 12.9, 2.2], [13.8, 13.6, 13.8]),
-        slab([0.6, 13.6, 0.6], [15.4, 16.0, 15.4], top='top'),
+    sides = lambda up, down='dark': {'north': 'side', 'south': 'side', 'east': 'side', 'west': 'side',
+                                     'up': up, 'down': down}
+    return [
+        box([0, 0, 0], [16, 2, 16], sides('base_top')),
+        box([1, 2, 1], [15, 3, 15], sides('base_top')),
+        box([3, 3, 3], [13, 13, 13], 'side', faces='nsew'),
+        box([2, 13, 2], [14, 14, 14], sides('dark'), faces='nsewd'),
+        box([1, 14, 1], [15, 16, 15], sides('top_cap')),
     ]
-    # corner brackets: dark strips running up the pillar's edges and flaring out under the capital
-    for cx, cz in ((x1, x1), (x2, x1), (x1, x2), (x2, x2)):
-        sx = -1 if cx == x1 else 1
-        sz = -1 if cz == x1 else 1
-        w = 0.55
-        els.append(box([min(cx, cx - sx * w), y1 + 0.6, min(cz, cz - sz * w)],
-                       [max(cx, cx - sx * w), 10.6, max(cz, cz - sz * w)], 'dark', faces='nsewu'))
-        for step, (out, y_lo, y_hi) in enumerate(((0.35, 10.6, 11.8), (0.75, 11.8, 12.9))):
-            ox, oz = cx + sx * out, cz + sz * out
-            els.append(box([min(cx - sx * w, ox), y_lo, min(cz - sz * w, oz)],
-                           [max(cx - sx * w, ox), y_hi, max(cz - sz * w, oz)], 'dark', faces='nsewud'))
-    return els
 
 
 def crystal(x, y, z, size):
@@ -122,23 +122,13 @@ def crystal(x, y, z, size):
 
 
 def glow_elements():
-    """Runes glowing in the window of each pillar panel, and a faint ring on the top slab."""
-    x1, y1, x2, y2 = PILLAR
-    # the window of the panel texture is u 5..11, v 6..13 of the pillar face
-    def u(px):
-        return x1 + px * (x2 - x1) / 16
-
-    def v(px):
-        return y2 - px * (y2 - y1) / 16
-    a, b = u(5.2), u(10.8)
-    top, bottom = v(6.2), v(12.8)
+    """The panel windows glow in the weapon's colour (columns 7-8, rows 6-9 of SIDE: x 7..9, y 6..10)."""
     e = 0.02
     return [
-        full_uv(box([a, bottom, x1 - e], [b, top, x1 - e + 0.01], 'rune', faces='n', tint=True)),
-        full_uv(box([a, bottom, x2 + e], [b, top, x2 + e + 0.01], 'rune', faces='s', tint=True)),
-        full_uv(box([x1 - e, bottom, a], [x1 - e + 0.01, top, b], 'rune', faces='w', tint=True)),
-        full_uv(box([x2 + e, bottom, a], [x2 + e + 0.01, top, b], 'rune', faces='e', tint=True)),
-        full_uv(box([2.0, 16.02, 2.0], [14.0, 16.04, 14.0], 'sigil', faces='u', tint=True)),
+        full_uv(box([7, 6, 3 - e], [9, 10, 3 - e + 0.01], 'window', faces='n', tint=True)),
+        full_uv(box([7, 6, 13 + e], [9, 10, 13 + e + 0.01], 'window', faces='s', tint=True)),
+        full_uv(box([3 - e, 6, 7], [3 - e + 0.01, 10, 9], 'window', faces='w', tint=True)),
+        full_uv(box([13 + e, 6, 7], [13 + e + 0.01, 10, 9], 'window', faces='e', tint=True)),
     ]
 
 
@@ -165,7 +155,7 @@ BLOCK_DISPLAY = {
 def model(elements, textures):
     used = {f["texture"][1:] for e in elements for f in e["faces"].values()}
     tex = {k: T[k] for k in sorted(used)}
-    tex["particle"] = T["pillar"]
+    tex["particle"] = T["side"]
     return {"credit": "Customs altar - generated by tools/altar_model.py", "textures": tex,
             "elements": elements, "display": BLOCK_DISPLAY}
 
@@ -309,10 +299,24 @@ def _shade(v, x, y, seed, amount=7):
     return (g, g, min(255, g + 4), 255)
 
 
-DARK = 74
-DARK_HI = 118
-DARK_LO = 52
-LIGHT = 206
+PALETTE = {
+    'D': 58, 'd': 78, 'r': 156, 'm': 112, 'f': 120, 'q': 228, 'p': 206, 'h': 246, 'w': 232,
+}
+
+
+def _pixel(v, x, y, seed, amount=3):
+    g = int(max(0, min(255, v + _noise(x, y, seed) * amount)))
+    return (g, g, min(255, g + 5), 255)
+
+
+def side_texture():
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y, row in enumerate(SIDE):
+        for x, ch in enumerate(row):
+            v = PALETTE.get(ch, PALETTE['D'])
+            px[x, y] = _pixel(v, x, y, 11, 4 if ch in 'pqf' else 2)
+    return img
 
 
 def dark_texture():
@@ -320,82 +324,53 @@ def dark_texture():
     px = img.load()
     for y in range(16):
         for x in range(16):
-            px[x, y] = _shade(DARK, x, y, 1)
+            px[x, y] = _pixel(PALETTE['D'], x, y, 1, 2)
     return img
 
 
-def dark_band_texture():
-    """Slab sides: a light edge on top, the body, and a shadow line at the bottom."""
+def ring(x, y):
+    """How far a texel is from the edge of the 16x16 tile (0 = outermost)."""
+    return min(x, y, 15 - x, 15 - y)
+
+
+def base_top_texture():
+    """Tops of the two base steps: a lit rim on each step's edge (rings 0 and 1), dark inside."""
     img = Image.new('RGBA', (16, 16))
     px = img.load()
     for y in range(16):
         for x in range(16):
-            v = DARK_HI if y < 3 else (DARK_LO if y >= 14 else DARK)
-            if y in (3, 4):
-                v = (DARK_HI + DARK) // 2
-            px[x, y] = _shade(v, x, y, 2, 5)
-    return img
-
-
-def dark_top_texture():
-    """Slab tops: dark with a light rim."""
-    img = Image.new('RGBA', (16, 16))
-    px = img.load()
-    for y in range(16):
-        for x in range(16):
-            edge = x == 0 or y == 0 or x == 15 or y == 15
-            px[x, y] = _shade(DARK_HI if edge else DARK + 6, x, y, 3, 6)
+            k = ring(x, y)
+            v = PALETTE['r'] if k <= 1 else PALETTE['d'] if k == 2 else PALETTE['D']
+            px[x, y] = _pixel(v, x, y, 3, 2)
     return img
 
 
 def top_texture():
-    """The pale, mottled top of the pedestal with a dark rim."""
+    """Top of the pedestal: lit rim, dark frame, a pale stone face with a soft bevel."""
     img = Image.new('RGBA', (16, 16))
     px = img.load()
     for y in range(16):
         for x in range(16):
-            if x == 0 or y == 0 or x == 15 or y == 15:
-                px[x, y] = _shade(DARK, x, y, 4, 4)
-            elif x == 1 or y == 1 or x == 14 or y == 14:
-                px[x, y] = _shade(176, x, y, 4, 5)
+            k = ring(x, y)
+            if k <= 1:
+                v = PALETTE['r']
+            elif k == 2:
+                v = PALETTE['D']
+            elif k == 3:
+                v = 222 if (x <= 3 or y <= 3) else 176   # lit on two sides, shaded on the others
             else:
-                spot = _noise(x // 2, y // 2, 9)
-                px[x, y] = _shade(210 + int(spot * 14), x, y, 5, 8)
+                v = 200 + int(_noise(x // 2, y // 2, 9) * 8)
+            px[x, y] = _pixel(v, x, y, 5, 3)
     return img
 
 
-def pillar_texture():
-    """A pillar face: pale stone, dark frame lines branching up to the corners, an inset window."""
+def window_texture():
+    """The glowing window: bright, with a lighter streak on the left like the stone's highlight."""
     img = Image.new('RGBA', (16, 16))
     px = img.load()
     for y in range(16):
         for x in range(16):
-            v = LIGHT
-            if x in (0, 15):
-                v = 186                     # rounded edge
-            if y <= 1:
-                v = DARK                    # shadow under the capital
-            px[x, y] = _shade(v, x, y, 6, 6)
-    dark = []
-    # the frame: two verticals that branch out diagonally to the top corners
-    for y in range(5, 16):
-        dark += [(3, y), (12, y)]
-    for i in range(4):
-        dark += [(3 - i, 5 - i), (12 + i, 5 - i), (3 - i + 1, 5 - i), (12 + i - 1, 5 - i)]
-    dark += [(x, 15) for x in range(3, 13)]
-    for x, y in dark:
-        if 0 <= x < 16 and 0 <= y < 16:
-            px[x, y] = _shade(DARK, x, y, 7, 4)
-    # the inset window: dark outline, pale glassy inside with a highlight
-    for y in range(6, 14):
-        for x in range(5, 11):
-            outline = x in (5, 10) or y in (6, 13)
-            v = DARK + 10 if outline else (240 if x == 6 else 224)
-            px[x, y] = _shade(v, x, y, 8, 3 if not outline else 4)
-    # the band between frame and window is a touch darker
-    for y in range(5, 15):
-        for x in (4, 11):
-            px[x, y] = _shade(184, x, y, 10, 4)
+            px[x, y] = (255, 255, 255, 255) if x < 8 else (215, 215, 215, 255)
     return img
 
 
@@ -431,11 +406,11 @@ def main():
     for name, item in items.items():
         write(f'items/{name}.json', json.dumps(item, indent=2).encode() + b'\n')
     write('textures/item/altar/rune.png', png(rune_texture()))
+    write('textures/item/altar/ped_side.png', png(side_texture()))
     write('textures/item/altar/ped_dark.png', png(dark_texture()))
-    write('textures/item/altar/ped_dark_band.png', png(dark_band_texture()))
-    write('textures/item/altar/ped_dark_top.png', png(dark_top_texture()))
+    write('textures/item/altar/ped_base_top.png', png(base_top_texture()))
     write('textures/item/altar/ped_top.png', png(top_texture()))
-    write('textures/item/altar/ped_pillar.png', png(pillar_texture()))
+    write('textures/item/altar/ped_window.png', png(window_texture()))
     write('textures/item/altar/sigil.png', png(sigil_texture()))
     write('textures/item/altar/crystal.png', png(crystal_texture()))
     write('textures/item/altar/band.png', png(band_texture()))

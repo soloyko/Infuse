@@ -721,13 +721,6 @@ public final class AltarService implements Listener {
                     mote.teleport(motePoint(altar, i, altar.spin));
                 }
             }
-            if (altar.spin % 12 == 0 && altar.type != null) {
-                // a mote of light drifts up from one of the glowing panels
-                double side = (altar.spin / 12) % 4;
-                double ox = side == 0 ? 0.33 : side == 1 ? -0.33 : 0;
-                double oz = side == 2 ? 0.33 : side == 3 ? -0.33 : 0;
-                Fx.particle(altar.center().add(ox, -0.05, oz), Particle.END_ROD, 1, 0.05, 0.004);
-            }
             if (altar.type != null && altar.spin % 5 == 0) {
                 Aura.ambient(altar.center().add(0, FLOAT_HEIGHT, 0), altar.type);
             }

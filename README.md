@@ -142,9 +142,9 @@ saved with the world.
 
 ![A stone pedestal altar holding Valiance, runes glowing in its panel](docs/altars.png)
 
-A weapon altar is a single block with its own 3D model: a stone pedestal with a dark two-tier
-base, a pale pillar with framed panels and corner brackets, and a heavy slab on top. Runes glow
-in the panel windows and a circle on the slab in the colour of the weapon it holds. The weapon
+A weapon altar is a single block with its own pixel-perfect 3D model: a stone pedestal with a
+dark two-tier base, a pale pillar with framed panels and a heavy dark slab with a pale top. The
+window in each panel glows in the colour of the weapon it holds. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 
