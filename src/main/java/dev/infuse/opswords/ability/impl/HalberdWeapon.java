@@ -192,7 +192,7 @@ public final class HalberdWeapon extends SwordAbility {
                         Combat.setVelocity(target, dir.clone().multiply(0.4).setY(0.9));
                         Location at = Combat.center(target);
                         fx().burst(at, JADE, 2f);
-                        fx().slash(at, dir, Math.PI / 2, PALE_JADE, 1.6f, 2);
+                        fx().cut(at, dir, Math.PI / 2, 0.5, PALE_JADE, 1.5f, 2);
                         Fx.sound(at, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
                         Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 0.8f);
                     }

@@ -217,7 +217,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                         combat().damage(player, target, 6, true);
                         Fx.particle(Combat.center(target), Particle.SWEEP_ATTACK, 1, 0, 0);
                         Fx.sound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.5f);
-                        fx().slash(Combat.center(target), dir, Math.random() * Math.PI, 0x4CC38A, 1.4f, 2);
+                        fx().cut(Combat.center(target), dir, Math.random() * Math.PI * 2, 0.5, 0x4CC38A, 1.2f, 2);
                     }
                 }
             }

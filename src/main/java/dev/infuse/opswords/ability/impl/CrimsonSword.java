@@ -28,6 +28,8 @@ import java.util.UUID;
  */
 public final class CrimsonSword extends SwordAbility {
 
+    private static final int BLOOD_GLOW = 0xFF3048;
+
     private static final int RED = 0xC4415B;
     private static final int DARK_RED = 0x6B0F1A;
 
@@ -55,14 +57,17 @@ public final class CrimsonSword extends SwordAbility {
     @Override
     public boolean primary(Player player) {
         Location start = player.getEyeLocation().subtract(0, 0.4, 0);
-        Vector dir = start.getDirection();
+        // flies level, so aiming a little down doesn't drive it into the ground
+        Vector flat = start.getDirection().setY(0);
+        Vector dir = flat.lengthSquared() < 1.0E-4 ? new Vector(0, 0, 1) : flat.normalize();
         Vector right = Fx.right(dir);
         Fx.sound(start, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.6f);
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1f, 0.8f);
         Set<UUID> hit = new HashSet<>();
-        float size = 2.2f;
+        float size = 2.4f;
+        // tilted diagonally so it reads as a crescent from behind, not a flat line
         org.bukkit.entity.ItemDisplay crescent = fx().movingSlash(start.clone().subtract(dir.clone().multiply(0.94 * size)),
-                dir, 0, 0xD3122E, size, 40);
+                dir, -0.6, BLOOD_GLOW, size, 40);
 
         new BukkitRunnable() {
             final Location center = start.clone();
@@ -71,7 +76,7 @@ public final class CrimsonSword extends SwordAbility {
             @Override
             public void run() {
                 if (!alive(player) || center.getWorld() != player.getWorld() || steps++ >= 14) {
-                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, 0xD3122E, 1, 1);
+                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, BLOOD_GLOW, 1, 1);
                     cancel();
                     return;
                 }
@@ -79,12 +84,15 @@ public final class CrimsonSword extends SwordAbility {
                 if (!center.getBlock().isPassable()) {
                     Fx.particle(center, Particle.DUST, 20, 0.5, 0, Fx.dust(DARK_RED, 1.5f));
                     fx().burst(center, 0xD3122E, 1.8f);
-                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, 0xD3122E, 1, 1);
+                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, BLOOD_GLOW, 1, 1);
                     cancel();
                     return;
                 }
                 if (crescent.isValid()) {
-                    crescent.teleport(center.clone().subtract(dir.clone().multiply(0.94 * size)));
+                    Location at = center.clone().subtract(dir.clone().multiply(0.94 * size));
+                    at.setYaw(0);
+                    at.setPitch(0);
+                    crescent.teleport(at);
                 }
                 for (double s = -1.6; s <= 1.6; s += 0.2) {
                     Location p = center.clone().add(right.clone().multiply(s)).subtract(dir.clone().multiply(s * s * 0.25));

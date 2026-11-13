@@ -36,10 +36,14 @@ public final class Displays implements Listener {
     private final OPSwordsPlugin plugin;
     private final NamespacedKey key;
     private final Set<Display> live = new HashSet<>();
+    /** Server tick each live display was spawned on (see {@link #animate}). */
+    private final java.util.Map<java.util.UUID, Integer> born = new java.util.HashMap<>();
+    private static Displays instance;
 
     public Displays(OPSwordsPlugin plugin) {
         this.plugin = plugin;
         this.key = new NamespacedKey(plugin, "effect_display");
+        instance = this;
     }
 
     public OPSwordsPlugin plugin() {
@@ -71,6 +75,7 @@ public final class Displays implements Listener {
     }
 
     private void prepare(Display d) {
+        born.put(d.getUniqueId(), Bukkit.getCurrentTick());
         d.setPersistent(false);
         d.setTeleportDuration(1);
         d.setViewRange(2.0f);
@@ -91,10 +96,25 @@ public final class Displays implements Listener {
         return new Transformation(translation, rotation, scale, new Quaternionf());
     }
 
-    /** Smoothly changes a display's transformation over {@code ticks}. */
+    /**
+     * Smoothly changes a display's transformation over {@code ticks}.
+     *
+     * <p>A display spawned between ticks (from a hit or a key press) reaches players together
+     * with the first change made to it, which then shows instantly instead of animating. So an
+     * animation on a display younger than two ticks waits until it is two ticks old.
+     */
     public static void animate(Display display, Transformation to, int ticks) {
         if (!display.isValid()) {
             return;
+        }
+        Displays self = instance;
+        Integer spawned = self == null ? null : self.born.get(display.getUniqueId());
+        if (spawned != null) {
+            int wait = spawned + 2 - Bukkit.getCurrentTick();
+            if (wait > 0) {
+                Bukkit.getScheduler().runTaskLater(self.plugin, () -> animate(display, to, ticks), wait);
+                return;
+            }
         }
         display.setInterpolationDelay(0);
         display.setInterpolationDuration(ticks);
@@ -114,6 +134,7 @@ public final class Displays implements Listener {
 
     public void remove(Display display) {
         live.remove(display);
+        born.remove(display.getUniqueId());
         if (display.isValid()) {
             display.remove();
         }
@@ -173,5 +194,6 @@ public final class Displays implements Listener {
             }
         }
         live.clear();
+        born.clear();
     }
 }

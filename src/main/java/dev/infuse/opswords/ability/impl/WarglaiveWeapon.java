@@ -68,7 +68,7 @@ public final class WarglaiveWeapon extends SwordAbility {
                 return;
             }
             Location at = Combat.center(target);
-            fx().slash(at, look, Math.PI / 2 + 0.4, SILVER, 1.8f, 3);
+            fx().cut(at, look, Math.PI / 2 + 0.4, 0.5, SILVER, 1.6f, 3);
             combat().damage(player, target, echo);
             Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.6f);
             Fx.particle(at, Particle.END_ROD, 6, 0.3, 0.03);

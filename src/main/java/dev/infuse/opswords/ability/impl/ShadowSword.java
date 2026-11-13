@@ -134,7 +134,7 @@ public final class ShadowSword extends SwordAbility implements Listener {
         player.setFallDistance(0);
         Fx.particle(destination.clone().add(0, 1, 0), Particle.LARGE_SMOKE, 25, 0.3, 0.02);
         Fx.sound(destination, Sound.ENTITY_PHANTOM_BITE, 1f, 0.8f);
-        fx().slash(Combat.center(target), destination.getDirection(), 2.4, 0x6A4CA8, 1.8f, 3);
+        fx().cut(Combat.center(target), destination.getDirection(), 2.4, 0.5, 0x6A4CA8, 1.6f, 3);
         fx().burst(Combat.center(target), 0x9D7BFF, 1.6f);
         combat().damage(player, target, 6);
         applyEffect(target, PotionEffectType.BLINDNESS, 40, 0);

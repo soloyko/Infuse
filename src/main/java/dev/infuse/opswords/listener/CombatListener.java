@@ -49,7 +49,7 @@ public final class CombatListener implements Listener {
         plugin.abilities().get(type).onMelee(player, target, event);
         if (plugin.settings().meleeSlashes && !event.isCancelled()) {
             plugin.fx().melee(player.getEyeLocation(), player.getEyeLocation().getDirection(), Combat.center(target),
-                    type.color().value());
+                    type.color().value(), type.accent().value(), type.meleeStyle());
         }
     }
 
@@ -65,7 +65,7 @@ public final class CombatListener implements Listener {
             return;
         }
         int rgb = type.color().value();
-        int accent = type.accent().value();
+        int accent = dev.infuse.opswords.ability.Fx3D.bright(type.accent().value());
         org.bukkit.Location feet = event.getEntity().getLocation();
         org.bukkit.Location at = Combat.center(event.getEntity());
         var fx = plugin.fx();

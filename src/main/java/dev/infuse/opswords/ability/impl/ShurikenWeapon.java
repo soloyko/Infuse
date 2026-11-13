@@ -121,7 +121,7 @@ public final class ShurikenWeapon extends SwordAbility {
                     combat().damage(player, target, damage);
                     Location at = Combat.center(target);
                     fx().burst(at, MAGENTA, 1.4f);
-                    fx().slash(at, heading, Math.random() * Math.PI, PETAL, 1.1f, 2);
+                    fx().cut(at, heading, Math.random() * Math.PI * 2, 0.5, PETAL, 1.0f, 2);
                     Fx.particle(at, Particle.CHERRY_LEAVES, 8, 0.3, 0.02);
                     Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.7f, 1.8f);
                     Fx.sound(at, Sound.BLOCK_AMETHYST_BLOCK_HIT, 1f, 1.4f);
@@ -233,8 +233,8 @@ public final class ShurikenWeapon extends SwordAbility {
                 player.teleport(to, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 combat().damage(player, target, 6);
                 Vector cut = at.toVector().subtract(last.toVector());
-                fx().slash(at, cut, 0.7, MAGENTA, 1.8f, 2);
-                fx().slash(at, cut, -0.7 + Math.PI, PETAL, 1.8f, 2);
+                fx().cut(at, cut, 0.7, 0.5, MAGENTA, 1.6f, 2);
+                fx().cut(at, cut, -0.7 + Math.PI, 0.5, PETAL, 1.6f, 2);
                 Fx.particle(at, Particle.CHERRY_LEAVES, 12, 0.4, 0.02);
                 Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1.5f);
                 Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 1.2f);

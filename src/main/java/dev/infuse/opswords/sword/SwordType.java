@@ -259,6 +259,17 @@ public enum SwordType {
         return base == null ? Material.NETHERITE_SWORD : base;
     }
 
+    /** How melee hits with this weapon are drawn. */
+    public dev.infuse.opswords.ability.Fx3D.MeleeStyle meleeStyle() {
+        return switch (this) {
+            case SCYTHE, AXE, WARGLAIVE, KHOPESH -> dev.infuse.opswords.ability.Fx3D.MeleeStyle.HEAVY;
+            case SPEAR, RAPIER, HALBERD, TRIDENT -> dev.infuse.opswords.ability.Fx3D.MeleeStyle.THRUST;
+            case HAMMER -> dev.infuse.opswords.ability.Fx3D.MeleeStyle.IMPACT;
+            case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.opswords.ability.Fx3D.MeleeStyle.SPIN;
+            default -> dev.infuse.opswords.ability.Fx3D.MeleeStyle.SLASH;
+        };
+    }
+
     /** True for the 15 swords, false for the other weapons. */
     public boolean isSword() {
         return base == null;

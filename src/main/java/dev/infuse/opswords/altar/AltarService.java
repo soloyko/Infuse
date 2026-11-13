@@ -517,6 +517,22 @@ public final class AltarService implements Listener {
             prepare(d);
         });
         altar.weaponDisplay = weapon;
+        // three motes of light orbiting the weapon
+        for (int i = 0; i < 3; i++) {
+            int index = i;
+            ItemDisplay mote = world.spawn(motePoint(altar, i, 0), ItemDisplay.class, d -> {
+                d.setItemStack(dev.infuse.opswords.ability.Fx3D.item(dev.infuse.opswords.ability.Fx3D.Shape.GLOW, index == 1 ? 1 : 0,
+                        dev.infuse.opswords.ability.Fx3D.bright(index == 1 ? type.accent().value() : tint)));
+                d.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.NONE);
+                d.setBillboard(Display.Billboard.CENTER);
+                d.setBrightness(new Display.Brightness(15, 15));
+                d.setTransformation(scaled(0.32f));
+                d.setTeleportDuration(2);
+                prepare(d);
+            });
+            altar.motes.add(mote);
+            altar.visuals.add(mote);
+        }
         // a soft light behind the floating weapon
         altar.visuals.add(world.spawn(center.clone().add(0, FLOAT_HEIGHT, 0), ItemDisplay.class, d -> {
             d.setItemStack(dev.infuse.opswords.ability.Fx3D.item(dev.infuse.opswords.ability.Fx3D.Shape.GLOW, 2, tint));
@@ -590,6 +606,18 @@ public final class AltarService implements Listener {
         return new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(scale), new Quaternionf());
     }
 
+    /** Motes circle the weapon on tilted orbits at different speeds. */
+    private static Location motePoint(Altar altar, int index, int step) {
+        double speed = 0.16 + index * 0.05;
+        double angle = step * speed + index * Math.PI * 2 / 3;
+        double radius = 0.5 + index * 0.08;
+        double y = FLOAT_HEIGHT + Math.sin(step * 0.07 + index * 2.1) * 0.45;
+        Location at = altar.center().add(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+        at.setYaw(0);
+        at.setPitch(0);
+        return at;
+    }
+
     private Location ringPoint(Altar altar, int index, int count) {
         double angle = (steps % RING_PERIOD) * Math.PI * 2 / RING_PERIOD + index * Math.PI * 2 / Math.max(1, count);
         return altar.center().add(Math.cos(angle) * RING_RADIUS, RING_HEIGHT, Math.sin(angle) * RING_RADIUS);
@@ -611,6 +639,7 @@ public final class AltarService implements Listener {
         }
         altar.visuals.clear();
         altar.ingredients.clear();
+        altar.motes.clear();
         altar.weaponDisplay = null;
         altar.halo = null;
     }
@@ -665,6 +694,12 @@ public final class AltarService implements Listener {
                 }
                 if (ingredient.label() != null && ingredient.label().isValid()) {
                     ingredient.label().teleport(at.clone().add(0, -0.24, 0));
+                }
+            }
+            for (int i = 0; i < altar.motes.size(); i++) {
+                Display mote = altar.motes.get(i);
+                if (mote.isValid()) {
+                    mote.teleport(motePoint(altar, i, altar.spin));
                 }
             }
             if (altar.type != null && altar.spin % 5 == 0) {

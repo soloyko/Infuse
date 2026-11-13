@@ -31,6 +31,7 @@ public final class Fx3D {
     }
 
     private static final int FADE_LEVELS = 4;
+    private static final float DROOP = 0.45f;
     private static final Display.Brightness FULL_BRIGHT = new Display.Brightness(15, 15);
 
     private final Displays displays;
@@ -110,14 +111,14 @@ public final class Fx3D {
         return l;
     }
 
-    /** Rotation turning the model's +X towards {@code forward}, rolled {@code roll} radians about it. */
+    /** Rotation turning the crescent's bulge (the model's -X) towards {@code forward}, rolled {@code roll} radians about it. */
     private static Quaternionf facing(Vector forward, double roll) {
         Vector f = forward.clone();
         if (f.lengthSquared() < 1.0E-6) {
             f = new Vector(1, 0, 0);
         }
         f.normalize();
-        return new Quaternionf().rotationTo(1, 0, 0, (float) f.getX(), (float) f.getY(), (float) f.getZ())
+        return new Quaternionf().rotationTo(-1, 0, 0, (float) f.getX(), (float) f.getY(), (float) f.getZ())
                 .rotateX((float) roll);
     }
 
@@ -128,9 +129,11 @@ public final class Fx3D {
      * ticks. {@code roll} tilts the swing (0 = horizontal, PI/2 = vertical).
      */
     public void slash(Location center, Vector forward, double roll, int rgb, float size, int sweep) {
-        Quaternionf base = facing(forward, roll);
-        Quaternionf from = new Quaternionf(base).rotateY(0.9f);
-        Quaternionf to = new Quaternionf(base).rotateY(-0.9f);
+        // the outer edge droops a little, so a viewer above the plane sees its face, not its edge
+        Quaternionf base = facing(forward, roll).rotateZ(DROOP);
+        // a short swing around the target: wide sweeps carry the arc into the attacker's face
+        Quaternionf from = new Quaternionf(base).rotateY(0.35f);
+        Quaternionf to = new Quaternionf(base).rotateY(-0.35f);
         ItemDisplay d = spawn(noRotation(center), Shape.SLASH, rgb, transform(from, new Vector3f(size * 0.8f)),
                 Display.Billboard.FIXED, sweep + 12);
         displays.later(1, () -> Displays.animate(d, transform(to, new Vector3f(size * 1.08f)), Math.max(1, sweep)));
@@ -142,10 +145,112 @@ public final class Fx3D {
      * blocks ahead of the display's position. Fade it with {@link #fade} when done.
      */
     public ItemDisplay movingSlash(Location at, Vector forward, double roll, int rgb, float size, int life) {
-        ItemDisplay d = spawn(noRotation(at), Shape.SLASH, rgb, transform(facing(forward, roll), new Vector3f(size)),
+        ItemDisplay d = spawn(noRotation(at), Shape.SLASH, rgb, transform(facing(forward, roll).rotateZ(DROOP), new Vector3f(size)),
                 Display.Billboard.FIXED, life);
         d.setTeleportDuration(1);
         return d;
+    }
+
+    /**
+     * A crescent whose tip lands on {@code target}, swung across the line of sight of a viewer
+     * looking along {@code view}. {@code swing} turns the swing direction around the view (0 is
+     * a horizontal swing). The crescent's plane is tilted {@code tilt} radians off the view so the
+     * viewer sees its face, never its edge.
+     */
+    public void cut(Location target, Vector view, double swing, double tilt, int rgb, float size, int sweep) {
+        Vector f = view.clone().normalize();
+        Vector right = new Vector(-f.getZ(), 0, f.getX());
+        if (right.lengthSquared() < 1.0E-4) {
+            right = new Vector(1, 0, 0);
+        }
+        right.normalize();
+        Vector up = right.clone().crossProduct(f).normalize();
+        // the swing direction, turned around the view
+        Vector sw = right.clone().multiply(Math.cos(swing)).add(up.clone().multiply(Math.sin(swing))).normalize();
+        Vector n = f.clone().crossProduct(sw).normalize();
+        // the crescent bulges along d: the view, tipped towards n so the plane isn't edge-on
+        Vector d = f.clone().multiply(Math.cos(tilt)).add(n.clone().multiply(Math.sin(tilt))).normalize();
+        Vector normal = sw.clone().crossProduct(d).normalize();
+        // the crescent model bulges towards its -X: map -X to d (and keep the basis right-handed)
+        org.joml.Matrix3f basis = new org.joml.Matrix3f(
+                (float) -d.getX(), (float) -d.getY(), (float) -d.getZ(),
+                (float) -normal.getX(), (float) -normal.getY(), (float) -normal.getZ(),
+                (float) sw.getX(), (float) sw.getY(), (float) sw.getZ());
+        Quaternionf base = new Quaternionf().setFromNormalized(basis);
+        float reach = 0.94f * size;
+        Location center = noRotation(target).subtract(d.clone().multiply(reach));
+        Quaternionf from = new Quaternionf(base).rotateY(0.3f);
+        Quaternionf to = new Quaternionf(base).rotateY(-0.3f);
+        ItemDisplay disp = spawn(center, Shape.SLASH, rgb, transform(from, new Vector3f(size * 0.85f)), Display.Billboard.FIXED,
+                sweep + 12);
+        displays.later(1, () -> Displays.animate(disp, transform(to, new Vector3f(size * 1.05f)), Math.max(1, sweep)));
+        fade(disp, Shape.SLASH, rgb, sweep + 2, 2);
+    }
+
+    /** How a weapon's melee hits are drawn. */
+    public enum MeleeStyle {
+        /** A crescent through the target (swords). */
+        SLASH,
+        /** A wider, heavier crescent (scythe, axe, warglaive, khopesh). */
+        HEAVY,
+        /** A straight jab of light into the target (spear, rapier, halberd, trident). */
+        THRUST,
+        /** A burst on the target and a ring on the ground (hammer). */
+        IMPACT,
+        /** Small spinning cuts (chakram, shuriken, sawblade). */
+        SPIN
+    }
+
+    /** Dark colours don't glow well; lift them towards white so effects stay visible. */
+    public static int bright(int rgb) {
+        int red = (rgb >> 16) & 0xFF;
+        int green = (rgb >> 8) & 0xFF;
+        int blue = rgb & 0xFF;
+        double luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+        if (luminance >= 0.45) {
+            return rgb;
+        }
+        double t = Math.min(0.6, 0.45 - luminance + 0.25);
+        red = (int) (red + (255 - red) * t);
+        green = (int) (green + (255 - green) * t);
+        blue = (int) (blue + (255 - blue) * t);
+        return (red << 16) | (green << 8) | blue;
+    }
+
+    /** A melee hit drawn in the weapon's style. */
+    public void melee(Location eye, Vector look, Location targetCenter, int rgb, int accentColor, MeleeStyle style) {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int accent = bright(accentColor);
+        rgb = bright(rgb);
+        Vector dir = look.clone().normalize();
+        switch (style) {
+            case HEAVY -> cut(targetCenter, look, r.nextDouble(-0.5, 0.5) + (r.nextBoolean() ? 0 : Math.PI), 0.5, rgb, 1.7f, 4);
+            case THRUST -> {
+                Vector right = new Vector(-dir.getZ(), 0, dir.getX());
+                if (right.lengthSquared() < 1.0E-4) {
+                    right = new Vector(1, 0, 0);
+                }
+                right.normalize();
+                Location from = eye.clone().add(dir.clone().multiply(0.8)).add(right.multiply(0.25)).subtract(0, 0.3, 0);
+                Location to = targetCenter.clone().add(dir.clone().multiply(0.8));
+                beam(from, to, rgb, 0.9f, 5);
+                burst(targetCenter, rgb, 1.5f);
+                wave(targetCenter.clone().subtract(dir.clone().multiply(0.3)), dir, accent, 0.9f, 4);
+            }
+            case IMPACT -> {
+                burst(targetCenter, rgb, 1.6f);
+                Location feet = targetCenter.clone().subtract(0, 0.9, 0);
+                shockwave(feet, accent, 1.6f, 5);
+            }
+            case SPIN -> {
+                for (int i = 0; i < 2; i++) {
+                    double roll = r.nextDouble(0, Math.PI * 2);
+                    int color = i == 0 ? rgb : accent;
+                    displays.later(i * 2L, () -> cut(targetCenter, look, roll, 0.6, color, 0.9f, 2));
+                }
+            }
+            default -> melee(eye, look, targetCenter, rgb);
+        }
     }
 
     /** A slash aimed by the player's view, with a random tilt, for melee hits. */
@@ -153,11 +258,7 @@ public final class Fx3D {
         ThreadLocalRandom r = ThreadLocalRandom.current();
         double roll = r.nextBoolean() ? r.nextDouble(-0.6, 0.6) : r.nextDouble(2.5, 3.8);
         // put the slash's centre behind the target so its arc (radius ~0.94 x size) passes through it
-        float size = 1.4f;
-        Vector dir = look.clone().normalize();
-        double distance = targetCenter.toVector().subtract(eye.toVector()).dot(dir);
-        Location at = eye.clone().add(dir.multiply(Math.max(0.2, distance - 0.94 * size)));
-        slash(at, look, roll, rgb, size, 3);
+        cut(targetCenter, look, roll, 0.5, rgb, 1.3f, 3);
     }
 
     /** A flat ring that expands from the centre to {@code radius} blocks and fades. */

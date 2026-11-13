@@ -23,6 +23,8 @@ final class Altar {
     final List<Ingredient> ingredients = new ArrayList<>();
     @Nullable Display weaponDisplay;
     @Nullable Display halo;
+    /** Small lights that orbit the floating weapon. */
+    final List<Display> motes = new ArrayList<>();
     int spin;
     /** Animation step until which the ingredient ring stays hidden after a forge. */
     int hiddenUntil;
