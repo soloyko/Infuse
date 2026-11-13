@@ -44,6 +44,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             case "menu", "gui" -> menu(sender);
             case "recipes", "recipe", "craft" -> recipes(sender, args);
             case "unforge" -> unforge(sender, args);
+            case "altar", "altars" -> altar(sender, label, args);
             case "list" -> list(sender);
             case "info" -> info(sender, args);
             case "pack" -> pack(sender, args);
@@ -55,16 +56,19 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void help(CommandSender sender, String label) {
-        Text.send(sender, "<gray>Commands:");
-        line(sender, "/" + label + " list", "Show all swords");
-        line(sender, "/" + label + " recipes [sword]", "How to craft each sword");
-        line(sender, "/" + label + " info [sword]", "Show what a sword does");
+        Text.send(sender, "<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <dark_gray>· <gray>"
+                + plugin.getPluginMeta().getVersion() + " <dark_gray>· <gray>click a command to fill it in");
+        line(sender, "/" + label + " list", "Show all weapons");
+        line(sender, "/" + label + " recipes [weapon]", "How to craft each weapon and the altar");
+        line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
         if (sender.hasPermission(ADMIN)) {
-            line(sender, "/" + label + " give <player> <sword|all>", "Give swords");
-            line(sender, "/" + label + " menu", "Take swords from a menu");
+            line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
+            line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
             line(sender, "/" + label + " resetcooldowns [player]", "Clear ability cooldowns");
-            line(sender, "/" + label + " unforge <sword>", "Legendary mode: allow a sword to be crafted again");
+            line(sender, "/" + label + " unforge <sword>", "Legendary mode: allow a weapon to be crafted again");
+            line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
+            line(sender, "/" + label + " altar shrine <weapon>", "Turn the block you look at into a claimable shrine");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -102,7 +106,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         } else {
             SwordType type = SwordType.byId(args[2]);
             if (type == null) {
-                Text.send(sender, "<red>Unknown sword '" + args[2] + "'. Try: " + String.join(", ", ids()));
+                Text.send(sender, "<red>Unknown weapon '" + args[2] + "'. Try: " + String.join(", ", ids()));
                 return;
             }
             types.add(type);
@@ -149,7 +153,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         }
         SwordType type = args.length >= 2 ? SwordType.byId(args[1]) : null;
         if (type == null) {
-            Text.send(sender, "<gray>Usage: <white>/opswords unforge <sword></white>. Swords: " + String.join(", ", ids()));
+            Text.send(sender, "<gray>Usage: <white>/opswords unforge <weapon></white>. Weapons: " + String.join(", ", ids()));
             return;
         }
         if (plugin.forges().clear(type)) {
@@ -159,33 +163,120 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void list(CommandSender sender) {
-        Text.send(sender, "<gray>Hover a sword to see what it does, click for details:");
-        for (SwordType type : SwordType.values()) {
-            boolean enabled = plugin.settings().sword(type).enabled();
-            Component name = Text.sword(type)
-                    .hoverEvent(plugin.items().create(type).asHoverEvent())
-                    .clickEvent(ClickEvent.runCommand("/opswords info " + type.id()));
-            Component line = Component.text("  ").append(name)
-                    .append(Component.text("  " + type.title(), NamedTextColor.DARK_GRAY))
-                    .append(Component.text("  (" + type.id() + ")", NamedTextColor.DARK_GRAY));
-            if (!enabled) {
-                line = line.append(Component.text(" (disabled)", NamedTextColor.RED));
-            } else if (plugin.settings().uniqueSwords) {
-                var forged = plugin.forges().get(type);
-                line = line.append(forged == null
-                        ? Component.text(" (not yet forged)", NamedTextColor.GOLD)
-                        : Component.text(" (forged by " + forged.name() + ")", NamedTextColor.GRAY));
-            }
-            sender.sendMessage(line);
+    private void altar(CommandSender sender, String label, String[] args) {
+        if (denied(sender)) {
+            return;
         }
+        String sub = args.length >= 2 ? args[1].toLowerCase(Locale.ROOT) : "";
+        switch (sub) {
+            case "give" -> {
+                Player target = args.length >= 3 ? Bukkit.getPlayerExact(args[2]) : sender instanceof Player p ? p : null;
+                if (target == null) {
+                    Text.send(sender, "<red>Player not found.");
+                    return;
+                }
+                int amount = 1;
+                if (args.length >= 4) {
+                    try {
+                        amount = Integer.parseInt(args[3]);
+                    } catch (NumberFormatException e) {
+                        Text.send(sender, "<red>'" + args[3] + "' isn't a number.");
+                        return;
+                    }
+                }
+                target.getInventory().addItem(plugin.altars().createAltarItem(amount)).values()
+                        .forEach(rest -> target.getWorld().dropItemNaturally(target.getLocation(), rest));
+                Text.send(sender, "<gray>Gave <white>" + amount + "</white> weapon altar(s) to <white>" + target.getName() + "</white>.");
+            }
+            case "shrine", "refill" -> {
+                if (!(sender instanceof Player player)) {
+                    Text.send(sender, "<red>Only players can do that.");
+                    return;
+                }
+                SwordType type = args.length >= 3 ? SwordType.byId(args[2]) : null;
+                if (type == null) {
+                    Text.send(sender, "<gray>Usage: <white>/" + label + " altar " + sub + " <weapon></white>. Weapons: " + String.join(", ", ids()));
+                    return;
+                }
+                org.bukkit.block.Block looked = player.getTargetBlockExact(8);
+                if (looked == null) {
+                    Text.send(sender, "<red>Look at a block first.");
+                    return;
+                }
+                boolean ok = sub.equals("refill") ? plugin.altars().refill(looked, type) : plugin.altars().createShrine(looked, type);
+                if (ok) {
+                    Text.send(sender, Component.text(sub.equals("refill") ? "Refilled the shrine with " : "Created a shrine for ", NamedTextColor.GRAY)
+                            .append(Text.sword(type)).append(Component.text(".", NamedTextColor.GRAY)));
+                } else {
+                    Text.send(sender, sub.equals("refill")
+                            ? "<red>Look at an empty altar to refill it."
+                            : "<red>The space above that block must be empty.");
+                }
+            }
+            case "remove" -> {
+                if (!(sender instanceof Player player)) {
+                    Text.send(sender, "<red>Only players can do that.");
+                    return;
+                }
+                org.bukkit.block.Block looked = player.getTargetBlockExact(8);
+                if (looked == null || !plugin.altars().remove(looked, true)) {
+                    Text.send(sender, "<red>Look at an altar to remove it.");
+                } else {
+                    Text.send(sender, "<gray>Removed the altar.");
+                }
+            }
+            case "list" -> {
+                var all = plugin.altars().locations();
+                Text.send(sender, "<gray>" + all.size() + " altar(s):");
+                for (org.bukkit.Location loc : all) {
+                    sender.sendMessage(Component.text("  " + loc.getWorld().getName() + " " + loc.getBlockX() + " "
+                            + loc.getBlockY() + " " + loc.getBlockZ(), NamedTextColor.WHITE));
+                }
+            }
+            default -> Text.send(sender, "<gray>Usage: <white>/" + label + " altar <give|shrine|refill|remove|list></white>");
+        }
+    }
+
+    private void list(CommandSender sender) {
+        Text.send(sender, "<gray>Hover a weapon to see what it does, click for details:");
+        Text.send(sender, "<gradient:#ECBA44:#C4415B><bold>Swords</bold></gradient>");
+        for (SwordType type : SwordType.values()) {
+            if (type.isSword()) {
+                listLine(sender, type);
+            }
+        }
+        Text.send(sender, "<gradient:#C4415B:#9B5DE5><bold>Other weapons</bold></gradient>");
+        for (SwordType type : SwordType.values()) {
+            if (!type.isSword()) {
+                listLine(sender, type);
+            }
+        }
+    }
+
+    private void listLine(CommandSender sender, SwordType type) {
+        boolean enabled = plugin.settings().sword(type).enabled();
+        Component name = Text.sword(type)
+                .hoverEvent(plugin.items().create(type).asHoverEvent())
+                .clickEvent(ClickEvent.runCommand("/opswords info " + type.id()));
+        Component line = Component.text("  ").append(name)
+                .append(Component.text("  " + type.title(), NamedTextColor.DARK_GRAY))
+                .append(Component.text("  (" + type.id() + ")", NamedTextColor.DARK_GRAY));
+        if (!enabled) {
+            line = line.append(Component.text(" (disabled)", NamedTextColor.RED));
+        } else if (plugin.settings().uniqueSwords) {
+            var forged = plugin.forges().get(type);
+            line = line.append(forged == null
+                    ? Component.text(" (not yet forged)", NamedTextColor.GOLD)
+                    : Component.text(" (forged by " + forged.name() + ")", NamedTextColor.GRAY));
+        }
+        sender.sendMessage(line);
     }
 
     private void info(CommandSender sender, String[] args) {
         SwordType type = args.length >= 2 ? SwordType.byId(args[1])
                 : sender instanceof Player player ? plugin.items().heldType(player) : null;
         if (type == null) {
-            Text.send(sender, "<gray>Hold a sword or use <white>/opswords info <sword></white>. Swords: " + String.join(", ", ids()));
+            Text.send(sender, "<gray>Hold a weapon or use <white>/opswords info <weapon></white>. Weapons: " + String.join(", ", ids()));
             return;
         }
         sender.sendMessage(Component.empty());
@@ -276,7 +367,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             options.addAll(List.of("list", "info", "recipes", "pack"));
             if (admin) {
-                options.addAll(List.of("give", "menu", "resetcooldowns", "unforge", "reload"));
+                options.addAll(List.of("give", "menu", "resetcooldowns", "unforge", "altar", "reload"));
             }
         } else if (args.length == 2) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -294,12 +385,24 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                         options.addAll(ids());
                     }
                 }
+                case "altar", "altars" -> {
+                    if (admin) {
+                        options.addAll(List.of("give", "shrine", "refill", "remove", "list"));
+                    }
+                }
                 default -> {
                 }
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give") && admin) {
             options.addAll(ids());
             options.add("all");
+        } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("altar") && admin) {
+            switch (args[1].toLowerCase(Locale.ROOT)) {
+                case "shrine", "refill" -> options.addAll(ids());
+                case "give" -> Bukkit.getOnlinePlayers().forEach(p -> options.add(p.getName()));
+                default -> {
+                }
+            }
         }
         String prefix = args[args.length - 1].toLowerCase(Locale.ROOT);
         return options.stream().filter(o -> o.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();

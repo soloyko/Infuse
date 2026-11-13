@@ -23,7 +23,15 @@ public final class Aura {
                 || player.getGameMode() == org.bukkit.GameMode.SPECTATOR) {
             return; // never give away an invisible player
         }
-        Location at = swordPoint(player);
+        emit(player, swordPoint(player), type, tick);
+    }
+
+    /** The same themed particles at a fixed spot (e.g. above an altar), visible to everyone. */
+    public static void ambient(Location at, SwordType type) {
+        emit(null, at, type, at.getWorld().getGameTime() / 10);
+    }
+
+    private static void emit(Player player, Location at, SwordType type, long tick) {
         ThreadLocalRandom r = ThreadLocalRandom.current();
         switch (type) {
             case DRAGON -> show(player, Particle.DRAGON_BREATH, at, 1, 0.15, 0.25, 0.15, 0.005, 0.6f);
@@ -54,6 +62,16 @@ public final class Aura {
             }
             case SOUL -> show(player, Particle.SOUL, at, 1, 0.15, 0.3, 0.15, 0.01);
             case ECHO -> show(player, Particle.SCULK_CHARGE_POP, at, 1, 0.15, 0.3, 0.15, 0.005);
+            case HAMMER -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.SMALL_FLAME, at, 1, 0.12, 0.25, 0.12, 0.003);
+                }
+            }
+            case SCYTHE -> show(player, Particle.SOUL_FIRE_FLAME, at, 1, 0.15, 0.3, 0.15, 0.003);
+            case SPEAR -> show(player, Particle.CRIT, at, 1, 0.12, 0.35, 0.12, 0.05);
+            case CHAKRAM -> show(player, Particle.SMALL_GUST, at, 1, 0.15, 0.3, 0.15, 0);
+            case AXE -> show(player, Particle.DUST, at, 2, 0.12, 0.3, 0.12, 0, Fx.dust(0xC77DFF, 0.7f));
+            case STAFF -> show(player, Particle.WITCH, at, 2, 0.15, 0.3, 0.15, 0);
         }
     }
 
@@ -64,7 +82,8 @@ public final class Aura {
     private static <T> void show(Player holder, Particle particle, Location at, int count, double dx, double dy, double dz,
                                  double speed, T data) {
         for (Player viewer : at.getWorld().getPlayers()) {
-            if (viewer != holder && viewer.canSee(holder) && viewer.getLocation().distanceSquared(at) < 48 * 48) {
+            if (viewer != holder && (holder == null || viewer.canSee(holder))
+                    && viewer.getLocation().distanceSquared(at) < 48 * 48) {
                 viewer.spawnParticle(particle, at, count, dx, dy, dz, speed, data);
             }
         }

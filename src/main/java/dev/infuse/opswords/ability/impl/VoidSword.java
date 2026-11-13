@@ -2,12 +2,15 @@ package dev.infuse.opswords.ability.impl;
 
 import dev.infuse.opswords.OPSwordsPlugin;
 import dev.infuse.opswords.ability.Combat;
+import dev.infuse.opswords.ability.Displays;
 import dev.infuse.opswords.ability.Fx;
 import dev.infuse.opswords.ability.SwordAbility;
 import dev.infuse.opswords.sword.SwordType;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -16,6 +19,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -112,6 +117,9 @@ public final class VoidSword extends SwordAbility {
         }
         Fx.sound(center, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1.5f, 0.5f);
         Fx.sound(center, Sound.ENTITY_WARDEN_SONIC_CHARGE, 1f, 0.6f);
+        BlockDisplay core = displays().block(center, Material.BLACK_CONCRETE.createBlockData(), new Vector3f(0.1f),
+                new Quaternionf(), 90);
+        core.setBrightness(new org.bukkit.entity.Display.Brightness(0, 0));
 
         new BukkitRunnable() {
             int ticks;
@@ -119,10 +127,16 @@ public final class VoidSword extends SwordAbility {
             @Override
             public void run() {
                 if (!alive(player) || player.getWorld() != center.getWorld()) {
+                    displays().remove(core);
                     cancel();
                     return;
                 }
                 ticks++;
+                if (ticks % 5 == 1) {
+                    float pulse = 0.75f + (float) Math.sin(ticks * 0.3) * 0.12f;
+                    Displays.animateBlock(core, new Vector3f(pulse), new Quaternionf().rotateXYZ(ticks * 0.11f, ticks * 0.17f, ticks * 0.07f),
+                            new Vector3f(), 5);
+                }
                 drawVortex(center, ticks);
                 if (ticks % 2 == 0) {
                     pull(player, center);
@@ -134,6 +148,8 @@ public final class VoidSword extends SwordAbility {
                     Fx.sound(center, Sound.BLOCK_BEACON_AMBIENT, 1.5f, 0.5f);
                 }
                 if (ticks >= 80) {
+                    Displays.animateBlock(core, new Vector3f(0.02f), new Quaternionf(), new Vector3f(), 2);
+                    displays().later(3, () -> displays().remove(core));
                     implode(player, center);
                     cancel();
                 }

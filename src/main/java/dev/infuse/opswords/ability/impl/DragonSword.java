@@ -154,6 +154,13 @@ public final class DragonSword extends SwordAbility {
         if (ground.getType().isSolid()) {
             Fx.particle(center, Particle.BLOCK, 80, 2.0, 0.1, ground.getBlockData());
         }
+        for (double r = 1.6; r <= 4.6; r += 1.5) {
+            int points = (int) (r * 3);
+            for (int i = 0; i < points; i++) {
+                double a = i * 2 * Math.PI / points + r;
+                displays().eruptGround(center.clone().add(Math.cos(a) * r, 0.3, Math.sin(a) * r), 0.7f, (float) (1.4 - r * 0.15));
+            }
+        }
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.3f, 0.7f);
         Fx.sound(center, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 0.7f);
         for (LivingEntity target : combat().nearby(player, center, radius)) {

@@ -37,8 +37,20 @@ public final class CooldownManager {
             return;
         }
         cooldowns.computeIfAbsent(player, k -> new EnumMap<>(SwordType.class))
-                .computeIfAbsent(type, k -> new long[AbilitySlot.values().length])[slot.ordinal()] =
-                System.currentTimeMillis() + seconds * 1000L;
+                .computeIfAbsent(type, k -> new long[AbilitySlot.values().length * 2]);
+        long[] times = cooldowns.get(player).get(type);
+        times[slot.ordinal()] = System.currentTimeMillis() + seconds * 1000L;
+        times[AbilitySlot.values().length + slot.ordinal()] = seconds * 1000L;
+    }
+
+    /** How much of the cooldown has passed, from 0 (just used) to 1 (ready). */
+    public double progress(UUID player, SwordType type, AbilitySlot slot) {
+        long left = remaining(player, type, slot);
+        if (left <= 0) {
+            return 1;
+        }
+        long total = cooldowns.get(player).get(type)[AbilitySlot.values().length + slot.ordinal()];
+        return total <= 0 ? 1 : Math.clamp(1 - (double) left / total, 0, 1);
     }
 
     /**
@@ -73,6 +85,14 @@ public final class CooldownManager {
             cooldowns.remove(player);
         }
         return ready;
+    }
+
+    /** Makes one ability ready again. */
+    public void clear(UUID player, SwordType type, AbilitySlot slot) {
+        Map<SwordType, long[]> byType = cooldowns.get(player);
+        if (byType != null && byType.get(type) != null) {
+            byType.get(type)[slot.ordinal()] = 0;
+        }
     }
 
     public void reset(UUID player) {

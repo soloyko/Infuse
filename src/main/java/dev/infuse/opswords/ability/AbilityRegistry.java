@@ -16,6 +16,12 @@ import dev.infuse.opswords.ability.impl.StormSword;
 import dev.infuse.opswords.ability.impl.TideSword;
 import dev.infuse.opswords.ability.impl.VerdantSword;
 import dev.infuse.opswords.ability.impl.VoidSword;
+import dev.infuse.opswords.ability.impl.AxeWeapon;
+import dev.infuse.opswords.ability.impl.ChakramWeapon;
+import dev.infuse.opswords.ability.impl.HammerWeapon;
+import dev.infuse.opswords.ability.impl.ScytheWeapon;
+import dev.infuse.opswords.ability.impl.SpearWeapon;
+import dev.infuse.opswords.ability.impl.StaffWeapon;
 import dev.infuse.opswords.api.SwordAbilityEvent;
 import dev.infuse.opswords.sword.AbilitySlot;
 import dev.infuse.opswords.sword.SwordType;
@@ -53,6 +59,12 @@ public final class AbilityRegistry {
         register(new ShadowSword(plugin));
         register(new SoulSword(plugin));
         register(new EchoSword(plugin));
+        register(new HammerWeapon(plugin));
+        register(new ScytheWeapon(plugin));
+        register(new SpearWeapon(plugin));
+        register(new ChakramWeapon(plugin));
+        register(new AxeWeapon(plugin));
+        register(new StaffWeapon(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
                 throw new IllegalStateException("No ability registered for " + type);

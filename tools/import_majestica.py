@@ -18,7 +18,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PACK = os.path.join(ROOT, 'resourcepack')
 NS = 'op_swords'
 
-# sword id -> model file in the Majestica pack (assets/minecraft/models/item/<name>.json)
+# weapon id -> model file in the Majestica pack (assets/minecraft/models/item/<name>.json)
 SWORDS = {
     'dragon': 'dragonslayingblade',
     'phoenix': 'pheonixgrace',
@@ -35,6 +35,13 @@ SWORDS = {
     'shadow': 'watcher_claymore',
     'soul': 'awakened_lichblade',
     'echo': 'sculksword',
+    # not swords
+    'hammer': 'hearthflame',
+    'scythe': 'requiem_of_hell',
+    'spear': 'sunbreak',
+    'chakram': 'royalchakram',
+    'axe': 'demonlordsgreataxe',
+    'staff': 'arcanethyst',
 }
 
 # Blockbench-only fields Minecraft ignores
@@ -131,12 +138,25 @@ def pack_icon():
     write('pack.png', buf.getvalue())
 
 
+def clean():
+    """Removes previously imported weapons, keeping files made by other tools (the altar)."""
+    base = os.path.join(PACK, 'assets', NS)
+    for sub in ('items', 'models/item', 'textures/item'):
+        folder = os.path.join(base, sub)
+        if not os.path.isdir(folder):
+            continue
+        for name in os.listdir(folder):
+            if name.startswith('altar'):
+                continue
+            path = os.path.join(folder, name)
+            shutil.rmtree(path) if os.path.isdir(path) else os.remove(path)
+
+
 def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__)
     src = Source(sys.argv[1])
-    for sub in ('items', 'models', 'textures'):
-        shutil.rmtree(os.path.join(PACK, 'assets', NS, sub), ignore_errors=True)
+    clean()
     for sword, model_name in SWORDS.items():
         count = import_sword(src, sword, model_name)
         print(f'  {sword:8} <- {model_name} ({count} elements)')

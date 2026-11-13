@@ -60,6 +60,8 @@ public final class Settings {
     public final boolean craftingEnabled;
     public final boolean craftingAnnounce;
     public final boolean uniqueSwords;
+    public final boolean altarsEnabled;
+    public final Recipe altarRecipe;
 
     private final Map<SwordType, Sword> swords;
     private final Map<SwordType, Integer> revisions;
@@ -103,6 +105,8 @@ public final class Settings {
         craftingEnabled = c.getBoolean("crafting.enabled", true);
         craftingAnnounce = c.getBoolean("crafting.announce", true);
         uniqueSwords = c.getBoolean("crafting.unique-swords", false);
+        altarsEnabled = c.getBoolean("altars.enabled", true);
+        altarRecipe = readRecipe(c.getConfigurationSection("altars.recipe"), "the weapon altar", log);
 
         swords = new EnumMap<>(SwordType.class);
         revisions = new EnumMap<>(SwordType.class);
@@ -119,7 +123,7 @@ public final class Settings {
                     s.getDouble("attack-speed", 1.6),
                     Math.max(0, s.getInt("cooldowns.primary", 10)),
                     Math.max(0, s.getInt("cooldowns.secondary", 30)),
-                    readRecipe(s.getConfigurationSection("recipe"), type, log));
+                    readRecipe(s.getConfigurationSection("recipe"), type.id(), log));
             swords.put(type, sword);
             revisions.put(type, Objects.hash(sword.attackDamage, sword.attackSpeed, sword.primaryCooldown,
                     sword.secondaryCooldown, unbreakable, trigger == Trigger.RIGHT_CLICK, ITEM_FORMAT));
@@ -129,7 +133,7 @@ public final class Settings {
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
     private static final int ITEM_FORMAT = 5;
 
-    private static Recipe readRecipe(ConfigurationSection r, SwordType type, Logger log) {
+    private static Recipe readRecipe(ConfigurationSection r, String label, Logger log) {
         if (r == null) {
             return new Recipe(false, List.of(), Map.of());
         }
@@ -139,13 +143,13 @@ public final class Settings {
         if (ing != null) {
             for (String key : ing.getKeys(false)) {
                 if (key.length() != 1) {
-                    log.warning("Recipe for " + type.id() + ": ingredient key '" + key + "' must be one character.");
+                    log.warning("Recipe for " + label + ": ingredient key '" + key + "' must be one character.");
                     continue;
                 }
                 String name = ing.getString(key, "");
                 Material mat = Material.matchMaterial(name);
                 if (mat == null || !mat.isItem() || mat.isAir()) {
-                    log.warning("Recipe for " + type.id() + ": unknown item '" + name + "'.");
+                    log.warning("Recipe for " + label + ": unknown item '" + name + "'.");
                     continue;
                 }
                 ingredients.put(key.charAt(0), mat);

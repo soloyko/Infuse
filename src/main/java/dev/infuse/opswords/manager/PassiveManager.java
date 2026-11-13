@@ -182,6 +182,8 @@ public final class PassiveManager {
                 .append(slot(player, type, AbilitySlot.SECONDARY));
     }
 
+    private static final int BAR = 10;
+
     private Component slot(Player player, SwordType type, AbilitySlot slot) {
         long left = plugin.cooldowns().remaining(player.getUniqueId(), type, slot);
         Component label = slot.shortLabel(plugin.settings().trigger).color(NamedTextColor.GRAY)
@@ -190,7 +192,10 @@ public final class PassiveManager {
         if (left <= 0) {
             return label.append(Text.plain(name, type.color())).append(Text.plain(" ✔", NamedTextColor.GREEN));
         }
-        return label.append(Text.plain(name, NamedTextColor.DARK_GRAY))
-                .append(Text.plain(" " + Text.seconds(left), NamedTextColor.RED));
+        int filled = (int) Math.floor(plugin.cooldowns().progress(player.getUniqueId(), type, slot) * BAR);
+        return label.append(Text.plain(name + " ", NamedTextColor.DARK_GRAY))
+                .append(Text.plain("▮".repeat(filled), type.accent()))
+                .append(Text.plain("▮".repeat(BAR - filled), NamedTextColor.DARK_GRAY))
+                .append(Text.plain(" " + Text.seconds(left), NamedTextColor.GRAY));
     }
 }

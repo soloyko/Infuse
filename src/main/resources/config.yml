@@ -73,10 +73,20 @@ crafting:
   # /opswords give, and /opswords unforge <sword> allows it to be crafted again.
   unique-swords: false
 
+altars:
+  # Weapon altars: a one-block 3D altar that shows off a weapon floating above it.
+  # Players craft and place their own; admins can set up claimable shrines.
+  enabled: true
+  recipe:
+    enabled: true
+    shape: ["AGA", "BLB", "DDD"]
+    ingredients: {A: AMETHYST_SHARD, G: GOLD_BLOCK, B: POLISHED_BLACKSTONE_BRICKS, L: LODESTONE, D: POLISHED_DEEPSLATE}
+
 # Per-sword settings. Keys are the sword ids (see /opswords list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds
-#   recipe                       : shaped crafting recipe; S is always a netherite sword in the defaults
+#   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,
+#                                  netherite spear or netherite axe) in the defaults
 swords:
   dragon:        # Wyrmsbane
     enabled: true
@@ -213,3 +223,58 @@ swords:
       enabled: true
       shape: ["ECE", "HSH", "ECE"]
       ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, H: SCULK_SHRIEKER, S: NETHERITE_SWORD}
+  # ---- weapons that aren't swords ----
+  hammer:        # Earthshaker (mace)
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.0
+    cooldowns: {primary: 12, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["NAN", "OSO", "NAN"]
+      ingredients: {N: NETHERITE_INGOT, A: ANVIL, O: OBSIDIAN, S: MACE}
+  scythe:        # Requiem
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 8, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["PNP", "RSR", "PNP"]
+      ingredients: {P: PHANTOM_MEMBRANE, N: NETHER_STAR, R: WITHER_ROSE, S: NETHERITE_SWORD}
+  spear:         # Skypiercer (netherite spear)
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.4
+    cooldowns: {primary: 8, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["BGB", "ESE", "BGB"]
+      ingredients: {B: BREEZE_ROD, G: GOLD_BLOCK, E: END_ROD, S: NETHERITE_SPEAR}
+  chakram:       # Zephyr
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 5, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["WEW", "BSB", "WEW"]
+      ingredients: {W: WIND_CHARGE, E: EMERALD_BLOCK, B: BREEZE_ROD, S: NETHERITE_SWORD}
+  axe:           # Ragnarök (netherite axe)
+    enabled: true
+    attack-damage: 14
+    attack-speed: 1.0
+    cooldowns: {primary: 14, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["INI", "GSG", "INI"]
+      ingredients: {I: IRON_BLOCK, N: NETHERITE_INGOT, G: GOAT_HORN, S: NETHERITE_AXE}
+  staff:         # Arcanum
+    enabled: true
+    attack-damage: 9
+    attack-speed: 1.6
+    cooldowns: {primary: 6, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["CLC", "BSB", "CLC"]
+      ingredients: {C: AMETHYST_CLUSTER, L: LAPIS_BLOCK, B: EXPERIENCE_BOTTLE, S: NETHERITE_SWORD}

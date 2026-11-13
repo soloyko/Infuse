@@ -1,7 +1,9 @@
 package dev.infuse.opswords;
 
 import dev.infuse.opswords.ability.AbilityRegistry;
+import dev.infuse.opswords.altar.AltarService;
 import dev.infuse.opswords.ability.Combat;
+import dev.infuse.opswords.ability.Displays;
 import dev.infuse.opswords.command.OPSwordsCommand;
 import dev.infuse.opswords.gui.Menu;
 import dev.infuse.opswords.listener.AbilityListener;
@@ -34,6 +36,8 @@ public final class OPSwordsPlugin extends JavaPlugin {
     private RecipeService recipes;
     private ResourcePackService resourcePack;
     private ForgeRegistry forges;
+    private Displays displays;
+    private AltarService altars;
 
     @Override
     public void onEnable() {
@@ -43,12 +47,14 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
         items = new SwordItems(this);
         combat = new Combat(this);
+        displays = new Displays(this);
         cooldowns = new CooldownManager();
         status = new StatusManager(this);
         passives = new PassiveManager(this);
         abilities = new AbilityRegistry(this);
         recipes = new RecipeService(this);
         resourcePack = new ResourcePackService(this);
+        altars = new AltarService(this);
         forges = new ForgeRegistry(this);
         forges.load();
 
@@ -58,6 +64,8 @@ public final class OPSwordsPlugin extends JavaPlugin {
         pm.registerEvents(new ItemListener(this), this);
         pm.registerEvents(new Menu.Listener(), this);
         pm.registerEvents(resourcePack, this);
+        pm.registerEvents(displays, this);
+        pm.registerEvents(altars, this);
         abilities.registerListeners();
 
         PluginCommand command = getCommand("opswords");
@@ -71,6 +79,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
         passives.start();
         recipes.registerAll();
         resourcePack.start();
+        altars.start();
 
         getLogger().info("Loaded " + SwordType.values().length + " OP swords.");
     }
@@ -79,6 +88,12 @@ public final class OPSwordsPlugin extends JavaPlugin {
     public void onDisable() {
         if (abilities != null) {
             abilities.shutdown();
+        }
+        if (displays != null) {
+            displays.shutdown();
+        }
+        if (altars != null) {
+            altars.stop();
         }
         if (passives != null) {
             passives.shutdown();
@@ -158,5 +173,13 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
     public ForgeRegistry forges() {
         return forges;
+    }
+
+    public Displays displays() {
+        return displays;
+    }
+
+    public AltarService altars() {
+        return altars;
     }
 }

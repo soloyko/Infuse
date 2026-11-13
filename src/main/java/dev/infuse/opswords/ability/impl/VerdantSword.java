@@ -2,6 +2,7 @@ package dev.infuse.opswords.ability.impl;
 
 import dev.infuse.opswords.OPSwordsPlugin;
 import dev.infuse.opswords.ability.Combat;
+import dev.infuse.opswords.ability.Displays;
 import dev.infuse.opswords.ability.Fx;
 import dev.infuse.opswords.ability.SwordAbility;
 import dev.infuse.opswords.sword.SwordType;
@@ -14,6 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -28,6 +30,8 @@ import org.bukkit.potion.PotionEffectTypeCategory;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,10 +109,31 @@ public final class VerdantSword extends SwordAbility implements Listener {
 
     private void root(LivingEntity target) {
         rooted.put(target.getUniqueId(), Bukkit.getCurrentTick() + ROOT_TICKS);
+        growRoots(target);
         addRootModifier(target, Attribute.MOVEMENT_SPEED);
         addRootModifier(target, Attribute.JUMP_STRENGTH);
         Vector v = target.getVelocity();
         Combat.setVelocity(target, new Vector(0, Math.min(0, v.getY()), 0));
+    }
+
+    /** Mangrove roots curl up out of the ground around the target's feet, then sink back. */
+    private void growRoots(LivingEntity target) {
+        Location feet = target.getLocation();
+        float reach = (float) target.getWidth() * 0.5f + 0.25f;
+        for (int i = 0; i < 5; i++) {
+            double a = i * 2 * Math.PI / 5;
+            Location at = feet.clone().add(Math.cos(a) * reach, 0.35, Math.sin(a) * reach);
+            at.setYaw(0);
+            at.setPitch(0);
+            // lean each root in towards the target
+            Quaternionf lean = new Quaternionf().rotateY((float) -a).rotateZ((float) Math.toRadians(22));
+            Vector3f full = new Vector3f(0.5f, 0.95f, 0.5f);
+            BlockDisplay root = displays().block(at, (i % 2 == 0 ? Material.MANGROVE_ROOTS : Material.MUDDY_MANGROVE_ROOTS)
+                    .createBlockData(), new Vector3f(0.5f, 0.05f, 0.5f), lean, ROOT_TICKS + 8);
+            displays().later(1 + i, () -> Displays.animateBlock(root, full, lean, new Vector3f(), 4));
+            displays().later(ROOT_TICKS, () -> Displays.animateBlock(root, new Vector3f(0.5f, 0.05f, 0.5f), lean,
+                    new Vector3f(0, -0.3f, 0), 6));
+        }
     }
 
     private void addRootModifier(LivingEntity target, Attribute attribute) {

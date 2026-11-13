@@ -1,6 +1,7 @@
 package dev.infuse.opswords.sword;
 
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,7 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The fifteen OP swords. The id is the item model name in the resource pack
+ * The OP weapons: fifteen swords and six other weapons. The id is the item model name in the resource pack
  * ({@code op_swords:<id>}) and the key in config.yml; the name is the sword's legendary name.
  */
 public enum SwordType {
@@ -115,7 +116,51 @@ public enum SwordType {
             new AbilityInfo("Child of the Deep", "Immune to Darkness. Sculk sensors and shriekers ignore you while held."),
             new AbilityInfo("Resonance", "20% chance to engulf the target in darkness."),
             new AbilityInfo("Sonic Boom", "Charge, then release a warden's sonic boom that pierces every enemy in a line."),
-            new AbilityInfo("Shriek", "A sculk shriek darkens and reveals every enemy around you, and quickens you."));
+            new AbilityInfo("Shriek", "A sculk shriek darkens and reveals every enemy around you, and quickens you.")),
+
+    // ---- weapons that aren't swords ----
+
+    HAMMER("hammer", "Earthshaker", "Titan Hammer", "⚒", 0xE8822A, 0x6B6B6B, Material.MACE,
+            "Forged in a dead volcano by giants who wanted mountains to kneel. The ground still remembers its weight.",
+            new AbilityInfo("Unshakable", "Immune to knockback and +3 armor while held. Keeps the mace's smash attack."),
+            new AbilityInfo("Quake", "20% chance to send out a shockwave that stuns everything around the target."),
+            new AbilityInfo("Seismic Slam", "Slam the ground: a ring of erupting earth launches everything around you."),
+            new AbilityInfo("Earthen Bulwark", "Raise stone pillars around you. Resistance II, and attackers are hurt and thrown back.")),
+
+    SCYTHE("scythe", "Requiem", "Reaper's Scythe", "⚰", 0x2BD9A8, 0x0E3B33, Material.NETHERITE_SWORD,
+            "The ninth abyss sings through its blade. Every soul it reaps adds another voice to the choir.",
+            new AbilityInfo("Death's Embrace", "Kills refresh Reap and grant a burst of speed."),
+            new AbilityInfo("Rend", "+50% damage against targets below 35% health."),
+            new AbilityInfo("Reap", "A wide sweeping arc that cuts every enemy in front of you and heals you for each."),
+            new AbilityInfo("Final Harvest", "A giant spectral scythe falls on your target, hitting harder the more health it has lost.")),
+
+    SPEAR("spear", "Skypiercer", "Celestial Spear", "♆", 0xE9C46A, 0xC0392B, Material.NETHERITE_SPEAR,
+            "Hurled down from the heavens to end a war between gods. It has been looking for a worthy arm ever since.",
+            new AbilityInfo("Long Reach", "+1.5 blocks of attack reach while held. Keeps the spear's charge attack."),
+            new AbilityInfo("Impale", "20% chance to pin the target in place for +3 damage."),
+            new AbilityInfo("Javelin", "Hurl a spectral spear that pierces every enemy in its path, then returns to you."),
+            new AbilityInfo("Phalanx", "Spears erupt from the ground in a line ahead, skewering and launching enemies.")),
+
+    CHAKRAM("chakram", "Zephyr", "Wind Chakram", "☸", 0x4CC38A, 0xE8C64A, Material.NETHERITE_SWORD,
+            "A royal war-disc blessed by the four winds. Thrown true, it always finds its way home.",
+            new AbilityInfo("Windborne", "Double jump while held. No fall damage after a double jump."),
+            new AbilityInfo("Gust", "20% chance to blast the target away with a burst of wind."),
+            new AbilityInfo("Halo Throw", "Throw the chakram: it slices through enemies on the way out and on the way back."),
+            new AbilityInfo("Cyclone", "Three spectral chakrams orbit you, shredding enemies and deflecting arrows.")),
+
+    AXE("axe", "Ragnarök", "Berserker Axe", "ᛉ", 0xC77DFF, 0x5A1E6E, Material.NETHERITE_AXE,
+            "The axe that will end the world, carved with runes of doom. It grows hungrier the closer you are to death.",
+            new AbilityInfo("Bloodlust", "Up to +50% melee damage the lower your health. Disables shields like any axe."),
+            new AbilityInfo("Cleave", "Every hit also strikes enemies beside the target for 40% of the damage."),
+            new AbilityInfo("Whirlwind", "Spin with the axe for 2.5 seconds, carving through everything around you."),
+            new AbilityInfo("Warcry", "A roar that grants you Strength II and Resistance, and weakens and slows enemies.")),
+
+    STAFF("staff", "Arcanum", "Arcane Staff", "⚚", 0xB57EDC, 0xF3D9FF, Material.NETHERITE_SWORD,
+            "Grown from a single amethyst that hummed with magic for ten thousand years. It still hums.",
+            new AbilityInfo("Arcane Ward", "A 2-heart magic ward that recharges 12 seconds after it breaks."),
+            new AbilityInfo("Arcane Spark", "25% chance for a spark to leap to another nearby enemy."),
+            new AbilityInfo("Arcane Missiles", "Fire five homing amethyst missiles at the enemies in front of you."),
+            new AbilityInfo("Crystal Nova", "Rings of amethyst crystals burst from the ground around you, launching enemies."));
 
     public static final String MODEL_NAMESPACE = "op_swords";
 
@@ -123,6 +168,7 @@ public enum SwordType {
     private static final Map<String, SwordType> LEGACY_IDS = Map.of("inferno", PHOENIX, "emerald", VERDANT);
 
     private final String id;
+    private final Material base;
     private final String swordName;
     private final String title;
     private final String emoji;
@@ -136,7 +182,13 @@ public enum SwordType {
 
     SwordType(String id, String swordName, String title, String emoji, int color, int accent, String bio,
               AbilityInfo passive, AbilityInfo onHit, AbilityInfo primary, AbilityInfo secondary) {
+        this(id, swordName, title, emoji, color, accent, null, bio, passive, onHit, primary, secondary);
+    }
+
+    SwordType(String id, String swordName, String title, String emoji, int color, int accent, Material base, String bio,
+              AbilityInfo passive, AbilityInfo onHit, AbilityInfo primary, AbilityInfo secondary) {
         this.id = id;
+        this.base = base;
         this.swordName = swordName;
         this.title = title;
         this.emoji = emoji;
@@ -151,6 +203,16 @@ public enum SwordType {
 
     public String id() {
         return id;
+    }
+
+    /** The vanilla item it is built on (decides vanilla behaviour such as the mace smash or spear lunge). */
+    public Material baseItem() {
+        return base == null ? Material.NETHERITE_SWORD : base;
+    }
+
+    /** True for the 15 swords, false for the hammer, scythe, spear, chakram, axe and staff. */
+    public boolean isSword() {
+        return base == null;
     }
 
     /** The sword's legendary name, e.g. "Wyrmsbane". */
@@ -217,6 +279,12 @@ public enum SwordType {
             case SHADOW -> "assassinated";
             case SOUL -> "claimed by the grave";
             case ECHO -> "silenced";
+            case HAMMER -> "crushed into the earth";
+            case SCYTHE -> "reaped";
+            case SPEAR -> "impaled";
+            case CHAKRAM -> "carried off by the wind";
+            case AXE -> "cleaved in two";
+            case STAFF -> "unmade by arcane fire";
         };
     }
 

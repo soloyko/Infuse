@@ -43,7 +43,7 @@ public final class SwordItems {
     }
 
     public ItemStack create(SwordType type) {
-        ItemStack item = ItemStack.of(Material.NETHERITE_SWORD);
+        ItemStack item = ItemStack.of(type.baseItem());
         item.editMeta(meta -> {
             meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id());
             applyStats(meta, type);
@@ -53,7 +53,7 @@ public final class SwordItems {
 
     /** A crafted sword: like {@link #create} but signed with the crafter's name. */
     public ItemStack createForged(SwordType type, String forgerName) {
-        ItemStack item = ItemStack.of(Material.NETHERITE_SWORD);
+        ItemStack item = ItemStack.of(type.baseItem());
         item.editMeta(meta -> {
             meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, type.id());
             meta.getPersistentDataContainer().set(forgerKey, PersistentDataType.STRING, forgerName);

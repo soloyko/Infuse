@@ -16,6 +16,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffectTypeCategory;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -74,6 +75,10 @@ public abstract class SwordAbility {
         return plugin.status();
     }
 
+    protected Displays displays() {
+        return plugin.displays();
+    }
+
     protected static boolean chance(double probability) {
         return ThreadLocalRandom.current().nextDouble() < probability;
     }
@@ -93,7 +98,9 @@ public abstract class SwordAbility {
                 || (current.getAmplifier() == amplifier && (current.isInfinite() || current.getDuration() >= ticks)))) {
             return;
         }
-        entity.addPotionEffect(effect(type, ticks, amplifier));
+        // Buffs on players show no swirl particles: on yourself they'd cover your screen.
+        boolean quiet = entity instanceof Player && type.getCategory() == PotionEffectTypeCategory.BENEFICIAL;
+        entity.addPotionEffect(new PotionEffect(type, ticks, amplifier, false, !quiet, true));
     }
 
     protected void addModifier(ItemMeta meta, Attribute attribute, String name, double amount,
