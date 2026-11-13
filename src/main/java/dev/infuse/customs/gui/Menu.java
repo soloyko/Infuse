@@ -122,6 +122,9 @@ public abstract class Menu implements InventoryHolder {
         }
     }
 
+    /** Which arc the server is in (set by the plugin), for the tabs' lock markers. */
+    public static java.util.function.Supplier<dev.infuse.customs.sword.Arc> arcState;
+
     /** The arc tabs in the header; clicking one opens {@code open.apply(page)}. */
     protected void tabs(Page current, java.util.function.Function<Page, Menu> open) {
         for (Page page : Page.values()) {
@@ -129,6 +132,13 @@ public abstract class Menu implements InventoryHolder {
             dev.infuse.customs.sword.Arc arc = page.arc();
             List<Component> lore = new java.util.ArrayList<>();
             lore.add(Text.caps(arc.title(), arc.color()));
+            lore.add(Text.plain("Twist: " + arc.twist(), NamedTextColor.GRAY));
+            dev.infuse.customs.sword.Arc running = arcState == null ? null : arcState.get();
+            if (running != null) {
+                lore.add(running == arc ? Text.plain("◆ The current arc", NamedTextColor.GREEN)
+                        : arc.ordinal() < running.ordinal() ? Text.plain("✔ Completed: its weapons can be forged", NamedTextColor.DARK_GREEN)
+                        : Text.plain("🔒 Locked until it begins", NamedTextColor.RED));
+            }
             lore.add(Component.empty());
             for (SwordType type : arc.members()) {
                 lore.add(Text.plain(type.emoji() + " " + type.swordName(), type.color()));

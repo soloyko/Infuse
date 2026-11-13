@@ -125,6 +125,9 @@ public final class RecipeMenu {
         if (!settings.sword(type).enabled()) {
             return Text.plain("Disabled on this server", NamedTextColor.RED);
         }
+        if (!plugin.arcs().unlocked(type)) {
+            return Text.plain("🔒 Unlocks when " + type.arc().label() + " begins", NamedTextColor.RED);
+        }
         if (settings.uniqueSwords) {
             ForgeRegistry.Forged forged = plugin.forges().get(type);
             if (forged != null) {

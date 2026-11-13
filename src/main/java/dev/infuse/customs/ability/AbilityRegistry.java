@@ -177,7 +177,8 @@ public final class AbilityRegistry {
             plugin.fx().castFlourish(player, type.element(), type.color().value(), slot == AbilitySlot.SECONDARY);
         }
         if (fired && !player.hasPermission("customs.bypass.cooldown")) {
-            plugin.cooldowns().start(player.getUniqueId(), type, slot, plugin.settings().sword(type).cooldown(slot));
+            int seconds = (int) Math.ceil(plugin.settings().sword(type).cooldown(slot) * plugin.arcs().cooldownMultiplier());
+            plugin.cooldowns().start(player.getUniqueId(), type, slot, seconds);
         }
     }
 

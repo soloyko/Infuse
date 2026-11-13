@@ -5,35 +5,73 @@ import net.kyori.adventure.text.format.TextColor;
 import java.util.List;
 
 /**
- * The five arcs the weapons are split into: nine weapons each, in no particular order. Menus, the
- * recipe book and {@code /customs list} show the weapons arc by arc.
+ * The five arcs: nine weapons each, in no particular order. A server runs through them one at a
+ * time (see ArcService): each arc unlocks its weapons for forging and brings its own twist.
  */
 public enum Arc {
     I("I", "Awakening", 0xECBA44,
+            "Grace of Dawn", "No one can hurt another player, and some monsters rise Awakened: glowing, tougher, and carrying forging materials.",
             SwordType.MANTIS, SwordType.SHURIKEN, SwordType.KATANA, SwordType.SPLITTER, SwordType.CRIMSON, SwordType.MACE, SwordType.ECHO, SwordType.CANDLE, SwordType.FROST),
 
     II("II", "Ascension", 0x5CF2C2,
+            "Featherfall", "Gravity is lighter for everyone, falls hurt half as much, and every ability recharges 25% faster.",
             SwordType.DEATHKNIGHT, SwordType.COSMIC, SwordType.VERDANT, SwordType.RIBBON, SwordType.SHADOW, SwordType.CHAKRAM, SwordType.WARGLAIVE, SwordType.MAUL, SwordType.STARS),
 
     III("III", "Dominion", 0x9B5DE5,
+            "Spoils of War", "Anyone carrying a legendary weapon glows for all to see, and whoever kills a player takes their legendary weapons.",
             SwordType.SOUL, SwordType.SCYTHE, SwordType.ASHURA, SwordType.TRIDENT, SwordType.STAFF, SwordType.RAPIER, SwordType.HAMMER, SwordType.KHOPESH, SwordType.CLAWS),
 
     IV("IV", "Cataclysm", 0xE5482C,
+            "Meteor Storms", "Meteors rain down around players every few minutes, leaving forging materials in their craters, and monsters hit 50% harder.",
             SwordType.VOID, SwordType.AXE, SwordType.CLAYMORE, SwordType.SPEAR, SwordType.CUTLASS, SwordType.SAWBLADE, SwordType.STORM, SwordType.PLAGUE, SwordType.GLAIVE),
 
     V("V", "Eternity", 0xDDE6FF,
+            "Endless Night", "The sun never rises again, and death is not the end: once every ten minutes a killing blow revives you instead.",
             SwordType.MIRROR, SwordType.TIDE, SwordType.NEEDLE, SwordType.DRAGON, SwordType.DAGGERS, SwordType.HALBERD, SwordType.SOLAR, SwordType.PHOENIX, SwordType.CHRONO);
 
     private final String numeral;
     private final String title;
     private final TextColor color;
+    private final String twist;
+    private final String twistText;
     private final List<SwordType> members;
 
-    Arc(String numeral, String title, int color, SwordType... members) {
+    Arc(String numeral, String title, int color, String twist, String twistText, SwordType... members) {
         this.numeral = numeral;
         this.title = title;
         this.color = TextColor.color(color);
+        this.twist = twist;
+        this.twistText = twistText;
         this.members = List.of(members);
+    }
+
+    /** The name of this arc's twist, e.g. "Grace of Dawn". */
+    public String twist() {
+        return twist;
+    }
+
+    /** What the twist does, in a sentence or two. */
+    public String twistText() {
+        return twistText;
+    }
+
+    /** The arc after this one, or null for the last. */
+    public Arc next() {
+        return ordinal() + 1 < values().length ? values()[ordinal() + 1] : null;
+    }
+
+    /** Finds an arc by number (1-5) or numeral ("III"). */
+    public static Arc parse(String input) {
+        if (input == null) {
+            return null;
+        }
+        String in = input.trim().toUpperCase(java.util.Locale.ROOT);
+        for (Arc arc : values()) {
+            if (arc.name().equals(in) || String.valueOf(arc.ordinal() + 1).equals(in) || arc.title.toUpperCase(java.util.Locale.ROOT).equals(in)) {
+                return arc;
+            }
+        }
+        return null;
     }
 
     /** "Arc I". */

@@ -47,6 +47,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             case "unforge" -> unforge(sender, args);
             case "altar", "altars" -> altar(sender, label, args);
             case "list" -> list(sender);
+            case "arc", "arcs" -> arc(sender, label, args);
             case "info" -> info(sender, args);
             case "pack" -> pack(sender, args);
             case "resetcooldowns", "resetcd" -> resetCooldowns(sender, args);
@@ -63,6 +64,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         line(sender, "/" + label + " recipes [weapon]", "How to craft each weapon and the altar");
         line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
+        line(sender, "/" + label + " arc", "Which arc the server is in, and its twist");
         if (sender.hasPermission(ADMIN)) {
             line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
             line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
@@ -71,6 +73,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " unforge <weapon>", "Legendary mode: allow a weapon to be crafted again");
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
             line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
+            line(sender, "/" + label + " arc start|next|set <1-5>|end", "Run the server's arcs");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -174,6 +177,56 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             Text.send(sender, "<gray>" + type.swordName() + " can be forged again.");
         } else {
             Text.send(sender, "<gray>" + type.swordName() + " hasn't been forged.");
+        }
+    }
+
+    /** /customs arc [start|next|set <n>|end]: the server's arcs. */
+    private void arc(CommandSender sender, String label, String[] args) {
+        var arcs = plugin.arcs();
+        String action = args.length < 2 ? "status" : args[1].toLowerCase(Locale.ROOT);
+        if (action.equals("status") || action.equals("info")) {
+            arcs.status().forEach(sender::sendMessage);
+            return;
+        }
+        if (denied(sender)) {
+            return;
+        }
+        dev.infuse.customs.sword.Arc current = arcs.current();
+        switch (action) {
+            case "start" -> {
+                if (current != null) {
+                    Text.send(sender, "<red>The arcs are already running (" + current.label() + "). Use <white>/" + label
+                            + " arc next</white> to move on.");
+                    return;
+                }
+                arcs.begin(dev.infuse.customs.sword.Arc.I);
+            }
+            case "next" -> {
+                if (current == null) {
+                    arcs.begin(dev.infuse.customs.sword.Arc.I);
+                } else if (current.next() == null) {
+                    Text.send(sender, "<red>" + current.label() + " is the last arc. Use <white>/" + label
+                            + " arc end</white> to finish the arcs.");
+                } else {
+                    arcs.begin(current.next());
+                }
+            }
+            case "set" -> {
+                dev.infuse.customs.sword.Arc arc = args.length > 2 ? dev.infuse.customs.sword.Arc.parse(args[2]) : null;
+                if (arc == null) {
+                    Text.send(sender, "<red>Usage: <white>/" + label + " arc set <1-5>");
+                    return;
+                }
+                arcs.begin(arc);
+            }
+            case "end", "stop" -> {
+                if (current == null) {
+                    Text.send(sender, "<red>No arc is running.");
+                    return;
+                }
+                arcs.end();
+            }
+            default -> Text.send(sender, "<gray>Usage: <white>/" + label + " arc [start|next|set <1-5>|end]");
         }
     }
 
@@ -370,7 +423,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         boolean admin = sender.hasPermission(ADMIN);
         List<String> options = new ArrayList<>();
         if (args.length == 1) {
-            options.addAll(List.of("list", "info", "recipes", "pack"));
+            options.addAll(List.of("list", "info", "recipes", "pack", "arc"));
             if (admin) {
                 options.addAll(List.of("give", "menu", "settings", "resetcooldowns", "unforge", "altar", "reload"));
             }
@@ -395,12 +448,19 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                         options.addAll(List.of("give", "set", "remove", "list"));
                     }
                 }
+                case "arc", "arcs" -> {
+                    if (admin) {
+                        options.addAll(List.of("start", "next", "set", "end"));
+                    }
+                }
                 default -> {
                 }
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give") && admin) {
             options.addAll(ids());
             options.add("all");
+        } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("arc") && args[1].equalsIgnoreCase("set") && admin) {
+            options.addAll(List.of("1", "2", "3", "4", "5"));
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("altar") && admin) {
             switch (args[1].toLowerCase(Locale.ROOT)) {
                 case "set", "shrine" -> options.addAll(ids());

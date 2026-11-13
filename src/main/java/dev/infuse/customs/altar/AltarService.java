@@ -215,6 +215,10 @@ public final class AltarService implements Listener {
         if (!settings.craftingEnabled || !sword.enabled() || !sword.recipe().enabled() || ingredients(type).isEmpty()) {
             return "can't be forged on this server";
         }
+        String locked = plugin.arcs().lockReason(type);
+        if (locked != null) {
+            return locked;
+        }
         if (settings.uniqueSwords) {
             ForgeRegistry.Forged forged = plugin.forges().get(type);
             if (forged != null) {
@@ -598,6 +602,8 @@ public final class AltarService implements Listener {
                 : reason.startsWith("has already")
                 ? Text.caps("forged by ", NamedTextColor.GRAY).append(Component.text(
                 plugin.forges().get(type) == null ? "?" : plugin.forges().get(type).name(), NamedTextColor.WHITE))
+                : reason.startsWith("unlocks")
+                ? Text.caps("🔒 unlocks in " + type.arc().label(), type.arc().color())
                 : Text.caps("cannot be forged here", NamedTextColor.RED);
         altar.visuals.add(world.spawn(center.clone().add(0, reason == null ? HOLOGRAM_HEIGHT : RING_HEIGHT, 0),
                 TextDisplay.class, d -> {

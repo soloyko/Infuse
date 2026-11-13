@@ -73,6 +73,7 @@ public final class ItemListener implements Listener {
         Player crafter = event.getView().getPlayer() instanceof Player p ? p : null;
         boolean allowed = crafter != null && plugin.settings().craftingEnabled && plugin.settings().sword(type).enabled()
                 && crafter.hasPermission("customs.craft")
+                && plugin.arcs().unlocked(type)
                 && !(plugin.settings().uniqueSwords && plugin.forges().isForged(type));
         for (ItemStack stack : event.getInventory().getMatrix()) {
             if (plugin.items().isSword(stack)) {

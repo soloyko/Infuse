@@ -97,6 +97,31 @@ altars:
   # right-clicking the altar with the ingredients in their inventory.
   enabled: true
 
+arcs:
+  # The server's arcs. An admin starts Arc I with /customs arc start and moves on with
+  # /customs arc next, up to Arc V. Each arc unlocks its nine weapons for forging (earlier arcs
+  # stay unlocked; later ones are locked) and brings a twist for the whole server:
+  #   I   Awakening  - Grace of Dawn: no PvP; some monsters spawn Awakened and drop materials
+  #   II  Ascension  - Featherfall: lighter gravity, half fall damage, cooldowns 25% shorter
+  #   III Dominion   - Spoils of War: weapon carriers glow; killers take their victims' weapons
+  #   IV  Cataclysm  - Meteor Storms: meteors around players every few minutes; monsters hit harder
+  #   V   Eternity   - Endless Night: the sun never rises; a killing blow revives you once every 10 min
+  # While no arc is running, every weapon can be forged and there are no twists.
+  # Show the current arc and its twist in a bar at the top of the screen.
+  boss-bar: true
+  # Turn single twists off (the arc still unlocks its weapons).
+  twists:
+    awakening: true
+    ascension: true
+    dominion: true
+    cataclysm: true
+    eternity: true
+  # Cataclysm: minutes between meteor storms, and whether meteors also fall on creative players.
+  meteor-interval-minutes: 4
+  meteors-hit-creative: false
+  # Eternity: minutes between two revivals for the same player.
+  eternal-grace-minutes: 10
+
 # Per-weapon settings. Keys are the weapon ids (see /customs list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds

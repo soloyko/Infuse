@@ -40,6 +40,7 @@ public final class CustomsPlugin extends JavaPlugin {
     private dev.infuse.customs.ability.Fx3D fx;
     private dev.infuse.customs.ability.DamageNumbers damageNumbers;
     private AltarService altars;
+    private dev.infuse.customs.arc.ArcService arcs;
 
     /** Before the rename the data folder was plugins/OPSwords: move it so configs and altars carry over. */
     @Override
@@ -73,6 +74,8 @@ public final class CustomsPlugin extends JavaPlugin {
         recipes = new RecipeService(this);
         resourcePack = new ResourcePackService(this);
         altars = new AltarService(this);
+        arcs = new dev.infuse.customs.arc.ArcService(this);
+        Menu.arcState = arcs::current;
         forges = new ForgeRegistry(this);
         forges.load();
 
@@ -84,6 +87,7 @@ public final class CustomsPlugin extends JavaPlugin {
         pm.registerEvents(resourcePack, this);
         pm.registerEvents(displays, this);
         pm.registerEvents(altars, this);
+        pm.registerEvents(arcs, this);
         abilities.registerListeners();
 
         PluginCommand command = getCommand("customs");
@@ -98,6 +102,7 @@ public final class CustomsPlugin extends JavaPlugin {
         recipes.registerAll();
         resourcePack.start();
         altars.start();
+        arcs.load();
 
         getLogger().info("Loaded " + SwordType.values().length + " weapons.");
     }
@@ -109,6 +114,9 @@ public final class CustomsPlugin extends JavaPlugin {
         }
         if (displays != null) {
             displays.shutdown();
+        }
+        if (arcs != null) {
+            arcs.shutdown();
         }
         if (altars != null) {
             altars.stop();
@@ -137,6 +145,8 @@ public final class CustomsPlugin extends JavaPlugin {
         settings = Settings.load(getConfig(), getLogger());
         recipes.unregisterAll();
         recipes.registerAll();
+        arcs.shutdown();
+        arcs.load();
         altars.refreshAll();
     }
 
@@ -147,6 +157,8 @@ public final class CustomsPlugin extends JavaPlugin {
         forges.load();
         recipes.unregisterAll();
         recipes.registerAll();
+        arcs.shutdown();
+        arcs.load();
         altars.refreshAll();
         resourcePack.stop();
         resourcePack.start();
@@ -243,6 +255,10 @@ public final class CustomsPlugin extends JavaPlugin {
 
     public Displays displays() {
         return displays;
+    }
+
+    public dev.infuse.customs.arc.ArcService arcs() {
+        return arcs;
     }
 
     public AltarService altars() {

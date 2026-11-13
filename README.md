@@ -34,8 +34,33 @@ when an ability is ready again, and other players see a faint themed aura around
 messages ("Steve was frozen solid by Alex wielding ❄ Frost Blade").
 
 ## The arcs
-The 45 weapons are split into five arcs of nine, in no particular order. The armory menu, the
-recipe book, the settings menu and `/customs list` show them arc by arc, one tab each.
+
+The 45 weapons are split into five arcs of nine, in no particular order, and the arcs are the
+server's story. An admin starts **Arc I** with `/customs arc start` (or the ⚙ settings menu) and
+moves the whole server on with `/customs arc next`, up to **Arc V**:
+
+- Each arc **unlocks its nine weapons** for forging. Weapons from earlier arcs stay unlocked;
+  weapons from later arcs are locked (altars show "🔒 unlocks in Arc III", crafting tables refuse
+  them and the recipe book says when they open up).
+- Each arc brings a **twist** for the whole server:
+
+| Arc | Twist |
+| --- | --- |
+| **I · Awakening** | **Grace of Dawn**: no one can hurt another player, and some monsters spawn Awakened (glowing, twice the health, harder hits) and drop materials for the weapons you can forge |
+| **II · Ascension** | **Featherfall**: gravity is 35% lighter for everyone, falls hurt half as much, and every ability recharges 25% faster |
+| **III · Dominion** | **Spoils of War**: anyone carrying a legendary weapon glows for everyone to see, and whoever kills a player takes every legendary weapon they carried |
+| **IV · Cataclysm** | **Meteor Storms**: every few minutes meteors crash down around players (a red warning ring, then the impact), leaving forging materials in the crater; monsters hit 50% harder |
+| **V · Eternity** | **Endless Night**: the sun never rises again, and once every ten minutes a killing blow revives you instead |
+
+Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, the
+twist and the newly forgeable weapons in chat, and a bar at the top of the screen that stays for
+the whole arc. `/customs arc` shows where the server is; `/customs arc set <1-5>` jumps to an arc
+and `/customs arc end` finishes them (everything unlocks, the twists stop). While no arc is
+running the plugin behaves as before: every weapon can be forged and there are no twists. Each
+twist can be turned off in `config.yml` (`arcs.twists`), and the current arc survives restarts.
+
+The armory, the recipe book, the settings menu and `/customs list` show the weapons arc by arc,
+one tab each.
 
 ![The first fifteen swords](docs/swords.png)
 
@@ -316,6 +341,8 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | Command | Permission | |
 | --- | --- | --- |
 | `/customs list` | — | All weapons (hover for details, click for lore) |
+| `/customs arc` | — | Which arc the server is in and its twist |
+| `/customs arc start` / `next` / `set <1-5>` / `end` | `customs.admin` | Run the server's arcs |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |

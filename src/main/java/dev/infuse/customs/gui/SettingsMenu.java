@@ -156,8 +156,48 @@ public final class SettingsMenu extends Menu {
                 Text.send(p, "<green>Reloaded config.yml.");
             }
         });
+        arcButton(40);
         set(BACK, button(Material.ARROW, Text.plain("← Armory", NamedTextColor.GRAY), List.of()), p -> new SwordMenu(plugin).open(p));
         closeButton();
+    }
+
+    /** The server's arc: shows where it is; click to move on, shift + right-click to end the arcs. */
+    private void arcButton(int slot) {
+        dev.infuse.customs.sword.Arc current = plugin.arcs().current();
+        dev.infuse.customs.sword.Arc next = current == null ? dev.infuse.customs.sword.Arc.I : current.next();
+        List<Component> lore = new java.util.ArrayList<>();
+        if (current == null) {
+            lore.add(Text.plain("No arc is running: everything", NamedTextColor.GRAY));
+            lore.add(Text.plain("can be forged, no twists.", NamedTextColor.GRAY));
+        } else {
+            lore.add(Text.plain("Now: " + current.label() + " · " + current.title(), current.color()));
+            lore.add(Text.plain("Twist: " + current.twist(), NamedTextColor.GRAY));
+        }
+        lore.add(Component.empty());
+        if (next != null) {
+            lore.add(Text.plain(current == null ? "Click to start Arc I" : "Click to begin " + next.label() + " · " + next.title(),
+                    NamedTextColor.YELLOW));
+        } else {
+            lore.add(Text.plain("This is the last arc.", NamedTextColor.GRAY));
+        }
+        if (current != null) {
+            lore.add(Text.plain("Shift + right-click to end the arcs", NamedTextColor.RED));
+        }
+        ItemStack item = button(Material.END_CRYSTAL, title("Server Arc"), lore);
+        item.editMeta(meta -> meta.setEnchantmentGlintOverride(current != null));
+        setClick(slot, item, (p, click) -> {
+            if (!allowed(p)) {
+                return;
+            }
+            if (click == org.bukkit.event.inventory.ClickType.SHIFT_RIGHT) {
+                if (plugin.arcs().current() != null) {
+                    plugin.arcs().end();
+                }
+            } else if (next != null) {
+                plugin.arcs().begin(next);
+            }
+            render();
+        });
     }
 
     private void flag(int slot, Material icon, String name, String description, String path) {
