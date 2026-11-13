@@ -80,18 +80,13 @@ public final class AltarService implements Listener {
     private static final int DEFAULT_TINT = 0x9FD8FF;
     private static final double FLOAT_HEIGHT = 1.12;
     private static final float WEAPON_HEIGHT = 1.25f;
-    private static final double HALO_HEIGHT = 0.56;
+    private static final double HALO_HEIGHT = 0.6;
     private static final double RING_HEIGHT = FLOAT_HEIGHT + 0.9;
     private static final double RING_RADIUS = 0.72;
     private static final float ICON_SCALE = 0.3f;
     private static final double HOLOGRAM_HEIGHT = RING_HEIGHT + 0.45;
     private static final float HOLOGRAM_SCALE = 0.62f;
-    /** Tops of the candles on the altar model (see tools/altar_model.py), relative to the block centre. */
-    private static final double[][] CANDLE_TIPS = {
-            {(2.6 - 8) / 16, (13.9 + 3.4 + 0.3 - 8) / 16, (2.6 - 8) / 16},
-            {(13.4 - 8) / 16, (13.9 + 2.6 + 0.3 - 8) / 16, (2.6 - 8) / 16},
-            {(2.6 - 8) / 16, (13.9 + 2.2 + 0.3 - 8) / 16, (13.4 - 8) / 16},
-            {(13.4 - 8) / 16, (13.9 + 3.0 + 0.3 - 8) / 16, (13.4 - 8) / 16}};
+
     /** Animation steps (2 ticks each) for one turn of the ingredient ring. */
     private static final int RING_PERIOD = 90;
 
@@ -726,12 +721,12 @@ public final class AltarService implements Listener {
                     mote.teleport(motePoint(altar, i, altar.spin));
                 }
             }
-            if (altar.spin % 8 == 0) {
-                // the candles on the slab flicker
-                for (double[] candle : CANDLE_TIPS) {
-                    Location tip = altar.center().add(candle[0], candle[1], candle[2]);
-                    Fx.particle(tip, Particle.SMALL_FLAME, 1, 0.01, 0.003);
-                }
+            if (altar.spin % 12 == 0 && altar.type != null) {
+                // a mote of light drifts up from one of the glowing panels
+                double side = (altar.spin / 12) % 4;
+                double ox = side == 0 ? 0.33 : side == 1 ? -0.33 : 0;
+                double oz = side == 2 ? 0.33 : side == 3 ? -0.33 : 0;
+                Fx.particle(altar.center().add(ox, -0.05, oz), Particle.END_ROD, 1, 0.05, 0.004);
             }
             if (altar.type != null && altar.spin % 5 == 0) {
                 Aura.ambient(altar.center().add(0, FLOAT_HEIGHT, 0), altar.type);

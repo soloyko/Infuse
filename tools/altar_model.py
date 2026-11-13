@@ -2,8 +2,9 @@
 
     python3 tools/altar_model.py
 
-The altar is one block: a weathered stone altar (altar_base) plus a separate layer of carved
-runes, a sigil and candle flames (altar_glow) that the plugin renders at full brightness and tints
+The altar is one block: a stone pedestal (altar_base) - a dark two-tier base, a pale pillar with
+framed panels and corner brackets, and a heavy top slab - plus a separate layer of runes in the
+panel windows and a ring on top (altar_glow) that the plugin renders at full brightness and tints
 with the colour of the weapon on display, and a magic circle (altar_halo) that floats and spins
 just above it. The inventory item (altar) shows the pedestal and the glow layer.
 Needs Pillow.
@@ -19,19 +20,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ASSETS = os.path.join(ROOT, 'resourcepack', 'assets', 'customs')
 DEFAULT_TINT = 0x9FD8FF  # pale blue, when nothing is on the altar
 
-# vanilla textures for the stonework
+# textures for the pedestal (drawn by this script) and the glow layer
 T = {
-    'bricks': 'minecraft:block/stone_bricks',
-    'mossy': 'minecraft:block/mossy_stone_bricks',
-    'cracked': 'minecraft:block/cracked_stone_bricks',
-    'chiseled': 'minecraft:block/chiseled_stone_bricks',
-    'smooth': 'minecraft:block/smooth_stone',
-    'slab_side': 'minecraft:block/smooth_stone_slab_side',
-    'andesite': 'minecraft:block/polished_andesite',
-    'cobble': 'minecraft:block/cobblestone',
-    'mossy_cobble': 'minecraft:block/mossy_cobblestone',
-    'stone': 'minecraft:block/stone',
-    'candle': 'minecraft:block/candle',
+    'dark_band': 'customs:item/altar/ped_dark_band',
+    'dark_top': 'customs:item/altar/ped_dark_top',
+    'dark': 'customs:item/altar/ped_dark',
+    'pillar': 'customs:item/altar/ped_pillar',
+    'top': 'customs:item/altar/ped_top',
     'rune': 'customs:item/altar/rune',
     'sigil': 'customs:item/altar/sigil',
     'crystal': 'customs:item/altar/crystal',
@@ -78,59 +73,44 @@ def sides(side, top=None, bottom=None):
     return out
 
 
-def faces(n, s_, e, w, u=None, d=None):
-    """Per-face textures for an element."""
-    out = {'north': n, 'south': s_, 'east': e, 'west': w}
-    out['up'] = u or n
-    out['down'] = d or u or n
-    return out
+def slab(frm, to, top='dark_top'):
+    """A dark slab: banded sides (light edge on top, shadow below) and a rimmed top."""
+    el = box(frm, to, {'north': 'dark_band', 'south': 'dark_band', 'east': 'dark_band', 'west': 'dark_band',
+                       'up': top, 'down': 'dark'})
+    return full_uv(el)
 
 
-CANDLES = ((2.6, 2.6, 3.4), (13.4, 2.6, 2.6), (2.6, 13.4, 2.2), (13.4, 13.4, 3.0))
-
-
-def candle(x, z, height, top):
-    """A white candle standing on the slab (vanilla candle texture, its own UVs)."""
-    w = 0.65
-    el = box([x - w, top, z - w], [x + w, top + height, z + w], 'candle', faces='nsewu')
-    for name, face in el['faces'].items():
-        face['uv'] = [0, 6, 2, 8] if name == 'up' else [0, 8, 2, 8 + min(6, height * 1.6)]
-    return el
+PILLAR = (3.0, 2.6, 13.0, 12.9)  # x1, y1, x2, y2 of the pillar (it is square: z matches x)
 
 
 def base_elements():
-    els = []
-    # rough footing of cobblestone, a little uneven at the edges
-    els.append(box([0, 0, 0], [16, 1.2, 16], faces('mossy_cobble', 'cobble', 'cobble', 'mossy_cobble', 'cobble', 'cobble')))
-    els.append(box([0.5, 1.2, 0.5], [15.5, 1.6, 15.5], faces('mossy_cobble', 'cobble', 'mossy_cobble', 'cobble', 'cobble')))
-    # the step: stone bricks, mossy on one side, cracked on another
-    els.append(box([1.5, 1.6, 1.5], [14.5, 4.2, 14.5], faces('mossy', 'bricks', 'cracked', 'bricks', 'smooth', 'bricks')))
-    # a chamfer of smooth stone on the step's edge
-    els.append(box([1.2, 4.2, 1.2], [14.8, 4.7, 14.8], faces('slab_side', 'slab_side', 'slab_side', 'slab_side', 'smooth', 'smooth')))
-    # the pillar: carved stone, narrower than the slab it holds
-    els.append(box([3.6, 4.7, 3.6], [12.4, 10.6, 12.4], faces('chiseled', 'chiseled', 'chiseled', 'chiseled', 'smooth', 'smooth'),
-                   faces='nsew'))
-    # thick corner buttresses holding the slab up
-    for x, z in ((3.0, 3.0), (13.0, 3.0), (3.0, 13.0), (13.0, 13.0)):
-        tex = 'mossy' if (x + z) % 5 == 1 else 'bricks'
-        els.append(box([x - 1.1, 4.7, z - 1.1], [x + 1.1, 10.6, z + 1.1], faces(tex, 'bricks', 'cracked', tex), faces='nsew'))
-    # the capital and the slab: a heavy table of smooth stone
-    els.append(box([2.4, 10.6, 2.4], [13.6, 11.4, 13.6], faces('bricks', 'bricks', 'bricks', 'bricks', 'smooth', 'smooth')))
-    els.append(box([0.9, 11.4, 0.9], [15.1, 13.6, 15.1], faces('slab_side', 'slab_side', 'slab_side', 'slab_side', 'smooth', 'smooth')))
-    # a worn lip around the top, slightly inset
-    els.append(box([1.6, 13.6, 1.6], [14.4, 13.9, 14.4], faces('andesite', 'andesite', 'andesite', 'andesite', 'andesite', 'andesite'), faces='nsewu'))
-    # a chipped corner of the slab, and rubble at the foot
-    els.append(box([13.6, 12.8, 0.9], [15.1, 13.6, 2.6], 'cobble', faces='nsewu'))
-    for x, z, sx, h in ((0.6, 6.0, 1.6, 1.0), (14.2, 10.5, 1.4, 0.8), (9.0, 0.4, 1.8, 0.7), (4.0, 14.6, 1.3, 0.9)):
-        els.append(box([x, 1.2, z], [x + sx, 1.2 + h, z + sx * 0.8], 'cobble', faces='nsewu'))
-    # candles on the slab corners
-    for x, z, h in CANDLES:
-        els.append(candle(x, z, h, 13.9))
+    x1, y1, x2, y2 = PILLAR
+    els = [
+        # two-tier dark base
+        slab([0, 0, 0], [16, 1.4, 16]),
+        slab([1.2, 1.4, 1.2], [14.8, 2.6, 14.8]),
+        # the pale pillar, with a framed panel on every face
+        full_uv(box([x1, y1, x1], [x2, y2, x2], 'pillar', faces='nsew')),
+        # dark capital and the heavy top slab, its top face pale
+        slab([2.2, 12.9, 2.2], [13.8, 13.6, 13.8]),
+        slab([0.6, 13.6, 0.6], [15.4, 16.0, 15.4], top='top'),
+    ]
+    # corner brackets: dark strips running up the pillar's edges and flaring out under the capital
+    for cx, cz in ((x1, x1), (x2, x1), (x1, x2), (x2, x2)):
+        sx = -1 if cx == x1 else 1
+        sz = -1 if cz == x1 else 1
+        w = 0.55
+        els.append(box([min(cx, cx - sx * w), y1 + 0.6, min(cz, cz - sz * w)],
+                       [max(cx, cx - sx * w), 10.6, max(cz, cz - sz * w)], 'dark', faces='nsewu'))
+        for step, (out, y_lo, y_hi) in enumerate(((0.35, 10.6, 11.8), (0.75, 11.8, 12.9))):
+            ox, oz = cx + sx * out, cz + sz * out
+            els.append(box([min(cx - sx * w, ox), y_lo, min(cz - sz * w, oz)],
+                           [max(cx - sx * w, ox), y_hi, max(cz - sz * w, oz)], 'dark', faces='nsewud'))
     return els
 
 
 def crystal(x, y, z, size):
-    """A small flame: a prism turned 45 degrees with a pointed top."""
+    """A small pointed crystal turned 45 degrees (kept for other tools)."""
     rot = {"angle": 45, "axis": "y", "origin": [x, y, z]}
     h = size
     return [
@@ -142,23 +122,24 @@ def crystal(x, y, z, size):
 
 
 def glow_elements():
-    els = []
-    # runes carved into the four faces of the pillar, glowing faintly
-    els.append(full_uv(box([5.0, 5.6, 3.58], [11.0, 9.8, 3.59], 'rune', faces='n', tint=True)))
-    els.append(full_uv(box([5.0, 5.6, 12.41], [11.0, 9.8, 12.42], 'rune', faces='s', tint=True)))
-    els.append(full_uv(box([3.58, 5.6, 5.0], [3.59, 9.8, 11.0], 'rune', faces='w', tint=True)))
-    els.append(full_uv(box([12.41, 5.6, 5.0], [12.42, 9.8, 11.0], 'rune', faces='e', tint=True)))
-    # a line of glyphs cut into the front of the step
-    els.append(full_uv(box([3.0, 2.4, 1.48], [13.0, 3.4, 1.49], 'band', faces='n', tint=True)))
-    els.append(full_uv(box([3.0, 2.4, 14.51], [13.0, 3.4, 14.52], 'band', faces='s', tint=True)))
-    els.append(full_uv(box([1.48, 2.4, 3.0], [1.49, 3.4, 13.0], 'band', faces='w', tint=True)))
-    els.append(full_uv(box([14.51, 2.4, 3.0], [14.52, 3.4, 13.0], 'band', faces='e', tint=True)))
-    # a circle carved into the slab
-    els.append(full_uv(box([2.2, 13.92, 2.2], [13.8, 13.94, 13.8], 'sigil', faces='u', tint=True)))
-    # candle flames in the weapon's colour
-    for x, z, h in CANDLES:
-        els.extend(crystal(x, 13.9 + h + 0.8, z, 1.15))
-    return els
+    """Runes glowing in the window of each pillar panel, and a faint ring on the top slab."""
+    x1, y1, x2, y2 = PILLAR
+    # the window of the panel texture is u 5..11, v 6..13 of the pillar face
+    def u(px):
+        return x1 + px * (x2 - x1) / 16
+
+    def v(px):
+        return y2 - px * (y2 - y1) / 16
+    a, b = u(5.2), u(10.8)
+    top, bottom = v(6.2), v(12.8)
+    e = 0.02
+    return [
+        full_uv(box([a, bottom, x1 - e], [b, top, x1 - e + 0.01], 'rune', faces='n', tint=True)),
+        full_uv(box([a, bottom, x2 + e], [b, top, x2 + e + 0.01], 'rune', faces='s', tint=True)),
+        full_uv(box([x1 - e, bottom, a], [x1 - e + 0.01, top, b], 'rune', faces='w', tint=True)),
+        full_uv(box([x2 + e, bottom, a], [x2 + e + 0.01, top, b], 'rune', faces='e', tint=True)),
+        full_uv(box([2.0, 16.02, 2.0], [14.0, 16.04, 14.0], 'sigil', faces='u', tint=True)),
+    ]
 
 
 def halo_elements():
@@ -184,7 +165,7 @@ BLOCK_DISPLAY = {
 def model(elements, textures):
     used = {f["texture"][1:] for e in elements for f in e["faces"].values()}
     tex = {k: T[k] for k in sorted(used)}
-    tex["particle"] = T["bricks"]
+    tex["particle"] = T["pillar"]
     return {"credit": "Customs altar - generated by tools/altar_model.py", "textures": tex,
             "elements": elements, "display": BLOCK_DISPLAY}
 
@@ -316,6 +297,108 @@ def halo_texture():
     return img
 
 
+def _noise(x, y, seed):
+    """Deterministic per-pixel noise in -1..1."""
+    n = (x * 374761393 + y * 668265263 + seed * 2147483647) & 0xFFFFFFFF
+    n = (n ^ (n >> 13)) * 1274126177 & 0xFFFFFFFF
+    return ((n ^ (n >> 16)) & 0xFFFF) / 32767.5 - 1
+
+
+def _shade(v, x, y, seed, amount=7):
+    g = int(max(0, min(255, v + _noise(x, y, seed) * amount)))
+    return (g, g, min(255, g + 4), 255)
+
+
+DARK = 74
+DARK_HI = 118
+DARK_LO = 52
+LIGHT = 206
+
+
+def dark_texture():
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y in range(16):
+        for x in range(16):
+            px[x, y] = _shade(DARK, x, y, 1)
+    return img
+
+
+def dark_band_texture():
+    """Slab sides: a light edge on top, the body, and a shadow line at the bottom."""
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y in range(16):
+        for x in range(16):
+            v = DARK_HI if y < 3 else (DARK_LO if y >= 14 else DARK)
+            if y in (3, 4):
+                v = (DARK_HI + DARK) // 2
+            px[x, y] = _shade(v, x, y, 2, 5)
+    return img
+
+
+def dark_top_texture():
+    """Slab tops: dark with a light rim."""
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y in range(16):
+        for x in range(16):
+            edge = x == 0 or y == 0 or x == 15 or y == 15
+            px[x, y] = _shade(DARK_HI if edge else DARK + 6, x, y, 3, 6)
+    return img
+
+
+def top_texture():
+    """The pale, mottled top of the pedestal with a dark rim."""
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y in range(16):
+        for x in range(16):
+            if x == 0 or y == 0 or x == 15 or y == 15:
+                px[x, y] = _shade(DARK, x, y, 4, 4)
+            elif x == 1 or y == 1 or x == 14 or y == 14:
+                px[x, y] = _shade(176, x, y, 4, 5)
+            else:
+                spot = _noise(x // 2, y // 2, 9)
+                px[x, y] = _shade(210 + int(spot * 14), x, y, 5, 8)
+    return img
+
+
+def pillar_texture():
+    """A pillar face: pale stone, dark frame lines branching up to the corners, an inset window."""
+    img = Image.new('RGBA', (16, 16))
+    px = img.load()
+    for y in range(16):
+        for x in range(16):
+            v = LIGHT
+            if x in (0, 15):
+                v = 186                     # rounded edge
+            if y <= 1:
+                v = DARK                    # shadow under the capital
+            px[x, y] = _shade(v, x, y, 6, 6)
+    dark = []
+    # the frame: two verticals that branch out diagonally to the top corners
+    for y in range(5, 16):
+        dark += [(3, y), (12, y)]
+    for i in range(4):
+        dark += [(3 - i, 5 - i), (12 + i, 5 - i), (3 - i + 1, 5 - i), (12 + i - 1, 5 - i)]
+    dark += [(x, 15) for x in range(3, 13)]
+    for x, y in dark:
+        if 0 <= x < 16 and 0 <= y < 16:
+            px[x, y] = _shade(DARK, x, y, 7, 4)
+    # the inset window: dark outline, pale glassy inside with a highlight
+    for y in range(6, 14):
+        for x in range(5, 11):
+            outline = x in (5, 10) or y in (6, 13)
+            v = DARK + 10 if outline else (240 if x == 6 else 224)
+            px[x, y] = _shade(v, x, y, 8, 3 if not outline else 4)
+    # the band between frame and window is a touch darker
+    for y in range(5, 15):
+        for x in (4, 11):
+            px[x, y] = _shade(184, x, y, 10, 4)
+    return img
+
+
 def write(rel, data):
     path = os.path.join(ASSETS, rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -348,6 +431,11 @@ def main():
     for name, item in items.items():
         write(f'items/{name}.json', json.dumps(item, indent=2).encode() + b'\n')
     write('textures/item/altar/rune.png', png(rune_texture()))
+    write('textures/item/altar/ped_dark.png', png(dark_texture()))
+    write('textures/item/altar/ped_dark_band.png', png(dark_band_texture()))
+    write('textures/item/altar/ped_dark_top.png', png(dark_top_texture()))
+    write('textures/item/altar/ped_top.png', png(top_texture()))
+    write('textures/item/altar/ped_pillar.png', png(pillar_texture()))
     write('textures/item/altar/sigil.png', png(sigil_texture()))
     write('textures/item/altar/crystal.png', png(crystal_texture()))
     write('textures/item/altar/band.png', png(band_texture()))

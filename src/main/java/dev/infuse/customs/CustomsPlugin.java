@@ -126,6 +126,18 @@ public final class CustomsPlugin extends JavaPlugin {
     }
 
     /** Re-reads config.yml and re-applies everything that depends on it. */
+    /**
+     * Applies settings changed in game: saves config.yml and reloads everything that reads it,
+     * except the resource pack (restarting it would re-send the pack to everyone).
+     */
+    public void applySettings() {
+        saveConfig();
+        settings = Settings.load(getConfig(), getLogger());
+        recipes.unregisterAll();
+        recipes.registerAll();
+        altars.refreshAll();
+    }
+
     public void reload() {
         reloadConfig(); // pick up the user's edits first, then merge so nothing on disk is overwritten
         mergeNewDefaults();

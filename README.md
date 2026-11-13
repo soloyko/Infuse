@@ -141,10 +141,9 @@ saved with the world.
 
 ![A stone altar forging Eclipse: the warglaive floats in a soft light over the altar, its recipe circling above it](docs/altars.png)
 
-A weapon altar is a single block with its own 3D model: a weathered stone altar of mossy and
-cracked stone bricks, buttresses holding a heavy slab of smooth stone, runes carved into its
-pillar and candles on the slab, the runes and candle flames glowing in the colour of the weapon
-it holds. The weapon
+A weapon altar is a single block with its own 3D model: a stone pedestal with a dark two-tier
+base, a pale pillar with framed panels and corner brackets, and a heavy slab on top. Runes glow
+in the panel windows and a circle on the slab in the colour of the weapon it holds. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 
@@ -241,6 +240,7 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs pack` | `customs.pack` | Re-send the resource pack |
 | `/customs give <player> <weapon\|all>` | `customs.admin` | Give weapons |
 | `/customs menu` | `customs.admin` | Take weapons and altars from a GUI |
+| `/customs settings` | `customs.admin` | Change settings, weapon stats and cooldowns in a GUI |
 | `/customs altar give [player] [amount]` | `customs.admin` | Give weapon altars |
 | `/customs altar set <weapon>` | `customs.admin` | Make the altar you look at forge a weapon (or place a new one on the block you look at) |
 | `/customs altar remove` / `list` | `customs.admin` | Remove the altar you look at / list all altars and their weapons |
@@ -252,6 +252,16 @@ Aliases: `/custom`, `/weapons`.
 
 Other permissions: `customs.use` (abilities and passives, default everyone),
 `customs.craft` (default everyone), `customs.bypass.cooldown` (default nobody).
+
+## Settings menu
+
+`/customs settings` (or the ⚙ button in `/customs menu`) changes the config in game, for
+admins: whether abilities hit players, ability damage multipliers, the ability key, unbreakable
+weapons, dropped-weapon protection, death messages, every visual effect, crafting, crafting
+table recipes, announcements, legendary mode and altars. The **Weapons** page turns each weapon
+on or off (left-click) or opens it (right-click) to change its damage, attack speed, both
+cooldowns and recipe, or to let a legendary weapon be forged again. Changes are saved to
+`config.yml` and apply at once.
 
 ## Config highlights
 

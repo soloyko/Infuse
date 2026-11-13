@@ -37,7 +37,7 @@ public abstract class Menu implements InventoryHolder {
     static final int CLOSE = 49;
 
     private final Inventory inventory;
-    private final Map<Integer, Consumer<Player>> actions = new HashMap<>();
+    private final Map<Integer, java.util.function.BiConsumer<Player, org.bukkit.event.inventory.ClickType>> actions = new HashMap<>();
 
     protected Menu(int rows, Component title) {
         this.inventory = Bukkit.createInventory(this, rows * 9, title);
@@ -58,6 +58,11 @@ public abstract class Menu implements InventoryHolder {
     }
 
     protected void set(int slot, ItemStack item, Consumer<Player> onClick) {
+        setClick(slot, item, onClick == null ? null : (p, c) -> onClick.accept(p));
+    }
+
+    /** A slot whose action also gets the kind of click (left, right, shift...). */
+    protected void setClick(int slot, ItemStack item, java.util.function.BiConsumer<Player, org.bukkit.event.inventory.ClickType> onClick) {
         inventory.setItem(slot, item);
         if (onClick != null) {
             actions.put(slot, onClick);
@@ -180,10 +185,10 @@ public abstract class Menu implements InventoryHolder {
             }
             event.setCancelled(true);
             if (event.getWhoClicked() instanceof Player player && event.getClickedInventory() == menu.inventory) {
-                Consumer<Player> action = menu.actions.get(event.getSlot());
+                var action = menu.actions.get(event.getSlot());
                 if (action != null) {
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.2f);
-                    action.accept(player);
+                    action.accept(player, event.getClick());
                 }
             }
         }

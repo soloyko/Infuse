@@ -25,7 +25,7 @@ settings:
   # Extra multiplier for ability damage against players, on top of the one above.
   # Lower it if abilities feel too strong in PvP (e.g. 0.75).
   ability-damage-multiplier-vs-players: 1.0
-  # Shows ability cooldowns on the action bar while an OP weapon is held.
+  # Shows ability cooldowns on the action bar while a weapon is held.
   action-bar-hud: true
   # Plays a chime when an ability comes off cooldown while you hold the weapon.
   ability-ready-sound: true
@@ -36,17 +36,17 @@ settings:
   # Using an ability shows the weapon's element: flames, frost, sparks, splashes, leaves,
   # runes, shadow, blood or a sweep of wind.
   cast-circles: true
-  # Kills with an OP weapon end in a burst of light in the weapon's colour.
+  # Kills with a weapon end in a burst of light in the weapon's colour.
   kill-effects: true
-  # Custom death messages for kills with an OP weapon, e.g. "Steve was frozen solid by Alex".
+  # Custom death messages for kills with a weapon, e.g. "Steve was frozen solid by Alex".
   death-messages: true
-  # Dropped OP weapons never despawn, can't be destroyed and glow.
+  # Dropped weapons never despawn, can't be destroyed and glow.
   protect-dropped-swords: true
   # Abilities do nothing in these worlds.
   disabled-worlds: []
 
 controls:
-  # How abilities are fired while holding an OP weapon:
+  # How abilities are fired while holding a weapon:
   #   offhand     - swap-hand key (F by default) = first ability, Sneak + F = second ability.
   #                 Right-click keeps its normal use. Tooltips show each player's own key.
   #   right-click - Right-Click = first ability, Sneak + Right-Click = second ability
@@ -78,7 +78,7 @@ resource-pack:
 
 crafting:
   enabled: true
-  # Broadcasts a message when someone forges an OP weapon.
+  # Broadcasts a message when someone forges a weapon.
   announce: true
   # Legendary mode: each weapon can only be crafted (or forged at an altar) once per server,
   # so there is only ever one of each. Admins can still /customs give, and

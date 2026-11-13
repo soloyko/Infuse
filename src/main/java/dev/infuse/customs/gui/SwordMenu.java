@@ -36,6 +36,9 @@ public final class SwordMenu extends Menu {
             set(ALTAR, altar, player -> give(plugin, player, plugin.altars().createAltarItem(1),
                     Text.plain("a Weapon Altar", NamedTextColor.GOLD)));
         }
+        set(50, button(org.bukkit.Material.COMPARATOR, Text.plain("⚙ Settings", NamedTextColor.GOLD),
+                List.of(Text.plain("Change Customs settings in game", NamedTextColor.GRAY))),
+                player -> new SettingsMenu(plugin).open(player));
         closeButton();
     }
 

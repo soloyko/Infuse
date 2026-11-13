@@ -42,6 +42,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         switch (sub) {
             case "give" -> give(sender, label, args);
             case "menu", "gui" -> menu(sender);
+            case "settings", "config" -> settings(sender);
             case "recipes", "recipe", "craft" -> recipes(sender, args);
             case "unforge" -> unforge(sender, args);
             case "altar", "altars" -> altar(sender, label, args);
@@ -65,6 +66,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission(ADMIN)) {
             line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
             line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
+            line(sender, "/" + label + " settings", "Change settings, weapon stats and cooldowns in game");
             line(sender, "/" + label + " resetcooldowns [player]", "Clear ability cooldowns");
             line(sender, "/" + label + " unforge <weapon>", "Legendary mode: allow a weapon to be crafted again");
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
@@ -125,6 +127,17 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             Text.send(target, Component.text("You received ", NamedTextColor.GRAY).append(what)
                     .append(Component.text("!", NamedTextColor.GRAY)));
         }
+    }
+
+    private void settings(CommandSender sender) {
+        if (denied(sender)) {
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            Text.send(sender, "<red>Only players can open the settings.");
+            return;
+        }
+        new dev.infuse.customs.gui.SettingsMenu(plugin).open(player);
     }
 
     private void menu(CommandSender sender) {
@@ -364,7 +377,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             options.addAll(List.of("list", "info", "recipes", "pack"));
             if (admin) {
-                options.addAll(List.of("give", "menu", "resetcooldowns", "unforge", "altar", "reload"));
+                options.addAll(List.of("give", "menu", "settings", "resetcooldowns", "unforge", "altar", "reload"));
             }
         } else if (args.length == 2) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
