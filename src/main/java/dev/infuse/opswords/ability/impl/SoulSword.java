@@ -129,6 +129,10 @@ public final class SoulSword extends SwordAbility implements Listener {
                 }
             });
             pack.add(wolf.getUniqueId());
+            fx().castCircle(spot, 0x4FE3E0, 1.4f);
+            fx().beam(spot, spot.clone().add(0, 2.6, 0), 0x7FFFF5, 0.9f, 8);
+            fx().flash(spot.clone().add(0, 0.6, 0), 0x4FE3E0, 1.8f);
+            fx().follow(wolf, 0x4FE3E0, 1.4f, 300);
             Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SOUL, 20, 0.3, 0.05);
             Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SCULK_SOUL, 10, 0.3, 0.02);
         }

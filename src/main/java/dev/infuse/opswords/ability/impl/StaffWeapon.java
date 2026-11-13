@@ -148,7 +148,7 @@ public final class StaffWeapon extends SwordAbility implements Listener {
         shard.setBillboard(Display.Billboard.CENTER);
         shard.setBrightness(new Display.Brightness(15, 15));
         Fx.sound(pos, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.2f + index * 0.1f);
-        org.bukkit.entity.ItemDisplay glow = fx().orb(pos, 0xB57EDC, 0.9f, 50);
+        org.bukkit.entity.ItemDisplay glow = fx().orb(pos, 0xC48BFF, 1.3f, 50);
 
         new BukkitRunnable() {
             int ticks;
@@ -158,6 +158,7 @@ public final class StaffWeapon extends SwordAbility implements Listener {
                 ticks++;
                 if (!alive(player) || !shard.isValid() || ticks > 45 || pos.getWorld() != player.getWorld()) {
                     displays().remove(shard);
+                    displays().remove(glow);
                     cancel();
                     return;
                 }
@@ -169,11 +170,13 @@ public final class StaffWeapon extends SwordAbility implements Listener {
                 if (block != null) {
                     Fx.particle(pos, Particle.END_ROD, 8, 0.1, 0.05);
                     displays().remove(shard);
+                    displays().remove(glow);
                     cancel();
                     return;
                 }
                 pos.add(velocity);
                 shard.teleport(pos);
+                glow.teleport(pos);
                 Fx.particle(pos, Particle.DUST, 2, 0.05, 0, Fx.dust(AMETHYST, 1.3f));
                 Fx.particle(pos, Particle.WITCH, 1, 0.05, 0);
                 for (LivingEntity hit : combat().nearby(player, pos, 0.9)) {

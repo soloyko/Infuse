@@ -134,6 +134,15 @@ public final class PlagueSword extends SwordAbility {
         fx().shockwave(cloud, 0x9CD64A, 4.2f, 9);
         fx().flash(cloud.clone().add(0, 0.8, 0), 0x7FB83A, 3f);
         double radius = 4;
+        ThreadLocalRandom rr = ThreadLocalRandom.current();
+        for (int i = 0; i < 5; i++) {
+            double a = i * Math.PI * 2 / 5 + rr.nextDouble(-0.4, 0.4);
+            double d = i == 0 ? 0 : rr.nextDouble(1.2, 2.6);
+            Location p = cloud.clone().add(Math.cos(a) * d, rr.nextDouble(0.5, 1.3), Math.sin(a) * d);
+            int delay = i * 3;
+            int color = i % 2 == 0 ? 0x6FA830 : 0x9CD64A;
+            displays().later(delay + 1, () -> fx().haze(p, color, 3.8f, 118 - delay));
+        }
 
         new BukkitRunnable() {
             int ticks;
@@ -198,7 +207,7 @@ public final class PlagueSword extends SwordAbility {
             Fx.particle(at, Particle.BLOCK, 20, 0.4, 0.1, Material.MOSS_BLOCK.createBlockData());
             Fx.sound(at, Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 1.6f);
             fx().burst(at, 0xB4E85A, 1.6f + stacks * 0.3f);
-            fx().beam(eye.clone().subtract(0, 0.3, 0), at, 0x7FB83A, 0.35f, 5);
+            fx().beam(dev.infuse.opswords.ability.Fx3D.handOrigin(player), at, 0x7FB83A, 0.4f, 6);
             combat().damage(player, target, 3 + 2.5 * stacks, true);
             // the burst infects anyone standing next to it
             for (LivingEntity near : combat().nearby(player, at, 3)) {

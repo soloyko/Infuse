@@ -193,6 +193,11 @@ public final class ShadowSword extends SwordAbility implements Listener {
         Fx.particle(at, Particle.LARGE_SMOKE, 40, 0.4, 0.03);
         Fx.particle(at, Particle.SQUID_INK, 20, 0.4, 0.05);
         Fx.sound(at, Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 1f, 0.6f);
+        // a burst of shadow where you were: others see you dissolve into it
+        fx().haze(at, 0x2A1B47, 3.2f, 40);
+        fx().haze(at.clone().add(0, 0.6, 0), 0x6A4CA8, 2.2f, 30);
+        fx().shockwave(player.getLocation(), 0x3B2766, 3.5f, 10);
+        fx().burst(at, 0x9D7BFF, 2f);
         tell(player, Text.plain("🌑 You vanish into the shadows...", type.color()));
         return true;
     }

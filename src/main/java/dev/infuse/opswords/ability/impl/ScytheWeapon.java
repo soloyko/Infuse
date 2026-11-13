@@ -87,9 +87,9 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         if (look.lengthSquared() < 1.0E-4) {
             look = new Vector(0, 0, 1);
         }
-        fx().slash(origin.clone().add(0, 1.0, 0), look.clone().rotateAroundY(0.9), 0.15, 0x2BD9A8, 3.4f, 4);
+        fx().slash(origin.clone().add(0, 1.0, 0), look.clone().rotateAroundY(0.9), 0.15, 0x2BD9A8, 2.7f, 4);
         Vector lookCopy = look.clone();
-        displays().later(3, () -> fx().slash(player.getLocation().add(0, 1.0, 0), lookCopy.clone().rotateAroundY(-0.9), 0.15, 0x7FFFE0, 3.4f, 4));
+        displays().later(3, () -> fx().slash(player.getLocation().add(0, 1.0, 0), lookCopy.clone().rotateAroundY(-0.9), 0.15, 0x7FFFE0, 2.7f, 4));
         Set<UUID> hit = new HashSet<>();
 
         new BukkitRunnable() {

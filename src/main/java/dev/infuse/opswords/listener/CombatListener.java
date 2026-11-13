@@ -65,11 +65,62 @@ public final class CombatListener implements Listener {
             return;
         }
         int rgb = type.color().value();
+        int accent = type.accent().value();
+        org.bukkit.Location feet = event.getEntity().getLocation();
         org.bukkit.Location at = Combat.center(event.getEntity());
-        plugin.fx().burst(at, rgb, 2.2f);
-        plugin.fx().flash(at, type.accent().value(), 1.6f);
-        plugin.fx().shockwave(event.getEntity().getLocation(), rgb, 2.2f, 7);
-        dev.infuse.opswords.ability.Fx.particle(at, org.bukkit.Particle.END_ROD, 12, 0.2, 0.12);
+        var fx = plugin.fx();
+        fx.burst(at, rgb, 2.2f);
+        fx.flash(at, accent, 1.6f);
+        fx.shockwave(feet, rgb, 2.2f, 7);
+        // the essence leaving the body, in the weapon's colour
+        fx.drift(at, new org.bukkit.util.Vector(0, 2.4, 0), rgb, 0.9f, 22);
+        killFlourish(type, feet, at);
+    }
+
+    /** A finishing touch that fits the weapon. */
+    private void killFlourish(SwordType type, org.bukkit.Location feet, org.bukkit.Location at) {
+        var fx = plugin.fx();
+        java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
+        switch (type) {
+            case DRAGON, PHOENIX, HAMMER -> {
+                Fx.particle(at, Particle.FLAME, 30, 0.35, 0.08);
+                Fx.particle(at, Particle.LAVA, 4, 0.3, 0);
+            }
+            case FROST -> {
+                Fx.particle(at, Particle.BLOCK, 40, 0.4, 0.15, org.bukkit.Material.PACKED_ICE.createBlockData());
+                Fx.particle(at, Particle.SNOWFLAKE, 25, 0.5, 0.05);
+            }
+            case STORM, SAWBLADE -> {
+                Fx.particle(at, Particle.ELECTRIC_SPARK, 40, 0.4, 0.3);
+                fx.beam(at.clone().add(0, 6, 0), feet, type.accent().value(), 0.4f, 4);
+            }
+            case TIDE, TRIDENT -> Fx.particle(at, Particle.SPLASH, 60, 0.5, 0.2);
+            case VERDANT -> {
+                Fx.particle(at, Particle.HAPPY_VILLAGER, 20, 0.5, 0);
+                Fx.particle(at, Particle.CHERRY_LEAVES, 10, 0.4, 0);
+            }
+            case PLAGUE -> Fx.particle(at, Particle.ITEM_SLIME, 25, 0.4, 0.1);
+            case CRIMSON -> Fx.particle(at, Particle.DUST, 40, 0.4, 0, Fx.dust(0x8A0A1E, 1.6f));
+            case SOLAR -> fx.beam(feet, feet.clone().add(0, 8, 0), 0xFFE08A, 0.9f, 8);
+            case VOID, COSMIC -> {
+                Fx.particle(at, Particle.REVERSE_PORTAL, 50, 0.3, 0.2);
+                fx.flash(at, 0x14062A, 2.4f);
+            }
+            case CHRONO -> fx.castCircle(feet, type.color().value(), 1.6f);
+            case SHADOW, WARGLAIVE -> Fx.particle(at, Particle.LARGE_SMOKE, 25, 0.3, 0.03);
+            case SOUL, SCYTHE, ECHO -> {
+                for (int i = 0; i < 3; i++) {
+                    fx.drift(at, new org.bukkit.util.Vector(r.nextDouble(-1, 1), 2 + r.nextDouble(), r.nextDouble(-1, 1)),
+                            type.accent().value(), 0.5f, 18 + i * 4);
+                }
+                Fx.particle(at, Particle.SOUL, 15, 0.3, 0.05);
+            }
+            case SPEAR, RAPIER, HALBERD -> Fx.particle(at, Particle.CRIT, 30, 0.35, 0.3);
+            case CHAKRAM -> Fx.particle(at, Particle.SMALL_GUST, 12, 0.4, 0.05);
+            case AXE -> Fx.particle(at, Particle.DUST, 30, 0.4, 0, Fx.dust(0xFF2A4A, 1.5f));
+            case STAFF, SHURIKEN -> Fx.particle(at, Particle.BLOCK, 30, 0.4, 0.1, org.bukkit.Material.AMETHYST_BLOCK.createBlockData());
+            case KHOPESH -> Fx.particle(at, Particle.BLOCK, 50, 0.5, 0.15, org.bukkit.Material.SAND.createBlockData());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

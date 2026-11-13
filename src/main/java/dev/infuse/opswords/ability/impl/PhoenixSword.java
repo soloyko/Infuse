@@ -139,6 +139,7 @@ public final class PhoenixSword extends SwordAbility implements Listener {
             fireball.setIsIncendiary(false); // no fire blocks / griefing
             fireball.setAcceleration(shot.clone().multiply(0.1));
             fireball.getPersistentDataContainer().set(fireballKey, PersistentDataType.BYTE, (byte) 1);
+            fx().follow(fireball, 0xFF8A2A, 1.3f, 60);
         }
         Fx.sound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1f, 1f);
         Fx.sound(player.getLocation(), Sound.ITEM_FIRECHARGE_USE, 0.8f, 0.8f);

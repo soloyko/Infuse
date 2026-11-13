@@ -89,7 +89,7 @@ public final class HalberdWeapon extends SwordAbility {
         for (int i = 0; i < 4; i++) {
             Vector dir = look.clone().rotateAroundY(i * Math.PI / 2);
             int color = i % 2 == 0 ? JADE : GOLD;
-            displays().later(i * 2L, () -> fx().slash(player.getLocation().add(0, 1, 0), dir, 0.05, color, 3.4f, 3));
+            displays().later(i * 2L, () -> fx().slash(player.getLocation().add(0, 1, 0), dir, 0.05, color, 2.9f, 3));
         }
         displays().later(4, () -> {
             Location at = player.getLocation();

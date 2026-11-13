@@ -48,7 +48,7 @@ messages ("Steve was frozen solid by Alex wielding ❄ Everwinter").
 
 ## The other weapons
 
-![Earthshaker, Requiem, Skypiercer, Zephyr, Ragnarök, Arcanum and Leviathan on their altars](docs/weapons.png)
+![All 13 other weapons on their altars](docs/weapons.png)
 
 <img src="docs/weapons-menu.png" alt="The Other Weapons tab of the armory menu with all 13 weapons" width="420">
 
@@ -77,7 +77,9 @@ thrown.
 ![Moonfall, Tomb of Sands, Jade Dragon and Seismic Slam](docs/effects.jpg)
 
 Every hit with an OP weapon draws a glowing crescent slash in its colour, every ability unfolds a
-spell circle under the caster, and kills end in a burst of light. The abilities themselves use
+spell circle under the caster, and kills end in a burst of light with the victim's essence rising
+out of it, plus a finish that fits the weapon (ice shattering, a sunbeam, a sand burst, souls
+scattering, a lightning bolt...). The abilities themselves use
 3D effects drawn with display entities and a set of effect models in the resource pack:
 shockwave rings that sweep across the ground, beams, star bursts, flying crescents, a falling
 moon, a jade serpent and sandstone tombs. They fade out smoothly, never touch the world, and a
@@ -91,44 +93,45 @@ saved with the world.
 <details>
 <summary><b>Lore</b></summary>
 
-- **Wyrmsbane** — Forged to slay the last elder dragon, it drank the beast's soul instead. Its rage still burns in the steel.
-- **Cinderwing** — A feather of the first phoenix, hammered into a blade. Those who carry it do not stay dead for long.
-- **Everwinter** — Carved from ice that has not melted since the world was young. Its touch slows even the heart.
-- **Stormcaller** — Struck by a thousand bolts atop the highest peak, until the storm itself agreed to obey.
-- **Tidebreaker** — Lost with a drowned kingdom and returned by the sea. It still remembers the weight of the deep.
-- **Elderbloom** — Grown, not forged, from the heartwood of the world's oldest tree. Life follows wherever it goes.
-- **Pestilence** — Quenched in the blight that emptied a hundred villages. Every scratch it leaves festers.
-- **Sanguine** — A duelist's needle with a thirst of its own. It returns every drop it draws to its master.
-- **Solaris** — Blessed at dawn by a forgotten order of sun-priests. The undead burn at the very sight of it.
-- **Voidreaver** — Pulled from the empty space between the stars. Light bends around its edge and never comes back.
-- **Starfall** — Forged in the heart of a falling star. Gravity itself kneels to whoever holds it.
-- **Aeon** — Its maker spent a thousand years forging it, then went back in time and did it in an afternoon.
-- **Umbra** — The blade of a watcher who was never seen. It is darkest exactly where you aren't looking.
-- **Gravecaller** — A lich's blade, still humming with the souls it collected. Some of them are eager to help.
-- **Deepwhisper** — Grown in the sculk beneath the Deep Dark. It hears your heartbeat before you even swing.
-- **Earthshaker** — Forged in a dead volcano by giants who wanted mountains to kneel. The ground still remembers its weight.
-- **Requiem** — The ninth abyss sings through its blade. Every soul it reaps adds another voice to the choir.
-- **Skypiercer** — Hurled down from the heavens to end a war between gods. It has been looking for a worthy arm ever since.
-- **Zephyr** — A royal war-disc blessed by the four winds. Thrown true, it always finds its way home.
-- **Ragnarök** — The axe that will end the world, carved with runes of doom. It grows hungrier the closer you are to death.
-- **Arcanum** — Grown from a single amethyst that hummed with magic for ten thousand years. It still hums.
+- **Wyrmsbane** — Forged to slay the last elder dragon, it drank the beast's soul instead. When you swing it, something old and furious breathes with you.
+- **Cinderwing** — A feather of the first phoenix, beaten into a blade over a fire that never went out. Whoever carries it rises from their own ashes.
+- **Everwinter** — Carved from ice that has not melted since the world was young. The wounds it leaves never quite stop freezing.
+- **Stormcaller** — It hung on the highest peak for a thousand years, struck by every storm that passed. In the end, the storms began to answer it.
+- **Tidebreaker** — Lost with a drowned kingdom and given back by the sea. It still carries the weight of the deep, and the deep still follows it.
+- **Elderbloom** — Grown, not forged, from the heartwood of the world's oldest tree. Wherever it fights, roots break through the ground.
+- **Pestilence** — Quenched in the blight that emptied a hundred villages. Every scratch it leaves festers, and every festering wound spreads.
+- **Sanguine** — A duelist's needle that learned to drink. It gives every drop it draws back to the hand that holds it.
+- **Solaris** — Blessed at dawn by the last of the sun-priests and kept in light ever since. The dead burn at the mere sight of it.
+- **Voidreaver** — Pulled from the empty space between the stars. Light bends around its edge and never comes back out.
+- **Starfall** — Hammered from the core of a fallen star, still warm after ten thousand years. Gravity itself kneels to whoever holds it.
+- **Aeon** — Its smith worked on it for a thousand years, then went back and finished it in an afternoon. Time moves however its wielder prefers.
+- **Umbra** — The blade of a watcher who was never once seen. It is darkest exactly where you are not looking.
+- **Gravecaller** — A lich's blade, still humming with every soul it ever took. Some of them are eager to hunt for you.
+- **Deepwhisper** — Grown in the sculk beneath the Deep Dark, where silence is a weapon. It hears your heartbeat before you even swing.
+- **Earthshaker** — Forged in a dead volcano by giants who wanted mountains to kneel. Strike the ground with it, and the ground remembers.
+- **Requiem** — The ninth abyss sings through its curved blade. Every soul it reaps adds another voice to the choir.
+- **Skypiercer** — Hurled from the heavens to end a war between gods, it fell for an age. It has been searching for a worthy arm ever since.
+- **Zephyr** — A royal war-disc blessed by all four winds. Thrown true, it always finds its way home.
+- **Ragnarök** — The axe that will end the world, carved with runes of doom. It grows hungrier the closer its wielder comes to death.
+- **Arcanum** — Grown from a single amethyst that hummed with magic for ten thousand years. It still hums, and now it answers.
 - **Leviathan** — Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.
-- **Nightbloom** — Four petals of living amethyst, folded by a clan that was never seen. It blooms only in the dark.
-- **Jadewarden** — Carried by the emperor's last guard, who held the gate alone for a hundred days. The jade remembers every one.
+- **Nightbloom** — Four petals of living amethyst, folded by a clan that was never seen. It blooms only in the dark, and never twice in the same place.
+- **Jadewarden** — Carried by the emperor's last guard, who held the gate alone for a hundred days. The jade remembers every enemy that fell before it.
 - **Eclipse** — Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.
-- **Ripsaw** — A prototype from a future that never happened. Nobody remembers who built it; everyone remembers the noise.
-- **Valiance** — The queen's own blade, which never lost a duel. It only asks that you strike first.
-- **Sandreaver** — Buried with a pharaoh who refused to stay buried. The desert still answers when it is raised.
+- **Ripsaw** — A prototype from a future that never happened. Nobody remembers who built it, but everyone remembers the noise.
+- **Valiance** — The queen's own blade, which never lost a duel. It asks only that you strike first, and strike true.
+- **Sandreaver** — Buried with a pharaoh who refused to stay buried. When it is raised, the desert rises with it.
 
 </details>
 
 ## Weapon altars
 
-![A weapon altar forging Leviathan: the trident floats over a glowing magic circle, with its recipe circling above it](docs/altars.png)
+![A weapon altar forging Eclipse: the warglaive floats in a soft light over a spinning magic circle, its recipe circling above it](docs/altars.png)
 
-A weapon altar is a single block with its own 3D model: a stepped deepslate and gold plinth,
-pillars around a core of glowing runes, a band of glyphs, four crystals floating over corner
-spires and a magic circle spinning on top, all in the colour of the weapon it holds. The weapon
+A weapon altar is a single block with its own 3D model: an eight-pointed stepped plinth of
+blackstone and deepslate trimmed with gold, four pillars around a tall glowing crystal core,
+bands of glyphs, crystals floating over corner obelisks and a magic circle spinning on top, all
+in the colour of the weapon it holds. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 

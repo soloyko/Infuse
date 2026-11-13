@@ -169,6 +169,9 @@ public final class KhopeshWeapon extends SwordAbility implements Listener {
                         }
                     }
                 }
+                if (ticks % 6 == 0) {
+                    fx().haze(base.clone().add(0, 1.2 + (ticks % 12) * 0.12, 0), ticks % 12 == 0 ? SAND : GOLD, 2.8f, 14);
+                }
                 if (ticks % 10 == 0) {
                     fx().shockwave(base, SAND, 1.8f, 8);
                     Fx.sound(base, Sound.ENTITY_BREEZE_IDLE_GROUND, 1f, 0.6f);

@@ -85,6 +85,7 @@ public final class SpearWeapon extends SwordAbility {
         ItemDisplay javelin = displays().item(start, spear(), MODEL_SCALE, Displays.pointing(dir),
                 ItemDisplay.ItemDisplayTransform.NONE, 80);
         javelin.setGlowing(true);
+        ItemDisplay javGlow = fx().orb(start.clone().add(dir.clone().multiply(1.5)), 0xFFE08A, 1.4f, 80);
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1.2f, 0.8f);
         Set<UUID> hit = new HashSet<>();
 
@@ -99,6 +100,7 @@ public final class SpearWeapon extends SwordAbility {
                 ticks++;
                 if (!alive(player) || !javelin.isValid() || ticks > 70 || player.getWorld() != pos.getWorld()) {
                     displays().remove(javelin);
+                    displays().remove(javGlow);
                     cancel();
                     return;
                 }
@@ -117,6 +119,7 @@ public final class SpearWeapon extends SwordAbility {
                     pos.setY(next.getY());
                     pos.setZ(next.getZ());
                     javelin.teleport(pos);
+                    javGlow.teleport(pos);
                     Fx.particle(pos, Particle.DUST, 2, 0.05, 0, Fx.dust(GOLD, 1.2f));
                     Fx.particle(pos, Particle.END_ROD, 1, 0.02, 0.01);
                     if (block != null) {
@@ -137,6 +140,7 @@ public final class SpearWeapon extends SwordAbility {
                 if (distance < 1.4) {
                     Fx.sound(home, Sound.ITEM_TRIDENT_RETURN, 1f, 1.2f);
                     displays().remove(javelin);
+                    displays().remove(javGlow);
                     cancel();
                     return;
                 }
@@ -146,6 +150,7 @@ public final class SpearWeapon extends SwordAbility {
                 javelin.setTransformation(new Transformation(t.getTranslation(), Displays.pointing(back.clone().multiply(-1)),
                         t.getScale(), t.getRightRotation()));
                 javelin.teleport(pos);
+                    javGlow.teleport(pos);
                 Fx.particle(pos, Particle.END_ROD, 1, 0.02, 0.01);
             }
         }.runTaskTimer(plugin, 1L, 1L);

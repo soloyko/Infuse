@@ -25,6 +25,8 @@ import java.util.List;
 /** Builds sword items and recognises them again. */
 public final class SwordItems {
 
+    private static final net.kyori.adventure.text.format.TextColor DESCRIPTION = net.kyori.adventure.text.format.TextColor.color(0xC8C8D0);
+
     /** Vanilla ids, so the tooltip shows "13 Attack Damage" the same way vanilla weapons do. */
     private static final NamespacedKey BASE_ATTACK_DAMAGE = NamespacedKey.minecraft("base_attack_damage");
     private static final NamespacedKey BASE_ATTACK_SPEED = NamespacedKey.minecraft("base_attack_speed");
@@ -141,7 +143,10 @@ public final class SwordItems {
         section(lore, type, Component.text(Text.smallCaps("On Hit")), type.onHit().name(), type.onHit().description(), null);
         for (AbilitySlot slot : AbilitySlot.values()) {
             AbilityInfo info = type.ability(slot);
-            section(lore, type, slot.label(plugin.settings().trigger), info.name(), info.description(), s.cooldown(slot) + "s");
+            Component label = slot == AbilitySlot.SECONDARY && plugin.settings().trigger != Settings.Trigger.RIGHT_CLICK
+                    ? Component.text(Text.smallCaps("Sneak") + " + ").append(AbilitySlot.PRIMARY.label(plugin.settings().trigger))
+                    : slot.label(plugin.settings().trigger);
+            section(lore, type, label, info.name(), info.description(), s.cooldown(slot) + "s");
         }
         lore.add(Component.empty());
         Component stats = Text.plain("⚔ ", type.color())
@@ -172,7 +177,7 @@ public final class SwordItems {
         }
         lore.add(header);
         for (String line : Text.wrap(description, LORE_WIDTH)) {
-            lore.add(Text.plain("   " + line, NamedTextColor.WHITE));
+            lore.add(Text.plain("   " + line, DESCRIPTION));
         }
     }
 

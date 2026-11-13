@@ -165,6 +165,7 @@ public final class CosmicSword extends SwordAbility {
         BlockDisplay rock = displays().block(start, Material.MAGMA_BLOCK.createBlockData(), new Vector3f(0.9f),
                 new Quaternionf(), 20);
         rock.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+        org.bukkit.entity.ItemDisplay flare = fx().orb(start, 0xFF8A3A, 2.2f, 20);
         new BukkitRunnable() {
             int t;
 
@@ -173,6 +174,12 @@ public final class CosmicSword extends SwordAbility {
                 t++;
                 double progress = t / 14.0;
                 Location pos = start.clone().add(impact.toVector().subtract(start.toVector()).multiply(Math.min(1, progress)));
+                if (flare.isValid()) {
+                    Location f = pos.clone();
+                    f.setYaw(0);
+                    f.setPitch(0);
+                    flare.teleport(f);
+                }
                 if (rock.isValid()) {
                     rock.teleport(pos);
                     Quaternionf tumble = new Quaternionf().rotateXYZ(t * 0.45f, t * 0.3f, t * 0.2f);
@@ -189,6 +196,7 @@ public final class CosmicSword extends SwordAbility {
                 }
                 cancel();
                 displays().remove(rock);
+                displays().remove(flare);
                 for (int i = 0; i < 6; i++) {
                     double a = i * Math.PI / 3;
                     displays().eruptGround(impact.clone().add(Math.cos(a) * 1.3, 0.5, Math.sin(a) * 1.3), 0.55f, 0.6f);

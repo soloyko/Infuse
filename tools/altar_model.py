@@ -73,40 +73,48 @@ def sides(side, top=None, bottom=None):
     return out
 
 
-SPIRES = ((1.6, 1.6), (14.4, 1.6), (1.6, 14.4), (14.4, 14.4))
-PILLARS = ((4, 4), (12, 4), (4, 12), (12, 12))
+OBELISKS = ((1.7, 1.7), (14.3, 1.7), (1.7, 14.3), (14.3, 14.3))
+PILLARS = ((5.2, 5.2), (10.8, 5.2), (5.2, 10.8), (10.8, 10.8))
+
+
+def diamond(half, y1, y2, tex, faces='nsewud', tint=False):
+    """A square turned 45 degrees about the centre; {@code half} is half its side length."""
+    rot = {"angle": 45, "axis": "y", "origin": [8, (y1 + y2) / 2, 8]}
+    return box([8 - half, y1, 8 - half], [8 + half, y2, 8 + half], tex, faces=faces, tint=tint, rotation=rot)
+
+
+def star(square_half, diamond_half, y1, y2, tex, faces='nsewud'):
+    """An eight-pointed layer: a square and the same square turned 45 degrees."""
+    return [box([8 - square_half, y1, 8 - square_half], [8 + square_half, y2, 8 + square_half], tex, faces=faces),
+            diamond(diamond_half, y1, y2, tex, faces=faces)]
 
 
 def base_elements():
-    els = [
-        # stepped plinth
-        box([0, 0, 0], [16, 1, 16], sides('tiles', 'polished')),
-        box([0.75, 1, 0.75], [15.25, 2, 15.25], sides('polished')),
-        box([1.25, 2, 1.25], [14.75, 2.5, 14.75], 'gold'),
-        box([2, 2.5, 2], [14, 4.5, 14], sides('bricks', 'top')),
-        box([2.75, 4.5, 2.75], [13.25, 5, 13.25], 'gold'),
-        # the core
-        box([4.5, 5, 4.5], [11.5, 11, 11.5], 'chiseled', faces='nsew'),
-        # capital and table
-        box([2.75, 11, 2.75], [13.25, 11.6, 13.25], 'gold'),
-        box([2, 11.6, 2], [14, 13.4, 14], sides('bricks', 'top')),
-        box([1.75, 13.4, 1.75], [14.25, 13.9, 14.25], 'gold'),
-        box([2.5, 13.9, 2.5], [13.5, 14.0, 13.5], 'top', faces='u'),
-    ]
-    # four slim pillars around the core, with gold bases and caps
+    els = [box([0, 0, 0], [16, 1, 16], sides('tiles', 'polished'))]
+    # an eight-pointed stepped plinth, trimmed with gold
+    els += star(6.6, 5.3, 1, 2.2, sides('bricks', 'top'))
+    els += star(6.1, 4.95, 2.2, 2.6, sides('polished'))
+    els += star(5.1, 4.1, 2.6, 4.4, sides('bricks', 'top'))
+    els += star(5.2, 4.18, 4.4, 4.65, 'gold')
+    els += star(5.0, 4.0, 4.65, 4.8, sides('polished'))
+    # four pillars around a glowing core (the core crystal is in the glow layer)
     for x, z in PILLARS:
-        els.append(box([x - 0.75, 5.6, z - 0.75], [x + 0.75, 10.4, z + 0.75], 'polished', faces='nsew'))
-        els.append(box([x - 1, 5, z - 1], [x + 1, 5.6, z + 1], 'gold', faces='nsewu'))
-        els.append(box([x - 1, 10.4, z - 1], [x + 1, 11, z + 1], 'gold', faces='nsewd'))
-    # gold claws on the table corners
-    for x, z in ((2.5, 2.5), (13.5, 2.5), (2.5, 13.5), (13.5, 13.5)):
-        els.append(box([x - 0.5, 13.9, z - 0.5], [x + 0.5, 14.9, z + 0.5], 'gold', faces='nsewu'))
-    # corner spires on the plinth; their crystals float above them (glow layer)
-    for x, z in SPIRES:
-        els.append(box([x - 1, 2, z - 1], [x + 1, 3, z + 1], sides('bricks', 'top')))
-        els.append(box([x - 0.7, 3, z - 0.7], [x + 0.7, 7.4, z + 0.7], 'polished', faces='nsew'))
-        els.append(box([x - 0.9, 7.4, z - 0.9], [x + 0.9, 7.9, z + 0.9], 'gold'))
-        els.append(box([x - 0.55, 7.9, z - 0.55], [x + 0.55, 8.3, z + 0.55], 'gold', faces='nsewu'))
+        els.append(box([x - 0.8, 4.8, z - 0.8], [x + 0.8, 10.8, z + 0.8], 'polished', faces='nsew'))
+        els.append(box([x - 1.0, 4.8, z - 1.0], [x + 1.0, 5.4, z + 1.0], sides('polished'), faces='nsewu'))
+        els.append(box([x - 1.0, 10.2, z - 1.0], [x + 1.0, 10.8, z + 1.0], 'gold', faces='nsewd'))
+    els.append(box([6.6, 4.8, 6.6], [9.4, 5.2, 9.4], 'chiseled', faces='u'))
+    # capital: narrow, then flaring out into the table
+    els += star(5.3, 4.25, 10.8, 11.2, 'gold')
+    els += star(5.0, 4.0, 11.2, 12.4, sides('bricks', 'top'))
+    els += star(6.7, 5.4, 12.4, 13.5, sides('chiseled', 'top'))
+    els += star(6.9, 5.55, 13.5, 13.8, 'gold', faces='nsewd')
+    els.append(box([1.4, 13.8, 1.4], [14.6, 13.85, 14.6], 'top', faces='u'))
+    # obelisks on the corners of the foot; crystals float above them (glow layer)
+    for x, z in OBELISKS:
+        els.append(box([x - 0.9, 1, z - 0.9], [x + 0.9, 1.8, z + 0.9], sides('bricks', 'top')))
+        els.append(box([x - 0.6, 1.8, z - 0.6], [x + 0.6, 6.6, z + 0.6], 'polished', faces='nsew'))
+        els.append(box([x - 0.75, 6.6, z - 0.75], [x + 0.75, 7.0, z + 0.75], 'gold'))
+        els.append(box([x - 0.4, 7.0, z - 0.4], [x + 0.4, 7.5, z + 0.4], 'gold', faces='nsewu'))
     return els
 
 
@@ -126,21 +134,23 @@ def crystal(x, y, z, size):
 
 def glow_elements():
     els = []
-    # rune panels on the core, between the pillars
-    els.append(full_uv(box([4.75, 5.9, 4.47], [11.25, 10.1, 4.49], 'rune', faces='n', tint=True)))
-    els.append(full_uv(box([4.75, 5.9, 11.51], [11.25, 10.1, 11.53], 'rune', faces='s', tint=True)))
-    els.append(full_uv(box([4.47, 5.9, 4.75], [4.49, 10.1, 11.25], 'rune', faces='w', tint=True)))
-    els.append(full_uv(box([11.51, 5.9, 4.75], [11.53, 10.1, 11.25], 'rune', faces='e', tint=True)))
-    # a band of glyphs around the lower body
-    els.append(full_uv(box([3, 3.0, 1.98], [13, 4.0, 1.99], 'band', faces='n', tint=True)))
-    els.append(full_uv(box([3, 3.0, 14.01], [13, 4.0, 14.02], 'band', faces='s', tint=True)))
-    els.append(full_uv(box([1.98, 3.0, 3], [1.99, 4.0, 13], 'band', faces='w', tint=True)))
-    els.append(full_uv(box([14.01, 3.0, 3], [14.02, 4.0, 13], 'band', faces='e', tint=True)))
+    # the core: a tall crystal standing between the pillars
+    els += crystal(8, 7.9, 8, 2.6)
+    # glyph bands on the four faces of the plinth body
+    els.append(full_uv(box([3.4, 3.0, 2.88], [12.6, 4.0, 2.89], 'band', faces='n', tint=True)))
+    els.append(full_uv(box([3.4, 3.0, 13.11], [12.6, 4.0, 13.12], 'band', faces='s', tint=True)))
+    els.append(full_uv(box([2.88, 3.0, 3.4], [2.89, 4.0, 12.6], 'band', faces='w', tint=True)))
+    els.append(full_uv(box([13.11, 3.0, 3.4], [13.12, 4.0, 12.6], 'band', faces='e', tint=True)))
+    # rune plates on the capital's faces
+    els.append(full_uv(box([5.2, 12.55, 1.28], [10.8, 13.35, 1.29], 'band', faces='n', tint=True)))
+    els.append(full_uv(box([5.2, 12.55, 14.71], [10.8, 13.35, 14.72], 'band', faces='s', tint=True)))
+    els.append(full_uv(box([1.28, 12.55, 5.2], [1.29, 13.35, 10.8], 'band', faces='w', tint=True)))
+    els.append(full_uv(box([14.71, 12.55, 5.2], [14.72, 13.35, 10.8], 'band', faces='e', tint=True)))
     # sigil inlaid in the table top
-    els.append(full_uv(box([3, 14.02, 3], [13, 14.04, 13], 'sigil', faces='u', tint=True)))
-    # crystals floating over the spires
-    for x, z in SPIRES:
-        els.extend(crystal(x, 10.4, z, 1.25))
+    els.append(full_uv(box([2, 13.87, 2], [14, 13.89, 14], 'sigil', faces='u', tint=True)))
+    # crystals floating over the obelisks
+    for x, z in OBELISKS:
+        els.extend(crystal(x, 9.4, z, 1.1))
     return els
 
 

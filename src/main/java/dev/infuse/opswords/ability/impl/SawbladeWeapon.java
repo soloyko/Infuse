@@ -94,8 +94,9 @@ public final class SawbladeWeapon extends SwordAbility {
         Location spawnAt = eye.clone();
         spawnAt.setYaw(0);
         spawnAt.setPitch(0);
-        ItemDisplay blade = displays().item(spawnAt, plugin.items().create(type), 1.6f, new Quaternionf(),
+        ItemDisplay blade = displays().item(spawnAt, plugin.items().create(type), 2.2f, new Quaternionf(),
                 ItemDisplay.ItemDisplayTransform.NONE, 50);
+        ItemDisplay heat = fx().orb(spawnAt, ORANGE, 1.6f, 50);
         blade.setGlowing(true);
         blade.setGlowColorOverride(Color.fromRGB(ORANGE));
         blade.setTeleportDuration(1);
@@ -110,12 +111,13 @@ public final class SawbladeWeapon extends SwordAbility {
                 ticks++;
                 if (!alive(player) || ticks > 40 || plugin.items().heldType(player) != type) {
                     displays().remove(blade);
+                    displays().remove(heat);
                     cancel();
                     return;
                 }
                 Location e = player.getEyeLocation();
                 Vector look = e.getDirection().normalize();
-                Location front = e.clone().add(look.clone().multiply(1.6)).subtract(0, 0.35, 0);
+                Location front = e.clone().add(look.clone().multiply(2.0)).add(Fx.right(look).multiply(0.45)).subtract(0, 0.35, 0);
                 front.setYaw(0);
                 front.setPitch(0);
                 blade.teleport(front);
@@ -123,8 +125,12 @@ public final class SawbladeWeapon extends SwordAbility {
                 Quaternionf rot = dev.infuse.opswords.ability.Displays.pointing(look).rotateY(ticks * 1.3f);
                 blade.setInterpolationDelay(0);
                 blade.setInterpolationDuration(1);
-                blade.setTransformation(new Transformation(new Vector3f(), rot, new Vector3f(1.6f), new Quaternionf()));
-                Location tip = e.clone().add(look.clone().multiply(2.6)).subtract(0, 0.35, 0);
+                blade.setTransformation(new Transformation(new Vector3f(), rot, new Vector3f(2.2f), new Quaternionf()));
+                Location tip = e.clone().add(look.clone().multiply(3.0)).subtract(0, 0.35, 0);
+                Location hot = tip.clone();
+                hot.setYaw(0);
+                hot.setPitch(0);
+                heat.teleport(hot);
                 Fx.particle(tip, Particle.ELECTRIC_SPARK, 6, 0.25, 0.35);
                 Fx.particle(tip, Particle.DUST, 2, 0.2, 0, Fx.dust(ticks % 2 == 0 ? ORANGE : HOT, 1.2f));
                 if (ticks % 4 == 0) {

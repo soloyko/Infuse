@@ -101,9 +101,10 @@ public final class EchoSword extends SwordAbility implements Listener {
             Fx.particle(eye.clone().add(dir.clone().multiply(d)), Particle.SONIC_BOOM, 1, 0, 0);
         }
         Fx.sound(eye, Sound.ENTITY_WARDEN_SONIC_BOOM, 3f, 1f);
-        Location boomStart = eye.clone().add(dir.clone().multiply(1.5)).subtract(0, 0.2, 0);
+        Location boomStart = dev.infuse.opswords.ability.Fx3D.handOrigin(player);
         Location boomEnd = eye.clone().add(dir.clone().multiply(length));
-        fx().beam(boomStart, boomEnd, 0x1FB5B0, 1.4f, 8);
+        fx().beam(boomStart, boomEnd, 0x1FB5B0, 2.4f, 12);
+fx().beam(boomStart, boomEnd, 0xB8FFF8, 0.6f, 7);
         for (double d = 5; d <= length; d += 4) {
             fx().wave(eye.clone().add(dir.clone().multiply(d)), dir, 0x7FF3EA, 1.6f, 5);
         }
@@ -126,6 +127,11 @@ public final class EchoSword extends SwordAbility implements Listener {
         Fx.sound(center, Sound.ENTITY_WARDEN_ROAR, 0.6f, 1.2f);
         fx().shockwave(center, 0x0F7C78, 14f, 16);
         fx().shockwave(center, 0x1FB5B0, 9f, 12);
+        for (int i = 0; i < 4; i++) {
+            int delay = i * 4;
+            displays().later(1 + delay, () -> fx().wave(player.getLocation().add(0, 1.2 + delay * 0.08, 0),
+                    new org.bukkit.util.Vector(0, 1, 0.0001), 0x7FF3EA, 3.5f + delay * 0.2f, 8));
+        }
         for (int delay = 0; delay < 20; delay += 5) {
             Fx.particle(center.clone().add(0, 0.6, 0), Particle.SHRIEK, 1, 0, 0, delay);
         }

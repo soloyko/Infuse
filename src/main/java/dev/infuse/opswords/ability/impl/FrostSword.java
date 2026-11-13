@@ -79,7 +79,9 @@ public final class FrostSword extends SwordAbility {
         // the spike itself: a sliver of ice pointing where it flies
         Quaternionf aim = Displays.pointing(dir);
         BlockDisplay shard = displays().block(start, Material.PACKED_ICE.createBlockData(),
-                new Vector3f(0.18f, 1.1f, 0.18f), aim, 30);
+                new Vector3f(0.24f, 1.4f, 0.24f), aim, 30);
+        shard.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+        org.bukkit.entity.ItemDisplay glow = fx().orb(start, 0x9FE6FF, 1.1f, 30);
 
         new BukkitRunnable() {
             final Location pos = start.clone();
@@ -89,6 +91,7 @@ public final class FrostSword extends SwordAbility {
             public void run() {
                 if (!alive(player) || pos.getWorld() != player.getWorld() || steps++ >= 20) {
                     displays().remove(shard);
+                    displays().remove(glow);
                     cancel();
                     return;
                 }
@@ -96,6 +99,7 @@ public final class FrostSword extends SwordAbility {
                         e -> combat().canHit(player, e));
                 if (hit != null && hit.getHitEntity() instanceof LivingEntity target) {
                     displays().remove(shard);
+                    displays().remove(glow);
                     impale(player, target);
                     cancel();
                     return;
@@ -104,12 +108,15 @@ public final class FrostSword extends SwordAbility {
                     Location at = hit.getHitPosition().toLocation(pos.getWorld());
                     Fx.particle(at, Particle.BLOCK, 25, 0.2, 0.1, Material.ICE.createBlockData());
                     Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 0.8f, 1.4f);
+                    fx().burst(at, 0xBDF3FF, 1.4f);
                     displays().remove(shard);
+                    displays().remove(glow);
                     cancel();
                     return;
                 }
                 pos.add(dir.clone().multiply(1.5));
                 shard.teleport(pos);
+                glow.teleport(pos);
                 Fx.particle(pos, Particle.SNOWFLAKE, 4, 0.08, 0.01);
                 Fx.particle(pos, Particle.DUST, 3, 0.1, 0, Fx.dust(ICE, 1.4f));
                 Fx.particle(pos, Particle.ITEM_SNOWBALL, 1, 0.05, 0);

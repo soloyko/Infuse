@@ -206,6 +206,62 @@ public final class Fx3D {
         return d;
     }
 
+    /** A glow that rides along with an entity (a vanilla projectile) until it is gone. */
+    public void follow(org.bukkit.entity.Entity entity, int rgb, float size, int maxTicks) {
+        ItemDisplay glow = orb(entity.getLocation(), rgb, size, maxTicks + 5);
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                if (!entity.isValid() || !glow.isValid() || ticks++ > maxTicks) {
+                    if (glow.isValid()) {
+                        flash(glow.getLocation(), rgb, size * 1.6f);
+                    }
+                    displays.remove(glow);
+                    cancel();
+                    return;
+                }
+                Location at = entity.getLocation();
+                at.setYaw(0);
+                at.setPitch(0);
+                glow.teleport(at);
+            }
+        }.runTaskTimer(displays.plugin(), 1L, 1L);
+    }
+
+    /**
+     * A soft glow that hangs in place for {@code life} ticks, gently swelling and shrinking, then
+     * fades: fog, clouds, auras.
+     */
+    public ItemDisplay haze(Location at, int rgb, float size, int life) {
+        ItemDisplay d = spawn(noRotation(at), Shape.GLOW, rgb, transform(new Quaternionf(), new Vector3f(size * 0.3f)),
+                Display.Billboard.CENTER, life + 10);
+        hideNear(d, at, size * 0.5 + 1.0);
+        displays.later(1, () -> Displays.animate(d, transform(new Quaternionf(), new Vector3f(size)), 10));
+        for (int t = 20; t < life - 8; t += 20) {
+            float s = (t / 20) % 2 == 0 ? size : size * 0.82f;
+            displays.later(t, () -> Displays.animate(d, transform(new Quaternionf(), new Vector3f(s)), 20));
+        }
+        fade(d, Shape.GLOW, rgb, Math.max(2, life - 6), 2);
+        return d;
+    }
+
+    /**
+     * Where a beam fired by a player should start: in front of their weapon hand, so it is seen at
+     * an angle (from behind or in first person) instead of end-on.
+     */
+    public static Location handOrigin(org.bukkit.entity.Player player) {
+        Location eye = player.getEyeLocation();
+        Vector look = eye.getDirection().normalize();
+        Vector right = new Vector(-look.getZ(), 0, look.getX());
+        if (right.lengthSquared() < 1.0E-4) {
+            right = new Vector(1, 0, 0);
+        }
+        right.normalize();
+        return eye.clone().add(look.multiply(0.7)).add(right.multiply(0.38)).subtract(0, 0.38, 0);
+    }
+
     /** A beam from {@code from} to {@code to} that flares and thins out over {@code ticks}. */
     public void beam(Location from, Location to, int rgb, float width, int ticks) {
         Vector dir = to.toVector().subtract(from.toVector());
@@ -220,15 +276,15 @@ public final class Fx3D {
         displays.later(1, () -> Displays.animate(d, transform(rot, new Vector3f(width * 0.15f, length, width * 0.15f)), ticks));
         fade(d, Shape.BEAM, rgb, Math.max(2, ticks - 4), 2);
         // soft glows along the beam so it reads from any angle, even looking straight down it
-        int glows = Math.min(12, (int) (length / 2.5));
+        int glows = Math.min(16, (int) (length / 1.6));
         for (int i = 1; i <= glows; i++) {
-            if (length * i / (glows + 1.0) < 3) {
+            if (length * i / (glows + 1.0) < 2.2) {
                 continue; // keep them out of the caster's face
             }
             Location p = noRotation(from).add(dir.clone().multiply(i / (glows + 1.0)));
-            ItemDisplay g = spawn(p, Shape.GLOW, rgb, transform(new Quaternionf(), new Vector3f(width * 1.4f)),
+            ItemDisplay g = spawn(p, Shape.GLOW, rgb, transform(new Quaternionf(), new Vector3f(width * 2.4f)),
                     Display.Billboard.CENTER, ticks + 10);
-            displays.later(1, () -> Displays.animate(g, transform(new Quaternionf(), new Vector3f(width * 0.4f)), ticks));
+            displays.later(1, () -> Displays.animate(g, transform(new Quaternionf(), new Vector3f(width * 0.9f)), ticks));
             fade(g, Shape.GLOW, rgb, Math.max(2, ticks - 4), 2);
         }
     }
@@ -244,6 +300,18 @@ public final class Fx3D {
         displays.later(7, () -> Displays.animate(d,
                 transform(new Quaternionf().rotateY(yaw + 1.6f), new Vector3f(radius * 1.15f, 1, radius * 1.15f)), 12));
         fade(d, Shape.RUNE, rgb, 12, 3);
+    }
+
+    /** A glow that drifts from {@code from} by {@code offset} over {@code ticks}, then fades: a rising soul, a spark. */
+    public void drift(Location from, Vector offset, int rgb, float size, int ticks) {
+        ItemDisplay d = orb(from, rgb, size, ticks + 10);
+        d.setTeleportDuration(Math.min(59, ticks));
+        displays.later(1, () -> {
+            if (d.isValid()) {
+                d.teleport(noRotation(from).add(offset));
+            }
+        });
+        fade(d, Shape.GLOW, rgb, Math.max(2, ticks - 6), 2);
     }
 
     /** Burst + glow + ring: a big hit landing. */

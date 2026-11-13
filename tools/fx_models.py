@@ -66,14 +66,14 @@ def crescent(core):
             return 0
         along = 1 - ang / ARC  # 1 in the middle of the arc, 0 at its tips
         outer = 0.94
-        width = (0.06 if core else 0.42) * (0.25 + 0.75 * math.sin(along * math.pi / 2))
+        width = (0.06 if core else 0.30) * (0.25 + 0.75 * math.sin(along * math.pi / 2))
         inner = outer - width
         if r > outer or r < inner:
             return 0
         t = (r - inner) / max(1e-6, width)  # 0 at inner edge, 1 at the leading edge
         if core:
             return smooth(1 - abs(t - 0.7) / 0.7) * smooth(along * 2.2)
-        return min(1.0, (t ** 1.1) * smooth(along * 1.3) * 1.25)
+        return min(1.0, (t ** 1.5) * smooth(along * 1.3) * 1.35)
     return f
 
 

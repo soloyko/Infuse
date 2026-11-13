@@ -97,7 +97,7 @@ public final class StormSword extends SwordAbility {
         Set<UUID> hit = new HashSet<>();
 
         new BukkitRunnable() {
-            Location from = player.getEyeLocation().subtract(0, 0.3, 0);
+            Location from = dev.infuse.opswords.ability.Fx3D.handOrigin(player);
             LivingEntity current = start;
             int hops;
 

@@ -65,7 +65,7 @@ public final class RapierWeapon extends SwordAbility implements Listener {
     }
 
     private void thrust(Player player, LivingEntity target, double damage) {
-        Location from = player.getEyeLocation().subtract(0, 0.3, 0);
+        Location from = dev.infuse.opswords.ability.Fx3D.handOrigin(player);
         Location at = Combat.center(target);
         fx().beam(from, at, IVORY, 0.35f, 4);
         fx().burst(at, WHITE, 1.2f);

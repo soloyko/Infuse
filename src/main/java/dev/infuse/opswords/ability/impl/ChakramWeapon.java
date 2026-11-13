@@ -163,6 +163,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
         Location start = player.getEyeLocation().subtract(0, 0.4, 0);
         Vector dir = start.getDirection().normalize();
         ItemDisplay disc = spawnDisc(start, dir, 80); // ring faces the thrower as it flies away
+        ItemDisplay discGlow = fx().orb(start, 0x6FE3A8, 1.6f, 80);
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1f, 1.6f);
         Set<UUID> outbound = new HashSet<>();
         Set<UUID> inbound = new HashSet<>();
@@ -177,6 +178,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                 ticks++;
                 if (!alive(player) || !disc.isValid() || ticks > 60 || player.getWorld() != pos.getWorld()) {
                     displays().remove(disc);
+                    displays().remove(discGlow);
                     cancel();
                     return;
                 }
@@ -198,12 +200,14 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                     if (distance < 1.3) {
                         Fx.sound(home, Sound.ENTITY_ITEM_PICKUP, 1f, 1.4f);
                         displays().remove(disc);
+                        displays().remove(discGlow);
                         cancel();
                         return;
                     }
                     pos.add(toHome.multiply(Math.min(1.8, distance) / distance));
                 }
                 disc.teleport(pos);
+                discGlow.teleport(pos);
                 Fx.particle(pos, Particle.SMALL_GUST, 2, 0.2, 0.01);
                 if (ticks % 4 == 0) {
                     Fx.sound(pos, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5f, 1.9f);
@@ -225,8 +229,10 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
     @Override
     public boolean secondary(Player player) {
         List<ItemDisplay> discs = new ArrayList<>();
+        List<ItemDisplay> glows = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             discs.add(spawnDisc(orbit(player, i, 0), outward(i, 0), 130));
+            glows.add(fx().orb(orbit(player, i, 0), i == 1 ? 0xE8C64A : 0x6FE3A8, 1.3f, 130));
         }
         Fx.sound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1.2f, 0.8f);
         fx().shockwave(player.getLocation(), 0x4CC38A, 4f, 8);
@@ -241,6 +247,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                 ticks++;
                 if (!alive(player) || ticks > 120) {
                     discs.forEach(d -> displays().remove(d));
+                    glows.forEach(d -> displays().remove(d));
                     cancel();
                     return;
                 }
@@ -249,6 +256,13 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                     if (disc.isValid()) {
                         disc.teleport(orbit(player, i, ticks));
                         spin(disc, outward(i, ticks), ticks * 0.8 + i);
+                    }
+                    ItemDisplay glow = glows.get(i);
+                    if (glow.isValid()) {
+                        Location g = orbit(player, i, ticks);
+                        g.setYaw(0);
+                        g.setPitch(0);
+                        glow.teleport(g);
                     }
                 }
                 Location center = player.getLocation().add(0, 1, 0);

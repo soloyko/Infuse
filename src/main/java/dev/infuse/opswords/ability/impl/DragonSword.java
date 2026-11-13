@@ -78,13 +78,17 @@ public final class DragonSword extends SwordAbility {
                     Fx.particle(point, Particle.DRAGON_BREATH, 3, spread, 0.01, BREATH_POWER);
                 }
                 Fx.sound(eye, Sound.ENTITY_BLAZE_SHOOT, 0.5f, 0.6f);
-                fx().flash(eye.clone().add(dir.clone().multiply(2.4)), 0xD14BE8, 1.8f);
-                fx().flash(eye.clone().add(dir.clone().multiply(4.8)), 0x9A2EDB, 2.8f);
+                fx().flash(eye.clone().add(dir.clone().multiply(3.0)), 0xE05BF0, 1.8f);
+                fx().flash(eye.clone().add(dir.clone().multiply(4.8)), 0xB23CE6, 2.6f);
+                fx().flash(eye.clone().add(dir.clone().multiply(6.6)), 0x7A22C8, 3.4f);
                 for (LivingEntity target : combat().nearby(player, eye, BREATH_RANGE)) {
                     Vector to = Combat.center(target).toVector().subtract(eye.toVector());
                     boolean inCone = to.lengthSquared() < 1 || dir.angle(to) <= BREATH_HALF_ANGLE;
                     if (inCone && player.hasLineOfSight(target)) {
                         combat().damage(player, target, 2.0, true);
+                        if (pulse % 2 == 0) {
+                            fx().burst(Combat.center(target), 0xE05BF0, 1.2f);
+                        }
                     }
                 }
             }

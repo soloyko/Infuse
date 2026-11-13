@@ -82,9 +82,9 @@ public final class AltarService implements Listener {
     private static final float WEAPON_HEIGHT = 1.25f;
     private static final double HALO_HEIGHT = 0.56;
     private static final double RING_HEIGHT = FLOAT_HEIGHT + 0.9;
-    private static final double RING_RADIUS = 0.62;
+    private static final double RING_RADIUS = 0.72;
     private static final float ICON_SCALE = 0.3f;
-    private static final double HOLOGRAM_HEIGHT = RING_HEIGHT + 0.3;
+    private static final double HOLOGRAM_HEIGHT = RING_HEIGHT + 0.45;
     private static final float HOLOGRAM_SCALE = 0.62f;
     /** Animation steps (2 ticks each) for one turn of the ingredient ring. */
     private static final int RING_PERIOD = 90;
@@ -517,6 +517,15 @@ public final class AltarService implements Listener {
             prepare(d);
         });
         altar.weaponDisplay = weapon;
+        // a soft light behind the floating weapon
+        altar.visuals.add(world.spawn(center.clone().add(0, FLOAT_HEIGHT, 0), ItemDisplay.class, d -> {
+            d.setItemStack(dev.infuse.opswords.ability.Fx3D.item(dev.infuse.opswords.ability.Fx3D.Shape.GLOW, 2, tint));
+            d.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.NONE);
+            d.setBillboard(Display.Billboard.CENTER);
+            d.setBrightness(new Display.Brightness(15, 15));
+            d.setTransformation(scaled(1.9f));
+            prepare(d);
+        }));
         altar.visuals.add(weapon);
 
         String reason = unavailable(type);

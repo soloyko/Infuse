@@ -196,6 +196,22 @@ public final class VerdantSword extends SwordAbility implements Listener {
         Fx.sound(at, Sound.ITEM_TOTEM_USE, 0.5f, 1.5f);
         Fx.sound(at, Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.6f);
         fx().flash(at, 0xB8F07A, 3f);
+        // a ring of azalea bushes blooms around you, then sinks back into the ground
+        Location ground = player.getLocation();
+        for (int i = 0; i < 8; i++) {
+            double a = i * Math.PI / 4;
+            Location spot = ground.clone().add(Math.cos(a) * 1.9, 0.35, Math.sin(a) * 1.9);
+            spot.setYaw(0);
+            spot.setPitch(0);
+            org.bukkit.block.data.BlockData bush = (i % 2 == 0 ? Material.FLOWERING_AZALEA : Material.AZALEA).createBlockData();
+            org.joml.Quaternionf turn = new org.joml.Quaternionf().rotateY((float) a);
+            org.bukkit.entity.BlockDisplay d = displays().block(spot, bush, new org.joml.Vector3f(0.05f), turn, 50);
+            int delay = i;
+            displays().later(1 + delay, () -> dev.infuse.opswords.ability.Displays.animateBlock(d, new org.joml.Vector3f(0.7f), turn,
+                    new org.joml.Vector3f(), 6));
+            displays().later(34, () -> dev.infuse.opswords.ability.Displays.animateBlock(d, new org.joml.Vector3f(0.05f), turn,
+                    new org.joml.Vector3f(0, -0.3f, 0), 10));
+        }
         fx().burst(at, 0xFFF3A0, 2.2f);
         fx().shockwave(player.getLocation(), 0x5BD16A, 3.5f, 8);
         return true;
