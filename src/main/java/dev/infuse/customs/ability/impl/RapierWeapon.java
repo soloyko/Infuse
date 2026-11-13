@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Valiance, the Royal Rapier: precision and the perfect counter.
+ * Royal Rapier, the Royal Rapier: precision and the perfect counter.
  * Passive Finesse, on-hit Precision, F Flèche, Sneak+F Riposte.
  */
 public final class RapierWeapon extends SwordAbility implements Listener {

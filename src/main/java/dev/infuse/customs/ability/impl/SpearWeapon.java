@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Skypiercer, the Celestial Spear (netherite spear): reach and piercing throws.
+ * Sunbreak, the Celestial Spear (netherite spear): reach and piercing throws.
  * Passive Long Reach, on-hit Impale, F Skyhook, Sneak+F Phalanx.
  */
 public final class SpearWeapon extends SwordAbility {

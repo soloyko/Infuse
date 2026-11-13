@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Gravecaller, the Soul Sword: necromancy.
+ * Awakened Lichblade, the Soul Sword: necromancy.
  * Passive Soul Siphon, on-hit Soul Rend, RC Spectral Hounds, Sneak+RC Wail of the Damned.
  * <p>
  * Hounds are tamed wolves tagged with {@code customs:hound}; they never outlive their 15 seconds,

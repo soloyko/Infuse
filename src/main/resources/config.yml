@@ -1,6 +1,6 @@
 # ╔══════════════════════════════════════════════════════════╗
-# ║                      OP SWORDS                           ║
-# ║   15 legendary swords and 13 other weapons, with 3D      ║
+# ║                       CUSTOMS                            ║
+# ║   21 legendary swords and 19 other weapons, with 3D      ║
 # ║   models, unique abilities and weapon altars             ║
 # ╚══════════════════════════════════════════════════════════╝
 #
@@ -103,7 +103,7 @@ altars:
 #   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,
 #                                  netherite spear, netherite axe or trident) in the defaults
 swords:
-  dragon:        # Wyrmsbane
+  dragon:        # Dragon Slaying Blade
     enabled: true
     attack-damage: 13
     attack-speed: 1.6
@@ -112,7 +112,7 @@ swords:
       enabled: true
       shape: ["BHB", "NSN", "BEB"]
       ingredients: {B: DRAGON_BREATH, H: DRAGON_HEAD, N: NETHERITE_INGOT, E: END_CRYSTAL, S: NETHERITE_SWORD}
-  phoenix:       # Cinderwing
+  phoenix:       # Phoenix Grace
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -121,7 +121,7 @@ swords:
       enabled: true
       shape: ["BFB", "TST", "BMB"]
       ingredients: {B: BLAZE_ROD, F: FIRE_CHARGE, T: TOTEM_OF_UNDYING, M: MAGMA_BLOCK, S: NETHERITE_SWORD}
-  frost:         # Everwinter
+  frost:         # Frost Blade
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -130,7 +130,7 @@ swords:
       enabled: true
       shape: ["IPI", "DSD", "IPI"]
       ingredients: {I: BLUE_ICE, P: POWDER_SNOW_BUCKET, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
-  storm:         # Stormcaller
+  storm:         # Thunder Bringer
     enabled: true
     attack-damage: 12
     attack-speed: 1.7
@@ -139,7 +139,7 @@ swords:
       enabled: true
       shape: ["LBL", "CSC", "LBL"]
       ingredients: {L: LIGHTNING_ROD, B: BREEZE_ROD, C: COPPER_BLOCK, S: NETHERITE_SWORD}
-  tide:          # Tidebreaker
+  tide:          # Aquatic Sacred Blade
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -148,7 +148,7 @@ swords:
       enabled: true
       shape: ["NHN", "PSP", "NTN"]
       ingredients: {N: NAUTILUS_SHELL, H: HEART_OF_THE_SEA, P: PRISMARINE_CRYSTALS, T: TRIDENT, S: NETHERITE_SWORD}
-  verdant:       # Elderbloom
+  verdant:       # Enigma
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -157,7 +157,7 @@ swords:
       enabled: true
       shape: ["EGE", "MSM", "EGE"]
       ingredients: {E: EMERALD_BLOCK, G: GOLDEN_APPLE, M: MOSS_BLOCK, S: NETHERITE_SWORD}
-  plague:        # Pestilence
+  plague:        # Plague Longsword
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -166,7 +166,7 @@ swords:
       enabled: true
       shape: ["WFW", "PSP", "WFW"]
       ingredients: {W: WITHER_ROSE, F: FERMENTED_SPIDER_EYE, P: POISONOUS_POTATO, S: NETHERITE_SWORD}
-  crimson:       # Sanguine
+  crimson:       # Vampiric Needle
     enabled: true
     attack-damage: 11
     attack-speed: 2.0
@@ -175,7 +175,7 @@ swords:
       enabled: true
       shape: ["RGR", "FSF", "RNR"]
       ingredients: {R: REDSTONE_BLOCK, G: GHAST_TEAR, F: CRIMSON_FUNGUS, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
-  solar:         # Solaris
+  solar:         # Righteous Relic
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -184,7 +184,7 @@ swords:
       enabled: true
       shape: ["GBG", "LSL", "GLG"]
       ingredients: {G: GOLD_BLOCK, B: BEACON, L: GLOWSTONE, S: NETHERITE_SWORD}
-  void:          # Voidreaver
+  void:          # Demon Lord's Sword
     enabled: true
     attack-damage: 13
     attack-speed: 1.5
@@ -193,7 +193,7 @@ swords:
       enabled: true
       shape: ["OEO", "CSC", "OEO"]
       ingredients: {O: CRYING_OBSIDIAN, E: ENDER_EYE, C: END_CRYSTAL, S: NETHERITE_SWORD}
-  cosmic:        # Starfall
+  cosmic:        # Edge Of The Astral Plane
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -202,7 +202,7 @@ swords:
       enabled: true
       shape: ["APA", "NSN", "APA"]
       ingredients: {A: AMETHYST_BLOCK, P: ENDER_PEARL, N: NETHER_STAR, S: NETHERITE_SWORD}
-  chrono:        # Aeon
+  chrono:        # Chrono Blade
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -211,7 +211,7 @@ swords:
       enabled: true
       shape: ["CRC", "DSD", "CRC"]
       ingredients: {C: CLOCK, R: RECOVERY_COMPASS, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
-  shadow:        # Umbra
+  shadow:        # Watcher Claymore
     enabled: true
     attack-damage: 13
     attack-speed: 1.6
@@ -220,7 +220,7 @@ swords:
       enabled: true
       shape: ["PNP", "OSO", "PNP"]
       ingredients: {P: PHANTOM_MEMBRANE, N: NETHERITE_SCRAP, O: OBSIDIAN, S: NETHERITE_SWORD}
-  soul:          # Gravecaller
+  soul:          # Awakened Lichblade
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -229,7 +229,7 @@ swords:
       enabled: true
       shape: ["LKL", "BSB", "LKL"]
       ingredients: {L: SOUL_LANTERN, K: WITHER_SKELETON_SKULL, B: BONE_BLOCK, S: NETHERITE_SWORD}
-  echo:          # Deepwhisper
+  echo:          # Sculk Sword
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -239,7 +239,7 @@ swords:
       shape: ["ECE", "HSH", "ECE"]
       ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, H: SCULK_SHRIEKER, S: NETHERITE_SWORD}
   # ---- weapons that aren't swords ----
-  hammer:        # Earthshaker (mace)
+  hammer:        # Hearthflame (mace)
     enabled: true
     attack-damage: 13
     attack-speed: 1.0
@@ -248,7 +248,7 @@ swords:
       enabled: true
       shape: ["NAN", "OSO", "NAN"]
       ingredients: {N: NETHERITE_INGOT, A: ANVIL, O: OBSIDIAN, S: MACE}
-  scythe:        # Requiem
+  scythe:        # Requiem of the Ninth Abyss
     enabled: true
     attack-damage: 12
     attack-speed: 1.4
@@ -257,7 +257,7 @@ swords:
       enabled: true
       shape: ["PNP", "RSR", "PNP"]
       ingredients: {P: PHANTOM_MEMBRANE, N: NETHER_STAR, R: WITHER_ROSE, S: NETHERITE_SWORD}
-  spear:         # Skypiercer (netherite spear)
+  spear:         # Sunbreak (netherite spear)
     enabled: true
     attack-damage: 11
     attack-speed: 1.4
@@ -266,7 +266,7 @@ swords:
       enabled: true
       shape: ["BGB", "ESE", "BGB"]
       ingredients: {B: BREEZE_ROD, G: GOLD_BLOCK, E: END_ROD, S: NETHERITE_SPEAR}
-  chakram:       # Zephyr
+  chakram:       # Royal Chakram
     enabled: true
     attack-damage: 10
     attack-speed: 2.0
@@ -275,7 +275,7 @@ swords:
       enabled: true
       shape: ["WEW", "BSB", "WEW"]
       ingredients: {W: WIND_CHARGE, E: EMERALD_BLOCK, B: BREEZE_ROD, S: NETHERITE_SWORD}
-  axe:           # Ragnarök (netherite axe)
+  axe:           # Demon Lord's Great Axe (netherite axe)
     enabled: true
     attack-damage: 14
     attack-speed: 1.0
@@ -284,7 +284,7 @@ swords:
       enabled: true
       shape: ["INI", "GSG", "INI"]
       ingredients: {I: IRON_BLOCK, N: NETHERITE_INGOT, G: GOAT_HORN, S: NETHERITE_AXE}
-  staff:         # Arcanum
+  staff:         # Arcanethyst
     enabled: true
     attack-damage: 9
     attack-speed: 1.6
@@ -293,7 +293,7 @@ swords:
       enabled: true
       shape: ["CLC", "BSB", "CLC"]
       ingredients: {C: AMETHYST_CLUSTER, L: LAPIS_BLOCK, B: EXPERIENCE_BOTTLE, S: NETHERITE_SWORD}
-  trident:       # Leviathan (trident)
+  trident:       # Ocean's Rage (trident)
     enabled: true
     attack-damage: 12
     attack-speed: 1.2
@@ -302,7 +302,7 @@ swords:
       enabled: true
       shape: ["PCP", "LSL", "PDP"]
       ingredients: {P: PRISMARINE_SHARD, C: CONDUIT, L: LIGHTNING_ROD, D: DIAMOND_BLOCK, S: TRIDENT}
-  shuriken:      # Nightbloom
+  shuriken:      # Amethyst Shuriken
     enabled: true
     attack-damage: 10
     attack-speed: 2.0
@@ -311,7 +311,7 @@ swords:
       enabled: true
       shape: ["PAP", "ASA", "PAP"]
       ingredients: {P: PHANTOM_MEMBRANE, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
-  halberd:       # Jadewarden (netherite spear)
+  halberd:       # Jade Halberd (netherite spear)
     enabled: true
     attack-damage: 12
     attack-speed: 1.2
@@ -320,7 +320,7 @@ swords:
       enabled: true
       shape: ["EGE", "GSG", "EGE"]
       ingredients: {E: EMERALD_BLOCK, G: GOLD_BLOCK, S: NETHERITE_SPEAR}
-  warglaive:     # Eclipse
+  warglaive:     # Watching Warglaive
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -329,7 +329,7 @@ swords:
       enabled: true
       shape: ["PQP", "OSO", "PQP"]
       ingredients: {P: PHANTOM_MEMBRANE, Q: QUARTZ_BLOCK, O: CRYING_OBSIDIAN, S: NETHERITE_SWORD}
-  sawblade:      # Ripsaw
+  sawblade:      # Cybernetic Chainsaw Blade
     enabled: true
     attack-damage: 12
     attack-speed: 1.4
@@ -338,7 +338,7 @@ swords:
       enabled: true
       shape: ["RCR", "ISI", "RCR"]
       ingredients: {R: REDSTONE_BLOCK, C: COPPER_BLOCK, I: IRON_BLOCK, S: NETHERITE_SWORD}
-  rapier:        # Valiance
+  rapier:        # Royal Rapier
     enabled: true
     attack-damage: 10
     attack-speed: 1.8
@@ -347,7 +347,7 @@ swords:
       enabled: true
       shape: ["GDG", "DSD", "GDG"]
       ingredients: {G: GOLD_BLOCK, D: DIAMOND, S: NETHERITE_SWORD}
-  khopesh:       # Sandreaver
+  khopesh:       # Pharaoh's Treasure
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
@@ -356,3 +356,111 @@ swords:
       enabled: true
       shape: ["TLT", "GSG", "TLT"]
       ingredients: {T: CHISELED_SANDSTONE, L: LAPIS_BLOCK, G: GOLD_BLOCK, S: NETHERITE_SWORD}
+  katana:        # Katana
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.8
+    cooldowns: {primary: 8, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["IRI", "BSB", "IRI"]
+      ingredients: {I: IRON_BLOCK, R: REDSTONE_BLOCK, B: BAMBOO_BLOCK, S: NETHERITE_SWORD}
+  needle:        # Hornet's Needle
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 14, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["HBH", "ESE", "HBH"]
+      ingredients: {H: HONEYCOMB_BLOCK, B: BEEHIVE, E: SPIDER_EYE, S: NETHERITE_SWORD}
+  candle:        # Waxweaver
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["CHC", "GSG", "CHC"]
+      ingredients: {C: CANDLE, H: HONEYCOMB_BLOCK, G: GLOWSTONE, S: NETHERITE_SWORD}
+  claymore:      # Brimstone Claymore
+    enabled: true
+    attack-damage: 14
+    attack-speed: 1.2
+    cooldowns: {primary: 14, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["MOM", "BSB", "MOM"]
+      ingredients: {M: MAGMA_BLOCK, O: OBSIDIAN, B: BLAZE_ROD, S: NETHERITE_SWORD}
+  mirror:        # Silverine Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 25, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["GQG", "ASA", "GQG"]
+      ingredients: {G: GLASS, Q: QUARTZ_BLOCK, A: AMETHYST_SHARD, S: NETHERITE_SWORD}
+  cutlass:       # Sabre
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["GTG", "PSP", "GTG"]
+      ingredients: {G: GOLD_BLOCK, T: TNT, P: PRISMARINE, S: NETHERITE_SWORD}
+  claws:         # Soul Claws
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 8, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["BEB", "LSL", "BEB"]
+      ingredients: {B: BONE_BLOCK, E: ECHO_SHARD, L: LEATHER, S: NETHERITE_SWORD}
+  daggers:       # Thousand Demon Daggers
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 20, secondary: 14}
+    recipe:
+      enabled: true
+      shape: ["CWC", "ASA", "CWC"]
+      ingredients: {C: CRYING_OBSIDIAN, W: WITHER_ROSE, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
+  mace:          # Divine Punisher
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.2
+    cooldowns: {primary: 30, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["GBG", "TMT", "GBG"]
+      ingredients: {G: GOLD_BLOCK, B: BEACON, T: TOTEM_OF_UNDYING, M: MACE}
+  glaive:        # Forest Guardian's Glaive
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 12, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["LML", "ESE", "LML"]
+      ingredients: {L: OAK_LOG, M: MOSS_BLOCK, E: EMERALD_BLOCK, S: NETHERITE_SPEAR}
+  maul:          # Power Fuse Hammer
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.0
+    cooldowns: {primary: 25, secondary: 20}
+    recipe:
+      enabled: true
+      shape: ["ICI", "LML", "ICI"]
+      ingredients: {I: IRON_BLOCK, C: COPPER_BLOCK, L: LODESTONE, M: MACE}
+  mantis:        # Cyber Mantis Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 20, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["ORO", "PSP", "ORO"]
+      ingredients: {O: OBSERVER, R: REDSTONE_BLOCK, P: PISTON, S: NETHERITE_SWORD}

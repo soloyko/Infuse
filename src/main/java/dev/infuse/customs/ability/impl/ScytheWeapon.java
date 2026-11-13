@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Requiem, the Reaper's Scythe: finishes off whatever is already dying.
+ * Requiem of the Ninth Abyss, the Reaper's Scythe: finishes off whatever is already dying.
  * Passive Death's Embrace, on-hit Rend, F Reap, Sneak+F Final Harvest.
  */
 public final class ScytheWeapon extends SwordAbility implements Listener {

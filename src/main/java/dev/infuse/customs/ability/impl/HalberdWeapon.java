@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Jadewarden, the Jade Halberd (netherite spear): the emperor's guard.
+ * Jade Halberd, the Jade Halberd (netherite spear): the emperor's guard.
  * Passive Imperial Guard, on-hit Jade Cleave, F Dragon Sweep, Sneak+F Jade Dragon.
  */
 public final class HalberdWeapon extends SwordAbility {

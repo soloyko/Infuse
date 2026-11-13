@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Zephyr, the Wind Chakram: a thrown blade riding the wind.
+ * Royal Chakram, the Wind Chakram: a thrown blade riding the wind.
  * Passive Windborne (double jump), on-hit Gust, F Halo Throw, Sneak+F Cyclone.
  */
 public final class ChakramWeapon extends SwordAbility implements Listener {

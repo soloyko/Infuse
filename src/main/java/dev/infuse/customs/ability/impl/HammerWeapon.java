@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Earthshaker, the Titan Hammer (mace): the earth itself as a weapon.
+ * Hearthflame, the Titan Hammer (mace): the earth itself as a weapon.
  * Passive Unshakable, on-hit Quake, F Seismic Slam, Sneak+F Earthen Bulwark.
  */
 public final class HammerWeapon extends SwordAbility implements Listener {

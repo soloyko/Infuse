@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Tidebreaker, the Tide Sword: water mobility and crowd control.
+ * Aquatic Sacred Blade, the Tide Sword: water mobility and crowd control.
  * Passive Ocean's Blessing, on-hit Undertow, F Riptide Surge, Sneak+F Ride the Tide.
  */
 public final class TideSword extends SwordAbility {

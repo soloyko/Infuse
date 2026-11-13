@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Aeon, the Chrono Sword: control over time.
+ * Chrono Blade, the Chrono Sword: control over time.
  * Passive Quickened, on-hit Time Lock, RC Stasis Field, Sneak+RC Rewind.
  */
 public final class ChronoSword extends SwordAbility implements Listener {
@@ -228,7 +228,7 @@ public final class ChronoSword extends SwordAbility implements Listener {
             }
         }
         if (target == null || now - target.tick() < 20 || target.location().getWorld() != player.getWorld()) {
-            tell(player, "Hold Aeon a little longer before rewinding.");
+            tell(player, "Hold the Chrono Blade a little longer before rewinding.");
             return false;
         }
         Location dest = target.location();

@@ -42,7 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Arcanum, the Arcane Staff: a battle mage's focus.
+ * Arcanethyst, the Arcane Staff: a battle mage's focus.
  * Passive Arcane Ward, on-hit Arcane Spark, F Arcane Missiles, Sneak+F Crystal Sentinel.
  */
 public final class StaffWeapon extends SwordAbility implements Listener {

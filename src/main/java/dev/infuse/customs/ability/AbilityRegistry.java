@@ -29,6 +29,18 @@ import dev.infuse.customs.ability.impl.WarglaiveWeapon;
 import dev.infuse.customs.ability.impl.SawbladeWeapon;
 import dev.infuse.customs.ability.impl.RapierWeapon;
 import dev.infuse.customs.ability.impl.KhopeshWeapon;
+import dev.infuse.customs.ability.impl.KatanaWeapon;
+import dev.infuse.customs.ability.impl.NeedleWeapon;
+import dev.infuse.customs.ability.impl.CandleWeapon;
+import dev.infuse.customs.ability.impl.ClaymoreWeapon;
+import dev.infuse.customs.ability.impl.MirrorWeapon;
+import dev.infuse.customs.ability.impl.CutlassWeapon;
+import dev.infuse.customs.ability.impl.ClawsWeapon;
+import dev.infuse.customs.ability.impl.DaggersWeapon;
+import dev.infuse.customs.ability.impl.MaceWeapon;
+import dev.infuse.customs.ability.impl.GlaiveWeapon;
+import dev.infuse.customs.ability.impl.MaulWeapon;
+import dev.infuse.customs.ability.impl.MantisWeapon;
 import dev.infuse.customs.api.SwordAbilityEvent;
 import dev.infuse.customs.sword.AbilitySlot;
 import dev.infuse.customs.sword.SwordType;
@@ -79,6 +91,18 @@ public final class AbilityRegistry {
         register(new SawbladeWeapon(plugin));
         register(new RapierWeapon(plugin));
         register(new KhopeshWeapon(plugin));
+        register(new KatanaWeapon(plugin));
+        register(new NeedleWeapon(plugin));
+        register(new CandleWeapon(plugin));
+        register(new ClaymoreWeapon(plugin));
+        register(new MirrorWeapon(plugin));
+        register(new CutlassWeapon(plugin));
+        register(new ClawsWeapon(plugin));
+        register(new DaggersWeapon(plugin));
+        register(new MaceWeapon(plugin));
+        register(new GlaiveWeapon(plugin));
+        register(new MaulWeapon(plugin));
+        register(new MantisWeapon(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
                 throw new IllegalStateException("No ability registered for " + type);

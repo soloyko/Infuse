@@ -27,7 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Pestilence, the Plague Sword: an infection that stacks up, then bursts.
+ * Plague Longsword, the Plague Sword: an infection that stacks up, then bursts.
  * Passive Plaguebearer, on-hit Infection, RC Miasma, Sneak+RC Pandemic.
  * <p>
  * The plague is its own status (1-5 stacks, 6 seconds, refreshed on every new stack) rather than

@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Sandreaver, the Pharaoh's Khopesh: the desert and its curses.
+ * Pharaoh's Treasure, the Pharaoh's Khopesh: the desert and its curses.
  * Passive Sun-Blessed, on-hit Pharaoh's Curse, F Sandstorm, Sneak+F Tomb of Sands.
  */
 public final class KhopeshWeapon extends SwordAbility implements Listener {

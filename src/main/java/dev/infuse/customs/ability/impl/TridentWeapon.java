@@ -43,7 +43,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Leviathan, the Abyssal Trident (vanilla trident): the sea and the storm.
+ * Ocean's Rage, the Abyssal Trident (vanilla trident): the sea and the storm.
  * Passive Stormborn (always returns, thrown hits call lightning in any weather), on-hit Undertow,
  * F Trident Rain, Sneak+F Maelstrom.
  */

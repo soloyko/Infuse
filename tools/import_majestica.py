@@ -2,7 +2,7 @@
 
     python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 
-Copies the 15 chosen models (and their textures and animations) into resourcepack/ under the
+Copies the chosen models (and their textures and animations) into resourcepack/ under the
 customs namespace, so they are applied with the item_model component instead of the original
 pack's rename-in-an-anvil trick. Edit SWORDS to swap a model, then re-run and rebuild the plugin.
 Needs Pillow and numpy (for the pack icon).
@@ -49,6 +49,20 @@ SWORDS = {
     'sawblade': 'cyberneticsawblade',
     'rapier': 'royalrapier',
     'khopesh': 'pharaohs_treasure',
+    # added in 2.3: swords
+    'katana': 'katana',
+    'needle': 'hornetsneedle',
+    'candle': 'waxweaver',
+    'claymore': 'brimstone_claymore',
+    'mirror': 'silverine_blade',
+    'cutlass': 'sabre',
+    # ...and other weapons
+    'claws': 'soulclaws',
+    'daggers': 'thousanddemondaggers',
+    'mace': 'divinepunisher',
+    'glaive': 'forest_guardian_glaive',
+    'maul': 'powerfusehammer',
+    'mantis': 'cybermantisblade',
 }
 
 # Blockbench-only fields Minecraft ignores

@@ -148,6 +148,25 @@ public final class CombatListener implements Listener {
             case AXE -> Fx.particle(at, Particle.DUST, 30, 0.4, 0, Fx.dust(0xFF2A4A, 1.5f));
             case STAFF, SHURIKEN -> Fx.particle(at, Particle.BLOCK, 30, 0.4, 0.1, org.bukkit.Material.AMETHYST_BLOCK.createBlockData());
             case KHOPESH -> Fx.particle(at, Particle.BLOCK, 50, 0.5, 0.15, org.bukkit.Material.SAND.createBlockData());
+            case KATANA -> {
+                fx.cut(at, new org.bukkit.util.Vector(1, 0, 0), 0.4, 0.2, 0xE6E9F0, 2.4f, 2);
+                Fx.particle(at, Particle.DUST, 30, 0.4, 0, Fx.dust(0xD32F2F, 1.4f));
+            }
+            case NEEDLE -> Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xF5C518, 1.0f));
+            case CANDLE, CLAYMORE -> {
+                Fx.particle(at, Particle.FLAME, 25, 0.4, 0.08);
+                Fx.particle(at, Particle.LARGE_SMOKE, 8, 0.3, 0.03);
+            }
+            case MIRROR -> Fx.particle(at, Particle.BLOCK, 40, 0.4, 0.15, org.bukkit.Material.GLASS.createBlockData());
+            case CUTLASS -> {
+                Fx.particle(at, Particle.SPLASH, 40, 0.5, 0.2);
+                Fx.particle(at, Particle.WAX_OFF, 12, 0.4, 0.2);
+            }
+            case CLAWS -> Fx.particle(at, Particle.SOUL_FIRE_FLAME, 20, 0.4, 0.05);
+            case DAGGERS -> Fx.particle(at, Particle.WITCH, 40, 0.4, 0.1);
+            case MACE -> fx.beam(feet.clone().add(0, 8, 0), feet, 0xFFF8E1, 0.9f, 8);
+            case GLAIVE -> Fx.particle(at, Particle.CHERRY_LEAVES, 30, 0.6, 0.05);
+            case MAUL, MANTIS -> Fx.particle(at, Particle.ELECTRIC_SPARK, 40, 0.4, 0.3);
         }
     }
 

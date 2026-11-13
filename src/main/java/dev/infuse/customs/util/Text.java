@@ -66,7 +66,7 @@ public final class Text {
         return plain(smallCaps(text), color);
     }
 
-    /** A sword's name ("🐉 Wyrmsbane") in its gradient colours. */
+    /** A sword's name ("🐉 Dragon Slaying Blade") in its gradient colours. */
     public static Component sword(dev.infuse.customs.sword.SwordType type) {
         return gradient(type.displayName(), type.color(), type.accent());
     }

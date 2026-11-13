@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Nightbloom, the Amethyst Shuriken: speed and many small cuts.
+ * Amethyst Shuriken, the Amethyst Shuriken: speed and many small cuts.
  * Passive Light Feet, on-hit Petal Cut, F Star Fan, Sneak+F Thousand Cuts.
  */
 public final class ShurikenWeapon extends SwordAbility {

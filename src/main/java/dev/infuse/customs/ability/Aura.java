@@ -95,6 +95,58 @@ public final class Aura {
                 }
             }
             case KHOPESH -> show(player, Particle.FALLING_DUST, at, 1, 0.12, 0.3, 0.12, 0, org.bukkit.Material.SAND.createBlockData());
+            case KATANA -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.DUST, at, 1, 0.08, 0.35, 0.08, 0, Fx.dust(tick % 4 == 0 ? 0xE6E9F0 : 0xD32F2F, 0.6f));
+                }
+            }
+            case NEEDLE -> show(player, Particle.DUST, at, 1, 0.15, 0.3, 0.15, 0, Fx.dust(tick % 2 == 0 ? 0xF5C518 : 0x2A2A2A, 0.6f));
+            case CANDLE -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.SMALL_FLAME, at, 1, 0.1, 0.3, 0.1, 0.003);
+                }
+            }
+            case CLAYMORE -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0xFF5A1F, 0.8f));
+                if (tick % 4 == 0) {
+                    show(player, Particle.LAVA, at, 1, 0.1, 0.2, 0.1, 0);
+                }
+            }
+            case MIRROR -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.END_ROD, at, 1, 0.12, 0.3, 0.12, 0.003);
+                }
+            }
+            case CUTLASS -> {
+                show(player, Particle.DRIPPING_WATER, at, 1, 0.12, 0.3, 0.12, 0);
+                if (tick % 4 == 0) {
+                    show(player, Particle.WAX_OFF, at, 1, 0.12, 0.3, 0.12, 0.01);
+                }
+            }
+            case CLAWS -> show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0x2EE6D6, 0.7f));
+            case DAGGERS -> show(player, Particle.WITCH, at, 1, 0.12, 0.3, 0.12, 0);
+            case MACE -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0xFFD966, 0.8f));
+                if (tick % 3 == 0) {
+                    show(player, Particle.END_ROD, at, 1, 0.12, 0.3, 0.12, 0.003);
+                }
+            }
+            case GLAIVE -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.HAPPY_VILLAGER, at, 1, 0.15, 0.3, 0.15, 0);
+                }
+            }
+            case MAUL -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.ELECTRIC_SPARK, at, 1, 0.1, 0.3, 0.1, 0.03);
+                }
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0x2AD4C4, 0.6f));
+            }
+            case MANTIS -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.DUST, at, 1, 0.1, 0.3, 0.1, 0, Fx.dust(0xFF7A00, 0.7f));
+                }
+            }
             case TRIDENT -> {
                 show(player, Particle.DRIPPING_WATER, at, 1, 0.12, 0.35, 0.12, 0);
                 if (tick % 3 == 0) {

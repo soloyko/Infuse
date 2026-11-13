@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Ripsaw, the Cyber Sawblade: heat, sparks and noise.
+ * Cybernetic Chainsaw Blade, the Cyber Sawblade: heat, sparks and noise.
  * Passive Overclock, on-hit Arc Spark, F Grinder, Sneak+F EMP Overload.
  */
 public final class SawbladeWeapon extends SwordAbility {

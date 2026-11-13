@@ -112,7 +112,8 @@ public abstract class Menu implements InventoryHolder {
     /** Lays the page's weapons out; {@code place} puts each one in its slot. */
     static void fill(Page page, java.util.function.BiConsumer<Integer, SwordType> place) {
         List<SwordType> types = page.types();
-        int[] slots = layout(types.size(), page == Page.SWORDS ? 5 : 7);
+        // five per row while they fit in the frame's four rows, seven per row once there are more
+        int[] slots = layout(types.size(), types.size() <= 20 && page == Page.SWORDS ? 5 : 7);
         for (int i = 0; i < types.size(); i++) {
             place.accept(slots[i], types.get(i));
         }
@@ -154,7 +155,7 @@ public abstract class Menu implements InventoryHolder {
                 Text.gradient("⚔ Customs", TextColor.color(0xECBA44), TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD),
                 List.of(Text.caps(subtitle, NamedTextColor.GRAY),
                         Component.empty(),
-                        Text.plain("15 legendary swords and 13 other weapons.", NamedTextColor.WHITE),
+                        Text.plain("21 legendary swords and 19 other weapons.", NamedTextColor.WHITE),
                         Component.empty(),
                         AbilitySlot.PRIMARY.label(trigger).color(NamedTextColor.YELLOW)
                                 .append(Text.plain("  first ability", NamedTextColor.GRAY)),

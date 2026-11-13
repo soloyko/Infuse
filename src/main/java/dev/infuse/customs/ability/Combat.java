@@ -45,7 +45,9 @@ public final class Combat {
         if (!(entity instanceof LivingEntity living) || entity == caster || living.isDead() || !living.isValid()) {
             return false;
         }
-        if (entity instanceof ArmorStand || entity.isInvulnerable() || entity.hasMetadata("NPC")) {
+        // mannequins are decoration or mirror images: abilities pass through them
+        if (entity instanceof ArmorStand || entity instanceof org.bukkit.entity.Mannequin || entity.isInvulnerable()
+                || entity.hasMetadata("NPC")) {
             return false;
         }
         if (entity instanceof Player player) {

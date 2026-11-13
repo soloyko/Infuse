@@ -22,7 +22,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Ragnarök, the Berserker Axe (netherite axe): stronger the closer you are to death.
+ * Demon Lord's Great Axe, the Berserker Axe (netherite axe): stronger the closer you are to death.
  * Passive Bloodlust, on-hit Cleave, F Whirlwind, Sneak+F Warcry.
  */
 public final class AxeWeapon extends SwordAbility {

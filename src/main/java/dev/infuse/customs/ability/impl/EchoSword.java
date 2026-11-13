@@ -19,7 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 /**
- * Deepwhisper, the Echo Sword: the warden's power.
+ * Sculk Sword, the Echo Sword: the warden's power.
  * Passive Child of the Deep, on-hit Resonance, RC Sonic Boom, Sneak+RC Shriek.
  */
 public final class EchoSword extends SwordAbility implements Listener {

@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Eclipse, the Lunar Warglaive: the moon and the dark.
+ * Watching Warglaive, the Lunar Warglaive: the moon and the dark.
  * Passive Moonlit, on-hit Crescent Echo, F Lunar Dash, Sneak+F Moonfall.
  */
 public final class WarglaiveWeapon extends SwordAbility {

@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Cinderwing, the Phoenix Sword: fire everywhere, and it won't let you die.
+ * Phoenix Grace, the Phoenix Sword: fire everywhere, and it won't let you die.
  * Passive Rebirth, on-hit Searing Edge, F Ember Volley, Sneak+F Wall of Fire.
  */
 public final class PhoenixSword extends SwordAbility implements Listener {
@@ -58,7 +58,7 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         out.add(effect(PotionEffectType.FIRE_RESISTANCE, 0, 0));
     }
 
-    /** Rebirth: a killing blow while holding Cinderwing revives you instead (5 minute cooldown). */
+    /** Rebirth: a killing blow while holding Phoenix Grace revives you instead (5 minute cooldown). */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onLethalDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
