@@ -33,7 +33,7 @@ import java.util.UUID;
 
 /**
  * Requiem of the Ninth Abyss, the Reaper's Scythe: finishes off whatever is already dying.
- * Passive Death's Embrace, on-hit Rend, F Reap, Sneak+F Final Harvest.
+ * Passive Death's Embrace, on-hit Rend, F Reap, Sneak+F Doom.
  */
 public final class ScytheWeapon extends SwordAbility implements Listener {
 
@@ -150,25 +150,95 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         return a <= (to - from);
     }
 
-    /** Final Harvest: a giant scythe rises over the target and swings down. */
+    /** How long Doom's countdown runs, and how much of the damage stored during it comes due. */
+    private static final int DOOM_TICKS = 100;
+    private static final double DOOM_SHARE = 0.75;
+    /** Doomed entity -> damage it has taken since it was marked. */
+    private final java.util.Map<java.util.UUID, Double> doomed = new java.util.HashMap<>();
+
+    /**
+     * Doom: the enemy under your crosshair is marked by the reaper. A skull counts down above it for
+     * five seconds while every bit of damage it takes, from anyone, is written down. When the count
+     * reaches zero a giant scythe swings through it for 6 plus three quarters of that total.
+     */
     @Override
     public boolean secondary(Player player) {
-        LivingEntity target = combat().lookTarget(player, 16, 1.0);
+        LivingEntity target = combat().lookTarget(player, 24, 1.0);
         if (target == null) {
             tell(player, "No target in sight.");
             return false;
         }
-        Fx.sound(target.getLocation(), Sound.BLOCK_BEACON_AMBIENT, 1.5f, 0.5f);
+        if (doomed.containsKey(target.getUniqueId())) {
+            tell(player, "It is already doomed.");
+            return false;
+        }
+        doomed.put(target.getUniqueId(), 0.0);
+        Location head = target.getLocation().add(0, target.getHeight() + 0.7, 0);
+        org.bukkit.entity.TextDisplay count = displays().text(head, net.kyori.adventure.text.Component.text("☠ 5",
+                net.kyori.adventure.text.format.TextColor.color(0x7FFFE0)), 1.6f, DOOM_TICKS + 10);
+        count.setTeleportDuration(1);
+        fx().beam(player.getEyeLocation(), Combat.center(target), 0x2BD9A8, 0.2f, 8);
+        fx().sigil(target.getLocation().add(0, 0.08, 0), new Vector(0, 1, 0), 0x2BD9A8, 2.2f, DOOM_TICKS);
+        Fx.sound(target.getLocation(), Sound.BLOCK_BELL_USE, 1f, 0.5f);
         Fx.sound(player.getLocation(), Sound.PARTICLE_SOUL_ESCAPE, 1.5f, 0.5f);
+
+        new BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (!target.isValid() || target.isDead() || !alive(player)) {
+                    doomed.remove(target.getUniqueId());
+                    displays().remove(count);
+                    cancel();
+                    return;
+                }
+                Location top = target.getLocation().add(0, target.getHeight() + 0.7, 0);
+                count.teleport(top);
+                double stored = doomed.getOrDefault(target.getUniqueId(), 0.0);
+                if (ticks % 20 == 0 && ticks < DOOM_TICKS) {
+                    int left = (DOOM_TICKS - ticks) / 20;
+                    count.text(net.kyori.adventure.text.Component.text("☠ " + left, net.kyori.adventure.text.format.TextColor.color(
+                            left <= 1 ? 0xFF5A5A : 0x7FFFE0)).append(net.kyori.adventure.text.Component.text(
+                            stored > 0 ? "  +" + dev.infuse.customs.ability.DamageNumbers.format(stored * DOOM_SHARE) : "",
+                            net.kyori.adventure.text.format.TextColor.color(0xBFBFBF))));
+                    Fx.sound(top, Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1f, 0.5f + (5 - left) * 0.1f);
+                }
+                if (ticks % 4 == 0) {
+                    Fx.ring(top.clone().subtract(0, 0.3, 0), 0.6, 8, p -> Fx.particle(p, Particle.SOUL, 1, 0, 0.005));
+                }
+                if (ticks >= DOOM_TICKS) {
+                    cancel();
+                    displays().remove(count);
+                    reap(player, target, doomed.getOrDefault(target.getUniqueId(), 0.0));
+                    doomed.remove(target.getUniqueId());
+                }
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
+        return true;
+    }
+
+    /** Everything a doomed enemy suffers is written down. */
+    @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.MONITOR, ignoreCancelled = true)
+    public void onDoomedHurt(org.bukkit.event.entity.EntityDamageEvent event) {
+        Double stored = doomed.get(event.getEntity().getUniqueId());
+        if (stored != null) {
+            doomed.put(event.getEntity().getUniqueId(), stored + event.getFinalDamage());
+        }
+    }
+
+    /** The reaper collects: a giant scythe rises over the target and swings down through it. */
+    private void reap(Player player, LivingEntity target, double stored) {
         float yaw = (float) Math.toRadians(-player.getLocation().getYaw());
-        // raised: blade up behind the target; struck: swung forward and down through it
         Quaternionf raised = new Quaternionf().rotateY(yaw).rotateX((float) Math.toRadians(-40));
         Quaternionf struck = new Quaternionf().rotateY(yaw).rotateX((float) Math.toRadians(95));
         ItemDisplay scythe = displays().item(above(target), plugin.items().create(type), 0.01f, raised,
-                ItemDisplay.ItemDisplayTransform.NONE, 40);
+                ItemDisplay.ItemDisplayTransform.NONE, 30);
         scythe.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
         scythe.setGlowing(true);
-        displays().later(1, () -> Displays.animate(scythe, transform(raised, 3.6f), 10));
+        displays().later(1, () -> Displays.animate(scythe, transform(raised, 3.6f), 6));
+        Fx.sound(target.getLocation(), Sound.BLOCK_BEACON_AMBIENT, 1.5f, 0.5f);
 
         new BukkitRunnable() {
             int ticks;
@@ -184,30 +254,19 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
                 if (scythe.isValid()) {
                     scythe.teleport(above(target));
                 }
-                Location head = target.getLocation().add(0, target.getHeight() + 0.4, 0);
-                if (ticks < 20) {
-                    Fx.ring(head, 0.8 + Math.sin(ticks * 0.4) * 0.15, 10, p -> Fx.particle(p, Particle.SOUL, 1, 0, 0.005));
-                    return;
-                }
-                if (ticks == 20) {
+                if (ticks == 8) {
                     Displays.animate(scythe, transform(struck, 3.6f), 4);
-                    Fx.sound(head, Sound.ITEM_TRIDENT_THROW, 1.2f, 0.5f);
-                    return;
-                }
-                if (ticks == 24) {
-                    strike(player, target);
-                    return;
-                }
-                if (ticks == 28) {
+                    Fx.sound(target.getLocation(), Sound.ITEM_TRIDENT_THROW, 1.2f, 0.5f);
+                } else if (ticks == 12) {
+                    strike(player, target, stored);
+                } else if (ticks == 16) {
                     Displays.animate(scythe, transform(struck, 0.01f), 6);
-                }
-                if (ticks >= 34) {
+                } else if (ticks >= 22) {
                     displays().remove(scythe);
                     cancel();
                 }
             }
         }.runTaskTimer(plugin, 1L, 1L);
-        return true;
     }
 
     private static Location above(LivingEntity target) {
@@ -221,10 +280,8 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         return new Transformation(new Vector3f(), rotation, new Vector3f(scale), new Quaternionf());
     }
 
-    private void strike(Player player, LivingEntity target) {
-        AttributeInstance max = target.getAttribute(Attribute.MAX_HEALTH);
-        double missing = (max == null ? 20 : max.getValue()) - target.getHealth();
-        double damage = Math.min(22, 8 + 0.3 * missing);
+    private void strike(Player player, LivingEntity target, double stored) {
+        double damage = Math.min(40, 6 + stored * DOOM_SHARE);
         Location at = Combat.center(target);
         Fx.particle(at, Particle.SOUL, 40, 0.5, 0.08);
         Fx.particle(at, Particle.SCULK_SOUL, 20, 0.5, 0.05);
@@ -240,7 +297,7 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         fx().cut(at, player.getLocation().getDirection(), Math.PI / 2, 0.5, 0x7FFFE0, 2.6f, 3);
         combat().damage(player, target, damage, true);
         if (target.isDead()) {
-            tell(player, Text.plain("☠ Harvested", type.color()));
+            tell(player, Text.plain("☠ Doomed", type.color()));
         }
     }
 }

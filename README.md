@@ -18,7 +18,7 @@ Formerly called OP Swords: upgrading keeps your config, altars and every weapon 
 
 ![In hand: Dragon Slaying Blade, Phoenix Grace, Awakened Lichblade, Aquatic Sacred Blade, Edge Of The Astral Plane, Sculk Sword, Enigma, Thunder Bringer](docs/in-hand.jpg)
 
-![Twelve abilities in action, including Meteor Shower, Singularity, Thunder Strike, Solar Beam, Blizzard, Miasma, Stasis Field, Spectral Hounds, Sonic Boom and Shriek](docs/abilities.jpg)
+![Twelve abilities in action, including Singularity, Thunder Strike, Solar Beam, Blizzard, Miasma, Stasis Field, Spectral Hounds, Sonic Boom and Shriek](docs/abilities.jpg)
 
 | Control (weapon in main hand) | Does |
 | --- | --- |
@@ -47,7 +47,7 @@ messages ("Steve was frozen solid by Alex wielding ❄ Frost Blade").
 | ❤ **Vampiric Needle** · Crimson | +3 max hearts | Heal 15% of damage; 25%: bleed | **Blood Crescent** (9s): piercing blood slash | **Blood Bond** (30s): chain up to four enemies to you for 6s, drain them every second, tear them when the chains snap |
 | ☀ **Righteous Relic** · Solar | Haste II; nearby enemies glow | Ignites; +50% vs undead | **Solar Beam** (9s): a 1.5s beam that follows your aim, burning what it sweeps across | **Supernova** (35s): charge, then radius-10 solar blast |
 | 🌌 **Demon Lord's Sword** · Void | Night Vision; carrying it saves you from the void | 20%: Wither II + steal 2 HP | **Void Step** (8s): blink up to 15 blocks | **Singularity** (35s): black hole that pulls enemies in, then implodes |
-| ✨ **Edge Of The Astral Plane** · Cosmic | Low gravity, higher jumps, no fall damage | 20%: Levitation | **Telekinesis** (12s): seize the enemy under your crosshair, drag it with your aim into others and walls, then hurl it | **Meteor Shower** (40s): 8 meteors on the target area |
+| ✨ **Edge Of The Astral Plane** · Cosmic | Low gravity, higher jumps, no fall damage | 20%: Levitation | **Telekinesis** (12s): seize the enemy under your crosshair, drag it with your aim into others and walls, then hurl it | **Orbit** (40s): up to five nearby enemies orbit you for 5s, smashing into anyone in the way, then fly off |
 | ⌛ **Chrono Blade** · Chrono | +25% attack speed | 15%: freeze the target in time | **Stasis Field** (14s): enemies crawl, projectiles freeze mid-air | **Rewind** (30s): back to where you were 4s ago, with that health |
 | 🌑 **Watcher Claymore** · Shadow | Invisible while sneaking, faster movement | +60% from behind; 20%: blind | **Shadow Strike** (10s): teleport behind your target | **Shadow Veil** (35s): 6s full invisibility (armor too); next hit +8 |
 | 💀 **Awakened Lichblade** · Soul | Kills heal 4 and grant Absorption | 20%: +4 soul damage | **Spectral Hounds** (25s): 3 soul wolves hunt your target for 15s | **Wail of the Damned** (32s): wither, weaken and scatter enemies, then six screaming skulls hunt them down |
@@ -72,14 +72,14 @@ thrown.
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
 | ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
-| ⚰ **Requiem of the Ninth Abyss** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Final Harvest** (30s): a giant spectral scythe falls on the target, harder the more health it's missing |
+| ⚰ **Requiem of the Ninth Abyss** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Doom** (30s): mark an enemy for 5s; then a giant scythe deals 6 plus three quarters of everything it took while marked |
 | ♆ **Sunbreak** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Skyhook** (8s): a spear on a chain that drags enemies to you or hauls you to the wall it sticks in | **Phalanx** (25s): fans of spears burst from the ground in a line, ending in a giant spear |
 | ☸ **Royal Chakram** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
 | ᛉ **Demon Lord's Great Axe** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): a giant spectral axe crashes down ahead; Strength II and Resistance for you, Weakness and Slowness for enemies |
 | ⚚ **Arcanethyst** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Sentinel** (25s): a floating crystal that shoots enemies and mends you and your teammates for 8s |
 | ✴ **Amethyst Shuriken** · Throwing Star | Speed I, Jump Boost I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
-| ⚜ **Jade Halberd** · Imperial Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Dragon Sweep** (9s): a full circle of the halberd that hurls everyone back | **Jade Dragon** (32s): a jade dragon you steer with your crosshair for 4.5s, biting everything it passes through |
-| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moonfall** (35s): a giant crescent moon falls on the target area and shatters |
+| ⚜ **Jade Halberd** · Imperial Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Vault** (9s): plant the halberd and vault over enemies, kicking those below and cleaving where you land | **Jade Dragon** (32s): a jade dragon you steer with your crosshair for 4.5s, biting everything it passes through |
+| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
 | ⚙ **Cybernetic Chainsaw Blade** · Cyber Sawblade | **Overclock**: quick hits build heat; at 5 heat the next hit vents for +6 | 25%: **Arc Spark** jumps to two more enemies | **Grinder** (10s): two seconds of a spinning blade shredding what's in front | **EMP Overload** (30s): a pulse that stuns and reveals enemies and speeds you up |
 | ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
 | ☥ **Pharaoh's Treasure** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado that drifts wherever your crosshair points, lifting, blinding and grinding enemies | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
@@ -110,7 +110,7 @@ Telekinesis lets you drag an enemy around with your crosshair, the Wail sends sc
 drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Riposte raises a
 shield sigil, Arcane Missiles pour out of a rune portal, dashes leave afterimages, Stasis Field turns the
 hands of a giant clock, Singularity spins an accretion disk, Supernova swells into a sun,
-Warcry brings a giant spectral axe down on the ground, Moonfall drops a crescent moon, Jade
+Warcry brings a giant spectral axe down on the ground, Moongate opens a pair of portals, Jade
 Dragon is a winding serpent with a dragon's head, Phalanx raises fans of spears that end in a
 giant one, and thrown weapons leave streaks and rings of light behind them. They fade out smoothly, never touch the world, and a
 glow or burst on yourself is hidden from you so it never fills your screen (others still see it).

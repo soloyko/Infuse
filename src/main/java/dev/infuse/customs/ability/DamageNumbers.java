@@ -152,7 +152,7 @@ public final class DamageNumbers {
         return text;
     }
 
-    static String format(double damage) {
+    public static String format(double damage) {
         double rounded = Math.round(damage * 10) / 10.0;
         return rounded == Math.rint(rounded) ? String.valueOf((long) rounded) : String.valueOf(rounded);
     }

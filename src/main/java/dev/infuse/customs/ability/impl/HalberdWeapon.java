@@ -20,6 +20,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
@@ -31,12 +32,14 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
 /**
  * Jade Halberd, the Jade Halberd (netherite spear): the emperor's guard.
- * Passive Imperial Guard, on-hit Jade Cleave, F Dragon Sweep, Sneak+F Jade Dragon.
+ * Passive Imperial Guard, on-hit Jade Cleave, F Vault, Sneak+F Jade Dragon.
  */
 public final class HalberdWeapon extends SwordAbility {
 
@@ -77,33 +80,86 @@ public final class HalberdWeapon extends SwordAbility {
         Fx.sound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.8f);
     }
 
-    /** Dragon Sweep: a full circle of the halberd, twice, hurling everything back. */
+    /**
+     * Vault: you plant the halberd a few blocks ahead and pole-vault over it in a high arc. Enemies
+     * you sail over are kicked down, and where you land the blade comes round in a full cleave.
+     * No fall damage.
+     */
     @Override
     public boolean primary(Player player) {
-        Location center = player.getLocation().add(0, 1, 0);
-        Vector look = center.getDirection().setY(0);
-        if (look.lengthSquared() < 1.0E-4) {
-            look = new Vector(0, 0, 1);
-        }
-        look.normalize();
-        for (int i = 0; i < 4; i++) {
-            Vector dir = look.clone().rotateAroundY(i * Math.PI / 2);
-            int color = i % 2 == 0 ? JADE : GOLD;
-            displays().later(i * 2L, () -> fx().slash(player.getLocation().add(0, 1, 0), dir, 0.05, color, 2.9f, 3));
-        }
-        displays().later(4, () -> {
-            Location at = player.getLocation();
-            fx().shockwave(at, JADE, 5f, 8);
-            fx().shockwave(at, PALE_JADE, 3.2f, 6);
-            for (LivingEntity target : combat().nearby(player, at.clone().add(0, 1, 0), 4.6)) {
-                combat().damage(player, target, 8);
-                Combat.knockback(target, at, 1.5, 0.45);
-                fx().burst(Combat.center(target), PALE_JADE, 1.3f);
+        Vector forward = dev.infuse.customs.ability.Aim.flatLook(player);
+        Location feet = player.getLocation();
+        Location plant = Combat.ground(feet.clone().add(forward.clone().multiply(2.6)).add(0, 1, 0));
+        status().protectFromFall(player, 80);
+        // the pole: the halberd stands planted in the ground and tips over as you go
+        Location pole = plant.clone().add(0, 1.3, 0);
+        pole.setYaw(0);
+        pole.setPitch(0);
+        float yaw = (float) Math.atan2(-forward.getX(), forward.getZ());
+        Quaternionf upright = new Quaternionf().rotateY(yaw).rotateX((float) Math.toRadians(-20));
+        Quaternionf over = new Quaternionf().rotateY(yaw).rotateX((float) Math.toRadians(70));
+        org.bukkit.entity.ItemDisplay halberd = displays().item(pole, plugin.items().create(type), 2.6f, upright,
+                org.bukkit.entity.ItemDisplay.ItemDisplayTransform.NONE, 22);
+        halberd.setBrightness(new Display.Brightness(15, 15));
+        displays().later(2, () -> Displays.animate(halberd, new Transformation(new Vector3f(), over, new Vector3f(2.6f), new Quaternionf()), 10));
+        displays().later(14, () -> Displays.animate(halberd, new Transformation(new Vector3f(), over, new Vector3f(0.05f), new Quaternionf()), 6));
+        Fx.particle(plant.clone().add(0, 0.1, 0), Particle.BLOCK, 14, 0.3, 0.1, plant.clone().subtract(0, 0.5, 0).getBlock().getBlockData());
+        Fx.sound(plant, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 0.8f);
+        Fx.sound(feet, Sound.ENTITY_BREEZE_JUMP, 1f, 0.8f);
+        Combat.setVelocity(player, forward.clone().multiply(1.05).setY(1.0));
+        Set<UUID> kicked = new HashSet<>();
+
+        new BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (!alive(player) || ticks > 40) {
+                    cancel();
+                    return;
+                }
+                Location at = player.getLocation();
+                Fx.particle(at.clone().add(0, 1, 0), Particle.DUST, 3, 0.3, 0, Fx.dust(ticks % 2 == 0 ? JADE : GOLD, 1.2f));
+                if (ticks % 2 == 0) {
+                    fx().afterimage(at.clone().add(0, 1, 0), plugin.items().create(type), forward, JADE, 1.0f, 6);
+                }
+                // whoever you pass over gets a heel to the head
+                for (LivingEntity below : combat().nearby(player, at.clone().subtract(0, 1.2, 0), 1.8)) {
+                    if (kicked.add(below.getUniqueId())) {
+                        combat().damage(player, below, 4, true);
+                        applyEffect(below, PotionEffectType.SLOWNESS, 30, 2);
+                        Combat.setVelocity(below, below.getVelocity().setY(-0.6));
+                        fx().burst(Combat.center(below), PALE_JADE, 1.4f);
+                        Fx.sound(below.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 1.2f);
+                    }
+                }
+                boolean landed = ticks > 6 && !at.clone().subtract(0, 0.12, 0).getBlock().isPassable();
+                if (landed) {
+                    cancel();
+                    land(player, at, forward);
+                }
             }
-        });
-        Fx.sound(center, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.2f, 0.6f);
-        Fx.sound(center, Sound.ITEM_TRIDENT_RIPTIDE_2, 1f, 0.8f);
+        }.runTaskTimer(plugin, 2L, 1L);
         return true;
+    }
+
+    /** Landing: the halberd sweeps a full circle around you. */
+    private void land(Player player, Location at, Vector forward) {
+        Location chest = at.clone().add(0, 1, 0);
+        for (int i = 0; i < 4; i++) {
+            Vector dir = forward.clone().rotateAroundY(i * Math.PI / 2);
+            int color = i % 2 == 0 ? JADE : GOLD;
+            displays().later(i, () -> fx().slash(player.getLocation().add(0, 1, 0), dir, 0.05, color, 2.8f, 3));
+        }
+        Fx.particle(at.clone().add(0, 0.2, 0), Particle.BLOCK, 24, 0.8, 0.1, at.clone().subtract(0, 0.5, 0).getBlock().getBlockData());
+        Fx.sound(chest, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.2f, 0.6f);
+        Fx.sound(chest, Sound.ITEM_MACE_SMASH_GROUND, 1f, 1.2f);
+        for (LivingEntity target : combat().nearby(player, chest, 3.6)) {
+            combat().damage(player, target, 8, true);
+            Combat.knockback(target, at, 1.3, 0.4);
+            fx().cut(Combat.center(target), Combat.center(target).toVector().subtract(chest.toVector()), Math.PI / 2, 0.4, PALE_JADE, 1.5f, 2);
+        }
     }
 
     /** How long the dragon flies, in ticks. */

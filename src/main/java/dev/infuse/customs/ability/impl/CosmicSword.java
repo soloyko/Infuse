@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Cosmic Sword: gravity and meteors.
- * Passive Zero-G, on-hit Starstrike, F Telekinesis, Sneak+F Meteor Shower.
+ * Passive Zero-G, on-hit Starstrike, F Telekinesis, Sneak+F Orbit.
  */
 public final class CosmicSword extends SwordAbility {
 
@@ -62,7 +62,7 @@ public final class CosmicSword extends SwordAbility {
 
     /** Ticks you can hold an enemy before it is hurled. */
     private static final int HOLD_TICKS = 60;
-    /** Enemies held right now (their gravity is off), so a reload or shutdown can let them go. */
+    /** Enemies held or in orbit right now (their gravity is off), so a reload or shutdown can let them go. */
     private final java.util.Set<LivingEntity> floating = new java.util.HashSet<>();
 
     @Override
@@ -235,41 +235,134 @@ public final class CosmicSword extends SwordAbility {
         }.runTaskTimer(plugin, 1L, 1L);
     }
 
-    /** Meteor Shower: 8 meteors on the targeted area. */
+    /** Orbit: how many enemies, how far out, for how long. */
+    private static final int ORBIT_MAX = 5;
+    private static final double ORBIT_RADIUS = 3.3;
+    private static final int ORBIT_TICKS = 100;
+
+    /**
+     * Orbit: up to five nearby enemies are torn off their feet and swung into orbit around you for
+     * five seconds. They circle you as you move, smashing into anything else in the way, and when
+     * the orbit breaks they are flung off into the distance.
+     */
     @Override
     public boolean secondary(Player player) {
-        Location target = combat().aimPoint(player, 40);
-        if (target == null) {
-            Location eye = player.getEyeLocation();
-            target = Combat.ground(eye.clone().add(eye.getDirection().setY(0).normalize().multiply(20)));
+        List<LivingEntity> moons = new java.util.ArrayList<>();
+        for (LivingEntity target : combat().nearby(player, player.getLocation(), 9)) {
+            if (player.hasLineOfSight(target)) {
+                moons.add(target);
+            }
+            if (moons.size() >= ORBIT_MAX) {
+                break;
+            }
         }
-        Location area = target;
-        Vector approach = player.getLocation().getDirection().setY(0);
-        if (approach.lengthSquared() < 1.0E-4) {
-            approach = new Vector(1, 0, 0);
+        if (moons.isEmpty()) {
+            tell(player, "No enemies nearby.");
+            return false;
         }
-        Vector from = approach.normalize().multiply(-10);
-        Fx.sound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 0.5f);
-        Fx.sound(area, Sound.ENTITY_WITHER_SHOOT, 1.5f, 0.5f);
+        Location center = player.getLocation().add(0, 1, 0);
+        Fx.sound(center, Sound.BLOCK_BEACON_ACTIVATE, 1.2f, 0.6f);
+        Fx.sound(center, Sound.ENTITY_SHULKER_SHOOT, 1.2f, 0.5f);
+        fx().wave(center, new Vector(0, 1, 0), 0x8E7BFF, (float) ORBIT_RADIUS, 8);
+        java.util.Map<LivingEntity, Boolean> hadGravity = new java.util.HashMap<>();
+        for (LivingEntity moon : moons) {
+            hadGravity.put(moon, moon.hasGravity());
+            moon.setGravity(false);
+            floating.add(moon);
+            combat().damage(player, moon, 2, true);
+            fx().beam(center, Combat.center(moon), PINK, 0.2f, 8);
+        }
+        java.util.Map<java.util.UUID, Integer> bumped = new java.util.HashMap<>();
 
         new BukkitRunnable() {
-            int launched;
+            int ticks;
+            double spin;
 
             @Override
             public void run() {
-                if (!alive(player) || player.getWorld() != area.getWorld() || launched >= 8) {
-                    cancel();
+                ticks++;
+                moons.removeIf(m -> {
+                    if (!m.isValid() || m.isDead() || m.getWorld() != player.getWorld()) {
+                        release(m);
+                        return true;
+                    }
+                    return false;
+                });
+                if (!alive(player) || moons.isEmpty() || ticks > ORBIT_TICKS) {
+                    fling();
                     return;
                 }
-                launched++;
-                ThreadLocalRandom r = ThreadLocalRandom.current();
-                double a = r.nextDouble(Math.PI * 2);
-                double d = Math.sqrt(r.nextDouble()) * 5;
-                Location impact = snapToGround(area.clone().add(Math.cos(a) * d, 0, Math.sin(a) * d));
-                Location start = impact.clone().add(from).add(r.nextDouble(-2, 2), 22, r.nextDouble(-2, 2));
-                meteor(player, start, impact);
+                // it starts slow and winds up
+                spin += 0.08 + Math.min(0.14, ticks * 0.003);
+                Location core = player.getLocation().add(0, 1.1, 0);
+                for (int i = 0; i < moons.size(); i++) {
+                    LivingEntity moon = moons.get(i);
+                    double a = spin + i * Math.PI * 2 / moons.size();
+                    double tilt = Math.sin(a * 2 + i) * 0.6;
+                    Location slot = core.clone().add(Math.cos(a) * ORBIT_RADIUS, tilt, Math.sin(a) * ORBIT_RADIUS);
+                    Vector pull = slot.toVector().subtract(Combat.center(moon).toVector());
+                    double distance = pull.length();
+                    if (distance > 1.0E-3) {
+                        Combat.setVelocity(moon, pull.multiply(Math.min(1.6, distance * 0.55) / distance));
+                    }
+                    Location at = Combat.center(moon);
+                    Fx.particle(at, Particle.END_ROD, 1, 0.1, 0.01);
+                    if (ticks % 2 == 0) {
+                        Fx.particle(at, Particle.DUST, 2, 0.2, 0, Fx.dust(i % 2 == 0 ? PINK : 0x8E7BFF, 1.2f));
+                    }
+                    if (ticks % 20 == 0) {
+                        combat().damage(player, moon, 1, true);
+                    }
+                    // anything in its path gets bowled over
+                    for (LivingEntity other : combat().nearby(player, at, 1.4)) {
+                        Integer last = bumped.get(other.getUniqueId());
+                        if (moons.contains(other) || (last != null && ticks - last < 10)) {
+                            continue;
+                        }
+                        bumped.put(other.getUniqueId(), ticks);
+                        combat().damage(player, other, 4, true);
+                        Combat.knockback(other, core, 1.1, 0.45);
+                        fx().burst(Combat.center(other), PINK, 1.6f);
+                        Fx.sound(other.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 0.8f);
+                    }
+                }
+                // the orbit's path, faintly
+                if (ticks % 3 == 0) {
+                    Fx.ring(core, ORBIT_RADIUS, 28, p -> Fx.particle(p, Particle.DUST, 1, 0, 0, Fx.dust(0x6C60C4, 0.7f)));
+                }
+                if (ticks % 15 == 0) {
+                    Fx.sound(core, Sound.BLOCK_BEACON_AMBIENT, 1f, 1.4f + (float) Math.min(0.6, ticks * 0.006));
+                }
             }
-        }.runTaskTimer(plugin, 0L, 6L);
+
+            private void release(LivingEntity moon) {
+                Boolean had = hadGravity.get(moon);
+                moon.setGravity(had == null || had);
+                floating.remove(moon);
+            }
+
+            private void fling() {
+                cancel();
+                Location core = player.getLocation().add(0, 1.1, 0);
+                for (LivingEntity moon : moons) {
+                    release(moon);
+                    Vector out = Combat.center(moon).toVector().subtract(core.toVector()).setY(0);
+                    if (out.lengthSquared() < 1.0E-4) {
+                        out = new Vector(1, 0, 0);
+                    }
+                    out.normalize();
+                    Vector tangent = new Vector(-out.getZ(), 0, out.getX());
+                    Combat.setVelocity(moon, out.multiply(1.3).add(tangent.multiply(0.9)).setY(0.55));
+                    if (alive(player)) {
+                        combat().damage(player, moon, 4, true);
+                    }
+                    fx().burst(Combat.center(moon), 0x8E7BFF, 2f);
+                    fx().follow(moon, PINK, 1.2f, 16);
+                }
+                Fx.sound(core, Sound.ENTITY_WIND_CHARGE_WIND_BURST, 1.2f, 0.6f);
+                Fx.sound(core, Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1.2f);
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 
@@ -279,63 +372,4 @@ public final class CosmicSword extends SwordAbility {
         return hit == null ? point : hit.getHitPosition().toLocation(point.getWorld());
     }
 
-    private void meteor(Player player, Location start, Location impact) {
-        Fx.sound(impact, Sound.ITEM_TRIDENT_RIPTIDE_3, 1f, 0.6f);
-        BlockDisplay rock = displays().block(start, Material.MAGMA_BLOCK.createBlockData(), new Vector3f(0.9f),
-                new Quaternionf(), 20);
-        rock.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
-        org.bukkit.entity.ItemDisplay flare = fx().orb(start, 0xFF8A3A, 2.2f, 20);
-        new BukkitRunnable() {
-            int t;
-
-            @Override
-            public void run() {
-                t++;
-                double progress = t / 14.0;
-                Location pos = start.clone().add(impact.toVector().subtract(start.toVector()).multiply(Math.min(1, progress)));
-                if (flare.isValid()) {
-                    Location f = pos.clone();
-                    f.setYaw(0);
-                    f.setPitch(0);
-                    flare.teleport(f);
-                }
-                if (rock.isValid()) {
-                    rock.teleport(pos);
-                    Quaternionf tumble = new Quaternionf().rotateXYZ(t * 0.45f, t * 0.3f, t * 0.2f);
-                    rock.setInterpolationDelay(0);
-                    rock.setInterpolationDuration(1);
-                    rock.setTransformation(Displays.centered(new Vector3f(0.9f), tumble));
-                }
-                Fx.particle(pos, Particle.FLAME, 6, 0.25, 0.02);
-                Fx.particle(pos, Particle.LARGE_SMOKE, 2, 0.2, 0.01);
-                Fx.particle(pos, Particle.DUST, 4, 0.3, 0, Fx.dust(t % 2 == 0 ? INDIGO : PINK, 2.0f));
-                Fx.particle(pos, Particle.END_ROD, 1, 0.1, 0.01);
-                if (progress < 1) {
-                    return;
-                }
-                cancel();
-                displays().remove(rock);
-                displays().remove(flare);
-                for (int i = 0; i < 6; i++) {
-                    double a = i * Math.PI / 3;
-                    displays().eruptGround(impact.clone().add(Math.cos(a) * 1.3, 0.5, Math.sin(a) * 1.3), 0.55f, 0.6f);
-                }
-                Fx.particle(impact, Particle.EXPLOSION, 4, 0.8, 0);
-                Fx.burst(impact.clone().add(0, 0.3, 0), Particle.FLAME, 30, 0.25);
-                Fx.particle(impact, Particle.DUST, 30, 1.5, 0, Fx.dust(INDIGO, 1.8f));
-                Fx.particle(impact, Particle.LAVA, 6, 0.5, 0);
-                Fx.sound(impact, Sound.ENTITY_GENERIC_EXPLODE, 1.4f, 0.9f);
-                fx().impact(impact.clone().add(0, 0.8, 0), 0x8E7BFF, 2.6f);
-                fx().flamePillar(impact, 0.9f, 1.6f, 12, false);
-                if (!alive(player)) {
-                    return;
-                }
-                for (LivingEntity target : combat().nearby(player, impact, 3.5)) {
-                    combat().damage(player, target, 6, true);
-                    target.setFireTicks(Math.max(target.getFireTicks(), 40));
-                    Combat.knockback(target, impact, 0.9, 0.5);
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 1L);
-    }
 }

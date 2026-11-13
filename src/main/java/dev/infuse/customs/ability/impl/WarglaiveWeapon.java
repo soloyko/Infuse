@@ -29,7 +29,7 @@ import java.util.UUID;
 
 /**
  * Watching Warglaive, the Lunar Warglaive: the moon and the dark.
- * Passive Moonlit, on-hit Crescent Echo, F Lunar Dash, Sneak+F Moonfall.
+ * Passive Moonlit, on-hit Crescent Echo, F Lunar Dash, Sneak+F Moongate.
  */
 public final class WarglaiveWeapon extends SwordAbility {
 
@@ -128,34 +128,48 @@ public final class WarglaiveWeapon extends SwordAbility {
         return true;
     }
 
-    /** Moonfall: a huge crescent moon descends on the target area and shatters. */
+    /** Moongate: how long the gates stay open and how close something must come to pass through. */
+    private static final int GATE_TICKS = 160;
+    private static final double GATE_REACH = 1.15;
+
+    /**
+     * Moongate: two rings of moonlight open, one just in front of you and one where you aim, for
+     * eight seconds. Anything that goes into one comes out of the other, still moving the same
+     * way: you, your enemies, arrows. Enemies are moonburned on the way through.
+     */
     @Override
     public boolean secondary(Player player) {
-        Location aim = combat().aimPoint(player, 25);
-        Location eye = player.getEyeLocation();
-        Location ground = Combat.ground(aim != null ? aim
-                : eye.clone().add(eye.getDirection().multiply(Combat.clearDistance(player, 18))));
-        Vector facing = ground.toVector().subtract(player.getLocation().toVector()).setY(0);
-        if (facing.lengthSquared() < 1.0E-4) {
-            facing = new Vector(0, 0, 1);
+        Vector look = dev.infuse.customs.ability.Aim.flatLook(player);
+        Location near = player.getLocation().add(look.clone().multiply(1.8)).add(0, 1.1, 0);
+        Location aim = combat().aimPoint(player, 28);
+        if (aim == null || aim.distanceSquared(player.getLocation()) < 36) {
+            aim = player.getLocation().add(look.clone().multiply(14));
         }
-        facing.normalize();
-        Vector face = facing.clone();
-        // the crescent stands upright, horns up, its face turned to the caster: first tip its bulge
-        // (+X) down, which stands the plane up facing +X, then turn that face towards the caster
-        Quaternionf upright = new Quaternionf().rotationY((float) Math.atan2(-facing.getZ(), facing.getX()))
-                .mul(new Quaternionf().rotationZ((float) (Math.PI / 2)));
-        Location sky = ground.clone().add(0, 9.6 + 0.94 * 5.5, 0);
-        sky.setYaw(0);
-        sky.setPitch(0);
-        float size = 5.5f;
-        ItemDisplay moon = fx().spawn(sky, Fx3D.Shape.SLASH, MOON_GLOW,
-                new Transformation(new Vector3f(), upright, new Vector3f(size), new Quaternionf()), Display.Billboard.FIXED, 60);
-        moon.setTeleportDuration(2);
-        ItemDisplay glow = fx().orb(sky, MOON, 4f, 60);
-        fx().castCircle(ground, MOON, 5.5f);
-        Fx.sound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 0.5f);
-        Fx.sound(ground, Sound.ENTITY_PHANTOM_AMBIENT, 1.5f, 0.5f);
+        Location far = Combat.ground(aim.clone().subtract(look.clone().multiply(1.2)).add(0, 1, 0)).add(0, 1.1, 0);
+        // gate -> where things come out of it and which way they face
+        Location[] gates = {near, far};
+        Vector[] exits = {look.clone().multiply(-1), look.clone()};
+        List<ItemDisplay> parts = new java.util.ArrayList<>();
+        for (int g = 0; g < 2; g++) {
+            Location c = gates[g].clone();
+            c.setYaw(0);
+            c.setPitch(0);
+            Quaternionf stand = new Quaternionf().rotationTo(0, 1, 0, (float) look.getX(), 0, (float) look.getZ());
+            ItemDisplay ring = fx().spawn(c, Fx3D.Shape.RING, g == 0 ? MOON : SILVER,
+                    new Transformation(new Vector3f(), stand, new Vector3f(0.2f), new Quaternionf()), Display.Billboard.FIXED, GATE_TICKS + 12);
+            ItemDisplay inner = fx().spawn(c, Fx3D.Shape.GLOW, MIDNIGHT,
+                    new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(0.2f), new Quaternionf()), Display.Billboard.CENTER, GATE_TICKS + 12);
+            displays().later(1, () -> {
+                dev.infuse.customs.ability.Displays.animate(ring, new Transformation(new Vector3f(), stand, new Vector3f(1.35f), new Quaternionf()), 8);
+                dev.infuse.customs.ability.Displays.animate(inner, new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(2.2f), new Quaternionf()), 8);
+            });
+            parts.add(ring);
+            parts.add(inner);
+            fx().flash(c, SILVER, 2.4f);
+            Fx.sound(c, Sound.BLOCK_END_PORTAL_FRAME_FILL, 1.2f, 0.8f);
+        }
+        Fx.sound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1f, 1.6f);
+        java.util.Map<UUID, Integer> passed = new java.util.HashMap<>();
 
         new BukkitRunnable() {
             int ticks;
@@ -163,55 +177,80 @@ public final class WarglaiveWeapon extends SwordAbility {
             @Override
             public void run() {
                 ticks++;
-                if (!alive(player) || player.getWorld() != ground.getWorld()) {
-                    displays().remove(moon);
-                    displays().remove(glow);
-                    cancel();
+                if (ticks > GATE_TICKS || far.getWorld() != near.getWorld()) {
+                    close();
                     return;
                 }
-                double y = 9 - 9 * Math.pow(Math.min(1, ticks / 20.0), 1.6);
-                // the crescent's arc hangs 0.94 x size below the display, so lift the display by that much
-                Location arc = ground.clone().add(0, y + 0.6, 0);
-                Location pos = arc.clone().add(0, 0.94 * size, 0);
-                pos.setYaw(0);
-                pos.setPitch(0);
-                if (ticks % 2 == 0) {
-                    moon.teleport(pos);
-                    glow.teleport(arc.clone().add(0, size * 0.25, 0));
+                for (int g = 0; g < 2; g++) {
+                    Location c = gates[g];
+                    if (ticks % 2 == 0) {
+                        double a = ticks * 0.2 + g;
+                        Vector side = new Vector(-look.getZ(), 0, look.getX());
+                        Location p = c.clone().add(side.clone().multiply(Math.cos(a) * 1.3)).add(0, Math.sin(a) * 1.3, 0);
+                        Fx.particle(p, Particle.END_ROD, 1, 0.02, 0.01);
+                        Fx.particle(c, Particle.REVERSE_PORTAL, 2, 0.3, 0.02);
+                    }
+                    for (org.bukkit.entity.Entity e : c.getWorld().getNearbyEntities(c, 1.4, 1.8, 1.4)) {
+                        if (!(e instanceof LivingEntity || e instanceof org.bukkit.entity.Projectile || e instanceof org.bukkit.entity.Item)) {
+                            continue;
+                        }
+                        Location body = e instanceof LivingEntity living ? Combat.center(living) : e.getLocation();
+                        if (body.distance(c) > GATE_REACH + e.getWidth() / 2) {
+                            continue;
+                        }
+                        Integer last = passed.get(e.getUniqueId());
+                        if (last != null && ticks - last < 20) {
+                            continue;
+                        }
+                        passed.put(e.getUniqueId(), ticks);
+                        travel(player, e, gates[1 - g], exits[1 - g]);
+                    }
                 }
-                Fx.particle(arc, Particle.END_ROD, 4, 1.5, 0.02);
-                Fx.particle(arc, Particle.DUST, 6, 1.8, 0, Fx.dust(MIDNIGHT, 2f));
-                if (ticks >= 20) {
-                    shatter(player, ground, face);
-                    fx().fade(moon, Fx3D.Shape.SLASH, MOON_GLOW, 1, 1);
-                    displays().remove(glow);
-                    cancel();
+                if (ticks % 30 == 0) {
+                    Fx.sound(near, Sound.BLOCK_PORTAL_AMBIENT, 0.4f, 1.6f);
+                    Fx.sound(far, Sound.BLOCK_PORTAL_AMBIENT, 0.4f, 1.6f);
+                }
+            }
+
+            private void close() {
+                cancel();
+                for (ItemDisplay part : parts) {
+                    dev.infuse.customs.ability.Displays.animate(part, new Transformation(new Vector3f(), part.getTransformation().getLeftRotation(),
+                            new Vector3f(0.05f), new Quaternionf()), 6);
+                    displays().later(7, () -> displays().remove(part));
+                }
+                for (Location c : gates) {
+                    Fx.particle(c, Particle.END_ROD, 16, 0.5, 0.05);
+                    Fx.sound(c, Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1.6f);
                 }
             }
         }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 
-    private void shatter(Player player, Location ground, Vector facing) {
-        Location center = ground.clone().add(0, 0.5, 0);
-        fx().shockwave(ground, SILVER, 6f, 8);
-        fx().shockwave(ground, MIDNIGHT, 4f, 6);
-        fx().wave(center.clone().add(0, 1, 0), facing, MOON, 4f, 6);
-        fx().burst(center.clone().add(0, 1, 0), SILVER, 5f);
-        fx().flash(center.clone().add(0, 1, 0), MOON, 4f);
-        for (int i = 0; i < 10; i++) {
-            double a = i * Math.PI / 5;
-            displays().eruptGround(ground.clone().add(Math.cos(a) * 2.5, 0.3, Math.sin(a) * 2.5), 0.6f, 1.0f);
-        }
-        Fx.particle(center, Particle.END_ROD, 60, 1.5, 0.15);
-        Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 0.8f);
-        Fx.sound(center, Sound.BLOCK_GLASS_BREAK, 1.5f, 0.5f);
-        Fx.sound(center, Sound.BLOCK_AMETHYST_BLOCK_BREAK, 1.5f, 0.6f);
-        for (LivingEntity target : combat().nearby(player, center, 5.5)) {
-            double d = Combat.distanceToBody(target, center);
-            combat().damage(player, target, Math.max(6, 13 * (1 - d / 6.5)), true);
-            Combat.knockback(target, center, 1.2, 0.8);
-            applyEffect(target, PotionEffectType.BLINDNESS, 30, 0);
+    /** Something steps through a gate and out of the other one, still moving the same way. */
+    private void travel(Player caster, org.bukkit.entity.Entity e, Location gate, Vector exit) {
+        Vector velocity = e.getVelocity();
+        double height = e instanceof LivingEntity living ? living.getHeight() / 2 : 0;
+        Location out = gate.clone().add(exit.clone().multiply(2.1)).subtract(0, height, 0);
+        out.setYaw(e.getLocation().getYaw());
+        out.setPitch(e.getLocation().getPitch());
+        Location from = e.getLocation().add(0, height, 0);
+        fx().flash(from, MOON, 1.4f);
+        e.teleport(out, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
+        // keep their momentum, turned to come out of the gate's face
+        double speed = velocity.length();
+        Combat.setVelocity(e, exit.clone().multiply(Math.max(0.3, speed)).setY(velocity.getY()));
+        fx().flash(out.clone().add(0, height, 0), SILVER, 1.6f);
+        Fx.sound(out, Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.4f);
+        if (e == caster) {
+            applyEffect(caster, PotionEffectType.SPEED, 40, 1);
+            status().protectFromFall(caster, 40);
+        } else if (e instanceof LivingEntity target && combat().canHit(caster, target)) {
+            combat().damage(caster, target, 3, true);
+            applyEffect(target, PotionEffectType.SLOWNESS, 40, 1);
+            Fx.particle(Combat.center(target), Particle.DUST, 10, 0.3, 0, Fx.dust(SILVER, 1.2f));
         }
     }
+
 }

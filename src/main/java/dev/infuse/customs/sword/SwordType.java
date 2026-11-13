@@ -88,7 +88,7 @@ public enum SwordType {
             new AbilityInfo("Zero-G", "Lower gravity, higher jumps and no fall damage while held."),
             new AbilityInfo("Starstrike", "20% chance to launch the target into orbit with Levitation."),
             new AbilityInfo("Telekinesis", "Seize the enemy under your crosshair and drag it through the air with your aim for 3 seconds, smashing it into others and walls, then hurl it."),
-            new AbilityInfo("Meteor Shower", "Rain meteors down on the area you're looking at.")),
+            new AbilityInfo("Orbit", "Pull up to five nearby enemies into orbit around you for 5 seconds: they circle you as you move, smashing into anyone in the way, then fly off.")),
 
     CHRONO("chrono", "Chrono Blade", "Chrono Sword", "⌛", 0x7FE0D0, 0xE8C35A,
             "Its smith worked on it for a thousand years, then went back and finished it in an afternoon. Time moves however its wielder prefers.",
@@ -132,7 +132,7 @@ public enum SwordType {
             new AbilityInfo("Death's Embrace", "Kills refresh Reap and grant a burst of speed."),
             new AbilityInfo("Rend", "+50% damage against targets below 35% health."),
             new AbilityInfo("Reap", "A wide sweeping arc that cuts every enemy in front of you and heals you for each."),
-            new AbilityInfo("Final Harvest", "A giant spectral scythe falls on your target, hitting harder the more health it has lost.")),
+            new AbilityInfo("Doom", "Mark the enemy under your crosshair for 5 seconds. When the count ends a giant scythe takes 6 plus three quarters of all the damage it took while marked.")),
 
     SPEAR("spear", "Sunbreak", "Celestial Spear", "♆", 0xE9C46A, 0xC0392B, Material.NETHERITE_SPEAR,
             "Hurled from the heavens to end a war between gods, it fell for an age. It has been searching for a worthy arm ever since.",
@@ -180,7 +180,7 @@ public enum SwordType {
             "Carried by the emperor's last guard, who held the gate alone for a hundred days. The jade remembers every enemy that fell before it.",
             new AbilityInfo("Imperial Guard", "+1 block of reach and +4 armor while held. Keeps the spear's charge attack."),
             new AbilityInfo("Jade Cleave", "25% chance to sweep everything in front of you for half the damage."),
-            new AbilityInfo("Dragon Sweep", "Spin the halberd in a full circle, cutting and hurling back everything around you."),
+            new AbilityInfo("Vault", "Plant the halberd and vault over the enemies ahead, kicking those you pass over and cleaving everything where you land."),
             new AbilityInfo("Jade Dragon", "Release a jade dragon you steer with your crosshair for 4.5 seconds, biting and tossing every enemy it passes through.")),
 
     WARGLAIVE("warglaive", "Watching Warglaive", "Lunar Warglaive", "☾", 0x8FA8FF, 0x2B2F6B, Material.NETHERITE_SWORD,
@@ -188,7 +188,7 @@ public enum SwordType {
             new AbilityInfo("Moonlit", "Night Vision while held. Melee hits deal +25% damage at night or in the dark."),
             new AbilityInfo("Crescent Echo", "20% chance for a spectral crescent to hit the target again a moment later."),
             new AbilityInfo("Lunar Dash", "Dash forward through your enemies, leaving a trail of silver crescents."),
-            new AbilityInfo("Moonfall", "A giant crescent moon falls on the target area and shatters.")),
+            new AbilityInfo("Moongate", "Open two moon gates for 8 seconds, one beside you and one where you aim. Anything that goes into one comes out of the other: you, enemies, even arrows.")),
 
     SAWBLADE("sawblade", "Cybernetic Chainsaw Blade", "Cyber Sawblade", "⚙", 0xFF7A1A, 0x29E0FF, Material.NETHERITE_SWORD,
             "A prototype from a future that never happened. Nobody remembers who built it, but everyone remembers the noise.",
