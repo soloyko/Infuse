@@ -25,7 +25,7 @@ public final class RecipeMenu {
 
     /** All weapons and the altar; click one to see how to craft it. */
     public static Menu overview(CustomsPlugin plugin) {
-        return overview(plugin, Menu.Page.SWORDS);
+        return overview(plugin, Menu.Page.I);
     }
 
     public static Menu overview(CustomsPlugin plugin, Menu.Page page) {

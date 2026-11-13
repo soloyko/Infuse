@@ -29,9 +29,9 @@ import java.util.function.Consumer;
 public abstract class Menu implements InventoryHolder {
 
     static final int ROWS = 6;
-    static final int INFO = 4;
-    static final int TAB_SWORDS = 2;
-    static final int TAB_WEAPONS = 6;
+    static final int INFO = 0;
+    /** The arc tabs sit in the middle of the header, from this slot on. */
+    static final int FIRST_TAB = 2;
     static final int BACK = 45;
     static final int ALTAR = 48;
     static final int CLOSE = 49;
@@ -71,16 +71,20 @@ public abstract class Menu implements InventoryHolder {
         }
     }
 
-    /** The two tabs of the overview menus. */
+    /** The tabs of the overview menus: one per arc. */
     public enum Page {
-        SWORDS, WEAPONS;
+        I, II, III, IV, V;
+
+        public dev.infuse.customs.sword.Arc arc() {
+            return dev.infuse.customs.sword.Arc.values()[ordinal()];
+        }
 
         public static Page of(SwordType type) {
-            return type.isSword() ? SWORDS : WEAPONS;
+            return values()[type.arc().ordinal()];
         }
 
         List<SwordType> types() {
-            return java.util.Arrays.stream(SwordType.values()).filter(t -> t.isSword() == (this == SWORDS)).toList();
+            return arc().members();
         }
     }
 
@@ -112,30 +116,37 @@ public abstract class Menu implements InventoryHolder {
     /** Lays the page's weapons out; {@code place} puts each one in its slot. */
     static void fill(Page page, java.util.function.BiConsumer<Integer, SwordType> place) {
         List<SwordType> types = page.types();
-        // five per row while they fit in the frame's four rows, seven per row once there are more
-        int[] slots = layout(types.size(), types.size() <= 20 && page == Page.SWORDS ? 5 : 7);
+        int[] slots = layout(types.size(), 5);
         for (int i = 0; i < types.size(); i++) {
             place.accept(slots[i], types.get(i));
         }
     }
 
-    /** The two tab buttons in the header; clicking one opens {@code open.apply(page)}. */
+    /** The arc tabs in the header; clicking one opens {@code open.apply(page)}. */
     protected void tabs(Page current, java.util.function.Function<Page, Menu> open) {
         for (Page page : Page.values()) {
             boolean active = page == current;
-            SwordType icon = page == Page.SWORDS ? SwordType.DRAGON : SwordType.HAMMER;
-            String label = page == Page.SWORDS ? "Swords" : "Other Weapons";
+            dev.infuse.customs.sword.Arc arc = page.arc();
+            List<Component> lore = new java.util.ArrayList<>();
+            lore.add(Text.caps(arc.title(), arc.color()));
+            lore.add(Component.empty());
+            for (SwordType type : arc.members()) {
+                lore.add(Text.plain(type.emoji() + " " + type.swordName(), type.color()));
+            }
+            lore.add(Component.empty());
+            lore.add(active ? Text.plain("Showing", NamedTextColor.GREEN) : Text.plain("Click to show", NamedTextColor.YELLOW));
             ItemStack tab = button(Material.PAPER,
                     (active ? Text.plain("▶ ", NamedTextColor.GOLD) : Component.empty())
-                            .append(Text.plain(label, active ? NamedTextColor.GOLD : NamedTextColor.GRAY))
+                            .append(Text.plain(arc.label(), active ? arc.color() : NamedTextColor.GRAY))
+                            .append(Text.plain(" · " + arc.title(), active ? NamedTextColor.WHITE : NamedTextColor.DARK_GRAY))
                             .decoration(TextDecoration.BOLD, active),
-                    List.of(Text.caps(page.types().size() + " weapons", NamedTextColor.DARK_GRAY),
-                            active ? Text.plain("Showing", NamedTextColor.GREEN) : Text.plain("Click to show", NamedTextColor.YELLOW)));
+                    lore);
+            SwordType icon = arc.members().get(0);
             tab.editMeta(meta -> {
                 meta.setItemModel(icon.itemModel());
                 meta.setEnchantmentGlintOverride(active);
             });
-            set(page == Page.SWORDS ? TAB_SWORDS : TAB_WEAPONS, tab, active ? null : player -> open.apply(page).open(player));
+            set(FIRST_TAB + page.ordinal(), tab, active ? null : player -> open.apply(page).open(player));
         }
     }
 
@@ -155,7 +166,7 @@ public abstract class Menu implements InventoryHolder {
                 Text.gradient("⚔ Customs", TextColor.color(0xECBA44), TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD),
                 List.of(Text.caps(subtitle, NamedTextColor.GRAY),
                         Component.empty(),
-                        Text.plain("21 legendary swords and 19 other weapons.", NamedTextColor.WHITE),
+                        Text.plain("45 legendary weapons in five arcs.", NamedTextColor.WHITE),
                         Component.empty(),
                         AbilitySlot.PRIMARY.label(trigger).color(NamedTextColor.YELLOW)
                                 .append(Text.plain("  first ability", NamedTextColor.GRAY)),

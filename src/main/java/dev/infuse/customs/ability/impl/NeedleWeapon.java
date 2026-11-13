@@ -66,11 +66,6 @@ public final class NeedleWeapon extends SwordAbility implements Listener {
         super(plugin, SwordType.NEEDLE);
     }
 
-    @Override
-    public void heldEffects(Player player, List<PotionEffect> out) {
-        out.add(effect(PotionEffectType.JUMP_BOOST, 0, 0));
-    }
-
     /** Gossamer: sneaking in mid-air lets you drift down. */
     @Override
     public void tickHeld(Player player, long tick) {

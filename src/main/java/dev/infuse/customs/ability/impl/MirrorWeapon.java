@@ -191,11 +191,10 @@ public final class MirrorWeapon extends SwordAbility implements Listener {
                     cancel();
                     return;
                 }
-                // they move as you move and look where you look
-                Vector velocity = player.getVelocity();
+                // each copy fights on its own: it runs at the nearest enemy and cuts it down,
+                // and drifts back to your side when there's nothing left to fight
                 for (Mannequin m : pair) {
-                    Combat.setVelocity(m, new Vector(velocity.getX(), Math.max(velocity.getY(), m.getVelocity().getY()), velocity.getZ()));
-                    m.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
+                    fight(player, m, ticks);
                     if (ticks % 8 == 0) {
                         Fx.particle(m.getLocation().add(0, 1, 0), Particle.END_ROD, 1, 0.3, 0.01);
                     }
@@ -211,6 +210,57 @@ public final class MirrorWeapon extends SwordAbility implements Listener {
             }
         }.runTaskTimer(plugin, 1L, 1L);
         return true;
+    }
+
+    /** Ticks between a mirror image's swings, and how hard each one hits. */
+    private static final int IMAGE_SWING_TICKS = 12;
+    private static final double IMAGE_DAMAGE = 4;
+    /** Mirror image -> tick of its last swing. */
+    private final Map<Mannequin, Integer> lastSwing = new HashMap<>();
+
+    /** One step of a mirror image's fight: chase the nearest enemy and strike it, or follow its owner. */
+    private void fight(Player owner, Mannequin m, int tick) {
+        Location at = m.getLocation();
+        LivingEntity foe = null;
+        double best = Double.MAX_VALUE;
+        for (LivingEntity near : combat().nearby(owner, at, 10)) {
+            double d = near.getLocation().distanceSquared(at);
+            if (d < best) {
+                best = d;
+                foe = near;
+            }
+        }
+        Location goal = foe != null ? foe.getLocation() : owner.getLocation();
+        Vector to = goal.toVector().subtract(at.toVector()).setY(0);
+        double distance = to.length();
+        boolean grounded = !at.clone().subtract(0, 0.1, 0).getBlock().isPassable();
+        double vy = m.getVelocity().getY();
+        if (distance > (foe != null ? 1.6 : 2.6)) {
+            Vector step = to.clone().multiply(1 / distance);
+            // hop up a block in the way
+            if (grounded && !at.clone().add(step.clone().multiply(0.7)).getBlock().isPassable()
+                    && at.clone().add(step.clone().multiply(0.7)).add(0, 1, 0).getBlock().isPassable()) {
+                vy = 0.42;
+            }
+            Combat.setVelocity(m, step.multiply(foe != null ? 0.32 : 0.26).setY(vy));
+        }
+        if (distance > 1.0E-3) {
+            m.setRotation((float) Math.toDegrees(Math.atan2(-to.getX(), to.getZ())), 0);
+        }
+        if (foe == null || distance > 2.4) {
+            return;
+        }
+        Integer last = lastSwing.get(m);
+        if (last != null && tick - last < IMAGE_SWING_TICKS) {
+            return;
+        }
+        lastSwing.put(m, tick);
+        m.swingMainHand();
+        combat().damage(owner, foe, IMAGE_DAMAGE, true);
+        Location eye = m.getEyeLocation();
+        plugin.fx().melee(eye, eye.getDirection(), Combat.center(foe), SILVER, SHEEN, type.meleeStyle());
+        Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.3f);
+        Fx.sound(at, Sound.BLOCK_GLASS_HIT, 0.5f, 1.8f);
     }
 
     /** Mirror images don't really get hurt: each hit cracks them, the third breaks them. */
@@ -242,6 +292,7 @@ public final class MirrorWeapon extends SwordAbility implements Listener {
 
     /** A mirror image shatters: the glass cuts every enemy around it. */
     private void breakImage(Player owner, Mannequin m) {
+        lastSwing.remove(m);
         if (images.remove(m) == null || !m.isValid()) {
             return;
         }

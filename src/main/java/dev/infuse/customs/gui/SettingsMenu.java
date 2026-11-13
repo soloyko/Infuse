@@ -144,7 +144,7 @@ public final class SettingsMenu extends Menu {
                         Component.empty(),
                         Text.plain("Click to open", NamedTextColor.YELLOW)));
         weapons.editMeta(meta -> meta.setItemModel(SwordType.DRAGON.itemModel()));
-        set(WEAPONS_BUTTON, weapons, p -> new WeaponSettingsMenu(plugin, Page.SWORDS).open(p));
+        set(WEAPONS_BUTTON, weapons, p -> new WeaponSettingsMenu(plugin, Page.I).open(p));
         set(RELOAD_BUTTON, button(Material.REDSTONE, title("Reload config.yml"),
                 List.of(Text.plain("Re-read config.yml from disk after", NamedTextColor.GRAY),
                         Text.plain("editing it by hand.", NamedTextColor.GRAY),

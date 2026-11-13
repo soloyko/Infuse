@@ -249,15 +249,10 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
 
     private void list(CommandSender sender) {
         Text.send(sender, "<gray>Hover a weapon to see what it does, click for details:");
-        Text.send(sender, "<gradient:#ECBA44:#C4415B><bold>Swords</bold></gradient>");
-        for (SwordType type : SwordType.values()) {
-            if (type.isSword()) {
-                listLine(sender, type);
-            }
-        }
-        Text.send(sender, "<gradient:#C4415B:#9B5DE5><bold>Other weapons</bold></gradient>");
-        for (SwordType type : SwordType.values()) {
-            if (!type.isSword()) {
+        for (dev.infuse.customs.sword.Arc arc : dev.infuse.customs.sword.Arc.values()) {
+            sender.sendMessage(Text.plain(arc.label(), arc.color()).decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .append(Text.plain(" · " + arc.title(), NamedTextColor.GRAY)));
+            for (SwordType type : arc.members()) {
                 listLine(sender, type);
             }
         }

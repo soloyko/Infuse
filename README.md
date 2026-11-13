@@ -1,6 +1,6 @@
 # Customs
 
-A Paper **1.21.11** plugin that adds 21 legendary swords and 19 other legendary weapons (a
+A Paper **1.21.11** plugin that adds 45 legendary weapons in five arcs (swords, plus a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier, a khopesh, spectral claws, cursed daggers, a holy mace, a
 glaive, a power fuse hammer and a cyber mantis blade), each named after its model in the Blades of
@@ -33,63 +33,87 @@ While a weapon is held the action bar shows both abilities with a cooldown bar, 
 when an ability is ready again, and other players see a faint themed aura around it. Kills get their own death
 messages ("Steve was frozen solid by Alex wielding ❄ Frost Blade").
 
-## The swords
+## The arcs
+The 45 weapons are split into five arcs of nine, in no particular order. The armory menu, the
+recipe book, the settings menu and `/customs list` show them arc by arc, one tab each.
 
-| Sword | Passive (while held) | On hit | F | Sneak + F |
-| --- | --- | --- | --- | --- |
-| 🐉 **Dragon Slaying Blade** · Dragon | Resistance I, +50% knockback resistance | 25%: +4 bonus damage | **Dragon Breath** (12s): 8-pulse cone of dragonfire | **Wyrm Dive** (30s): launch up, crash down in a shockwave, no fall damage |
-| 🔥 **Phoenix Grace** · Phoenix | Fire Resistance; **Rebirth**: a killing blow revives you at half health (every 5 min) | Ignites; 15%: combustion splash | **Ember Volley** (6s): 3 exploding fireballs that leave burning ground behind them (no real fire) | **Wall of Fire** (25s): a wall of fire across your aim for 6s; anything crossing it burns and is thrown back, arrows burn up |
-| ❄ **Frost Blade** · Frost | +4 armor, +2 toughness, freeze immunity | Slowness II + freeze | **Glacial Spike** (10s): ice projectile that impales | **Blizzard** (30s): 6s storm that freezes & damages |
-| ⚡ **Thunder Bringer** · Storm | +25% speed, lightning immunity | 12%: lightning, +5 damage, stun | **Thunder Strike** (10s): lightning where you aim (40 blocks) | **Chain Lightning** (28s): arcs through up to 6 enemies |
-| 🌊 **Aquatic Sacred Blade** · Tide | Conduit Power, Dolphin's Grace | 20%: drag the target to you, slow it | **Riptide Surge** (8s): riptide dash through enemies | **Ride the Tide** (28s): surf a wave you steer with your crosshair for 3.5s, carrying enemies until it breaks |
-| 🌿 **Enigma** · Verdant | Regeneration I; mobs drop double XP | 25%: Poison II | **Nature's Grasp** (14s): roots + damages enemies in 7 blocks | **Verdant Bloom** (40s): heal, Absorption II, cleanse (shared with scoreboard teammates) |
-| ☣ **Plague Longsword** · Plague | Immune to poison, wither, hunger, nausea | Plague stack; infected targets wither for +2 | **Miasma** (12s): plague cloud that stacks infection | **Pandemic** (30s): every infected enemy erupts (3 + 2.5 per stack) |
-| ❤ **Vampiric Needle** · Crimson | +3 max hearts | Heal 15% of damage; 25%: bleed | **Blood Crescent** (9s): piercing blood slash | **Blood Bond** (30s): chain up to four enemies to you for 6s, drain them every second, tear them when the chains snap |
-| ☀ **Righteous Relic** · Solar | Haste II; nearby enemies glow | Ignites; +50% vs undead | **Solar Beam** (9s): a 1.5s beam that follows your aim, burning what it sweeps across | **Supernova** (35s): charge, then radius-10 solar blast |
-| 🌌 **Demon Lord's Sword** · Void | Night Vision; carrying it saves you from the void | 20%: Wither II + steal 2 HP | **Void Step** (8s): blink up to 15 blocks | **Singularity** (35s): black hole that pulls enemies in, then implodes |
-| ✨ **Edge Of The Astral Plane** · Cosmic | Low gravity, higher jumps, no fall damage | 20%: Levitation | **Telekinesis** (12s): seize the enemy under your crosshair, drag it with your aim into others and walls, then hurl it | **Orbit** (40s): up to five nearby enemies orbit you for 5s, smashing into anyone in the way, then fly off |
-| ⌛ **Chrono Blade** · Chrono | +25% attack speed | 15%: freeze the target in time | **Stasis Field** (14s): enemies crawl, projectiles freeze mid-air | **Rewind** (30s): back to where you were 4s ago, with that health |
-| 🌑 **Watcher Claymore** · Shadow | Invisible while sneaking, faster movement | +60% from behind; 20%: blind | **Shadow Strike** (10s): teleport behind your target | **Shadow Veil** (35s): 6s full invisibility (armor too); next hit +8 |
-| 💀 **Awakened Lichblade** · Soul | Kills heal 4 and grant Absorption | 20%: +4 soul damage | **Spectral Hounds** (25s): 3 soul wolves hunt your target for 15s | **Wail of the Damned** (32s): wither, weaken and scatter enemies, then six screaming skulls hunt them down |
-| 🔊 **Sculk Sword** · Echo | Darkness immunity; sculk sensors ignore you | 20%: Darkness / slow | **Sonic Boom** (12s): charged warden blast through a line of enemies | **Shriek** (30s): darken and reveal all enemies, quicken yourself |
-| 刀 **Katana** · Ronin's Katana | **Iaido**: the first hit after 3s without attacking deals +60% | 25%: bleed | **Draw Cut** (8s): flash 10 blocks forward; a moment later everyone you passed is cut at once | **Moonlit Duel** (35s): trap the enemy under your crosshair in a ring of moonlight with you for 8s; +40% damage to it |
-| ✢ **Hornet's Needle** · Hive Needle | Jump Boost I; sneak in mid-air to drift down | **Venom** stacks (up to 6) | **Swarm Form** (14s): become a swarm of hornets for 3s, fly where you look, untouchable, stinging what you pass | **Hive Mind** (30s): enemies carrying your venom turn on each other for 6s |
-| ✵ **Waxweaver** · Waxen Blade | Night Vision, Fire Resistance | 30%: hot wax, Slowness up to III | **Wickfire** (10s): a lit fuse races along the ground after the enemy you aim at and explodes when it catches up | **Melt** (30s): wax every enemy within 8 blocks; your next hit on one sets them all alight |
-| ♨ **Brimstone Claymore** · Volcanic Claymore | Fire Resistance; lava heals you | 25%: molten splash sets nearby enemies alight | **Geyser Leap** (14s): a lava geyser hurls you into the sky and leaves a burning pool | **Obsidian Skin** (35s): 6s of obsidian armor, 60% less damage, no knockback, then it shatters into shards |
-| ◈ **Silverine Blade** · Silver Mirror Blade | **Glass Skin**: 15% of attacks miss you | 20%: shards cut enemies around the target | **Mirror Images** (25s): two copies of you that mimic your moves and draw enemies away, then burst into glass | **Reflection** (30s): for 3s every hit you take goes back to whoever dealt it |
-| ⚓ **Sabre** · Corsair's Cutlass | Dolphin's Grace; kills can drop gold | 20%: a backhand cut for half damage | **Powder Keg** (12s): roll a keg out where you aim; swing at it to blow it up | **Kraken's Grasp** (30s): tentacles seize up to three enemies, slam them down twice and fling them away |
+![The first fifteen swords](docs/swords.png)
 
-## The other weapons
+![Some of the other weapons on their altars](docs/weapons.png)
 
-![The first 13 other weapons on their altars](docs/weapons.png)
+Weapons other than swords are built on the matching vanilla item, so the hammers and the holy
+mace keep the mace's smash attack, the spear, halberd and glaive keep their charge, the axe still
+disables shields and the trident can still be thrown.
 
-<img src="docs/weapons-menu.png" alt="The Other Weapons tab of the armory menu" width="420">
-
-They're built on the matching vanilla item, so the hammer keeps the mace's smash attack, the
-spear and halberd keep their charge, the axe still disables shields and the trident can still be
-thrown.
+### Arc I · Awakening
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
-| ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
-| ⚰ **Requiem of the Ninth Abyss** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Doom** (30s): mark an enemy for 5s; then a giant scythe deals 6 plus three quarters of everything it took while marked |
-| ♆ **Sunbreak** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Skyhook** (8s): a spear on a chain that drags enemies to you or hauls you to the wall it sticks in | **Phalanx** (25s): fans of spears burst from the ground in a line, ending in a giant spear |
-| ☸ **Royal Chakram** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
-| ᛉ **Demon Lord's Great Axe** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): a giant spectral axe crashes down ahead; Strength II and Resistance for you, Weakness and Slowness for enemies |
-| ⚚ **Arcanethyst** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Sentinel** (25s): a floating crystal that shoots enemies and mends you and your teammates for 8s |
-| ✴ **Amethyst Shuriken** · Throwing Star | Speed I, Jump Boost I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
-| ⚜ **Jade Halberd** · Imperial Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Vault** (9s): plant the halberd and vault over enemies, kicking those below and cleaving where you land | **Jade Dragon** (32s): a jade dragon you steer with your crosshair for 4.5s, biting everything it passes through |
-| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
-| ⚙ **Cybernetic Chainsaw Blade** · Cyber Sawblade | **Overclock**: quick hits build heat; at 5 heat the next hit vents for +6 | 25%: **Arc Spark** jumps to two more enemies | **Grinder** (10s): two seconds of a spinning blade shredding what's in front | **EMP Overload** (30s): a pulse that stuns and reveals enemies and speeds you up |
-| ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
-| ☥ **Pharaoh's Treasure** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado that drifts wherever your crosshair points, lifting, blinding and grinding enemies | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
-| Ψ **Ocean's Rage** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Trident Rain** (10s): five spectral tridents fall on the target area | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
-| Ж **Soul Claws** · Spectral Claws | Speed I; wounded enemies near you glow | **Frenzy**: up to 5 stacks of Haste and +1 damage | **Pounce** (8s): leap onto the enemy you aim at, pin it and rake it three times | **The Hunt** (30s): mark your prey for 12s: a trail to it, speed towards it, +5 damage; kill it to heal fully |
-| † **Thousand Demon Daggers** · Cursed Daggers | **Twin Fangs**: every third hit strikes twice | **Hex**: +6% damage from you per stack | **Blood Pact** (20s): pay 3 hearts for 6s of +5 damage and lifesteal | **Soul Swap** (14s): trade places with the enemy you aim at; it's left weakened and blinded |
+| ⌬ **Cyber Mantis Blade** · Cyber Arm-Blade | Step up whole blocks; falls under 12 blocks don't hurt | 25%: **Serrated**, +30% damage from you for 4s | **Blade Extension** (20s): 6s of +3 reach, every swing cuts everything in front | **Ambush** (25s): wait unseen; the first enemy within 6 blocks is snatched and struck four times |
+| ✴ **Amethyst Shuriken** · Throwing Star | Speed I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
+| 刀 **Katana** · Ronin's Katana | **Iaido**: the first hit after 3s without attacking deals +60% | 25%: bleed | **Draw Cut** (8s): flash 10 blocks forward; a moment later everyone you passed is cut at once | **Moonlit Duel** (35s): trap the enemy under your crosshair in a ring of moonlight with you for 8s; +40% damage to it |
+| ☍ **Creation Splitter** · Worldsplitter | **Fault Line**: every fifth hit deals double | 20%: **Fracture**, space cracks and bursts under the target | **Sunder** (12s): a 12-block rift that throws enemies to either side and cuts whoever is on the line | **Banish** (25s): erase an enemy from the world for 3s, then drop it out of a rift above |
+| ❤ **Vampiric Needle** · Crimson | +3 max hearts | Heal 15% of damage; 25%: bleed | **Blood Crescent** (9s): piercing blood slash | **Blood Bond** (30s): chain up to four enemies to you for 6s, drain them every second, tear them when the chains snap |
 | ✠ **Divine Punisher** · Holy Mace | +50% vs undead, 20% less damage from undead | 20%: **Smite**, a pillar of light for +4 | **Sanctuary** (30s): a dome of light for 6s that keeps enemies and projectiles out and heals allies inside | **Martyr's Vow** (40s): 8s where you can't drop below half a heart, then heal half of what you took |
-| ❦ **Forest Guardian's Glaive** · Guardian's Glaive | Regeneration I on grass, moss or leaves | 20%: a thorn wisp bites for 4s | **Leaf Glide** (12s): glide on wings of leaves for 4s, steering with your crosshair; dive into enemies to strike | **Turning Seasons** (35s): spring heals, summer burns, autumn blinds, winter freezes around you |
+| 🔊 **Sculk Sword** · Echo | Darkness immunity; sculk sensors ignore you | 20%: Darkness / slow | **Sonic Boom** (12s): charged warden blast through a line of enemies | **Shriek** (30s): darken and reveal all enemies, quicken yourself |
+| ✵ **Waxweaver** · Waxen Blade | Night Vision, Fire Resistance | 30%: hot wax, Slowness up to III | **Wickfire** (10s): a lit fuse races along the ground after the enemy you aim at and explodes when it catches up | **Melt** (30s): wax every enemy within 8 blocks; your next hit on one sets them all alight |
+| ❄ **Frost Blade** · Frost | +4 armor, +2 toughness, freeze immunity | Slowness II + freeze | **Glacial Spike** (10s): ice projectile that impales | **Blizzard** (30s): 6s storm that freezes & damages |
+
+### Arc II · Ascension
+
+| Weapon | Passive (while held) | On hit | F | Sneak + F |
+| --- | --- | --- | --- | --- |
+| ♞ **Death Knight's Sword** · Runed Greatsword | **Frost Presence**: attackers are slowed | 20%: **Death Coil** drains 2 health | **Raise Dead** (30s): up to three skeleton warriors rise from creatures slain nearby and fight for you for 20s | **Deathcharger** (40s): ride a spectral skeleton horse for 12s, trampling enemies in your path |
+| ✨ **Edge Of The Astral Plane** · Cosmic | Low gravity, no fall damage | 20%: Levitation | **Telekinesis** (12s): seize the enemy under your crosshair, drag it with your aim into others and walls, then hurl it | **Orbit** (40s): up to five nearby enemies orbit you for 5s, smashing into anyone in the way, then fly off |
+| 🌿 **Enigma** · Verdant | Regeneration I; mobs drop double XP | 25%: Poison II | **Nature's Grasp** (14s): roots + damages enemies in 7 blocks | **Verdant Bloom** (40s): heal, Absorption II, cleanse (shared with scoreboard teammates) |
+| ☙ **Ribbon Cleaver** · Puppeteer's Cleaver | Speed I while sprinting | 20%: **Entangle**, Slowness III | **Marionette** (16s): tie an enemy to you for 5s; every step you take, it takes too | **Tangle** (30s): tie up to five enemies together for 6s; they can't pull apart and share half of all damage |
+| 🌑 **Watcher Claymore** · Shadow | Invisible while sneaking, faster movement | +60% from behind; 20%: blind | **Shadow Strike** (10s): teleport behind your target | **Shadow Veil** (35s): 6s full invisibility (armor too); next hit +8 |
+| ☸ **Royal Chakram** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
+| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
 | Ω **Power Fuse Hammer** · Fusion Maul | **Polarity**: hits magnetize the target | 25%: **Static** arcs to every magnetized enemy | **Repulsor Field** (25s): 5s field that throws enemies back and turns projectiles around | **Overcharge** (20s): charge for 2s; your next hit deals +14 and chains to magnetized enemies |
-| ⌬ **Cyber Mantis Blade** · Cyber Arm-Blade | Jump Boost II; falls under 12 blocks don't hurt | 25%: **Serrated**, +30% damage from you for 4s | **Blade Extension** (20s): 6s of +3 reach, every swing cuts everything in front | **Ambush** (25s): wait unseen; the first enemy within 6 blocks is snatched and struck four times |
+| ✧ **Star's Edge** · Constellation Blade | +20% damage at night | Every hit sets a **star** over the target | **Constellation** (12s): link every starred enemy with starlight and crush them together; more stars, more damage | **Astral Projection** (30s): leave your body and fly as an untouchable spirit for 5s, starring what you pass |
+
+### Arc III · Dominion
+
+| Weapon | Passive (while held) | On hit | F | Sneak + F |
+| --- | --- | --- | --- | --- |
+| 💀 **Awakened Lichblade** · Soul | Kills heal 4 and grant Absorption | 20%: +4 soul damage | **Spectral Hounds** (25s): 3 soul wolves hunt your target for 15s | **Wail of the Damned** (32s): wither, weaken and scatter enemies, then six screaming skulls hunt them down |
+| ⚰ **Requiem of the Ninth Abyss** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Doom** (30s): mark an enemy for 5s; then a giant scythe deals 6 plus three quarters of everything it took while marked |
+| ✹ **Ashura's Blade** · Six-Armed Blade | **Wrath**: +1 damage per enemy within 5 blocks (up to +5) | 25%: **Echo Arm** strikes again for half | **Thousand Hands** (25s): four spectral arms for 8s; each of your hits sends every arm at a nearby enemy | **Wrathful Form** (40s): grow to twice your size for 8s: more reach, +5 damage, no knockback, ground-shaking steps |
+| Ψ **Ocean's Rage** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Abyssal Bubble** (10s): trap an enemy in a floating bubble of seawater for 3s, drowning it, then slam it down | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
+| ⚚ **Arcanethyst** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Sentinel** (25s): a floating crystal that shoots enemies and mends you and your teammates for 8s |
+| ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
+| ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
+| ☥ **Pharaoh's Treasure** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado that drifts wherever your crosshair points, lifting, blinding and grinding enemies | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
+| Ж **Soul Claws** · Spectral Claws | Speed I; wounded enemies near you glow | **Frenzy**: up to 5 stacks of Haste and +1 damage | **Pounce** (8s): leap onto the enemy you aim at, pin it and rake it three times | **The Hunt** (30s): mark your prey for 12s: a trail to it, speed towards it, +5 damage; kill it to heal fully |
+
+### Arc IV · Cataclysm
+
+| Weapon | Passive (while held) | On hit | F | Sneak + F |
+| --- | --- | --- | --- | --- |
+| 🌌 **Demon Lord's Sword** · Void | Night Vision; carrying it saves you from the void | 20%: Wither II + steal 2 HP | **Void Step** (8s): blink up to 15 blocks | **Singularity** (35s): black hole that pulls enemies in, then implodes |
+| ᛉ **Demon Lord's Great Axe** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): a giant spectral axe crashes down ahead; Strength II and Resistance for you, Weakness and Slowness for enemies |
+| ♨ **Brimstone Claymore** · Volcanic Claymore | Fire Resistance; lava heals you | 25%: molten splash sets nearby enemies alight | **Geyser Leap** (14s): a lava geyser hurls you into the sky and leaves a burning pool | **Obsidian Skin** (35s): 6s of obsidian armor, 60% less damage, no knockback, then it shatters into shards |
+| ♆ **Sunbreak** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Skyhook** (8s): a spear on a chain that drags enemies to you or hauls you to the wall it sticks in | **Phalanx** (25s): fans of spears burst from the ground in a line, ending in a giant spear |
+| ⚓ **Sabre** · Corsair's Cutlass | Dolphin's Grace; kills can drop gold | 20%: a backhand cut for half damage | **Powder Keg** (12s): roll a keg out where you aim; swing at it to blow it up | **Kraken's Grasp** (30s): tentacles seize up to three enemies, slam them down twice and fling them away |
+| ⚙ **Cybernetic Chainsaw Blade** · Cyber Sawblade | **Overclock**: quick hits build heat; at 5 heat the next hit vents for +6 | 25%: **Arc Spark** jumps to two more enemies | **Grinder** (10s): two seconds of a spinning blade shredding what's in front | **EMP Overload** (30s): a pulse that stuns and reveals enemies and speeds you up |
+| ⚡ **Thunder Bringer** · Storm | +25% speed, lightning immunity | 12%: lightning, +5 damage, stun | **Thunder Strike** (10s): lightning where you aim (40 blocks) | **Chain Lightning** (28s): arcs through up to 6 enemies |
+| ☣ **Plague Longsword** · Plague | Immune to poison, wither, hunger, nausea | Plague stack; infected targets wither for +2 | **Miasma** (12s): plague cloud that stacks infection | **Pandemic** (30s): every infected enemy erupts (3 + 2.5 per stack) |
+| ❦ **Forest Guardian's Glaive** · Guardian's Glaive | Regeneration I on grass, moss or leaves | 20%: a thorn wisp bites for 4s | **Leaf Glide** (12s): glide on wings of leaves for 4s, steering with your crosshair; dive into enemies to strike | **Turning Seasons** (35s): spring heals, summer burns, autumn blinds, winter freezes around you |
+
+### Arc V · Eternity
+
+| Weapon | Passive (while held) | On hit | F | Sneak + F |
+| --- | --- | --- | --- | --- |
+| ◈ **Silverine Blade** · Silver Mirror Blade | **Glass Skin**: 15% of attacks miss you | 20%: shards cut enemies around the target | **Mirror Images** (25s): two copies of you that hunt and fight your enemies for 8s and draw them away, then burst into glass | **Reflection** (30s): for 3s every hit you take goes back to whoever dealt it |
+| 🌊 **Aquatic Sacred Blade** · Tide | Conduit Power, Dolphin's Grace | 20%: drag the target to you, slow it | **Riptide Surge** (8s): riptide dash through enemies | **Ride the Tide** (28s): surf a wave you steer with your crosshair for 3.5s, carrying enemies until it breaks |
+| ✢ **Hornet's Needle** · Hive Needle | Sneak in mid-air to drift down | **Venom** stacks (up to 6) | **Swarm Form** (14s): become a swarm of hornets for 3s, fly where you look, untouchable, stinging what you pass | **Hive Mind** (30s): enemies carrying your venom turn on each other for 6s |
+| 🐉 **Dragon Slaying Blade** · Dragon | Resistance I, +50% knockback resistance | 25%: +4 bonus damage | **Dragon Breath** (12s): 8-pulse cone of dragonfire | **Wyrm Dive** (30s): launch up, crash down in a shockwave, no fall damage |
+| † **Thousand Demon Daggers** · Cursed Daggers | **Twin Fangs**: every third hit strikes twice | **Hex**: +6% damage from you per stack | **Blood Pact** (20s): pay 3 hearts for 6s of +5 damage and lifesteal | **Soul Swap** (14s): trade places with the enemy you aim at; it's left weakened and blinded |
+| ⚜ **Jade Halberd** · Imperial Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Vault** (9s): plant the halberd and vault over enemies, kicking those below and cleaving where you land | **Jade Dragon** (32s): a jade dragon you steer with your crosshair for 4.5s, biting everything it passes through |
+| ☀ **Righteous Relic** · Solar | Haste II; nearby enemies glow | Ignites; +50% vs undead | **Solar Beam** (9s): a 1.5s beam that follows your aim, burning what it sweeps across | **Supernova** (35s): charge, then radius-10 solar blast |
+| 🔥 **Phoenix Grace** · Phoenix | Fire Resistance; **Rebirth**: a killing blow revives you at half health (every 5 min) | Ignites; 15%: combustion splash | **Ember Volley** (6s): 3 exploding fireballs that leave burning ground behind them (no real fire) | **Wall of Fire** (25s): a wall of fire across your aim for 6s; anything crossing it burns and is thrown back, arrows burn up |
+| ⌛ **Chrono Blade** · Chrono | +25% attack speed | 15%: freeze the target in time | **Stasis Field** (14s): enemies crawl, projectiles freeze mid-air | **Rewind** (30s): back to where you were 4s ago, with that health |
 
 ## Effects
 
@@ -110,7 +134,7 @@ Telekinesis lets you drag an enemy around with your crosshair, the Wail sends sc
 drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Riposte raises a
 shield sigil, Arcane Missiles pour out of a rune portal, dashes leave afterimages, Stasis Field turns the
 hands of a giant clock, Singularity spins an accretion disk, Supernova swells into a sun,
-Warcry brings a giant spectral axe down on the ground, Moongate opens a pair of portals, Jade
+Warcry brings a giant spectral axe down on the ground, Moongate opens a pair of portals, Abyssal Bubble floats an enemy away in seawater, Jade
 Dragon is a winding serpent with a dragon's head, Phalanx raises fans of spears that end in a
 giant one, and thrown weapons leave streaks and rings of light behind them. They fade out smoothly, never touch the world, and a
 glow or burst on yourself is hidden from you so it never fills your screen (others still see it).
@@ -168,6 +192,11 @@ saved with the world.
 - **Forest Guardian's Glaive** — Carried by the old forest's last guardian, who planted it in the earth and became a tree around it.
 - **Power Fuse Hammer** — A forge-engine with a handle. The fuse in its head has been lit since the day it was built.
 - **Cyber Mantis Blade** — Military hardware with an insect's patience. It folds into your forearm and unfolds into someone else.
+- **Ribbon Cleaver** — Its ribbons were cut from the strings of a puppet theatre that burned with its audience inside. They still remember how to make things dance.
+- **Star's Edge** — Cut from the night sky on the one evening it held still. Wherever it strikes, a new star is born.
+- **Ashura's Blade** — Wielded by a war god with six arms and no mercy. Hold it and you will feel the other five.
+- **Death Knight's Sword** — Sworn to a king long dead, and still keeping its oath. The fallen get back up when it asks them to.
+- **Creation Splitter** — The blade that cut the first day from the first night. The world has never quite healed where it passes.
 
 </details>
 
@@ -268,6 +297,11 @@ bringing the ingredients to a weapon altar, set per sword in `config.yml`
 | Forest Guardian's Glaive | `LML / ESE / LML` | L oak log, M moss block, E emerald block, **S netherite spear** |
 | Power Fuse Hammer | `ICI / LML / ICI` | I iron block, C copper block, L lodestone, **M mace** |
 | Cyber Mantis Blade | `ORO / PSP / ORO` | O observer, R redstone block, P piston |
+| Ribbon Cleaver | `WSW / LXL / WSW` | W pink wool, S string, L lead, **X netherite sword** |
+| Star's Edge | `NEN / ASA / NEN` | N nether star, E end rod, A amethyst block |
+| Ashura's Blade | `GBG / RSR / GBG` | G gold block, B blaze powder, R redstone block |
+| Death Knight's Sword | `BWB / ISI / BWB` | B bone block, W wither skeleton skull, I blue ice |
+| Creation Splitter | `OCO / ESE / OCO` | O crying obsidian, C end crystal, E echo shard |
 
 (`S` = netherite sword unless noted.) A Customs weapon can never be used up as an ingredient.
 
@@ -344,8 +378,8 @@ GitHub Actions; the jar and pack are attached to each run as the `Customs` artif
 
 ### The resource pack
 
-The 3D models and textures come from the **Blades of Majestica** resource pack. 40 of its 119
-weapons (21 swords and 19 other weapons) are imported into the `customs` namespace, so they're applied by the plugin with the
+The 3D models and textures come from the **Blades of Majestica** resource pack. 45 of its 119
+weapons are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
 ```

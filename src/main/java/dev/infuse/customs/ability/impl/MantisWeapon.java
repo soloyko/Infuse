@@ -62,8 +62,9 @@ public final class MantisWeapon extends SwordAbility implements Listener {
     }
 
     @Override
-    public void heldEffects(Player player, List<PotionEffect> out) {
-        out.add(effect(PotionEffectType.JUMP_BOOST, 0, 1));
+    public void addAttributes(org.bukkit.inventory.meta.ItemMeta meta) {
+        // servo legs: step straight up whole blocks
+        addModifier(meta, Attribute.STEP_HEIGHT, "servo_legs", 0.5, AttributeModifier.Operation.ADD_NUMBER);
     }
 
     /** Servo Legs: short falls don't hurt. */

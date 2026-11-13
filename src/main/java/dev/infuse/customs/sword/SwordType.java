@@ -85,7 +85,7 @@ public enum SwordType {
 
     COSMIC("cosmic", "Edge Of The Astral Plane", "Cosmic Sword", "✨", 0xC54DFF, 0x4DE8FF,
             "Hammered from the core of a fallen star, still warm after ten thousand years. Gravity itself kneels to whoever holds it.",
-            new AbilityInfo("Zero-G", "Lower gravity, higher jumps and no fall damage while held."),
+            new AbilityInfo("Zero-G", "Lower gravity and no fall damage while held."),
             new AbilityInfo("Starstrike", "20% chance to launch the target into orbit with Levitation."),
             new AbilityInfo("Telekinesis", "Seize the enemy under your crosshair and drag it through the air with your aim for 3 seconds, smashing it into others and walls, then hurl it."),
             new AbilityInfo("Orbit", "Pull up to five nearby enemies into orbit around you for 5 seconds: they circle you as you move, smashing into anyone in the way, then fly off.")),
@@ -166,12 +166,12 @@ public enum SwordType {
             "Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.",
             new AbilityInfo("Stormborn", "Always returns when thrown, and calls down lightning where it hits, in any weather. Water Breathing while held."),
             new AbilityInfo("Undertow", "20% chance to drag the target under: +3 damage and Slowness III."),
-            new AbilityInfo("Trident Rain", "Five spectral tridents fall on the target area, each bursting into a wave."),
+            new AbilityInfo("Abyssal Bubble", "Trap the enemy under your crosshair in a bubble of seawater: it floats helpless and drowning for 3 seconds, then the bubble bursts and slams it down."),
             new AbilityInfo("Maelstrom", "A whirlpool drags enemies around and in for four seconds, then erupts as a geyser.")),
 
     SHURIKEN("shuriken", "Amethyst Shuriken", "Throwing Star", "✴", 0xE040FB, 0x7B1FA2, Material.NETHERITE_SWORD,
             "Four petals of living amethyst, folded by a clan that was never seen. It blooms only in the dark, and never twice in the same place.",
-            new AbilityInfo("Light Feet", "Speed I and Jump Boost I while held."),
+            new AbilityInfo("Light Feet", "Speed I while held."),
             new AbilityInfo("Petal Cut", "25% chance to fling a spare shuriken at another nearby enemy."),
             new AbilityInfo("Star Fan", "Throw five spinning shuriken in a fan; each one ricochets to a second enemy."),
             new AbilityInfo("Thousand Cuts", "Flash between up to six nearby enemies, cutting each one, then return to where you started.")),
@@ -221,7 +221,7 @@ public enum SwordType {
 
     NEEDLE("needle", "Hornet's Needle", "Hive Needle", "✢", 0xF5C518, 0x3A3A3A,
             "Carved from the queen's own stinger. Wherever it goes, the hive hums along behind it.",
-            new AbilityInfo("Gossamer", "Jump Boost I while held. Hold sneak in the air to drift down slowly."),
+            new AbilityInfo("Gossamer", "Hold sneak in the air to drift down slowly."),
             new AbilityInfo("Venom", "Every hit adds venom (up to 6 stacks): poison that lasts longer with each one."),
             new AbilityInfo("Swarm Form", "Burst into a swarm of hornets for 3 seconds: fly wherever you look, untouchable, stinging everything you pass through."),
             new AbilityInfo("Hive Mind", "Enemies within 12 blocks carrying your venom turn on each other for 6 seconds.")),
@@ -244,7 +244,7 @@ public enum SwordType {
             "Polished until it forgot which side of itself was real. Neither do the people who fight it.",
             new AbilityInfo("Glass Skin", "15% chance for an attack to pass through a mirror image and miss you entirely."),
             new AbilityInfo("Shatter", "20% chance for mirror shards to burst from the target and cut enemies around it."),
-            new AbilityInfo("Mirror Images", "Two mirror copies of you step out for 8 seconds. Enemies go after them, and they burst into glass when broken."),
+            new AbilityInfo("Mirror Images", "Two mirror copies of you step out for 8 seconds and fight at your side. Enemies go after them, and they burst into glass when broken."),
             new AbilityInfo("Reflection", "For 3 seconds every hit you take is turned back on whoever dealt it, and you take none of it.")),
 
     CUTLASS("cutlass", "Sabre", "Corsair's Cutlass", "⚓", 0xC9A227, 0x1F4E79,
@@ -253,6 +253,42 @@ public enum SwordType {
             new AbilityInfo("Cutthroat", "20% chance for a backhand cut: half damage again and Slowness."),
             new AbilityInfo("Powder Keg", "Roll out a powder keg where you aim. Hit it to blow it up, or it goes off by itself after 6 seconds."),
             new AbilityInfo("Kraken's Grasp", "Tentacles burst out of the ground where you aim, seize up to three enemies, slam them into the ground twice and fling them away.")),
+
+    // ---- swords added in 2.5 ----
+    RIBBON("ribbon", "Ribbon Cleaver", "Puppeteer's Cleaver", "☙", 0xE8446A, 0xF2F2F2,
+            "Its ribbons were cut from the strings of a puppet theatre that burned with its audience inside. They still remember how to make things dance.",
+            new AbilityInfo("Graceful", "Speed I while sprinting."),
+            new AbilityInfo("Entangle", "20% chance for a ribbon to wrap the target: Slowness III for 2 seconds."),
+            new AbilityInfo("Marionette", "Tie ribbons to the enemy under your crosshair for 5 seconds: every step you take, it takes too, wherever that leads it."),
+            new AbilityInfo("Tangle", "Tie up to five nearby enemies together for 6 seconds: they can't pull apart, and half the damage any of them takes goes to the others.")),
+
+    STARS("stars", "Star's Edge", "Constellation Blade", "✧", 0x5CF2C2, 0x6A4BD6,
+            "Cut from the night sky on the one evening it held still. Wherever it strikes, a new star is born.",
+            new AbilityInfo("Stargazer", "Your hits deal +20% damage at night."),
+            new AbilityInfo("Star Mark", "Every hit sets a star over the target for 8 seconds."),
+            new AbilityInfo("Constellation", "Link every starred enemy within 16 blocks with starlight, then pull them all into a collapsing star. Bigger constellations hit harder."),
+            new AbilityInfo("Astral Projection", "Step out of your body for 5 seconds and fly as a spirit nothing can hurt, starring every enemy you pass, then snap back to your body.")),
+
+    ASHURA("ashura", "Ashura's Blade", "Six-Armed Blade", "✹", 0xE5482C, 0xFFC94A,
+            "Wielded by a war god with six arms and no mercy. Hold it and you will feel the other five.",
+            new AbilityInfo("Wrath", "+1 damage for each enemy within 5 blocks of you, up to +5."),
+            new AbilityInfo("Echo Arm", "25% chance for a spectral arm to strike the target again for half damage."),
+            new AbilityInfo("Thousand Hands", "Four spectral arms rise behind you for 8 seconds. Every time you hit, each arm strikes an enemy near you."),
+            new AbilityInfo("Wrathful Form", "Grow to twice your size for 8 seconds: more reach, +5 damage, no knockback, and every step shakes the ground.")),
+
+    DEATHKNIGHT("deathknight", "Death Knight's Sword", "Runed Greatsword", "♞", 0x5DA9E9, 0x0D1B2A,
+            "Sworn to a king long dead, and still keeping its oath. The fallen get back up when it asks them to.",
+            new AbilityInfo("Frost Presence", "Enemies that strike you are slowed."),
+            new AbilityInfo("Death Coil", "20% chance to drain 2 health from the target into you."),
+            new AbilityInfo("Raise Dead", "Raise up to three skeleton warriors from creatures slain near you (or from the ground). They fight for you for 20 seconds."),
+            new AbilityInfo("Deathcharger", "Summon a spectral skeleton horse and ride it for 12 seconds, trampling every enemy in your path.")),
+
+    SPLITTER("splitter", "Creation Splitter", "Worldsplitter", "☍", 0xC2183A, 0x1A0A0A,
+            "The blade that cut the first day from the first night. The world has never quite healed where it passes.",
+            new AbilityInfo("Fault Line", "Every fifth hit splits the air itself and deals double damage."),
+            new AbilityInfo("Fracture", "20% chance for space to crack beneath the target and burst."),
+            new AbilityInfo("Sunder", "Cut a 12-block rift along your aim: enemies are thrown out to either side, and anyone on the line takes heavy damage."),
+            new AbilityInfo("Banish", "Erase the enemy under your crosshair from the world for 3 seconds, then drop it back out of a rift above where it stood.")),
 
     // ---- other weapons added in 2.3 ----
     CLAWS("claws", "Soul Claws", "Spectral Claws", "Ж", 0x2EE6D6, 0x0B3B4A, Material.NETHERITE_SWORD,
@@ -292,7 +328,7 @@ public enum SwordType {
 
     MANTIS("mantis", "Cyber Mantis Blade", "Cyber Arm-Blade", "⌬", 0xFF7A00, 0x1C1C1C, Material.NETHERITE_SWORD,
             "Military hardware with an insect's patience. It folds into your forearm and unfolds into someone else.",
-            new AbilityInfo("Servo Legs", "Jump Boost II while held, and falls of under 12 blocks don't hurt."),
+            new AbilityInfo("Servo Legs", "Step straight up whole blocks, and falls of under 12 blocks don't hurt."),
             new AbilityInfo("Serrated", "25% chance to shred the target's armor: it takes 30% more damage from you for 4 seconds."),
             new AbilityInfo("Blade Extension", "Extend the blade for 6 seconds: +3 blocks of reach, and every swing cuts everything in front of you."),
             new AbilityInfo("Ambush", "Crouch in wait for up to 5 seconds, almost invisible. The first enemy to come within 6 blocks is snatched to you and struck four times."));
@@ -355,10 +391,10 @@ public enum SwordType {
             case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
             case STORM, SAWBLADE, MAUL, MANTIS -> dev.infuse.customs.ability.Fx3D.Element.STORM;
             case TIDE, TRIDENT, CUTLASS -> dev.infuse.customs.ability.Fx3D.Element.WATER;
-            case VERDANT, PLAGUE, GLAIVE, NEEDLE -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
-            case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
-            case SHADOW, SOUL, ECHO, SCYTHE, CLAWS -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
-            case CRIMSON, AXE, DAGGERS -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
+            case VERDANT, PLAGUE, GLAIVE, NEEDLE, RIBBON -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
+            case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE, STARS, SPLITTER -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
+            case SHADOW, SOUL, ECHO, SCYTHE, CLAWS, DEATHKNIGHT -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
+            case CRIMSON, AXE, DAGGERS, ASHURA -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
             default -> dev.infuse.customs.ability.Fx3D.Element.MARTIAL;
         };
     }
@@ -366,12 +402,17 @@ public enum SwordType {
     /** How melee hits with this weapon are drawn. */
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {
-            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
+            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
             case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
             case HAMMER, MACE, MAUL -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
             case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SPIN;
             default -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SLASH;
         };
+    }
+
+    /** The arc this weapon belongs to. */
+    public Arc arc() {
+        return Arc.of(this);
     }
 
     /** True for the swords, false for the other weapons. */
@@ -468,6 +509,11 @@ public enum SwordType {
             case GLAIVE -> "returned to the forest";
             case MAUL -> "crushed under the field";
             case MANTIS -> "taken by surprise";
+            case RIBBON -> "danced to death";
+            case STARS -> "written into the stars";
+            case ASHURA -> "torn apart by six arms";
+            case DEATHKNIGHT -> "raised as a thrall";
+            case SPLITTER -> "split from reality";
         };
     }
 

@@ -1,7 +1,7 @@
 # ╔══════════════════════════════════════════════════════════╗
 # ║                       CUSTOMS                            ║
-# ║   21 legendary swords and 19 other weapons, with 3D      ║
-# ║   models, unique abilities and weapon altars             ║
+# ║   45 legendary weapons in five arcs, with 3D models,     ║
+# ║   unique abilities and weapon altars                     ║
 # ╚══════════════════════════════════════════════════════════╝
 #
 # Controls (while holding a weapon, see controls.trigger):
@@ -410,6 +410,51 @@ swords:
       enabled: true
       shape: ["GTG", "PSP", "GTG"]
       ingredients: {G: GOLD_BLOCK, T: TNT, P: PRISMARINE, S: NETHERITE_SWORD}
+  ribbon:        # Ribbon Cleaver
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 16, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["WSW", "LXL", "WSW"]
+      ingredients: {W: PINK_WOOL, S: STRING, L: LEAD, X: NETHERITE_SWORD}
+  stars:         # Star's Edge
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["NEN", "ASA", "NEN"]
+      ingredients: {N: NETHER_STAR, E: END_ROD, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
+  ashura:        # Ashura's Blade
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.4
+    cooldowns: {primary: 25, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["GBG", "RSR", "GBG"]
+      ingredients: {G: GOLD_BLOCK, B: BLAZE_POWDER, R: REDSTONE_BLOCK, S: NETHERITE_SWORD}
+  deathknight:   # Death Knight's Sword
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.4
+    cooldowns: {primary: 30, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["BWB", "ISI", "BWB"]
+      ingredients: {B: BONE_BLOCK, W: WITHER_SKELETON_SKULL, I: BLUE_ICE, S: NETHERITE_SWORD}
+  splitter:      # Creation Splitter
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.5
+    cooldowns: {primary: 12, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["OCO", "ESE", "OCO"]
+      ingredients: {O: CRYING_OBSIDIAN, C: END_CRYSTAL, E: ECHO_SHARD, S: NETHERITE_SWORD}
   claws:         # Soul Claws
     enabled: true
     attack-damage: 10

@@ -2,7 +2,7 @@ name: Customs
 version: '${version}'
 main: dev.infuse.customs.CustomsPlugin
 api-version: '1.21.11'
-description: 21 legendary swords and 19 other weapons with 3D models, lore, unique abilities, glowing effects and stone altars.
+description: 45 legendary weapons in five arcs, with 3D models, lore, unique abilities, glowing effects and stone altars.
 authors: [Infuse]
 
 commands:

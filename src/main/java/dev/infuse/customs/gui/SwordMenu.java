@@ -16,7 +16,7 @@ import java.util.Map;
 public final class SwordMenu extends Menu {
 
     public SwordMenu(CustomsPlugin plugin) {
-        this(plugin, Page.SWORDS);
+        this(plugin, Page.I);
     }
 
     public SwordMenu(CustomsPlugin plugin, Page page) {

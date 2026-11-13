@@ -44,7 +44,6 @@ public final class CosmicSword extends SwordAbility {
     @Override
     public void addAttributes(ItemMeta meta) {
         addModifier(meta, Attribute.GRAVITY, "gravity", -0.3, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-        addModifier(meta, Attribute.JUMP_STRENGTH, "jump", 0.05, AttributeModifier.Operation.ADD_NUMBER);
         addModifier(meta, Attribute.FALL_DAMAGE_MULTIPLIER, "fall_damage", -1.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     }
 

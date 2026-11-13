@@ -45,7 +45,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Ocean's Rage, the Abyssal Trident (vanilla trident): the sea and the storm.
  * Passive Stormborn (always returns, thrown hits call lightning in any weather), on-hit Undertow,
- * F Trident Rain, Sneak+F Maelstrom.
+ * F Abyssal Bubble, Sneak+F Maelstrom.
  */
 public final class TridentWeapon extends SwordAbility implements Listener {
 
@@ -125,89 +125,96 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         return Combat.ground(point);
     }
 
-    /** Trident Rain: five spectral tridents fall on the target area, each bursting into water. */
+    /** Abyssal Bubble: how long the bubble holds and how high it floats. */
+    private static final int BUBBLE_TICKS = 60;
+
+    /**
+     * Abyssal Bubble: a globe of seawater wells up around the enemy under your crosshair and lifts
+     * it off the ground. For three seconds it floats there helpless, drowning, then the bubble
+     * bursts and slams it back down in a rush of water.
+     */
     @Override
     public boolean primary(Player player) {
-        Location center = aim(player, 30);
-        Set<UUID> hit = new HashSet<>();
-        Fx.sound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 0.7f, 1.4f);
-        Fx.sound(center, Sound.ITEM_TRIDENT_RIPTIDE_3, 1f, 0.8f);
-        ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int i = 0; i < 5; i++) {
-            double angle = i * Math.PI * 2 / 5 + r.nextDouble(-0.3, 0.3);
-            double radius = i == 0 ? 0 : r.nextDouble(1.2, 2.8);
-            Location ground = i == 0 ? center
-                    : Combat.ground(center.clone().add(Math.cos(angle) * radius, 1.5, Math.sin(angle) * radius));
-            displays().later(1 + i * 4L, () -> fall(player, ground, hit));
+        LivingEntity target = combat().lookTarget(player, 28, 0.7);
+        if (target == null) {
+            tell(player, "Look at an enemy to trap it.");
+            return false;
         }
-        return true;
-    }
-
-    private void fall(Player player, Location ground, Set<UUID> hit) {
-        if (!alive(player) || player.getWorld() != ground.getWorld()) {
-            return;
-        }
-            // the storm follows the trident down
-            displays().later(10, () -> fx().bolt(ground.clone().add(0, 14, 0), ground.clone().add(0, 0.2, 0), 0x9FF5F5, 0.5f, 5, 1));
-        Location start = ground.clone().add(0, 14, 0);
-        start.setYaw(0);
-        start.setPitch(0);
-        Quaternionf down = Displays.pointing(new Vector(0, -1, 0)).rotateY((float) (Math.random() * Math.PI * 2));
-        ItemDisplay spear = displays().item(start, plugin.items().create(type), MODEL_SCALE, down,
-                ItemDisplay.ItemDisplayTransform.NONE, 60);
-        spear.setGlowing(true);
-        spear.setGlowColorOverride(org.bukkit.Color.fromRGB(TEAL));
-        double stop = ground.getY() + 0.9;
+        Location start = target.getLocation();
+        boolean hadGravity = target.hasGravity();
+        target.setGravity(false);
+        Location at = Combat.center(target);
+        at.setYaw(0);
+        at.setPitch(0);
+        float size = (float) Math.max(1.6, target.getHeight() + 0.6);
+        org.bukkit.entity.BlockDisplay bubble = displays().block(at, org.bukkit.Material.LIGHT_BLUE_STAINED_GLASS.createBlockData(),
+                new org.joml.Vector3f(0.1f), new org.joml.Quaternionf(), BUBBLE_TICKS + 10);
+        bubble.setBrightness(new org.bukkit.entity.Display.Brightness(12, 15));
+        bubble.setTeleportDuration(1);
+        org.bukkit.entity.ItemDisplay sheen = fx().orb(at, 0x2EC4C4, size * 1.3f, BUBBLE_TICKS + 10);
+        displays().later(1, () -> dev.infuse.customs.ability.Displays.animateBlock(bubble, new org.joml.Vector3f(size),
+                new org.joml.Quaternionf().rotateXYZ(0.3f, 0.5f, 0.2f), new org.joml.Vector3f(), 6));
+        fx().beam(player.getEyeLocation(), at, 0x2EC4C4, 0.2f, 6);
+        Fx.particle(at, Particle.SPLASH, 40, 0.6, 0.2);
+        Fx.sound(at, Sound.ITEM_BUCKET_FILL, 1.2f, 0.8f);
+        Fx.sound(at, Sound.BLOCK_BUBBLE_COLUMN_UPWARDS_INSIDE, 1.2f, 1f);
 
         new BukkitRunnable() {
-            final Location pos = start.clone();
-            double speed = 0.9;
-            int stuck = -1;
+            int ticks;
 
             @Override
             public void run() {
-                if (!spear.isValid()) {
-                    cancel();
+                ticks++;
+                if (!target.isValid() || target.isDead() || !alive(player) || ticks > BUBBLE_TICKS) {
+                    burst();
                     return;
                 }
-                if (stuck >= 0) {
-                    if (++stuck == 14) {
-                        Displays.animate(spear, new org.bukkit.util.Transformation(new Vector3f(0, -1.6f, 0), down,
-                                new Vector3f(MODEL_SCALE * 0.8f), new Quaternionf()), 6);
-                    } else if (stuck > 20) {
-                        displays().remove(spear);
-                        cancel();
-                    }
-                    return;
+                // floats up a couple of blocks and bobs there, turning slowly
+                double rise = Math.min(2.2, ticks * 0.12) + Math.sin(ticks * 0.25) * 0.15;
+                Location hold = start.clone().add(0, rise, 0);
+                Combat.setVelocity(target, hold.toVector().subtract(target.getLocation().toVector()).multiply(0.5));
+                Location center = Combat.center(target);
+                center.setYaw(0);
+                center.setPitch(0);
+                bubble.teleport(center);
+                sheen.teleport(center);
+                if (ticks % 4 == 0) {
+                    dev.infuse.customs.ability.Displays.animateBlock(bubble, new org.joml.Vector3f(size),
+                            new org.joml.Quaternionf().rotateXYZ(0.3f, 0.5f + ticks * 0.05f, 0.2f), new org.joml.Vector3f(), 4);
                 }
-                speed = Math.min(2.4, speed + 0.3);
-                pos.setY(Math.max(stop, pos.getY() - speed));
-                spear.teleport(pos);
-                Fx.particle(pos.clone().add(0, 1, 0), Particle.FALLING_WATER, 2, 0.1, 0);
-                Fx.particle(pos.clone().add(0, 1, 0), Particle.DUST, 1, 0.05, 0, Fx.dust(TEAL, 1.1f));
-                if (pos.getY() <= stop) {
-                    stuck = 0;
-                    impact(player, ground, hit);
+                Fx.particle(center, Particle.BUBBLE, 3, size * 0.3, 0.02);
+                if (ticks % 3 == 0) {
+                    Fx.particle(center, Particle.BUBBLE_POP, 2, size * 0.35, 0.02);
+                }
+                if (ticks % 20 == 0) {
+                    combat().damage(player, target, 2, true);
+                    Fx.sound(center, Sound.ENTITY_PLAYER_HURT_DROWN, 1f, 1f);
+                }
+            }
+
+            private void burst() {
+                cancel();
+                target.setGravity(hadGravity);
+                Location center = target.isValid() ? Combat.center(target) : at;
+                displays().remove(bubble);
+                displays().remove(sheen);
+                Fx.particle(center, Particle.SPLASH, 80, 1, 0.3);
+                Fx.particle(center, Particle.BUBBLE_POP, 30, 0.8, 0.1);
+                fx().wave(center, new org.bukkit.util.Vector(0, 1, 0), 0x9FE0FF, 2.4f, 6);
+                Fx.sound(center, Sound.ENTITY_GENERIC_SPLASH, 1.4f, 0.7f);
+                Fx.sound(center, Sound.BLOCK_GLASS_BREAK, 1f, 1.4f);
+                if (target.isValid() && !target.isDead() && alive(player)) {
+                    Combat.setVelocity(target, new org.bukkit.util.Vector(0, -1.6, 0));
+                    combat().damage(player, target, 6, true);
+                    target.setFireTicks(0);
+                    applyEffect(target, PotionEffectType.SLOWNESS, 40, 1);
                 }
             }
         }.runTaskTimer(plugin, 1L, 1L);
+        return true;
     }
 
-    private void impact(Player player, Location ground, Set<UUID> hit) {
-        Location at = ground.clone().add(0, 0.3, 0);
-        Fx.particle(at, Particle.SPLASH, 60, 1.0, 0.2);
-        Fx.particle(at, Particle.BUBBLE_POP, 25, 0.8, 0.1);
-        Fx.ring(at, 1.6, 18, p -> Fx.particle(p, Particle.DUST, 1, 0.05, 0, Fx.dust(TEAL, 1.4f)));
-        Fx.sound(at, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 0.8f);
-        Fx.sound(at, Sound.ENTITY_GENERIC_SPLASH, 0.8f, 1.2f);
-        fx().shockwave(at, 0x2EC4C4, 2.2f, 6);
-        fx().flash(at.clone().add(0, 0.4, 0), 0x9FF5F5, 1.6f);
-        displays().eruptGround(at, 0.5f, 0.5f);
-        for (LivingEntity target : combat().nearby(player, at, 1.9)) {
-            combat().damage(player, target, hit.add(target.getUniqueId()) ? 7 : 3);
-            applyEffect(target, PotionEffectType.SLOWNESS, 30, 1);
-        }
-    }
+
 
     /** Maelstrom: a whirlpool drags enemies around and in for four seconds, then erupts as a geyser. */
     @Override

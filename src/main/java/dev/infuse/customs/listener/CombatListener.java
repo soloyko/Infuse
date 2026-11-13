@@ -167,6 +167,20 @@ public final class CombatListener implements Listener {
             case MACE -> fx.beam(feet.clone().add(0, 8, 0), feet, 0xFFF8E1, 0.9f, 8);
             case GLAIVE -> Fx.particle(at, Particle.CHERRY_LEAVES, 30, 0.6, 0.05);
             case MAUL, MANTIS -> Fx.particle(at, Particle.ELECTRIC_SPARK, 40, 0.4, 0.3);
+            case RIBBON -> Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xE8446A, 1.2f));
+            case STARS -> {
+                Fx.particle(at, Particle.END_ROD, 30, 0.5, 0.1);
+                fx.flash(at, 0x5CF2C2, 2f);
+            }
+            case ASHURA -> Fx.particle(at, Particle.FLAME, 25, 0.4, 0.08);
+            case DEATHKNIGHT -> {
+                Fx.particle(at, Particle.SOUL, 20, 0.4, 0.05);
+                Fx.particle(at, Particle.SNOWFLAKE, 20, 0.4, 0.05);
+            }
+            case SPLITTER -> {
+                Fx.particle(at, Particle.REVERSE_PORTAL, 40, 0.4, 0.2);
+                fx.flash(at, 0xC2183A, 2f);
+            }
         }
     }
 

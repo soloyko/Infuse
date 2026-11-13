@@ -46,7 +46,6 @@ public final class ShurikenWeapon extends SwordAbility {
     @Override
     public void heldEffects(Player player, List<PotionEffect> out) {
         out.add(effect(PotionEffectType.SPEED, 0, 0));
-        out.add(effect(PotionEffectType.JUMP_BOOST, 0, 0));
     }
 
     @Override

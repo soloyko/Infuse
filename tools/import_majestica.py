@@ -63,6 +63,12 @@ SWORDS = {
     'glaive': 'forest_guardian_glaive',
     'maul': 'powerfusehammer',
     'mantis': 'cybermantisblade',
+    # added in 2.5
+    'ribbon': 'ribboncleaver',
+    'stars': 'stars_edge',
+    'ashura': 'ashura_blade',
+    'deathknight': 'death_knight_sword',
+    'splitter': 'creationsplitter',
 }
 
 # Blockbench-only fields Minecraft ignores

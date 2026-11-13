@@ -147,6 +147,31 @@ public final class Aura {
                     show(player, Particle.DUST, at, 1, 0.1, 0.3, 0.1, 0, Fx.dust(0xFF7A00, 0.7f));
                 }
             }
+            case RIBBON -> show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0xE8446A : 0xF2F2F2, 0.7f));
+            case STARS -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.END_ROD, at, 1, 0.12, 0.3, 0.12, 0.003);
+                }
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0x5CF2C2, 0.6f));
+            }
+            case ASHURA -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0xE5482C : 0xFFC94A, 0.8f));
+                if (tick % 4 == 0) {
+                    show(player, Particle.SMALL_FLAME, at, 1, 0.1, 0.3, 0.1, 0.003);
+                }
+            }
+            case DEATHKNIGHT -> {
+                show(player, Particle.SNOWFLAKE, at, 1, 0.12, 0.3, 0.12, 0.003);
+                if (tick % 3 == 0) {
+                    show(player, Particle.SOUL, at, 1, 0.12, 0.3, 0.12, 0.005);
+                }
+            }
+            case SPLITTER -> {
+                show(player, Particle.DUST, at, 1, 0.1, 0.3, 0.1, 0, Fx.dust(0xC2183A, 0.7f));
+                if (tick % 2 == 0) {
+                    show(player, Particle.REVERSE_PORTAL, at, 1, 0.1, 0.3, 0.1, 0.01);
+                }
+            }
             case TRIDENT -> {
                 show(player, Particle.DRIPPING_WATER, at, 1, 0.12, 0.35, 0.12, 0);
                 if (tick % 3 == 0) {

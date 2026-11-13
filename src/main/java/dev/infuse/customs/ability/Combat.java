@@ -27,6 +27,9 @@ import java.util.List;
 /** Targeting, damage and movement helpers used by every ability. */
 public final class Combat {
 
+    /** Marks a creature that fights for a player (its value is the player's UUID). */
+    public static final org.bukkit.NamespacedKey OWNER_KEY = new org.bukkit.NamespacedKey("customs", "owner");
+
     private final CustomsPlugin plugin;
     /** >0 while an ability is dealing damage (Paper reports it as an ENTITY_ATTACK by the player). */
     private int abilityDamageDepth;
@@ -58,6 +61,11 @@ public final class Combat {
             if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
                 return false;
             }
+        }
+        // creatures raised to fight for the caster
+        String master = entity.getPersistentDataContainer().get(OWNER_KEY, org.bukkit.persistence.PersistentDataType.STRING);
+        if (master != null && master.equals(caster.getUniqueId().toString())) {
+            return false;
         }
         return !(entity instanceof Tameable pet) || !pet.isTamed()
                 || !caster.getUniqueId().equals(pet.getOwnerUniqueId());
