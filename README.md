@@ -1,9 +1,10 @@
 # Infuse — OP Swords
 
-A Paper **1.21.11** plugin that adds 15 legendary swords and 6 other legendary weapons (a
-hammer, a scythe, a spear, a chakram, an axe and a staff). Each has its own name and lore, a 3D
-model (bundled resource pack), a passive, an on-hit effect and two activated abilities.
-Show them off on **weapon altars**: one-block 3D altars with the weapon floating above them.
+A Paper **1.21.11** plugin that adds 15 legendary swords and 7 other legendary weapons (a
+hammer, a scythe, a spear, a chakram, an axe, a staff and a trident). Each has its own name and
+lore, a 3D model (bundled resource pack), a passive, an on-hit effect and two activated
+abilities. Admins can place **weapon altars**: one-block 3D forges where players craft a weapon
+by bringing its ingredients, no crafting grid needed.
 
 ![The fifteen swords](docs/swords.png)
 
@@ -46,10 +47,10 @@ messages ("Steve was frozen solid by Alex wielding ❄ Everwinter").
 
 ## The other weapons
 
-![Earthshaker, Requiem, Skypiercer, Zephyr, Ragnarök and Arcanum on their altars](docs/weapons.png)
+![Earthshaker, Requiem, Skypiercer, Zephyr, Ragnarök, Arcanum and Leviathan on their altars](docs/weapons.png)
 
 They're built on the matching vanilla item, so the hammer keeps the mace's smash attack, the
-spear keeps its charge and the axe still disables shields.
+spear keeps its charge, the axe still disables shields and the trident can still be thrown.
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
@@ -59,6 +60,7 @@ spear keeps its charge and the axe still disables shields.
 | ☸ **Zephyr** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
 | ᛉ **Ragnarök** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): Strength II and Resistance for you, Weakness and Slowness for enemies |
 | ⚚ **Arcanum** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Nova** (25s): rings of amethyst burst from the ground around you |
+| Ψ **Leviathan** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Trident Rain** (10s): five spectral tridents fall on the target area | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
 
 Ability damage is credited to the player, so kills, mob aggro, world PvP settings and
 protection plugins all work as normal. No ability breaks or places blocks: the
@@ -89,27 +91,33 @@ saved with the world.
 - **Zephyr** — A royal war-disc blessed by the four winds. Thrown true, it always finds its way home.
 - **Ragnarök** — The axe that will end the world, carved with runes of doom. It grows hungrier the closer you are to death.
 - **Arcanum** — Grown from a single amethyst that hummed with magic for ten thousand years. It still hums.
+- **Leviathan** — Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.
 
 </details>
 
 ## Weapon altars
 
-![Two weapon altars: an owned altar with Wyrmsbane and a claimable shrine with Everwinter](docs/altars.png)
+![A weapon altar forging Leviathan: the trident floats over a glowing magic circle, with its recipe circling above it](docs/altars.png)
 
-A weapon altar is a single block with its own 3D model: a deepslate and gold plinth with rune
-plates, a glowing sigil and four crystals that take on the colour of the weapon it holds. The
-weapon floats above it (swords point-down, the other weapons head-up), slowly turning and bobbing, with a nameplate and the
-weapon's aura.
+A weapon altar is a single block with its own 3D model: a stepped deepslate and gold plinth,
+pillars around a core of glowing runes, a band of glyphs, four crystals floating over corner
+spires and a magic circle spinning on top, all in the colour of the weapon it holds. The weapon
+floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
+it** and a nameplate.
 
-- **Craft** one (`/opswords recipes` shows the recipe) and place it like a block.
-- **Right-click with an OP weapon** to put it on the altar. Right-click with an empty hand to
-  take it back. **Sneak + right-click** with an empty hand picks the altar up.
-- Only the owner (or an admin) can use or break an altar; breaking it drops the weapon too.
-- **Shrines**: an admin looks at a block and runs `/opswords altar shrine <weapon>`. The first
-  player to right-click the shrine claims the weapon (announced in chat; counts as forging it in
-  legendary mode). `/opswords altar refill <weapon>` puts a new one on the shrine.
+- **Only admins place altars.** Get one with `/opswords altar give` or the `/opswords menu`; it
+  can't be crafted. Place it, then right-click it with an OP weapon to choose what it forges (or
+  look at it and run `/opswords altar set <weapon>`). Sneak + right-click with an empty hand
+  picks it back up; only admins can break it.
+- **Players forge at it**: right-click the altar with the ingredients in your inventory. They're
+  taken and the weapon goes straight into your inventory. Looking at an altar shows what you're
+  still missing in the action bar, and right-clicking without everything lists it in chat.
+- Forging at an altar counts like crafting: it's signed "Forged by", announced, and respects
+  legendary mode (the altar then shows who forged it).
 
-Altars are saved in `plugins/OPSwords/altars.yml`. `altars.enabled` turns the feature off.
+Set `crafting.crafting-table: false` to make altars the only way to get weapons. Altars are saved
+in `plugins/OPSwords/altars.yml`; `altars.enabled` turns them off. (Upgrading from 1.4: weapons
+players had on their own altars are given back to them, and those altars keep forging that weapon.)
 
 ## Install
 
@@ -120,7 +128,7 @@ Altars are saved in `plugins/OPSwords/altars.yml`. `altars.enabled` turns the fe
      `plugins/OPSwords/OPSwords-ResourcePack.zip` somewhere (or merge it into your own server pack).
    - Players can re-download with `/opswords pack`.
 3. Get weapons with `/opswords give <player> <weapon|all>` (id or name, e.g. `dragon` or
-   `wyrmsbane`), the `/opswords menu` GUI, crafting or a shrine.
+   `wyrmsbane`), the `/opswords menu` GUI, crafting or a weapon altar.
 
 Upgrading: new weapons and settings are added to your existing `config.yml`
 automatically, and old Inferno/Emerald swords turn into Cinderwing/Elderbloom when next held.
@@ -129,7 +137,8 @@ automatically, and old Inferno/Emerald swords turn into Cinderwing/Elderbloom wh
 
 ### Crafting
 
-Every weapon has a shaped recipe around its vanilla base item, set per sword in `config.yml`
+Every weapon has a shaped recipe around its vanilla base item, made in a crafting table or by
+bringing the ingredients to a weapon altar, set per sword in `config.yml`
 (`crafting.enabled` turns all of them off). Players can browse them in-game with
 `/opswords recipes`, and crafted swords are signed "Forged by <player>". The defaults:
 
@@ -156,7 +165,7 @@ Every weapon has a shaped recipe around its vanilla base item, set per sword in 
 | Zephyr | `WEW / BSB / WEW` | W wind charge, E emerald block, B breeze rod |
 | Ragnarök | `INI / GSG / INI` | I iron block, N netherite ingot, G goat horn, **S netherite axe** |
 | Arcanum | `CLC / BSB / CLC` | C amethyst cluster, L lapis block, B bottle o' enchanting |
-| Weapon Altar | `AGA / BLB / DDD` | A amethyst shard, G gold block, B polished blackstone bricks, L lodestone, D polished deepslate |
+| Leviathan | `PCP / LSL / PDP` | P prismarine shard, C conduit, L lightning rod, D diamond block, **S trident** |
 
 (`S` = netherite sword unless noted.) An OP sword can never be used up as an ingredient.
 
@@ -175,9 +184,8 @@ lets a lost sword be crafted again. Admins can always `/opswords give`.
 | `/opswords give <player> <weapon\|all>` | `opswords.admin` | Give weapons |
 | `/opswords menu` | `opswords.admin` | Take weapons and altars from a GUI |
 | `/opswords altar give [player] [amount]` | `opswords.admin` | Give weapon altars |
-| `/opswords altar shrine <weapon>` | `opswords.admin` | Turn the block you look at into a claimable shrine |
-| `/opswords altar refill <weapon>` | `opswords.admin` | Put a weapon back on the shrine you look at |
-| `/opswords altar remove` / `list` | `opswords.admin` | Remove the altar you look at / list all altars |
+| `/opswords altar set <weapon>` | `opswords.admin` | Make the altar you look at forge a weapon (or place a new one on the block you look at) |
+| `/opswords altar remove` / `list` | `opswords.admin` | Remove the altar you look at / list all altars and their weapons |
 | `/opswords resetcooldowns [player\|*]` | `opswords.admin` | Clear cooldowns |
 | `/opswords unforge <weapon>` | `opswords.admin` | Legendary mode: allow crafting a weapon again |
 | `/opswords reload` | `opswords.admin` | Reload `config.yml` |
@@ -195,7 +203,7 @@ Other permissions: `opswords.use` (abilities and passives, default everyone),
   `unbreakable`, `protect-dropped-swords` (dropped swords never despawn and glow).
 - Cosmetics: `action-bar-hud`, `ability-ready-sound`, `held-aura`, `death-messages`.
 - `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`,
-  `altars.enabled` and `altars.recipe`.
+  `crafting.crafting-table` (turn off to make altars the only way to forge) and `altars.enabled`.
 - Changes apply on `/opswords reload`; swords players already own update the next time they're held.
 
 ## For developers
@@ -218,7 +226,7 @@ GitHub Actions; the jar and pack are attached to each run as the `OPSwords` arti
 ### The resource pack
 
 The 3D models and textures come from the **Blades of Majestica** resource pack. 15 of its 119
-weapons (15 swords and the 6 other weapons) are imported into the `op_swords` namespace, so they're applied by the plugin with the
+weapons (15 swords and the 7 other weapons) are imported into the `op_swords` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
 ```
@@ -226,8 +234,8 @@ pip install pillow numpy
 python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 ```
 
-The altar model is original: `tools/altar_model.py` generates it from vanilla textures plus
-three small rune/sigil/crystal textures.
+The altar model is original: `tools/altar_model.py` generates it (pedestal, glow layer and the
+spinning magic circle) from vanilla textures plus a few small rune, glyph and crystal textures.
 
 To use a different model for a weapon, change its entry in `SWORDS` at the top of
 `tools/import_majestica.py`, re-run it and rebuild. `tools/modelpreview.py` renders models to a

@@ -1,36 +1,35 @@
 package dev.infuse.opswords.altar;
 
+import dev.infuse.opswords.sword.SwordType;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-/** One placed altar: a barrier block, its owner (null for a public shrine) and the weapon on it. */
+/** One placed altar: a barrier block and the weapon it forges (null until an admin picks one). */
 final class Altar {
 
+    /** A floating ingredient icon and, for more than one, its "×4" label. */
+    record Ingredient(Display icon, @Nullable Display label) {
+    }
+
     final Location block;
-    @Nullable UUID owner;
-    @Nullable String ownerName;
-    @Nullable ItemStack item;
+    @Nullable SwordType type;
 
     /** Display entities currently showing this altar (empty while its chunk is unloaded). */
     final List<Display> visuals = new ArrayList<>();
+    final List<Ingredient> ingredients = new ArrayList<>();
     @Nullable Display weaponDisplay;
+    @Nullable Display halo;
     int spin;
+    /** Animation step until which the ingredient ring stays hidden after a forge. */
+    int hiddenUntil;
 
-    Altar(Location block, @Nullable UUID owner, @Nullable String ownerName, @Nullable ItemStack item) {
+    Altar(Location block, @Nullable SwordType type) {
         this.block = block;
-        this.owner = owner;
-        this.ownerName = ownerName;
-        this.item = item;
-    }
-
-    boolean isShrine() {
-        return owner == null;
+        this.type = type;
     }
 
     Location center() {

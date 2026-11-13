@@ -111,7 +111,8 @@ public final class PassiveManager {
                 Aura.play(player, type, runs);
             }
         }
-        if (plugin.settings().actionBarHud && usable && hudPausedUntil.getOrDefault(player.getUniqueId(), 0) <= Bukkit.getCurrentTick()) {
+        if (plugin.settings().actionBarHud && usable && hudPausedUntil.getOrDefault(player.getUniqueId(), 0) <= Bukkit.getCurrentTick()
+                && !plugin.altars().showingChecklist(player)) {
             player.sendActionBar(hud(player, type));
         }
     }
@@ -171,7 +172,7 @@ public final class PassiveManager {
         if (plugin.settings().actionBarHud) {
             actionBar(player, Text.plain("✔ ", NamedTextColor.GREEN)
                     .append(Text.plain(ready.type().ability(ready.slot()).name(), ready.type().color()))
-                    .append(Text.plain(" is ready", NamedTextColor.GRAY)));
+                    .append(Text.caps("  ready", NamedTextColor.GRAY)));
         }
     }
 

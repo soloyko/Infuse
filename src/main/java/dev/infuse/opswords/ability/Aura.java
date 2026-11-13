@@ -72,6 +72,12 @@ public final class Aura {
             case CHAKRAM -> show(player, Particle.SMALL_GUST, at, 1, 0.15, 0.3, 0.15, 0);
             case AXE -> show(player, Particle.DUST, at, 2, 0.12, 0.3, 0.12, 0, Fx.dust(0xC77DFF, 0.7f));
             case STAFF -> show(player, Particle.WITCH, at, 2, 0.15, 0.3, 0.15, 0);
+            case TRIDENT -> {
+                show(player, Particle.DRIPPING_WATER, at, 1, 0.12, 0.35, 0.12, 0);
+                if (tick % 3 == 0) {
+                    show(player, Particle.NAUTILUS, at, 1, 0.15, 0.3, 0.15, 0.2);
+                }
+            }
         }
     }
 

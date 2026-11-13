@@ -68,7 +68,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " resetcooldowns [player]", "Clear ability cooldowns");
             line(sender, "/" + label + " unforge <sword>", "Legendary mode: allow a weapon to be crafted again");
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
-            line(sender, "/" + label + " altar shrine <weapon>", "Turn the block you look at into a claimable shrine");
+            line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -157,6 +157,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (plugin.forges().clear(type)) {
+            plugin.altars().refreshAll();
             Text.send(sender, "<gray>" + type.swordName() + " can be forged again.");
         } else {
             Text.send(sender, "<gray>" + type.swordName() + " hasn't been forged.");
@@ -188,29 +189,26 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                         .forEach(rest -> target.getWorld().dropItemNaturally(target.getLocation(), rest));
                 Text.send(sender, "<gray>Gave <white>" + amount + "</white> weapon altar(s) to <white>" + target.getName() + "</white>.");
             }
-            case "shrine", "refill" -> {
+            case "set", "shrine" -> {
                 if (!(sender instanceof Player player)) {
                     Text.send(sender, "<red>Only players can do that.");
                     return;
                 }
                 SwordType type = args.length >= 3 ? SwordType.byId(args[2]) : null;
                 if (type == null) {
-                    Text.send(sender, "<gray>Usage: <white>/" + label + " altar " + sub + " <weapon></white>. Weapons: " + String.join(", ", ids()));
+                    Text.send(sender, "<gray>Usage: <white>/" + label + " altar set <weapon></white>. Weapons: " + String.join(", ", ids()));
                     return;
                 }
                 org.bukkit.block.Block looked = player.getTargetBlockExact(8);
                 if (looked == null) {
-                    Text.send(sender, "<red>Look at a block first.");
+                    Text.send(sender, "<red>Look at an altar, or at the block to put a new one on.");
                     return;
                 }
-                boolean ok = sub.equals("refill") ? plugin.altars().refill(looked, type) : plugin.altars().createShrine(looked, type);
-                if (ok) {
-                    Text.send(sender, Component.text(sub.equals("refill") ? "Refilled the shrine with " : "Created a shrine for ", NamedTextColor.GRAY)
+                if (plugin.altars().setWeapon(looked, type)) {
+                    Text.send(sender, Component.text("The altar now forges ", NamedTextColor.GRAY)
                             .append(Text.sword(type)).append(Component.text(".", NamedTextColor.GRAY)));
                 } else {
-                    Text.send(sender, sub.equals("refill")
-                            ? "<red>Look at an empty altar to refill it."
-                            : "<red>The space above that block must be empty.");
+                    Text.send(sender, "<red>The space above that block must be empty.");
                 }
             }
             case "remove" -> {
@@ -226,14 +224,13 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                 }
             }
             case "list" -> {
-                var all = plugin.altars().locations();
+                var all = plugin.altars().weapons();
                 Text.send(sender, "<gray>" + all.size() + " altar(s):");
-                for (org.bukkit.Location loc : all) {
-                    sender.sendMessage(Component.text("  " + loc.getWorld().getName() + " " + loc.getBlockX() + " "
-                            + loc.getBlockY() + " " + loc.getBlockZ(), NamedTextColor.WHITE));
-                }
+                all.forEach((loc, type) -> sender.sendMessage(Component.text("  " + loc.getWorld().getName() + " "
+                                + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "  ", NamedTextColor.WHITE)
+                        .append(type == null ? Component.text("(dormant)", NamedTextColor.DARK_GRAY) : Text.sword(type))));
             }
-            default -> Text.send(sender, "<gray>Usage: <white>/" + label + " altar <give|shrine|refill|remove|list></white>");
+            default -> Text.send(sender, "<gray>Usage: <white>/" + label + " altar <give|set|remove|list></white>");
         }
     }
 
@@ -387,7 +384,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
                 }
                 case "altar", "altars" -> {
                     if (admin) {
-                        options.addAll(List.of("give", "shrine", "refill", "remove", "list"));
+                        options.addAll(List.of("give", "set", "remove", "list"));
                     }
                 }
                 default -> {
@@ -398,7 +395,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             options.add("all");
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("altar") && admin) {
             switch (args[1].toLowerCase(Locale.ROOT)) {
-                case "shrine", "refill" -> options.addAll(ids());
+                case "set", "shrine" -> options.addAll(ids());
                 case "give" -> Bukkit.getOnlinePlayers().forEach(p -> options.add(p.getName()));
                 default -> {
                 }

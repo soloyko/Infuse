@@ -127,9 +127,9 @@ public final class SwordItems {
 
     private List<Component> lore(SwordType type, Settings.Sword s, @Nullable String forger) {
         List<Component> lore = new ArrayList<>();
-        lore.add(Text.plain(type.title(), type.accent()).append(Text.plain("  ·  Legendary", NamedTextColor.DARK_GRAY)));
+        lore.add(Text.caps(type.title(), type.accent()).append(Text.caps("  ·  legendary", NamedTextColor.DARK_GRAY)));
         if (forger != null) {
-            lore.add(Text.plain("Forged by ", NamedTextColor.DARK_GRAY).append(Text.plain(forger, NamedTextColor.GRAY)));
+            lore.add(Text.caps("forged by ", NamedTextColor.DARK_GRAY).append(Text.plain(forger, NamedTextColor.GRAY)));
         }
         lore.add(Component.empty());
         for (String line : Text.wrap(type.bio(), LORE_WIDTH)) {
@@ -137,19 +137,21 @@ public final class SwordItems {
         }
         lore.add(Component.empty());
 
-        section(lore, type, Component.text("Passive"), type.passive().name(), type.passive().description(), null);
-        section(lore, type, Component.text("On Hit"), type.onHit().name(), type.onHit().description(), null);
+        section(lore, type, Component.text(Text.smallCaps("Passive")), type.passive().name(), type.passive().description(), null);
+        section(lore, type, Component.text(Text.smallCaps("On Hit")), type.onHit().name(), type.onHit().description(), null);
         for (AbilitySlot slot : AbilitySlot.values()) {
             AbilityInfo info = type.ability(slot);
             section(lore, type, slot.label(plugin.settings().trigger), info.name(), info.description(), s.cooldown(slot) + "s");
         }
         lore.add(Component.empty());
         Component stats = Text.plain("⚔ ", type.color())
-                .append(Text.plain(trim(s.attackDamage()) + " Damage", NamedTextColor.WHITE))
+                .append(Text.plain(trim(s.attackDamage()), NamedTextColor.WHITE))
+                .append(Text.caps(" damage", NamedTextColor.GRAY))
                 .append(Text.plain("   ⏱ ", type.color()))
-                .append(Text.plain(trim(s.attackSpeed()) + " Speed", NamedTextColor.WHITE));
+                .append(Text.plain(trim(s.attackSpeed()), NamedTextColor.WHITE))
+                .append(Text.caps(" speed", NamedTextColor.GRAY));
         if (plugin.settings().unbreakable) {
-            stats = stats.append(Text.plain("   ∞ ", type.color())).append(Text.plain("Unbreakable", NamedTextColor.WHITE));
+            stats = stats.append(Text.plain("   ∞ ", type.color())).append(Text.caps("unbreakable", NamedTextColor.GRAY));
         }
         lore.add(stats);
         return lore;

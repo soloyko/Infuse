@@ -117,12 +117,14 @@ public final class OPSwordsPlugin extends JavaPlugin {
         forges.load();
         recipes.unregisterAll();
         recipes.registerAll();
+        altars.refreshAll();
         resourcePack.stop();
         resourcePack.start();
     }
 
     /** Adds settings and swords from newer versions to an existing config.yml, keeping the user's values. */
     private void mergeNewDefaults() {
+        getConfig().set("altars.recipe", null); // 1.4 only: altars are now placed by admins, not crafted
         getConfig().options().copyDefaults(true);
         saveConfig();
         reloadConfig(); // read the merged values back from disk, not just the in-memory defaults

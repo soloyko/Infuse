@@ -49,6 +49,23 @@ public final class Text {
         return out;
     }
 
+    private static final String SMALL_CAPS = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
+
+    /** "Legendary" → "ʟᴇɢᴇɴᴅᴀʀʏ": tiny capitals for labels and accents. Digits and symbols are kept. */
+    public static String smallCaps(String text) {
+        StringBuilder out = new StringBuilder(text.length());
+        for (char c : text.toCharArray()) {
+            char lower = Character.toLowerCase(c);
+            out.append(lower >= 'a' && lower <= 'z' ? SMALL_CAPS.charAt(lower - 'a') : c);
+        }
+        return out.toString();
+    }
+
+    /** {@link #smallCaps(String)} as a non-italic component. */
+    public static Component caps(String text, TextColor color) {
+        return plain(smallCaps(text), color);
+    }
+
     /** A sword's name ("🐉 Wyrmsbane") in its gradient colours. */
     public static Component sword(dev.infuse.opswords.sword.SwordType type) {
         return gradient(type.displayName(), type.color(), type.accent());

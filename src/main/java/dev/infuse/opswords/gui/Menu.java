@@ -31,8 +31,8 @@ public abstract class Menu implements InventoryHolder {
     static final int ROWS = 6;
     /** Swords: three centred rows of five. */
     static final int[] SWORD_SLOTS = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
-    /** The other weapons: one row, split around the centre. */
-    static final int[] WEAPON_SLOTS = {37, 38, 39, 41, 42, 43};
+    /** The other weapons: one full row. */
+    static final int[] WEAPON_SLOTS = {37, 38, 39, 40, 41, 42, 43};
     static final int INFO = 4;
     static final int BACK = 45;
     static final int ALTAR = 48;
@@ -99,9 +99,9 @@ public abstract class Menu implements InventoryHolder {
         var trigger = plugin.settings().trigger;
         set(INFO, button(Material.ENCHANTED_BOOK,
                 Text.gradient("⚔ OP Swords", TextColor.color(0xECBA44), TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD),
-                List.of(Text.plain(subtitle, NamedTextColor.GRAY),
+                List.of(Text.caps(subtitle, NamedTextColor.GRAY),
                         Component.empty(),
-                        Text.plain("15 legendary swords and 6 other weapons.", NamedTextColor.WHITE),
+                        Text.plain("15 legendary swords and 7 other weapons.", NamedTextColor.WHITE),
                         Component.empty(),
                         AbilitySlot.PRIMARY.label(trigger).color(NamedTextColor.YELLOW)
                                 .append(Text.plain("  first ability", NamedTextColor.GRAY)),

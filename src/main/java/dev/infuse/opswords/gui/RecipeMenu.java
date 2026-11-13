@@ -41,12 +41,14 @@ public final class RecipeMenu {
             menu.set(Menu.slotOf(type), icon, player -> recipe(plugin, type).open(player));
         }
         if (plugin.settings().altarsEnabled) {
-            ItemStack altar = plugin.altars().createAltarItem(1);
-            List<Component> lore = new ArrayList<>(altar.lore() == null ? List.of() : altar.lore());
-            lore.add(Component.empty());
-            lore.add(Text.plain("Click to view the recipe", NamedTextColor.YELLOW));
-            altar.lore(lore);
-            menu.set(Menu.ALTAR, altar, player -> altar(plugin).open(player));
+            menu.set(Menu.ALTAR, Menu.button(Material.LODESTONE,
+                    Text.gradient("⛩ Weapon Altars", net.kyori.adventure.text.format.TextColor.color(0xF5D78E),
+                            net.kyori.adventure.text.format.TextColor.color(0xB57EDC)),
+                    List.of(Text.caps("forge without a crafting table", NamedTextColor.GOLD),
+                            Component.empty(),
+                            Text.plain("Find an altar holding the weapon you want", NamedTextColor.GRAY),
+                            Text.plain("and right-click it with the ingredients", NamedTextColor.GRAY),
+                            Text.plain("in your inventory.", NamedTextColor.GRAY))), null);
         }
         menu.closeButton();
         return menu;
@@ -56,18 +58,27 @@ public final class RecipeMenu {
     public static Menu recipe(OPSwordsPlugin plugin, SwordType type) {
         Settings settings = plugin.settings();
         Settings.Sword sword = settings.sword(type);
-        boolean craftable = settings.craftingEnabled && sword.enabled() && sword.recipe().enabled();
-        return grid(plugin, Text.sword(type).append(Component.text(" · Recipe", NamedTextColor.DARK_GRAY)),
+        boolean craftable = settings.craftingEnabled && sword.enabled() && sword.recipe().enabled()
+                && (settings.craftingTable || settings.altarsEnabled);
+        Menu menu = grid(plugin, Text.sword(type).append(Component.text(" · Recipe", NamedTextColor.DARK_GRAY)),
                 sword.recipe(), craftable, status(plugin, type), plugin.items().create(type));
-    }
-
-    /** The crafting grid for the weapon altar. */
-    public static Menu altar(OPSwordsPlugin plugin) {
-        Settings settings = plugin.settings();
-        boolean craftable = settings.craftingEnabled && settings.altarsEnabled && settings.altarRecipe.enabled();
-        return grid(plugin, Text.mm("<gold>⛩ Weapon Altar</gold> <dark_gray>· Recipe"), settings.altarRecipe, craftable,
-                Text.plain("Place it, then right-click it with a weapon.", NamedTextColor.GRAY),
-                plugin.altars().createAltarItem(1));
+        if (craftable) {
+            boolean table = settings.craftingTable;
+            boolean altars = settings.altarsEnabled;
+            List<Component> lore = new ArrayList<>();
+            if (status(plugin, type) != Component.empty()) {
+                lore.add(status(plugin, type));
+            }
+            if (altars) {
+                lore.add(Text.plain(table ? "Or forge it at a weapon altar: right-click it" : "Right-click a weapon altar holding it",
+                        NamedTextColor.GRAY));
+                lore.add(Text.plain("with these ingredients in your inventory.", NamedTextColor.GRAY));
+            }
+            menu.set(ARROW, Menu.button(Material.SPECTRAL_ARROW, table
+                    ? Text.plain("Craft in a crafting table", NamedTextColor.GREEN)
+                    : Text.plain("Forge at a weapon altar", NamedTextColor.GREEN), lore), null);
+        }
+        return menu;
     }
 
     private static Menu grid(OPSwordsPlugin plugin, Component title, Settings.Recipe recipe, boolean craftable,

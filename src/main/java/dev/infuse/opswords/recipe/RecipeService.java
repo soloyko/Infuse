@@ -21,7 +21,6 @@ public final class RecipeService {
 
     private final OPSwordsPlugin plugin;
     private final Map<NamespacedKey, SwordType> registered = new HashMap<>();
-    private boolean altarRegistered;
 
     public RecipeService(OPSwordsPlugin plugin) {
         this.plugin = plugin;
@@ -29,7 +28,7 @@ public final class RecipeService {
 
     public void registerAll() {
         Settings settings = plugin.settings();
-        if (!settings.craftingEnabled) {
+        if (!settings.craftingEnabled || !settings.craftingTable) {
             return;
         }
         for (SwordType type : SwordType.values()) {
@@ -43,17 +42,7 @@ public final class RecipeService {
                 registered.put(shaped.getKey(), type);
             }
         }
-        if (settings.altarsEnabled && settings.altarRecipe.enabled()) {
-            ShapedRecipe altar = build("the weapon altar", altarKey(), plugin.altars().createAltarItem(1), settings.altarRecipe);
-            if (altar != null && Bukkit.addRecipe(altar, false)) {
-                altarRegistered = true;
-            }
-        }
         Bukkit.updateRecipes();
-    }
-
-    private NamespacedKey altarKey() {
-        return new NamespacedKey(plugin, "weapon_altar");
     }
 
     private @Nullable ShapedRecipe build(String label, NamespacedKey key, org.bukkit.inventory.ItemStack result, Settings.Recipe recipe) {
@@ -93,10 +82,6 @@ public final class RecipeService {
     }
 
     public void unregisterAll() {
-        if (altarRegistered) {
-            Bukkit.removeRecipe(altarKey(), false);
-            altarRegistered = false;
-        }
         if (registered.isEmpty()) {
             return;
         }
@@ -114,10 +99,28 @@ public final class RecipeService {
     }
 
     public Set<NamespacedKey> keys() {
-        Set<NamespacedKey> keys = new java.util.HashSet<>(registered.keySet());
-        if (altarRegistered) {
-            keys.add(altarKey());
+        return new java.util.HashSet<>(registered.keySet());
+    }
+
+    /** Tells the server someone forged a weapon (crafting table or altar), if announcements are on. */
+    public void announce(org.bukkit.entity.Player player, SwordType type, org.bukkit.inventory.ItemStack weapon) {
+        Settings settings = plugin.settings();
+        if (!settings.craftingAnnounce) {
+            return;
         }
-        return keys;
+        net.kyori.adventure.text.Component message = dev.infuse.opswords.util.Text.PREFIX
+                .append(net.kyori.adventure.text.Component.text(player.getName(), net.kyori.adventure.text.format.NamedTextColor.WHITE))
+                .append(net.kyori.adventure.text.Component.text(" has forged ", net.kyori.adventure.text.format.NamedTextColor.GRAY))
+                .append(dev.infuse.opswords.util.Text.sword(type).hoverEvent(weapon.asHoverEvent()))
+                .append(net.kyori.adventure.text.Component.text("!", net.kyori.adventure.text.format.NamedTextColor.GRAY));
+        if (settings.uniqueSwords) {
+            message = message.append(net.kyori.adventure.text.Component.text(" It is the only one in existence.",
+                    net.kyori.adventure.text.format.NamedTextColor.GOLD));
+        }
+        Bukkit.broadcast(message);
+        for (org.bukkit.entity.Player online : Bukkit.getOnlinePlayers()) {
+            online.playSound(online.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE,
+                    org.bukkit.SoundCategory.MASTER, 0.5f, 1.2f);
+        }
     }
 }

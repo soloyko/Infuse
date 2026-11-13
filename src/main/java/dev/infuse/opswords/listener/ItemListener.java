@@ -107,24 +107,9 @@ public final class ItemListener implements Listener {
         }
         if (plugin.settings().uniqueSwords) {
             plugin.forges().record(type, player);
+            plugin.altars().refreshAll(); // altars holding it now show who forged it
         }
-        if (!plugin.settings().craftingAnnounce) {
-            return;
-        }
-        Component name = Text.sword(type)
-                .hoverEvent(event.getCurrentItem().asHoverEvent());
-        Component message = Text.PREFIX
-                .append(Component.text(player.getName(), NamedTextColor.WHITE))
-                .append(Component.text(" has forged ", NamedTextColor.GRAY))
-                .append(name)
-                .append(Component.text("!", NamedTextColor.GRAY));
-        if (plugin.settings().uniqueSwords) {
-            message = message.append(Component.text(" It is the only one in existence.", NamedTextColor.GOLD));
-        }
-        Bukkit.broadcast(message);
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            online.playSound(online.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1.2f);
-        }
+        plugin.recipes().announce(player, type, event.getCurrentItem());
     }
 
     @EventHandler

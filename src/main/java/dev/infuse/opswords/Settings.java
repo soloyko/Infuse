@@ -61,7 +61,8 @@ public final class Settings {
     public final boolean craftingAnnounce;
     public final boolean uniqueSwords;
     public final boolean altarsEnabled;
-    public final Recipe altarRecipe;
+    /** Weapons can also be crafted in a crafting table (altars always work). */
+    public final boolean craftingTable;
 
     private final Map<SwordType, Sword> swords;
     private final Map<SwordType, Integer> revisions;
@@ -104,9 +105,9 @@ public final class Settings {
 
         craftingEnabled = c.getBoolean("crafting.enabled", true);
         craftingAnnounce = c.getBoolean("crafting.announce", true);
+        craftingTable = c.getBoolean("crafting.crafting-table", true);
         uniqueSwords = c.getBoolean("crafting.unique-swords", false);
         altarsEnabled = c.getBoolean("altars.enabled", true);
-        altarRecipe = readRecipe(c.getConfigurationSection("altars.recipe"), "the weapon altar", log);
 
         swords = new EnumMap<>(SwordType.class);
         revisions = new EnumMap<>(SwordType.class);
@@ -131,7 +132,7 @@ public final class Settings {
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 5;
+    private static final int ITEM_FORMAT = 6;
 
     private static Recipe readRecipe(ConfigurationSection r, String label, Logger log) {
         if (r == null) {

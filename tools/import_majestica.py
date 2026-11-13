@@ -42,6 +42,7 @@ SWORDS = {
     'chakram': 'royalchakram',
     'axe': 'demonlordsgreataxe',
     'staff': 'arcanethyst',
+    'trident': 'aquantictrident',
 }
 
 # Blockbench-only fields Minecraft ignores
@@ -49,6 +50,8 @@ DROP_KEYS = ('groups', 'format_version')
 
 # The pack's first-person poses are very large; shrink them so the sword doesn't hide half the screen.
 FIRST_PERSON_SCALE = 0.8
+# ...and some long or wide weapons a bit more
+FIRST_PERSON_EXTRA = {'trident': 0.7, 'chakram': 0.75}
 
 
 class Source:
@@ -111,7 +114,8 @@ def import_sword(src, sword, model_name):
     for slot in ('firstperson_righthand', 'firstperson_lefthand'):
         pose = model.get('display', {}).get(slot)
         if pose and 'scale' in pose:
-            pose['scale'] = [round(v * FIRST_PERSON_SCALE, 4) for v in pose['scale']]
+            factor = FIRST_PERSON_SCALE * FIRST_PERSON_EXTRA.get(sword, 1)
+            pose['scale'] = [round(v * factor, 4) for v in pose['scale']]
     model['credit'] = 'Model from Blades of Majestica'
     write(f'assets/{NS}/models/item/{sword}.json', json.dumps(model, separators=(',', ':')).encode() + b'\n')
     item = {"model": {"type": "minecraft:model", "model": f"{NS}:item/{sword}"}}

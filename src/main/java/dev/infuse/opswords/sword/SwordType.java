@@ -160,7 +160,14 @@ public enum SwordType {
             new AbilityInfo("Arcane Ward", "A 2-heart magic ward that recharges 12 seconds after it breaks."),
             new AbilityInfo("Arcane Spark", "25% chance for a spark to leap to another nearby enemy."),
             new AbilityInfo("Arcane Missiles", "Fire five homing amethyst missiles at the enemies in front of you."),
-            new AbilityInfo("Crystal Nova", "Rings of amethyst crystals burst from the ground around you, launching enemies."));
+            new AbilityInfo("Crystal Nova", "Rings of amethyst crystals burst from the ground around you, launching enemies.")),
+
+    TRIDENT("trident", "Leviathan", "Abyssal Trident", "Ψ", 0x2EC4C4, 0x0B4F6C, Material.TRIDENT,
+            "Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.",
+            new AbilityInfo("Stormborn", "Always returns when thrown, and calls down lightning where it hits, in any weather. Water Breathing while held."),
+            new AbilityInfo("Undertow", "20% chance to drag the target under: +3 damage and Slowness III."),
+            new AbilityInfo("Trident Rain", "Five spectral tridents fall on the target area, each bursting into a wave."),
+            new AbilityInfo("Maelstrom", "A whirlpool drags enemies around and in for four seconds, then erupts as a geyser."));
 
     public static final String MODEL_NAMESPACE = "op_swords";
 
@@ -210,7 +217,7 @@ public enum SwordType {
         return base == null ? Material.NETHERITE_SWORD : base;
     }
 
-    /** True for the 15 swords, false for the hammer, scythe, spear, chakram, axe and staff. */
+    /** True for the 15 swords, false for the hammer, scythe, spear, chakram, axe, staff and trident. */
     public boolean isSword() {
         return base == null;
     }
@@ -284,6 +291,7 @@ public enum SwordType {
             case SPEAR -> "impaled";
             case CHAKRAM -> "carried off by the wind";
             case AXE -> "cleaved in two";
+            case TRIDENT -> "skewered by the tide";
             case STAFF -> "unmade by arcane fire";
         };
     }

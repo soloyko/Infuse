@@ -72,21 +72,21 @@ crafting:
   # Legendary mode: each sword can only be crafted once per server. Admins can still
   # /opswords give, and /opswords unforge <sword> allows it to be crafted again.
   unique-swords: false
+  # Weapons can be crafted in a crafting table. Set to false to make weapon altars the only
+  # way to forge them.
+  crafting-table: true
 
 altars:
-  # Weapon altars: a one-block 3D altar that shows off a weapon floating above it.
-  # Players craft and place their own; admins can set up claimable shrines.
+  # Weapon altars: one-block 3D altars that only admins can place (/opswords altar give).
+  # Each one holds a weapon, with its recipe circling above it. Players forge that weapon by
+  # right-clicking the altar with the ingredients in their inventory.
   enabled: true
-  recipe:
-    enabled: true
-    shape: ["AGA", "BLB", "DDD"]
-    ingredients: {A: AMETHYST_SHARD, G: GOLD_BLOCK, B: POLISHED_BLACKSTONE_BRICKS, L: LODESTONE, D: POLISHED_DEEPSLATE}
 
 # Per-sword settings. Keys are the sword ids (see /opswords list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds
 #   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,
-#                                  netherite spear or netherite axe) in the defaults
+#                                  netherite spear, netherite axe or trident) in the defaults
 swords:
   dragon:        # Wyrmsbane
     enabled: true
@@ -278,3 +278,12 @@ swords:
       enabled: true
       shape: ["CLC", "BSB", "CLC"]
       ingredients: {C: AMETHYST_CLUSTER, L: LAPIS_BLOCK, B: EXPERIENCE_BOTTLE, S: NETHERITE_SWORD}
+  trident:       # Leviathan (trident)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.2
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["PCP", "LSL", "PDP"]
+      ingredients: {P: PRISMARINE_SHARD, C: CONDUIT, L: LIGHTNING_ROD, D: DIAMOND_BLOCK, S: TRIDENT}

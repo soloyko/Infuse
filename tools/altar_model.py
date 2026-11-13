@@ -3,8 +3,9 @@
     python3 tools/altar_model.py
 
 The altar is one block: a stone and gold pedestal (altar_base) plus a separate layer of runes,
-a sigil and crystals (altar_glow) that the plugin renders at full brightness and tints with the
-colour of the weapon on display. The inventory item (altar) shows both layers.
+a sigil and floating crystals (altar_glow) that the plugin renders at full brightness and tints
+with the colour of the weapon on display, and a magic circle (altar_halo) that floats and spins
+just above it. The inventory item (altar) shows the pedestal and the glow layer.
 Needs Pillow.
 """
 import io
@@ -29,6 +30,8 @@ T = {
     'rune': 'op_swords:item/altar/rune',
     'sigil': 'op_swords:item/altar/sigil',
     'crystal': 'op_swords:item/altar/crystal',
+    'band': 'op_swords:item/altar/band',
+    'halo': 'op_swords:item/altar/halo',
 }
 
 
@@ -62,47 +65,92 @@ def full_uv(element):
     return element
 
 
+def sides(side, top=None, bottom=None):
+    """Per-face textures: one texture on the four sides, optional top and bottom."""
+    out = {'north': side, 'south': side, 'east': side, 'west': side}
+    out['up'] = top or side
+    out['down'] = bottom or top or side
+    return out
+
+
+SPIRES = ((1.6, 1.6), (14.4, 1.6), (1.6, 14.4), (14.4, 14.4))
+PILLARS = ((4, 4), (12, 4), (4, 12), (12, 12))
+
+
 def base_elements():
     els = [
-        # foot and step
-        box([0, 0, 0], [16, 2, 16], {'north': 'tiles', 'south': 'tiles', 'east': 'tiles', 'west': 'tiles', 'up': 'polished', 'down': 'polished'}),
-        box([1.5, 2, 1.5], [14.5, 3.6, 14.5], {'north': 'bricks', 'south': 'bricks', 'east': 'bricks', 'west': 'bricks', 'up': 'top', 'down': 'top'}),
-        box([1.25, 3.6, 1.25], [14.75, 4.1, 14.75], 'gold'),
-        # the column
-        box([3.6, 4.1, 3.6], [12.4, 5, 12.4], 'gold'),
-        box([4, 5, 4], [12, 10.2, 12], 'chiseled', faces='nsew'),
-        box([3.6, 10.2, 3.6], [12.4, 11, 12.4], 'gold'),
-        # the table
-        box([3, 11, 3], [13, 13.2, 13], {'north': 'bricks', 'south': 'bricks', 'east': 'bricks', 'west': 'bricks', 'up': 'top', 'down': 'top'}),
-        box([2.75, 13.2, 2.75], [13.25, 13.7, 13.25], 'gold', faces='nsewd'),
-        box([4, 13.2, 4], [12, 13.7, 12], 'top', faces='u'),
+        # stepped plinth
+        box([0, 0, 0], [16, 1, 16], sides('tiles', 'polished')),
+        box([0.75, 1, 0.75], [15.25, 2, 15.25], sides('polished')),
+        box([1.25, 2, 1.25], [14.75, 2.5, 14.75], 'gold'),
+        box([2, 2.5, 2], [14, 4.5, 14], sides('bricks', 'top')),
+        box([2.75, 4.5, 2.75], [13.25, 5, 13.25], 'gold'),
+        # the core
+        box([4.5, 5, 4.5], [11.5, 11, 11.5], 'chiseled', faces='nsew'),
+        # capital and table
+        box([2.75, 11, 2.75], [13.25, 11.6, 13.25], 'gold'),
+        box([2, 11.6, 2], [14, 13.4, 14], sides('bricks', 'top')),
+        box([1.75, 13.4, 1.75], [14.25, 13.9, 14.25], 'gold'),
+        box([2.5, 13.9, 2.5], [13.5, 14.0, 13.5], 'top', faces='u'),
     ]
-    # corner posts that hold the crystals
-    for x, z in ((1, 1), (13, 1), (1, 13), (13, 13)):
-        els.append(box([x, 4.1, z], [x + 2, 8.5, z + 2], 'bricks', faces='nsewu'))
-        els.append(box([x - 0.2, 8.5, z - 0.2], [x + 2.2, 8.9, z + 2.2], 'gold'))
-    # gold claws over the table corners
-    for x, z in ((3, 3), (12, 3), (3, 12), (12, 12)):
-        els.append(box([x, 13.7, z], [x + 1, 14.4, z + 1], 'gold', faces='nsewu'))
+    # four slim pillars around the core, with gold bases and caps
+    for x, z in PILLARS:
+        els.append(box([x - 0.75, 5.6, z - 0.75], [x + 0.75, 10.4, z + 0.75], 'polished', faces='nsew'))
+        els.append(box([x - 1, 5, z - 1], [x + 1, 5.6, z + 1], 'gold', faces='nsewu'))
+        els.append(box([x - 1, 10.4, z - 1], [x + 1, 11, z + 1], 'gold', faces='nsewd'))
+    # gold claws on the table corners
+    for x, z in ((2.5, 2.5), (13.5, 2.5), (2.5, 13.5), (13.5, 13.5)):
+        els.append(box([x - 0.5, 13.9, z - 0.5], [x + 0.5, 14.9, z + 0.5], 'gold', faces='nsewu'))
+    # corner spires on the plinth; their crystals float above them (glow layer)
+    for x, z in SPIRES:
+        els.append(box([x - 1, 2, z - 1], [x + 1, 3, z + 1], sides('bricks', 'top')))
+        els.append(box([x - 0.7, 3, z - 0.7], [x + 0.7, 7.4, z + 0.7], 'polished', faces='nsew'))
+        els.append(box([x - 0.9, 7.4, z - 0.9], [x + 0.9, 7.9, z + 0.9], 'gold'))
+        els.append(box([x - 0.55, 7.9, z - 0.55], [x + 0.55, 8.3, z + 0.55], 'gold', faces='nsewu'))
     return els
+
+
+def crystal(x, y, z, size):
+    """A floating crystal: a prism with a short tip below and a longer one above, turned 45 degrees."""
+    rot = {"angle": 45, "axis": "y", "origin": [x, y, z]}
+    h = size
+    return [
+        full_uv(box([x - h * 0.5, y - h * 0.9, z - h * 0.5], [x + h * 0.5, y + h * 0.9, z + h * 0.5], 'crystal',
+                    faces='nsew', tint=True, rotation=rot)),
+        full_uv(box([x - h * 0.28, y - h * 1.35, z - h * 0.28], [x + h * 0.28, y - h * 0.9, z + h * 0.28], 'crystal',
+                    faces='nsewd', tint=True, rotation=rot)),
+        full_uv(box([x - h * 0.28, y + h * 0.9, z - h * 0.28], [x + h * 0.28, y + h * 1.6, z + h * 0.28], 'crystal',
+                    faces='nsewu', tint=True, rotation=rot)),
+    ]
 
 
 def glow_elements():
     els = []
-    # rune plates on the four faces of the column
-    els.append(full_uv(box([5, 5.8, 3.95], [11, 9.4, 3.98], 'rune', faces='n', tint=True)))
-    els.append(full_uv(box([5, 5.8, 12.02], [11, 9.4, 12.05], 'rune', faces='s', tint=True)))
-    els.append(full_uv(box([3.95, 5.8, 5], [3.98, 9.4, 11], 'rune', faces='w', tint=True)))
-    els.append(full_uv(box([12.02, 5.8, 5], [12.05, 9.4, 11], 'rune', faces='e', tint=True)))
+    # rune panels on the core, between the pillars
+    els.append(full_uv(box([4.75, 5.9, 4.47], [11.25, 10.1, 4.49], 'rune', faces='n', tint=True)))
+    els.append(full_uv(box([4.75, 5.9, 11.51], [11.25, 10.1, 11.53], 'rune', faces='s', tint=True)))
+    els.append(full_uv(box([4.47, 5.9, 4.75], [4.49, 10.1, 11.25], 'rune', faces='w', tint=True)))
+    els.append(full_uv(box([11.51, 5.9, 4.75], [11.53, 10.1, 11.25], 'rune', faces='e', tint=True)))
+    # a band of glyphs around the lower body
+    els.append(full_uv(box([3, 3.0, 1.98], [13, 4.0, 1.99], 'band', faces='n', tint=True)))
+    els.append(full_uv(box([3, 3.0, 14.01], [13, 4.0, 14.02], 'band', faces='s', tint=True)))
+    els.append(full_uv(box([1.98, 3.0, 3], [1.99, 4.0, 13], 'band', faces='w', tint=True)))
+    els.append(full_uv(box([14.01, 3.0, 3], [14.02, 4.0, 13], 'band', faces='e', tint=True)))
     # sigil inlaid in the table top
-    els.append(full_uv(box([4.25, 13.72, 4.25], [11.75, 13.75, 11.75], 'sigil', faces='u', tint=True)))
-    # crystals on the posts, turned 45 degrees
-    for x, z in ((2, 2), (14, 2), (2, 14), (14, 14)):
-        els.append(full_uv(box([x - 0.7, 8.9, z - 0.7], [x + 0.7, 11.6, z + 0.7], 'crystal', faces='nsewu', tint=True,
-                               rotation={"angle": 45, "axis": "y", "origin": [x, 10, z]})))
-        els.append(full_uv(box([x - 0.35, 11.6, z - 0.35], [x + 0.35, 12.4, z + 0.35], 'crystal', faces='nsewu', tint=True,
-                               rotation={"angle": 45, "axis": "y", "origin": [x, 10, z]})))
+    els.append(full_uv(box([3, 14.02, 3], [13, 14.04, 13], 'sigil', faces='u', tint=True)))
+    # crystals floating over the spires
+    for x, z in SPIRES:
+        els.extend(crystal(x, 10.4, z, 1.25))
     return els
+
+
+def halo_elements():
+    """A magic circle that floats just above the altar (the plugin spins it). Model y 8 = its plane."""
+    return [
+        {"from": [-2, 8, -2], "to": [18, 8.02, 18], "faces": {
+            "up": {"uv": [0, 0, 16, 16], "texture": "#halo", "tintindex": 0},
+            "down": {"uv": [0, 16, 16, 0], "texture": "#halo", "tintindex": 0}}},
+    ]
 
 
 BLOCK_DISPLAY = {
@@ -191,6 +239,66 @@ def crystal_texture():
     return img
 
 
+GLYPHS = [
+    ["###", "# #", "###", "#  ", "#  "], ["# #", "###", "# #", "# #", "###"], ["###", " # ", "###", " # ", "# #"],
+    ["#  ", "## ", "# #", "## ", "#  "], [" # ", "# #", " # ", "# #", " # "], ["###", "#  ", " # ", "  #", "###"],
+]
+
+
+def band_texture():
+    img = Image.new('RGBA', (64, 8), (0, 0, 0, 0))
+    px = img.load()
+    for n in range(12):
+        glyph = GLYPHS[n % len(GLYPHS)]
+        ox = 2 + n * 5
+        for y, row in enumerate(glyph):
+            for x, ch in enumerate(row):
+                if ch == '#' and ox + x < 64:
+                    px[ox + x, 1 + y] = (255, 255, 255, 255)
+    for x in range(0, 64, 2):
+        px[x, 7] = (200, 200, 200, 200)
+    return img
+
+
+def halo_texture():
+    size = 96
+    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    px = img.load()
+    c = (size - 1) / 2
+    for y in range(size):
+        for x in range(size):
+            d = math.hypot(x - c, y - c)
+            if 45.5 <= d <= 47 or 35 <= d <= 36:
+                px[x, y] = (255, 255, 255, 235)
+            elif 46.9 < d < 47.6:
+                px[x, y] = (255, 255, 255, 110)
+    # glyphs between the two rings
+    for k in range(16):
+        a = k * math.pi * 2 / 16
+        glyph = GLYPHS[k % len(GLYPHS)]
+        gx, gy = c + math.cos(a) * 40.5, c + math.sin(a) * 40.5
+        for yy, row in enumerate(glyph):
+            for xx, ch in enumerate(row):
+                if ch != '#':
+                    continue
+                # turn each glyph to face outwards
+                lx, ly = xx - 1, yy - 2
+                ca, sa = math.cos(a + math.pi / 2), math.sin(a + math.pi / 2)
+                px_, py_ = int(round(gx + lx * ca - ly * sa)), int(round(gy + lx * sa + ly * ca))
+                if 0 <= px_ < size and 0 <= py_ < size:
+                    px[px_, py_] = (255, 255, 255, 255)
+    # four small triangles pointing inwards on the inner ring
+    for k in range(4):
+        a = k * math.pi / 2 + math.pi / 4
+        for t in range(5):
+            for w in range(-t // 2, t // 2 + 1):
+                r = 34 - t
+                x = int(round(c + math.cos(a) * r - math.sin(a) * w))
+                y = int(round(c + math.sin(a) * r + math.cos(a) * w))
+                px[x, y] = (255, 255, 255, 200)
+    return img
+
+
 def write(rel, data):
     path = os.path.join(ASSETS, rel)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -207,12 +315,15 @@ def png(img):
 def main():
     base = model(base_elements(), T)
     glow = model(glow_elements(), T)
+    halo = model(halo_elements(), T)
     write('models/item/altar_base.json', json.dumps(base, separators=(',', ':')).encode() + b'\n')
     write('models/item/altar_glow.json', json.dumps(glow, separators=(',', ':')).encode() + b'\n')
+    write('models/item/altar_halo.json', json.dumps(halo, separators=(',', ':')).encode() + b'\n')
     tint = [{"type": "minecraft:custom_model_data", "index": 0, "default": DEFAULT_TINT}]
     items = {
         'altar_base': {"model": {"type": "minecraft:model", "model": "op_swords:item/altar_base"}},
         'altar_glow': {"model": {"type": "minecraft:model", "model": "op_swords:item/altar_glow", "tints": tint}},
+        'altar_halo': {"model": {"type": "minecraft:model", "model": "op_swords:item/altar_halo", "tints": tint}},
         'altar': {"model": {"type": "minecraft:composite", "models": [
             {"type": "minecraft:model", "model": "op_swords:item/altar_base"},
             {"type": "minecraft:model", "model": "op_swords:item/altar_glow", "tints": tint}]}},
@@ -222,6 +333,8 @@ def main():
     write('textures/item/altar/rune.png', png(rune_texture()))
     write('textures/item/altar/sigil.png', png(sigil_texture()))
     write('textures/item/altar/crystal.png', png(crystal_texture()))
+    write('textures/item/altar/band.png', png(band_texture()))
+    write('textures/item/altar/halo.png', png(halo_texture()))
     print(f'Altar: {len(base["elements"])} base elements, {len(glow["elements"])} glow elements')
 
 
