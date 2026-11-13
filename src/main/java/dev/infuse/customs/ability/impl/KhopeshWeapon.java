@@ -100,7 +100,10 @@ public final class KhopeshWeapon extends SwordAbility implements Listener {
         }
     }
 
-    /** Sandstorm: a sand tornado travels forward, lifting, blinding and grinding enemies. */
+    /**
+     * Sandstorm: a sand tornado sets off ahead of you and drifts wherever your crosshair points for
+     * four seconds, lifting, blinding and grinding enemies it passes over.
+     */
     @Override
     public boolean primary(Player player) {
         Location start = player.getLocation();
@@ -125,18 +128,24 @@ public final class KhopeshWeapon extends SwordAbility implements Listener {
 
         new BukkitRunnable() {
             int ticks;
-            final Location base = Combat.ground(start.clone().add(heading.clone().multiply(1.5)).add(0, 1, 0));
+            Vector steer = heading.clone();
+            final Location base = Combat.ground(start.clone().add(steer.clone().multiply(1.5)).add(0, 1, 0));
 
             @Override
             public void run() {
                 ticks++;
-                if (!alive(player) || ticks > 60 || base.getWorld() != player.getWorld()) {
+                if (!alive(player) || ticks > 80 || base.getWorld() != player.getWorld()) {
                     grains.forEach(g -> displays().remove(g));
                     Fx.particle(base.clone().add(0, 1, 0), Particle.BLOCK, 40, 1, 0.1, SAND_BLOCK);
                     cancel();
                     return;
                 }
-                Location next = Combat.ground(base.clone().add(heading.clone().multiply(0.3)).add(0, 1.2, 0));
+                // it drifts towards the ground under your crosshair
+                Vector toAim = dev.infuse.customs.ability.Aim.crosshair(player, combat(), 32).toVector().subtract(base.toVector()).setY(0);
+                if (toAim.lengthSquared() > 1.5) {
+                    steer = dev.infuse.customs.ability.Aim.turnToward(steer, toAim.normalize(), 0.12);
+                }
+                Location next = Combat.ground(base.clone().add(steer.clone().multiply(0.33)).add(0, 1.2, 0));
                 base.setX(next.getX());
                 base.setY(next.getY());
                 base.setZ(next.getZ());
@@ -181,7 +190,7 @@ public final class KhopeshWeapon extends SwordAbility implements Listener {
                         applyEffect(target, PotionEffectType.BLINDNESS, 50, 0);
                     }
                     Vector in = base.toVector().subtract(target.getLocation().toVector()).setY(0);
-                    Combat.setVelocity(target, heading.clone().multiply(0.3).add(in.multiply(0.25)).setY(0.28));
+                    Combat.setVelocity(target, steer.clone().multiply(0.3).add(in.multiply(0.25)).setY(0.28));
                     if (ticks % 5 == 0) {
                         combat().damage(player, target, 2, true);
                     }

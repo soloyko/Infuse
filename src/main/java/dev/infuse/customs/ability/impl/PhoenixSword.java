@@ -38,7 +38,7 @@ import java.util.UUID;
 
 /**
  * Cinderwing, the Phoenix Sword: fire everywhere, and it won't let you die.
- * Passive Rebirth, on-hit Searing Edge, RC Ember Volley, Sneak+RC Firestorm.
+ * Passive Rebirth, on-hit Searing Edge, F Ember Volley, Sneak+F Wall of Fire.
  */
 public final class PhoenixSword extends SwordAbility implements Listener {
 
@@ -187,54 +187,94 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         }
     }
 
-    /** Firestorm: an expanding ring of fire around the caster. */
+    /** Wall of Fire: how wide and how long it lasts. */
+    private static final int WALL_HALF_WIDTH = 5;
+    private static final int WALL_TICKS = 120;
+
+    /**
+     * Wall of Fire: a wall of flame rises across the spot you aim at, from the middle outwards, and
+     * burns for six seconds. Anything crossing it is burned and thrown back the way it came, and
+     * arrows and other projectiles flying through it burn up.
+     */
     @Override
     public boolean secondary(Player player) {
-        Location center = player.getLocation();
-        Fx.sound(center, Sound.ENTITY_BLAZE_SHOOT, 1.5f, 0.5f);
-        Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 1.3f);
-        Fx.sound(center, Sound.ITEM_FIRECHARGE_USE, 1f, 0.6f);
-        Fx.particle(center.clone().add(0, 1, 0), Particle.FLAME, 60, 0.4, 0.2);
-        fx().shockwave(center, 0xFF6A1F, 9f, 16);
-        fx().shockwave(center, 0xFFC23A, 6f, 11);
-        fx().flash(center.clone().add(0, 1, 0), 0xFF8A2A, 2.5f);
-        Set<UUID> hit = new HashSet<>();
+        Location aim = combat().aimPoint(player, 16);
+        Vector look = dev.infuse.customs.ability.Aim.flatLook(player);
+        if (aim == null || aim.distanceSquared(player.getLocation()) < 9) {
+            aim = player.getLocation().add(look.clone().multiply(6));
+        }
+        Location center = Combat.ground(aim.clone().add(0, 0.5, 0));
+        Vector along = new Vector(-look.getZ(), 0, look.getX()); // the wall runs across your view
+        List<Location> posts = new java.util.ArrayList<>();
+        for (int i = -WALL_HALF_WIDTH; i <= WALL_HALF_WIDTH; i++) {
+            Location post = Combat.ground(center.clone().add(along.clone().multiply(i)).add(0, 1.5, 0));
+            posts.add(post);
+            int delay = Math.abs(i);
+            displays().later(1 + delay, () -> {
+                fx().flamePillar(post, 1.15f, 2.6f + (float) Math.random() * 0.8f, WALL_TICKS - delay, false);
+                Fx.particle(post, Particle.LAVA, 2, 0.3, 0);
+                if (delay % 2 == 0) {
+                    Fx.sound(post, Sound.ITEM_FIRECHARGE_USE, 0.6f, 0.8f + delay * 0.05f);
+                }
+            });
+        }
+        fx().castCircle(player.getLocation(), 0xFF7A1A, 1.8f);
+        Fx.sound(center, Sound.ENTITY_BLAZE_SHOOT, 1.2f, 0.6f);
+        Fx.sound(center, Sound.BLOCK_FIRE_AMBIENT, 1.5f, 0.8f);
 
+        Map<UUID, Integer> scorched = new HashMap<>();
         new BukkitRunnable() {
-            double radius = 1;
+            int ticks;
 
             @Override
             public void run() {
-                if (!alive(player) || player.getWorld() != center.getWorld() || radius > 9) {
+                ticks++;
+                if (ticks > WALL_TICKS || center.getWorld() != player.getWorld()) {
                     cancel();
                     return;
                 }
-                Location ring = center.clone().add(0, 0.2, 0);
-                // pillars of real fire race outward with the ring
-                if (radius >= 2.5 && ((int) (radius * 2)) % 3 == 0) {
-                    int pillars = (int) (5 + radius * 1.6);
-                    double offset = radius * 0.7;
-                    for (int i = 0; i < pillars; i++) {
-                        double a = i * Math.PI * 2 / pillars + offset;
-                        Location spot = dev.infuse.customs.ability.Combat.ground(center.clone().add(Math.cos(a) * radius, 1.5, Math.sin(a) * radius));
-                        fx().flamePillar(spot, 0.9f, (float) (1.2 + Math.random() * 1.1), 12, ((int) radius) % 3 == 2);
+                if (ticks % 3 == 0) {
+                    Location p = posts.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(posts.size()));
+                    Fx.particle(p.clone().add(0, 1.2, 0), Particle.FLAME, 4, 0.3, 0.05);
+                    Fx.particle(p.clone().add(0, 2.6, 0), Particle.LARGE_SMOKE, 1, 0.2, 0.02);
+                }
+                if (ticks % 20 == 0) {
+                    Fx.sound(center, Sound.BLOCK_FIRE_AMBIENT, 1.2f, 0.7f);
+                }
+                // anything inside the wall's slab burns and is thrown back to its own side
+                for (org.bukkit.entity.Entity e : center.getWorld().getNearbyEntities(center, WALL_HALF_WIDTH + 1.5, 4, WALL_HALF_WIDTH + 1.5)) {
+                    Vector rel = e.getLocation().toVector().subtract(center.toVector());
+                    double across = rel.dot(look);       // distance in front of / behind the wall
+                    double sideways = rel.dot(along);    // position along the wall
+                    if (Math.abs(across) > 1.0 || Math.abs(sideways) > WALL_HALF_WIDTH + 0.5 || rel.getY() < -1.5 || rel.getY() > 3.5) {
+                        continue;
                     }
-                }
-                Fx.ring(ring, radius, (int) (radius * 12), p -> Fx.particle(p, Particle.FLAME, 1, 0.05, 0.02));
-                Fx.ring(ring.clone().add(0, 0.8, 0), radius, (int) (radius * 5), p -> Fx.particle(p, Particle.SOUL_FIRE_FLAME, 1, 0.05, 0.01));
-                if (((int) (radius * 2)) % 3 == 0) {
-                    Fx.ring(ring, radius, 6, p -> Fx.particle(p, Particle.LAVA, 1, 0, 0));
-                }
-                for (LivingEntity target : combat().nearby(player, center, radius + 0.6)) {
-                    if (hit.add(target.getUniqueId())) {
-                        combat().damage(player, target, 8);
-                        target.setFireTicks(Math.max(target.getFireTicks(), 120));
-                        Combat.knockback(target, center, 1.0, 0.45);
+                    if (e instanceof Projectile projectile && !(projectile.getShooter() instanceof Player shooter && shooter == player)) {
+                        Fx.particle(e.getLocation(), Particle.LARGE_SMOKE, 6, 0.1, 0.02);
+                        Fx.particle(e.getLocation(), Particle.FLAME, 8, 0.1, 0.05);
+                        Fx.sound(e.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.8f, 1.4f);
+                        e.remove();
+                        continue;
                     }
+                    if (!(e instanceof LivingEntity target) || !combat().canHit(player, target)) {
+                        continue;
+                    }
+                    Integer last = scorched.get(target.getUniqueId());
+                    if (last != null && ticks - last < 10) {
+                        continue;
+                    }
+                    scorched.put(target.getUniqueId(), ticks);
+                    combat().damage(player, target, 4, true);
+                    target.setFireTicks(Math.max(target.getFireTicks(), 80));
+                    Vector back = look.clone().multiply(across >= 0 ? 1 : -1).multiply(1.1).setY(0.45);
+                    Combat.setVelocity(target, back);
+                    Location at = Combat.center(target);
+                    fx().burst(at, 0xFFB347, 1.6f);
+                    Fx.particle(at, Particle.FLAME, 15, 0.3, 0.08);
+                    Fx.sound(at, Sound.ENTITY_BLAZE_HURT, 0.8f, 1.2f);
                 }
-                radius += 0.5;
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 

@@ -23,7 +23,7 @@ import java.util.UUID;
 
 /**
  * Tidebreaker, the Tide Sword: water mobility and crowd control.
- * Passive Ocean's Blessing, on-hit Undertow, RC Riptide Surge, Sneak+RC Tidal Wave.
+ * Passive Ocean's Blessing, on-hit Undertow, F Riptide Surge, Sneak+F Ride the Tide.
  */
 public final class TideSword extends SwordAbility {
 
@@ -112,106 +112,160 @@ public final class TideSword extends SwordAbility {
         return Fx.right(dir).dot(offset) >= 0 ? 1 : -1;
     }
 
-    /** Tidal Wave: a wall of water rolls 16 blocks forward, carrying enemies with it. */
+    /** Ride the Tide: how long you surf, how fast, and how sharply you can carve. */
+    private static final int RIDE_TICKS = 70;
+    private static final double RIDE_SPEED = 0.8;
+    private static final double RIDE_TURN = 0.16;
+
+    /**
+     * Ride the Tide: a wall of water rises behind you and you surf its face for three and a half
+     * seconds, steering with your crosshair. Enemies in your path are swept up and carried along
+     * in front of the wave until it breaks. Sneak to jump off early.
+     */
     @Override
     public boolean secondary(Player player) {
         Location origin = player.getLocation();
-        Vector dir = origin.getDirection().setY(0);
-        if (dir.lengthSquared() < 1.0E-4) {
-            dir = new Vector(0, 0, 1);
-        }
-        dir.normalize();
-        Vector right = Fx.right(dir);
         Fx.sound(origin, Sound.ENTITY_GENERIC_SPLASH, 1.5f, 0.6f);
         Fx.sound(origin, Sound.ITEM_BUCKET_EMPTY, 1.2f, 0.5f);
-        fx().shockwave(origin, 0x8FD3FF, 3f, 6);
+        Fx.sound(origin, Sound.ITEM_TRIDENT_RIPTIDE_2, 1f, 0.8f);
+        Fx.particle(origin.clone().add(0, 0.5, 0), Particle.SPLASH, 60, 1.2, 0.3);
+        status().protectFromFall(player, RIDE_TICKS + 60);
         Set<UUID> hit = new HashSet<>();
-        Vector forward = dir;
-        // the wall of water: glass columns across the front, tallest in the middle, capped with foam
-        org.joml.Quaternionf facing = new org.joml.Quaternionf().rotateY((float) Math.atan2(forward.getX(), forward.getZ()));
+        java.util.Map<UUID, Integer> carried = new java.util.HashMap<>();
+        // the wave: a board of water under your feet and a V of water curling up in front of you
+        // (low enough that you can see over it), each column capped with foam
         java.util.List<org.bukkit.entity.BlockDisplay> wall = new java.util.ArrayList<>();
         java.util.List<double[]> slots = new java.util.ArrayList<>();
         Location spawnAt = origin.clone();
         spawnAt.setYaw(0);
         spawnAt.setPitch(0);
-        for (double w = -3.5; w <= 3.51; w += 0.875) {
-            double h = 2.6 * (1 - Math.abs(w) / 4.6);
-            org.bukkit.entity.BlockDisplay column = displays().block(spawnAt, WATER, new org.joml.Vector3f(0.95f, (float) h, 0.55f),
-                    facing, 30);
+        org.bukkit.entity.BlockDisplay board = displays().block(spawnAt, WATER, new org.joml.Vector3f(1.5f, 0.3f, 2.4f),
+                new org.joml.Quaternionf(), RIDE_TICKS + 20);
+        board.setBrightness(new org.bukkit.entity.Display.Brightness(12, 15));
+        board.setTeleportDuration(1);
+        for (int k = -3; k <= 3; k++) {
+            double side = k * 0.6;
+            double ahead = 1.5 - Math.abs(k) * 0.5;
+            double h = 0.45 + Math.abs(k) * 0.2;
+            org.bukkit.entity.BlockDisplay column = displays().block(spawnAt, WATER, new org.joml.Vector3f(0.6f, 0.1f, 0.5f),
+                    new org.joml.Quaternionf(), RIDE_TICKS + 20);
             column.setBrightness(new org.bukkit.entity.Display.Brightness(12, 15));
             column.setTeleportDuration(1);
-            org.bukkit.entity.BlockDisplay foam = displays().block(spawnAt, FOAM_BLOCK, new org.joml.Vector3f(0.98f, 0.28f, 0.62f),
-                    facing, 30);
+            org.bukkit.entity.BlockDisplay foam = displays().block(spawnAt, FOAM_BLOCK, new org.joml.Vector3f(0.62f, 0.2f, 0.55f),
+                    new org.joml.Quaternionf(), RIDE_TICKS + 20);
             foam.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
             foam.setTeleportDuration(1);
             wall.add(column);
             wall.add(foam);
-            slots.add(new double[]{w, h});
+            slots.add(new double[]{side, ahead, h});
         }
+        wall.add(board);
 
         new BukkitRunnable() {
             int ticks;
+            Vector heading = dev.infuse.customs.ability.Aim.flatLook(player);
 
             @Override
             public void run() {
-                if (!alive(player) || player.getWorld() != origin.getWorld() || ticks++ >= 16) {
-                    for (org.bukkit.entity.BlockDisplay d : wall) {
-                        if (d.isValid()) {
-                            Fx.particle(d.getLocation(), Particle.SPLASH, 12, 0.4, 0.1);
-                        }
-                        displays().remove(d);
-                    }
-                    cancel();
+                ticks++;
+                if (!alive(player) || player.getWorld() != origin.getWorld() || ticks > RIDE_TICKS
+                        || (ticks > 8 && player.isSneaking())) {
+                    breakWave();
                     return;
                 }
-                double front = 1 + ticks;
-                Location center = origin.clone().add(forward.clone().multiply(front));
+                // carve towards your crosshair
+                heading = dev.infuse.customs.ability.Aim.turnToward(heading, dev.infuse.customs.ability.Aim.flatLook(player), RIDE_TURN);
+                Vector right = Fx.right(heading);
+                Location feet = player.getLocation();
+                double vy;
+                boolean wallAhead = !feet.clone().add(heading.clone().multiply(0.8)).getBlock().isPassable();
+                if (wallAhead && feet.clone().add(heading.clone().multiply(0.8)).add(0, 1, 0).getBlock().isPassable()) {
+                    vy = 0.5; // ride up a step
+                } else if (!feet.clone().subtract(0, 0.08, 0).getBlock().isPassable()) {
+                    vy = 0.12;
+                } else {
+                    vy = Math.max(-0.35, player.getVelocity().getY() - 0.05);
+                }
+                Combat.setVelocity(player, heading.clone().multiply(RIDE_SPEED).setY(vy));
+
+                // the wave rides with you, turned the way you're going
+                float rise = Math.min(1f, ticks / 5f);
+                org.joml.Quaternionf facing = new org.joml.Quaternionf().rotateY((float) Math.atan2(heading.getX(), heading.getZ()));
+                Location ground = Combat.ground(feet.clone().add(0, 0.6, 0));
+                if (board.isValid()) {
+                    board.teleport(ground.clone().add(0, 0.15, 0));
+                    dev.infuse.customs.ability.Displays.animateBlock(board, new org.joml.Vector3f(1.5f, 0.3f, 2.4f), facing,
+                            new org.joml.Vector3f(), 1);
+                }
                 for (int i = 0; i < slots.size(); i++) {
-                    double w = slots.get(i)[0];
-                    double h = slots.get(i)[1] * (0.75 + 0.25 * Math.sin(ticks * 0.6 + i));
-                    Location base = Combat.ground(center.clone().add(right.clone().multiply(w)).add(0, 1.5, 0));
+                    double[] slot = slots.get(i);
+                    double h = slot[2] * rise * (0.8 + 0.2 * Math.sin(ticks * 0.6 + i));
+                    Location base = Combat.ground(feet.clone().add(right.clone().multiply(slot[0]))
+                            .add(heading.clone().multiply(slot[1])).add(0, 0.6, 0));
                     org.bukkit.entity.BlockDisplay column = wall.get(i * 2);
                     org.bukkit.entity.BlockDisplay foam = wall.get(i * 2 + 1);
                     if (column.isValid()) {
                         column.teleport(base.clone().add(0, h / 2, 0));
-                        dev.infuse.customs.ability.Displays.animateBlock(column, new org.joml.Vector3f(0.95f, (float) h, 0.55f), facing,
-                                new org.joml.Vector3f(), 1);
+                        dev.infuse.customs.ability.Displays.animateBlock(column, new org.joml.Vector3f(0.6f, (float) Math.max(0.1, h), 0.5f),
+                                facing, new org.joml.Vector3f(), 1);
                     }
                     if (foam.isValid()) {
-                        foam.teleport(base.clone().add(0, h + 0.1, 0).add(forward.clone().multiply(0.12)));
+                        foam.teleport(base.clone().add(0, h + 0.05, 0));
+                        dev.infuse.customs.ability.Displays.animateBlock(foam, new org.joml.Vector3f(0.62f, 0.2f, 0.55f), facing,
+                                new org.joml.Vector3f(), 1);
                     }
                 }
-                for (double w = -3.5; w <= 3.5; w += 0.5) {
-                    double height = 2.4 * (1 - Math.abs(w) / 4.2);
-                    Location base = center.clone().add(right.clone().multiply(w));
-                    for (double y = 0; y <= height; y += 0.45) {
-                        Location p = base.clone().add(0, y, 0);
-                        Fx.particle(p, Particle.DUST, 1, 0.08, 0, Fx.dust(y > height - 0.5 ? FOAM : (y < 0.5 ? DEEP : TEAL), 1.7f));
-                    }
-                    Fx.particle(base.clone().add(0, height + 0.2, 0), Particle.SPLASH, 3, 0.15, 0.1);
-                    if (((int) (w * 2)) % 3 == 0) {
-                        Fx.particle(base.clone().add(0, height, 0), Particle.FALLING_WATER, 2, 0.2, 0);
-                    }
+                Location spray = feet.clone().add(0, 0.3, 0);
+                Fx.particle(spray, Particle.SPLASH, 10, 0.6, 0.1);
+                Fx.particle(spray.clone().subtract(heading.clone().multiply(1.2)), Particle.FALLING_WATER, 4, 1.2, 0);
+                Fx.particle(feet.clone().add(0, 0.1, 0), Particle.BUBBLE_POP, 4, 0.5, 0.02);
+                if (ticks % 2 == 0) {
+                    fx().slash(feet.clone().add(0, 0.15, 0).subtract(heading.clone().multiply(0.6)), heading.clone().multiply(-1), 0,
+                            ticks % 4 == 0 ? 0x3FA9F5 : 0x9FE0FF, 1.8f, 2);
                 }
-                if (ticks % 4 == 0) {
-                    Fx.sound(center, Sound.BLOCK_WATER_AMBIENT, 1.5f, 1.4f);
+                if (ticks % 5 == 0) {
+                    Fx.sound(feet, Sound.BLOCK_WATER_AMBIENT, 1.5f, 1.6f);
                 }
-                for (LivingEntity target : combat().nearby(player, center, 5)) {
-                    Vector rel = target.getLocation().toVector().subtract(origin.toVector());
-                    double along = rel.dot(forward);
-                    double across = Math.abs(rel.dot(right));
-                    if (along < front - 1.5 || along > front + 0.8 || across > 3.8 || Math.abs(rel.getY()) > 3) {
-                        continue;
-                    }
+                // sweep up whatever is in front of you and carry it along
+                Location front = feet.clone().add(heading.clone().multiply(1.2)).add(0, 0.8, 0);
+                for (LivingEntity target : combat().nearby(player, front, 2.3)) {
                     if (hit.add(target.getUniqueId())) {
-                        combat().damage(player, target, 7);
+                        combat().damage(player, target, 6);
                         target.setFireTicks(0);
-                        applyEffect(target, PotionEffectType.SLOWNESS, 40, 1);
+                        applyEffect(target, PotionEffectType.SLOWNESS, 60, 1);
+                        Fx.particle(Combat.center(target), Particle.SPLASH, 25, 0.4, 0.2);
+                        Fx.sound(target.getLocation(), Sound.ENTITY_GENERIC_SPLASH, 1f, 1.2f);
                     }
-                    Combat.setVelocity(target, forward.clone().multiply(1.05).setY(0.35));
+                    carried.put(target.getUniqueId(), ticks);
+                    Combat.setVelocity(target, heading.clone().multiply(RIDE_SPEED + 0.2).setY(0.28));
                 }
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+
+            private void breakWave() {
+                cancel();
+                Location feet = player.getLocation();
+                Fx.sound(feet, Sound.ENTITY_GENERIC_SPLASH, 1.5f, 0.5f);
+                Fx.sound(feet, Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 0.7f);
+                Fx.particle(feet.clone().add(0, 1, 0), Particle.SPLASH, 80, 1.6, 0.4);
+                for (org.bukkit.entity.BlockDisplay d : wall) {
+                    if (d.isValid()) {
+                        Fx.particle(d.getLocation(), Particle.FALLING_WATER, 6, 0.4, 0.1);
+                    }
+                    displays().remove(d);
+                }
+                // the wave crashes down on whatever it was carrying
+                for (LivingEntity target : combat().nearby(player, feet, 6)) {
+                    if (carried.containsKey(target.getUniqueId())) {
+                        combat().damage(player, target, 4, true);
+                        Combat.setVelocity(target, heading.clone().multiply(1.1).setY(0.55));
+                        fx().burst(Combat.center(target), 0x9FE0FF, 1.6f);
+                    }
+                }
+                if (alive(player)) {
+                    Combat.setVelocity(player, heading.clone().multiply(0.5).setY(0.35));
+                }
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 }

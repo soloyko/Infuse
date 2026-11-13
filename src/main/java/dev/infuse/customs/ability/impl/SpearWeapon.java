@@ -33,7 +33,7 @@ import java.util.UUID;
 
 /**
  * Skypiercer, the Celestial Spear (netherite spear): reach and piercing throws.
- * Passive Long Reach, on-hit Impale, F Javelin, Sneak+F Phalanx.
+ * Passive Long Reach, on-hit Impale, F Skyhook, Sneak+F Phalanx.
  */
 public final class SpearWeapon extends SwordAbility {
 
@@ -77,120 +77,182 @@ public final class SpearWeapon extends SwordAbility {
         return plugin.items().create(type);
     }
 
-    /** Javelin: a spectral spear flies up to 32 blocks, pierces everything, then flies home. */
+    /** How far the chained spear can fly, and how fast. */
+    private static final double HOOK_RANGE = 28;
+    private static final double HOOK_SPEED = 2.2;
+
+    /**
+     * Skyhook: the spear flies out on a chain. An enemy it hits is impaled and dragged back to you;
+     * a block it hits holds fast and the chain hauls you to it (no fall damage); otherwise it is
+     * reeled back in.
+     */
     @Override
     public boolean primary(Player player) {
         Location start = player.getEyeLocation().subtract(0, 0.25, 0);
         Vector dir = start.getDirection().normalize();
-        ItemDisplay javelin = displays().item(start, spear(), MODEL_SCALE, Displays.pointing(dir),
-                ItemDisplay.ItemDisplayTransform.NONE, 80);
-        javelin.setGlowing(true);
-        ItemDisplay javGlow = fx().orb(start.clone().add(dir.clone().multiply(1.5)), 0xFFE08A, 1.4f, 80);
-        Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1.2f, 0.8f);
-        Set<UUID> hit = new HashSet<>();
+        ItemDisplay hook = displays().item(start, spear(), MODEL_SCALE, Displays.pointing(dir),
+                ItemDisplay.ItemDisplayTransform.NONE, 120);
+        hook.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+        Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1.2f, 0.7f);
+        Fx.sound(start, Sound.BLOCK_CHAIN_PLACE, 1f, 0.8f);
 
         new BukkitRunnable() {
             final Location pos = start.clone();
             int ticks;
-            int stuck = -1;
-            boolean returning;
+            double travelled;
+            /** 0 flying out, 1 dragging an enemy in, 2 hauling the caster, 3 reeling back. */
+            int phase;
+            LivingEntity caught;
+            int phaseTicks;
+            final Set<UUID> swept = new HashSet<>();
 
             @Override
             public void run() {
                 ticks++;
-                if (!alive(player) || !javelin.isValid() || ticks > 70 || player.getWorld() != pos.getWorld()) {
-                    displays().remove(javelin);
-                    displays().remove(javGlow);
-                    cancel();
+                phaseTicks++;
+                if (!alive(player) || !hook.isValid() || player.getWorld() != pos.getWorld() || ticks > 110) {
+                    finish();
                     return;
                 }
-                if (!returning) {
-                    if (stuck >= 0) {
-                        if (++stuck > 12) {
-                            returning = true;
-                        }
-                        return;
-                    }
-                    RayTraceResult block = pos.getWorld().rayTraceBlocks(pos, dir, 1.6, FluidCollisionMode.NEVER, true);
-                    double step = block == null ? 1.6 : block.getHitPosition().distance(pos.toVector()) - 0.3;
-                    Location next = pos.clone().add(dir.clone().multiply(Math.max(0, step)));
-                    pierce(player, pos, next, hit);
-                    streak(player, pos, next);
-                    pos.setX(next.getX());
-                    pos.setY(next.getY());
-                    pos.setZ(next.getZ());
-                    javelin.teleport(pos);
-                javGlow.teleport(pos);
-                    Fx.particle(pos, Particle.DUST, 2, 0.05, 0, Fx.dust(GOLD, 1.2f));
-                    Fx.particle(pos, Particle.END_ROD, 1, 0.02, 0.01);
-                    if (block != null) {
-                        stuck = 0;
-                        Location landed = pos.clone();
-                        fx().beam(landed.clone().add(0, 12, 0), landed, 0xFFF0B8, 1.2f, 12);
-                        fx().burst(landed, 0xFFE08A, 2.2f);
-                        fx().shockwave(Combat.ground(landed.clone().add(0, 0.5, 0)), 0xE9C46A, 3f, 7);
-                        Fx.sound(pos, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 1f);
-                        Block b = block.getHitBlock();
-                        if (b != null) {
-                            Fx.particle(pos, Particle.BLOCK, 12, 0.2, 0.1, b.getBlockData());
-                        }
-                    } else if (ticks >= 20) {
-                        returning = true;
-                    }
+                Location hand = dev.infuse.customs.ability.Fx3D.handOrigin(player);
+                switch (phase) {
+                    case 0 -> flyOut();
+                    case 1 -> dragIn(hand);
+                    case 2 -> haul();
+                    default -> reel(hand);
+                }
+                chain(hand, pos);
+            }
+
+            private void flyOut() {
+                RayTraceResult hit = pos.getWorld().rayTrace(pos, dir, HOOK_SPEED, FluidCollisionMode.NEVER, true, 0.5,
+                        e -> combat().canHit(player, e));
+                if (hit != null && hit.getHitEntity() instanceof LivingEntity target) {
+                    caught = target;
+                    move(Combat.center(target));
+                    combat().damage(player, target, 7);
+                    applyEffect(target, PotionEffectType.SLOWNESS, 40, 2);
+                    Location at = Combat.center(target);
+                    fx().burst(at, 0xFFE08A, 2f);
+                    Fx.particle(at, Particle.CRIT, 20, 0.3, 0.3);
+                    Fx.sound(at, Sound.ITEM_TRIDENT_HIT, 1f, 0.8f);
+                    Fx.sound(at, Sound.BLOCK_CHAIN_BREAK, 1f, 0.6f);
+                    next(1);
                     return;
                 }
-                Location home = player.getEyeLocation().subtract(0, 0.4, 0);
-                Vector back = home.toVector().subtract(pos.toVector());
+                if (hit != null && hit.getHitBlock() != null) {
+                    move(hit.getHitPosition().toLocation(pos.getWorld()).subtract(dir.clone().multiply(0.4)));
+                    Fx.particle(pos, Particle.BLOCK, 20, 0.3, 0.1, hit.getHitBlock().getBlockData());
+                    fx().burst(pos, 0xFFE08A, 1.8f);
+                    fx().wave(pos, dir, GOLD, 1.4f, 6);
+                    Fx.sound(pos, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 0.7f);
+                    Fx.sound(pos, Sound.BLOCK_CHAIN_PLACE, 1f, 0.5f);
+                    status().protectFromFall(player, 80);
+                    next(2);
+                    return;
+                }
+                move(pos.clone().add(dir.clone().multiply(HOOK_SPEED)));
+                travelled += HOOK_SPEED;
+                if (travelled >= HOOK_RANGE) {
+                    next(3);
+                }
+            }
+
+            /** The impaled enemy is hauled to just in front of you, the spear stuck in it. */
+            private void dragIn(Location hand) {
+                if (caught == null || !caught.isValid() || caught.isDead()) {
+                    next(3);
+                    return;
+                }
+                Location front = player.getLocation().add(player.getLocation().getDirection().setY(0).normalize().multiply(1.8));
+                Vector pull = front.toVector().subtract(caught.getLocation().toVector());
+                double distance = pull.length();
+                if (distance < 1.4 || phaseTicks > 16) {
+                    Combat.setVelocity(caught, new Vector(0, 0.2, 0));
+                    fx().burst(Combat.center(caught), GOLD, 1.6f);
+                    Fx.sound(caught.getLocation(), Sound.ITEM_TRIDENT_RETURN, 1f, 1.1f);
+                    next(3);
+                    return;
+                }
+                Combat.setVelocity(caught, pull.multiply(Math.min(1.5, distance * 0.35) / distance).setY(0.18));
+                move(Combat.center(caught));
+                if (phaseTicks % 3 == 0) {
+                    Fx.sound(pos, Sound.BLOCK_CHAIN_STEP, 1f, 0.7f);
+                }
+            }
+
+            /** The spear holds fast and the chain hauls you to it; you clip anyone you fly past. */
+            private void haul() {
+                Location body = player.getLocation().add(0, 1, 0);
+                Vector pull = pos.toVector().subtract(body.toVector());
+                double distance = pull.length();
+                if (distance < 1.8 || phaseTicks > 30 || player.isSneaking() && phaseTicks > 3) {
+                    // arrive with a little hop so you can land on a ledge
+                    Combat.setVelocity(player, player.getVelocity().multiply(0.3).setY(0.45));
+                    fx().burst(body, 0xFFE08A, 1.6f);
+                    Fx.sound(body, Sound.ITEM_TRIDENT_RETURN, 1f, 1.2f);
+                    next(3);
+                    return;
+                }
+                Combat.setVelocity(player, pull.multiply(Math.min(1.6, 0.6 + distance * 0.12) / distance));
+                Fx.particle(body, Particle.CLOUD, 2, 0.2, 0.01);
+                if (phaseTicks % 2 == 0) {
+                    fx().afterimage(player.getLocation().add(0, 1, 0), spear(), pull, GOLD, 1.0f, 6);
+                }
+                for (LivingEntity target : combat().nearby(player, body, 1.8)) {
+                    if (swept.add(target.getUniqueId())) {
+                        combat().damage(player, target, 5);
+                        Combat.knockback(target, body, 0.8, 0.4);
+                        fx().cut(Combat.center(target), pull, Math.random() * Math.PI, 0.4, GOLD, 1.4f, 2);
+                        Fx.sound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1.2f);
+                    }
+                }
+            }
+
+            private void reel(Location hand) {
+                Vector back = hand.toVector().subtract(pos.toVector());
                 double distance = back.length();
-                if (distance < 1.4) {
-                    Fx.sound(home, Sound.ITEM_TRIDENT_RETURN, 1f, 1.2f);
-                    displays().remove(javelin);
-                    displays().remove(javGlow);
-                    cancel();
+                if (distance < 1.6) {
+                    Fx.sound(hand, Sound.ITEM_TRIDENT_RETURN, 1f, 1.3f);
+                    finish();
                     return;
                 }
-                back.multiply(Math.min(2.0, distance) / distance);
-                Location from = pos.clone();
-                pos.add(back);
-                streak(player, from, pos);
-                Transformation t = javelin.getTransformation();
-                javelin.setTransformation(new Transformation(t.getTranslation(), Displays.pointing(back.clone().multiply(-1)),
-                        t.getScale(), t.getRightRotation()));
-                javelin.teleport(pos);
-                    javGlow.teleport(pos);
-                Fx.particle(pos, Particle.END_ROD, 1, 0.02, 0.01);
+                move(pos.clone().add(back.multiply(Math.min(2.6, distance) / distance)));
+            }
+
+            private void move(Location to) {
+                // the spear keeps pointing the way it was thrown, in or out
+                pos.setX(to.getX());
+                pos.setY(to.getY());
+                pos.setZ(to.getZ());
+                hook.teleport(pos);
+            }
+
+            private void next(int phase) {
+                this.phase = phase;
+                phaseTicks = 0;
+            }
+
+            private void finish() {
+                displays().remove(hook);
+                cancel();
             }
         }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 
-    /** A streak of golden light left in the air behind the flying spear (not right in your face). */
-    private void streak(Player player, Location from, Location to) {
-        if (from.distanceSquared(to) < 0.01 || to.distanceSquared(player.getEyeLocation()) < 6.25) {
+    /** The chain between your hand and the spear: dark links with a golden glint. */
+    private void chain(Location hand, Location tip) {
+        Vector span = tip.toVector().subtract(hand.toVector());
+        double length = span.length();
+        if (length < 0.6) {
             return;
         }
-        fx().beam(from, to, GOLD, 0.3f, 5);
-        fx().beam(from, to, 0xFFF6D8, 0.12f, 3);
-    }
-
-    private void pierce(Player player, Location from, Location to, Set<UUID> hit) {
-        Vector segment = to.toVector().subtract(from.toVector());
-        double length = segment.length();
-        if (length < 1.0E-3) {
-            return;
-        }
-        Vector dir = segment.clone().multiply(1 / length);
-        Location mid = from.clone().add(segment.clone().multiply(0.5));
-        for (LivingEntity target : combat().nearby(player, mid, length / 2 + 1.5)) {
-            if (!hit.contains(target.getUniqueId())
-                    && target.getBoundingBox().expand(0.6).rayTrace(from.toVector(), dir, length) != null) {
-                hit.add(target.getUniqueId());
-                combat().damage(player, target, 8);
-                applyEffect(target, PotionEffectType.SLOWNESS, 30, 1);
-                Fx.particle(Combat.center(target), Particle.CRIT, 15, 0.3, 0.3);
-                Fx.sound(target.getLocation(), Sound.ITEM_TRIDENT_HIT, 1f, 1f);
-                fx().burst(Combat.center(target), 0xE9C46A, 1.6f);
-            }
+        Vector step = span.clone().multiply(0.45 / length);
+        Location link = hand.clone().add(step.clone().multiply(2)); // not right in front of your eyes
+        for (double d = 0.9; d < length; d += 0.45) {
+            Fx.particle(link, Particle.DUST, 1, 0, 0, Fx.dust(((int) (d / 0.45)) % 3 == 0 ? GOLD : 0x5A5A66, 0.8f));
+            link.add(step);
         }
     }
 

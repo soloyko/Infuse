@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Cosmic Sword: gravity and meteors.
- * Passive Zero-G, on-hit Starstrike, RC Gravity Pulse, Sneak+RC Meteor Shower.
+ * Passive Zero-G, on-hit Starstrike, F Telekinesis, Sneak+F Meteor Shower.
  */
 public final class CosmicSword extends SwordAbility {
 
@@ -60,69 +60,179 @@ public final class CosmicSword extends SwordAbility {
         Fx.sound(at, Sound.ENTITY_SHULKER_BULLET_HIT, 0.8f, 1.2f);
     }
 
-    /** Gravity Pulse: launch every enemy within 8 blocks, then slam them down. */
+    /** Ticks you can hold an enemy before it is hurled. */
+    private static final int HOLD_TICKS = 60;
+    /** Enemies held right now (their gravity is off), so a reload or shutdown can let them go. */
+    private final java.util.Set<LivingEntity> floating = new java.util.HashSet<>();
+
+    @Override
+    public void shutdown() {
+        for (LivingEntity entity : floating) {
+            if (entity.isValid()) {
+                entity.setGravity(true);
+            }
+        }
+        floating.clear();
+    }
+
+    /**
+     * Telekinesis: seize the enemy under your crosshair. For three seconds it floats wherever you
+     * aim, smashing into other enemies and walls on the way, then it is hurled along your aim.
+     */
     @Override
     public boolean primary(Player player) {
-        Location center = player.getLocation();
-        List<LivingEntity> targets = combat().nearby(player, center, 8);
-        if (targets.isEmpty()) {
-            tell(player, "No enemies nearby.");
+        LivingEntity held = combat().lookTarget(player, 24, 0.6);
+        if (held == null) {
+            tell(player, "Look at an enemy to seize it.");
             return false;
         }
-        for (double r = 1; r <= 8; r += 1.4) {
-            Fx.ring(center.clone().add(0, 0.2, 0), r, (int) (r * 8), p -> Fx.particle(p, Particle.REVERSE_PORTAL, 1, 0, 0.05));
-        }
-        Fx.sound(center, Sound.ENTITY_SHULKER_SHOOT, 1.2f, 0.5f);
-        Fx.sound(center, Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1.6f);
-        fx().shockwave(center, 0x7B6CFF, 8f, 9);
-        fx().shockwave(center, 0xC6B8FF, 5f, 6);
-        for (LivingEntity target : targets) {
-            combat().damage(player, target, 3);
-            Vector out = target.getLocation().toVector().subtract(center.toVector()).setY(0);
-            if (out.lengthSquared() > 1.0E-4) {
-                out.normalize().multiply(0.3);
+        double reach = Math.max(3.5, Math.min(7, player.getEyeLocation().distance(Combat.center(held))));
+        boolean hadGravity = held.hasGravity();
+        Location grabbed = Combat.center(held);
+        Fx.sound(grabbed, Sound.ENTITY_SHULKER_SHOOT, 1.2f, 0.5f);
+        Fx.sound(grabbed, Sound.BLOCK_BEACON_ACTIVATE, 0.8f, 1.8f);
+        fx().burst(grabbed, PINK, 2f);
+        fx().wave(grabbed, player.getEyeLocation().getDirection(), 0x8E7BFF, 1.6f, 6);
+        org.bukkit.entity.ItemDisplay aura = fx().orb(grabbed, 0x7B6CFF, 2.4f, HOLD_TICKS + 40);
+        java.util.Map<java.util.UUID, Integer> struck = new java.util.HashMap<>();
+        held.setGravity(false);
+        floating.add(held);
+
+        new BukkitRunnable() {
+            int ticks;
+            Location last = grabbed.clone();
+            int lastSlam = -20;
+
+            @Override
+            public void run() {
+                ticks++;
+                boolean done = ticks >= HOLD_TICKS;
+                if (!alive(player) || !held.isValid() || held.isDead() || held.getWorld() != player.getWorld()
+                        || !combat().canHit(player, held)) {
+                    release(false);
+                    return;
+                }
+                Location eye = player.getEyeLocation();
+                Location hold = eye.clone().add(eye.getDirection().multiply(reach));
+                Location body = Combat.center(held);
+                if (done) {
+                    release(true);
+                    return;
+                }
+                // pull it smoothly towards the point you're aiming at
+                Vector pull = hold.toVector().subtract(body.toVector());
+                double distance = pull.length();
+                if (distance > 1.0E-3) {
+                    pull.multiply(Math.min(1.4, distance * 0.45) / distance);
+                }
+                Combat.setVelocity(held, pull);
+                Vector moved = body.toVector().subtract(last.toVector());
+                double speed = moved.length();
+                last = body.clone();
+                aura.teleport(body);
+
+                // a violet thread from your hand to it, and motes orbiting it
+                if (ticks % 2 == 0) {
+                    fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), body, 0xB8A8FF, 0.18f, 3);
+                }
+                double a = ticks * 0.5;
+                for (int k = 0; k < 3; k++) {
+                    double ang = a + k * Math.PI * 2 / 3;
+                    Location mote = body.clone().add(Math.cos(ang) * 0.9, Math.sin(ticks * 0.2 + k) * 0.5, Math.sin(ang) * 0.9);
+                    Fx.particle(mote, Particle.END_ROD, 1, 0, 0);
+                }
+                if (ticks % 10 == 0) {
+                    Fx.sound(body, Sound.BLOCK_BEACON_AMBIENT, 1f, 1.8f);
+                }
+
+                // swung fast into other enemies, it bowls them over
+                if (speed > 0.45) {
+                    for (LivingEntity other : combat().nearby(player, body, 1.4)) {
+                        Integer when = struck.get(other.getUniqueId());
+                        if (other == held || (when != null && ticks - when < 12)) {
+                            continue;
+                        }
+                        struck.put(other.getUniqueId(), ticks);
+                        combat().damage(player, other, 5, true);
+                        combat().damage(player, held, 2, true);
+                        Combat.setVelocity(other, moved.clone().normalize().multiply(1.1).setY(0.45));
+                        fx().burst(Combat.center(other), PINK, 1.8f);
+                        Fx.sound(body, Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1f, 0.7f);
+                    }
+                }
+                // ...and slammed into a wall or the floor, it hurts
+                if (speed > 0.5 && ticks - lastSlam > 10) {
+                    RayTraceResult wall = held.getWorld().rayTraceBlocks(body, moved, 0.9 + held.getWidth() / 2,
+                            FluidCollisionMode.NEVER, true);
+                    if (wall != null) {
+                        lastSlam = ticks;
+                        combat().damage(player, held, 4, true);
+                        Location hit = wall.getHitPosition().toLocation(held.getWorld());
+                        fx().burst(hit, 0x7B6CFF, 2f);
+                        Fx.particle(hit, Particle.BLOCK, 18, 0.3, 0.1, wall.getHitBlock() == null
+                                ? Material.STONE.createBlockData() : wall.getHitBlock().getBlockData());
+                        Fx.sound(hit, Sound.ENTITY_IRON_GOLEM_DAMAGE, 1f, 0.6f);
+                    }
+                }
             }
-            Combat.setVelocity(target, out.setY(1.3));
-            Location base = target.getLocation();
-            fx().beam(base, base.clone().add(0, 7, 0), 0x8E7BFF, 1.4f, 16);
-            fx().follow(target, 0xB8A8FF, 1.2f, 20);
-        }
+
+            private void release(boolean hurl) {
+                cancel();
+                held.setGravity(hadGravity);
+                floating.remove(held);
+                displays().remove(aura);
+                if (!hurl || !held.isValid()) {
+                    return;
+                }
+                Vector look = player.getEyeLocation().getDirection();
+                Combat.setVelocity(held, look.clone().multiply(2.1).add(new Vector(0, 0.25, 0)));
+                combat().damage(player, held, 4, true);
+                Location at = Combat.center(held);
+                fx().wave(at, look, PINK, 2.2f, 7);
+                fx().flash(at, 0x8E7BFF, 2.2f);
+                Fx.sound(at, Sound.ENTITY_WIND_CHARGE_WIND_BURST, 1f, 0.6f);
+                Fx.sound(at, Sound.ENTITY_SHULKER_BULLET_HIT, 1f, 0.6f);
+                fx().follow(held, 0xB8A8FF, 1.4f, 20);
+                watchLanding(player, held);
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
+        return true;
+    }
+
+    /** After a hurl: whatever it hits first (the ground, a wall, another enemy) takes the impact. */
+    private void watchLanding(Player player, LivingEntity thrown) {
         new BukkitRunnable() {
             int ticks;
 
             @Override
             public void run() {
                 ticks++;
-                for (LivingEntity target : targets) {
-                    if (target.isValid() && !target.isDead()) {
-                        Fx.particle(Combat.center(target), Particle.END_ROD, 2, 0.2, 0.01);
-                    }
+                if (!thrown.isValid() || thrown.isDead() || ticks > 40) {
+                    cancel();
+                    return;
                 }
-                if (ticks < 18) {
+                Location at = Combat.center(thrown);
+                List<LivingEntity> near = combat().nearby(player, at, 1.3);
+                near.remove(thrown);
+                boolean wall = thrown.getWorld().rayTraceBlocks(at, thrown.getVelocity().lengthSquared() < 1.0E-4
+                        ? new Vector(0, -1, 0) : thrown.getVelocity(), 1.0, FluidCollisionMode.NEVER, true) != null;
+                if (ticks < 3 || (!thrown.isOnGround() && !wall && near.isEmpty())) {
                     return;
                 }
                 cancel();
-                if (!alive(player)) {
-                    return;
+                combat().damage(player, thrown, 6, true);
+                for (LivingEntity other : near) {
+                    combat().damage(player, other, 5, true);
+                    Combat.knockback(other, at, 1.0, 0.4);
                 }
-                for (LivingEntity target : targets) {
-                    if (target.isValid() && !target.isDead() && combat().canHit(player, target)) {
-                        Combat.setVelocity(target, new Vector(0, -3, 0));
-                        combat().damage(player, target, 4, true);
-                        Location land = Combat.ground(target.getLocation());
-                        displays().later(3, () -> {
-                            fx().crack(land, 0x7B6CFF, 3.2f, 36);
-                            fx().shockwave(land, 0xC6B8FF, 2.6f, 6);
-                            displays().eruptGround(land, 0.6f, 0.7f);
-                        });
-                        Fx.particle(Combat.center(target), Particle.DUST, 12, 0.3, 0, Fx.dust(INDIGO, 1.5f));
-                    }
-                }
-                Fx.sound(player.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1f, 0.8f);
-                fx().shockwave(player.getLocation(), 0x4B3BD9, 8f, 7);
+                Location ground = Combat.ground(at);
+                fx().crack(ground, 0x7B6CFF, 2.6f, 30);
+                fx().burst(at, PINK, 2.4f);
+                displays().eruptGround(ground, 0.55f, 0.6f);
+                Fx.particle(at, Particle.REVERSE_PORTAL, 30, 0.4, 0.1);
+                Fx.sound(at, Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1f, 1.1f);
             }
         }.runTaskTimer(plugin, 1L, 1L);
-        return true;
     }
 
     /** Meteor Shower: 8 meteors on the targeted area. */

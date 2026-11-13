@@ -29,9 +29,9 @@ import org.joml.Vector3f;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -106,9 +106,18 @@ public final class HalberdWeapon extends SwordAbility {
         return true;
     }
 
+    /** How long the dragon flies, in ticks. */
+    private static final int DRAGON_TICKS = 90;
+    /** Blocks it moves per tick, and the most it can turn per tick (radians). */
+    private static final double DRAGON_SPEED = 0.55;
+    private static final double DRAGON_TURN = 0.17;
+    /** Ticks before the dragon can bite the same enemy again. */
+    private static final int REBITE_TICKS = 20;
+
     /**
-     * Jade Dragon: a serpent of jade with a glowing dragon's head winds forward about 20 blocks,
-     * rising and diving, biting and tossing enemies. Its scales are turned along its body.
+     * Jade Dragon: a serpent of jade with a glowing dragon's head that you steer with your
+     * crosshair for four and a half seconds. It flies towards whatever you look at, turning like a
+     * serpent rather than snapping, biting and tossing every enemy it passes through.
      */
     @Override
     public boolean secondary(Player player) {
@@ -126,13 +135,14 @@ public final class HalberdWeapon extends SwordAbility {
         Location spawnAt = start.clone();
         spawnAt.setYaw(0);
         spawnAt.setPitch(0);
-        org.bukkit.entity.ItemDisplay head = fx().spectralHead(start, Material.DRAGON_HEAD, JADE, 1.9f, dir, 70);
+        int life = DRAGON_TICKS + 20;
+        org.bukkit.entity.ItemDisplay head = fx().spectralHead(start, Material.DRAGON_HEAD, JADE, 1.9f, dir, life);
         head.setTeleportDuration(1);
         for (int i = 0; i < segments; i++) {
             boolean gold = i % 3 == 1;
             // thick behind the head, tapering to a thin tail
             float size = (float) ((gold ? 0.62 : 0.95) * (1.0 - i * 0.032));
-            BlockDisplay seg = displays().block(spawnAt, gold ? SCALE : BODY, new Vector3f(size), new Quaternionf(), 70);
+            BlockDisplay seg = displays().block(spawnAt, gold ? SCALE : BODY, new Vector3f(size), new Quaternionf(), life);
             seg.setBrightness(new Display.Brightness(15, 15));
             seg.setTeleportDuration(1);
             seg.setGlowing(true);
@@ -140,9 +150,9 @@ public final class HalberdWeapon extends SwordAbility {
             body.add(seg);
             sizes.add(size);
         }
-        org.bukkit.entity.ItemDisplay aura = fx().orb(start, JADE, 2.6f, 70);
+        org.bukkit.entity.ItemDisplay aura = fx().orb(start, JADE, 2.6f, life);
         Deque<Location> trail = new ArrayDeque<>();
-        Set<UUID> bitten = new HashSet<>();
+        Map<UUID, Integer> bitten = new HashMap<>();
         Fx.sound(start, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1.6f);
         Fx.sound(start, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.2f, 0.6f);
         fx().flash(start, JADE, 2.8f);
@@ -150,35 +160,55 @@ public final class HalberdWeapon extends SwordAbility {
 
         new BukkitRunnable() {
             int ticks;
+            /** The path the dragon steers along; the head sways around it. */
             final Location base = start.clone();
+            Vector heading = dir.clone();
 
             @Override
             public void run() {
                 ticks++;
-                if (!alive(player) || ticks > 55 || base.getWorld() != player.getWorld()) {
+                if (!alive(player) || ticks > DRAGON_TICKS || base.getWorld() != player.getWorld()
+                        || base.distanceSquared(player.getLocation()) > 48 * 48) {
                     finish();
                     return;
                 }
-                base.add(dir.clone().multiply(0.45));
-                double wave = Math.sin(ticks * 0.42) * 1.8;
-                double bob = Math.sin(ticks * 0.27) * 0.9 + 0.6;
-                Location headAt = base.clone().add(side.clone().multiply(wave)).add(0, bob, 0);
+                // steer towards whatever is under the caster's crosshair
+                Location aim = dev.infuse.customs.ability.Aim.crosshair(player, combat(), 40);
+                Vector desired = aim.toVector().subtract(base.toVector());
+                if (desired.lengthSquared() > 2.25) {
+                    heading = dev.infuse.customs.ability.Aim.turnToward(heading, desired.normalize(), DRAGON_TURN);
+                }
+                base.add(heading.clone().multiply(DRAGON_SPEED));
+                // never burrow: skim up over the ground and walls instead
+                if (!base.getBlock().isPassable()) {
+                    base.add(0, 1, 0);
+                    heading.setY(Math.max(heading.getY(), 0.35));
+                    heading.normalize();
+                }
+                Vector sideNow = heading.clone().crossProduct(new Vector(0, 1, 0));
+                if (sideNow.lengthSquared() < 1.0E-4) {
+                    sideNow = side.clone();
+                }
+                sideNow.normalize();
+                double sway = Math.sin(ticks * 0.45) * 0.9;
+                double bob = Math.sin(ticks * 0.3) * 0.35;
+                Location headAt = base.clone().add(sideNow.multiply(sway)).add(0, bob, 0);
                 if (!headAt.getBlock().isPassable()) {
-                    headAt.add(0, 1, 0);
+                    headAt = base.clone();
                 }
                 Location previous = trail.isEmpty() ? start : trail.peekFirst();
                 trail.addFirst(headAt.clone());
                 while (trail.size() > segments * 2 + 2) {
                     trail.removeLast();
                 }
-                Vector heading = headAt.toVector().subtract(previous.toVector());
-                if (heading.lengthSquared() < 1.0E-4) {
-                    heading = dir.clone();
+                Vector facing = headAt.toVector().subtract(previous.toVector());
+                if (facing.lengthSquared() < 1.0E-4) {
+                    facing = heading.clone();
                 }
-                head.teleport(headAt.clone().add(heading.clone().normalize().multiply(0.3)));
+                head.teleport(headAt.clone().add(facing.clone().normalize().multiply(0.3)));
                 head.setInterpolationDelay(0);
                 head.setInterpolationDuration(1);
-                head.setTransformation(new Transformation(new Vector3f(), dev.infuse.customs.ability.Fx3D.headRotation(heading),
+                head.setTransformation(new Transformation(new Vector3f(), dev.infuse.customs.ability.Fx3D.headRotation(facing),
                         new Vector3f(1.9f), new Quaternionf()));
                 aura.teleport(headAt);
                 // body segments follow the head's path two steps apart, each turned along it
@@ -209,14 +239,17 @@ public final class HalberdWeapon extends SwordAbility {
                     Fx.particle(tail, Particle.DUST, 2, 0.15, 0, Fx.dust(GOLD, 1.1f));
                 }
                 for (LivingEntity target : combat().nearby(player, headAt, 1.9)) {
-                    if (bitten.add(target.getUniqueId())) {
-                        combat().damage(player, target, 9);
-                        Combat.setVelocity(target, dir.clone().multiply(0.4).setY(0.9));
+                    Integer last = bitten.get(target.getUniqueId());
+                    if (last == null || ticks - last >= REBITE_TICKS) {
+                        // the first bite is the big one; circling back for more bites deals less
+                        combat().damage(player, target, last == null ? 9 : 5, true);
+                        bitten.put(target.getUniqueId(), ticks);
+                        Combat.setVelocity(target, heading.clone().setY(0).multiply(0.45).setY(0.85));
                         Location at = Combat.center(target);
                         fx().burst(at, JADE, 2.2f);
                         // jaws: two cuts closing on the target
-                        fx().cut(at, heading, Math.PI / 2 - 0.5, 0.6, PALE_JADE, 1.7f, 2);
-                        fx().cut(at, heading, -Math.PI / 2 + 0.5, 0.6, GOLD, 1.7f, 2);
+                        fx().cut(at, facing, Math.PI / 2 - 0.5, 0.6, PALE_JADE, 1.7f, 2);
+                        fx().cut(at, facing, -Math.PI / 2 + 0.5, 0.6, GOLD, 1.7f, 2);
                         Fx.particle(at, Particle.BLOCK, 12, 0.3, 0.1, BODY);
                         Fx.sound(at, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
                         Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 0.8f);

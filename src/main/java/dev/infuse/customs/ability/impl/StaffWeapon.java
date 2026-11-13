@@ -43,7 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Arcanum, the Arcane Staff: a battle mage's focus.
- * Passive Arcane Ward, on-hit Arcane Spark, F Arcane Missiles, Sneak+F Crystal Nova.
+ * Passive Arcane Ward, on-hit Arcane Spark, F Arcane Missiles, Sneak+F Crystal Sentinel.
  */
 public final class StaffWeapon extends SwordAbility implements Listener {
 
@@ -199,64 +199,139 @@ public final class StaffWeapon extends SwordAbility implements Listener {
         }.runTaskTimer(plugin, 1L, 1L);
     }
 
-    /** Crystal Nova: four rings of amethyst clusters burst out of the ground. */
+    /** How long the sentinel stands, how often it fires and how often it mends. */
+    private static final int SENTINEL_TICKS = 160;
+    private static final int SENTINEL_FIRE = 10;
+    private static final int SENTINEL_MEND = 40;
+    private static final double SENTINEL_RANGE = 11;
+
+    /**
+     * Crystal Sentinel: a floating amethyst crystal forms where you aim. For eight seconds it fires
+     * bolts at the nearest enemy it can see and, every two seconds, mends you and your teammates
+     * standing near it.
+     */
     @Override
     public boolean secondary(Player player) {
-        Location center = player.getLocation();
-        Fx.sound(center, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.5f, 0.8f);
-        Fx.sound(center, Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1f, 0.8f);
-        fx().castCircle(center, 0xB57EDC, 6.2f);
-        fx().shockwave(center, 0xE6C8FF, 6f, 14);
-        Set<UUID> hit = new HashSet<>();
-        double[] radii = {1.6, 3.0, 4.4, 5.8};
-        for (int ring = 0; ring < radii.length; ring++) {
-            double radius = radii[ring];
-            displays().later(1 + ring * 3L, () -> crystalRing(player, center, radius, hit));
+        Location aim = combat().aimPoint(player, 18);
+        if (aim == null) {
+            Location eye = player.getEyeLocation();
+            aim = eye.clone().add(eye.getDirection().setY(0).normalize().multiply(4));
         }
-        return true;
-    }
+        Location ground = Combat.ground(aim.clone().add(0, 0.5, 0));
+        Location core = ground.clone().add(0, 1.7, 0);
+        core.setYaw(0);
+        core.setPitch(0);
+        // the crystal: a tall amethyst diamond, two smaller shards orbiting it, a rune on the ground
+        Quaternionf diamond = new Quaternionf().rotateY((float) (Math.PI / 4)).rotateX((float) (Math.PI / 4)).rotateZ((float) (Math.PI / 4));
+        Vector3f size = new Vector3f(0.55f, 0.9f, 0.55f);
+        BlockDisplay crystal = displays().block(core, Material.AMETHYST_BLOCK.createBlockData(), new Vector3f(0.05f), diamond,
+                SENTINEL_TICKS + 10);
+        crystal.setGlowing(true);
+        crystal.setGlowColorOverride(org.bukkit.Color.fromRGB(AMETHYST));
+        crystal.setBrightness(new Display.Brightness(15, 15));
+        displays().later(1, () -> Displays.animateBlock(crystal, size, diamond, new Vector3f(), 6));
+        ItemDisplay glow = fx().orb(core, AMETHYST, 2.4f, SENTINEL_TICKS + 10);
+        ItemDisplay rune = fx().sigil(ground.clone().add(0, 0.08, 0), new Vector(0, 1, 0), AMETHYST, 3.2f, SENTINEL_TICKS + 10);
+        BlockDisplay[] shards = new BlockDisplay[2];
+        for (int i = 0; i < shards.length; i++) {
+            shards[i] = displays().block(core, Material.AMETHYST_CLUSTER.createBlockData(), new Vector3f(0.4f), new Quaternionf(),
+                    SENTINEL_TICKS + 10);
+            shards[i].setBrightness(new Display.Brightness(15, 15));
+            shards[i].setTeleportDuration(2);
+        }
+        fx().flash(core, PALE, 2.6f);
+        Fx.particle(core, Particle.BLOCK, 30, 0.4, 0.1, Material.AMETHYST_BLOCK.createBlockData());
+        Fx.sound(core, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.5f, 0.6f);
+        Fx.sound(core, Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1f, 1.2f);
 
-    private void crystalRing(Player player, Location center, double radius, Set<UUID> hit) {
-        if (!alive(player) || player.getWorld() != center.getWorld()) {
-            return;
-        }
-        ThreadLocalRandom r = ThreadLocalRandom.current();
-        int count = (int) (radius * 3.2);
-        BlockData cluster = Material.AMETHYST_CLUSTER.createBlockData();
-        if (cluster instanceof Directional directional) {
-            directional.setFacing(BlockFace.UP);
-        }
-        for (int i = 0; i < count; i++) {
-            double a = i * 2 * Math.PI / count + radius;
-            Location p = center.clone().add(Math.cos(a) * radius, 0, Math.sin(a) * radius);
-            Block ground = Displays.groundBelow(p.clone().add(0, 1, 0));
-            if (ground == null) {
-                continue;
-            }
-            Location at = ground.getLocation().add(0.5, 1.0, 0.5);
-            float size = (float) r.nextDouble(0.9, 1.4);
-            Quaternionf tilt = new Quaternionf().rotateY((float) r.nextDouble(Math.PI * 2))
-                    .rotateX((float) r.nextDouble(-0.35, 0.35));
-            BlockDisplay crystal = displays().block(at, cluster, new Vector3f(size, 0.05f, size), tilt, 22);
-            crystal.setBrightness(new Display.Brightness(13, 13));
-            Vector3f full = new Vector3f(size);
-            displays().later(1, () -> Displays.animateBlock(crystal, full, tilt, new Vector3f(0, size / 2 - 0.1f, 0), 3));
-            displays().later(16, () -> {
-                if (crystal.isValid()) {
-                    Fx.particle(crystal.getLocation().add(0, 0.5, 0), Particle.BLOCK, 10, 0.3, 0.1, Material.AMETHYST_BLOCK.createBlockData());
+        new BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (!alive(player) || player.getWorld() != core.getWorld() || ticks > SENTINEL_TICKS || !crystal.isValid()) {
+                    shatter();
+                    return;
                 }
-                Displays.animateBlock(crystal, new Vector3f(size, 0.05f, size), tilt, new Vector3f(), 4);
-            });
-        }
-        Fx.sound(center, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1.4f, 0.6f + (float) radius * 0.1f);
-        for (LivingEntity target : combat().nearby(player, center, radius + 0.9)) {
-            double d = Combat.distanceToBody(target, center);
-            if (d >= radius - 1.3 && hit.add(target.getUniqueId())) {
-                combat().damage(player, target, 6);
-                applyEffect(target, PotionEffectType.SLOWNESS, 40, 1);
-                Combat.setVelocity(target, target.getVelocity().setY(0.7));
+                // a slow spin and a gentle bob
+                float spin = ticks * 0.08f;
+                float bob = (float) Math.sin(ticks * 0.12) * 0.12f;
+                if (ticks > 6 && ticks % 4 == 0) {
+                    Quaternionf turn = new Quaternionf().rotateY(spin).mul(diamond);
+                    Displays.animateBlock(crystal, size, turn, new Vector3f(0, bob, 0), 4);
+                }
+                for (int i = 0; i < shards.length; i++) {
+                    double a = ticks * 0.15 + i * Math.PI;
+                    shards[i].teleport(core.clone().add(Math.cos(a) * 1.0, 0.2 + Math.sin(ticks * 0.1 + i) * 0.3, Math.sin(a) * 1.0));
+                }
+                if (ticks % 3 == 0) {
+                    Fx.particle(core, Particle.END_ROD, 1, 0.3, 0.01);
+                }
+                if (ticks % SENTINEL_FIRE == 0) {
+                    fire();
+                }
+                if (ticks % SENTINEL_MEND == 0) {
+                    mend();
+                }
             }
-        }
+
+            private void fire() {
+                LivingEntity best = null;
+                double bestDistance = SENTINEL_RANGE * SENTINEL_RANGE;
+                for (LivingEntity target : combat().nearby(player, core, SENTINEL_RANGE)) {
+                    double d = Combat.center(target).distanceSquared(core);
+                    if (d < bestDistance && core.getWorld().rayTraceBlocks(core, Combat.center(target).toVector().subtract(core.toVector()),
+                            Math.sqrt(d), FluidCollisionMode.NEVER, true) == null) {
+                        best = target;
+                        bestDistance = d;
+                    }
+                }
+                if (best == null) {
+                    return;
+                }
+                Location at = Combat.center(best);
+                fx().beam(core, at, AMETHYST, 0.45f, 5);
+                fx().beam(core, at, PALE, 0.15f, 3);
+                fx().burst(at, PALE, 1.3f);
+                Fx.particle(at, Particle.BLOCK, 6, 0.2, 0.1, Material.AMETHYST_BLOCK.createBlockData());
+                combat().damage(player, best, 3.5, true);
+                applyEffect(best, PotionEffectType.SLOWNESS, 20, 0);
+                Fx.sound(core, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1.2f, 1.6f);
+                Fx.sound(at, Sound.BLOCK_AMETHYST_BLOCK_HIT, 1f, 1.2f);
+            }
+
+            private void mend() {
+                org.bukkit.scoreboard.Team team = Bukkit.getScoreboardManager().getMainScoreboard().getEntryTeam(player.getName());
+                for (Player near : core.getNearbyPlayers(5.5)) {
+                    if (near != player && (team == null || !team.hasEntry(near.getName()))) {
+                        continue;
+                    }
+                    combat().heal(near, 2);
+                    Location at = near.getLocation().add(0, 1, 0);
+                    fx().beam(core, at, 0xF3D9FF, 0.3f, 6);
+                    Fx.particle(at, Particle.HEART, 2, 0.3, 0);
+                }
+                fx().helix(ground.clone().add(0, 0.1, 0), 1.2, 2.2, 3, Particle.WITCH, null, 14);
+                Fx.sound(core, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, 1.6f);
+            }
+
+            private void shatter() {
+                cancel();
+                if (crystal.isValid()) {
+                    Fx.particle(core, Particle.BLOCK, 40, 0.5, 0.2, Material.AMETHYST_BLOCK.createBlockData());
+                    fx().burst(core, PALE, 2.2f);
+                    Fx.sound(core, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 1.4f, 0.7f);
+                }
+                displays().remove(crystal);
+                displays().remove(glow);
+                displays().remove(rune);
+                for (BlockDisplay shard : shards) {
+                    displays().remove(shard);
+                }
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
+        return true;
     }
 
     @Override

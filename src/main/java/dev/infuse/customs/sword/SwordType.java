@@ -25,7 +25,7 @@ public enum SwordType {
             new AbilityInfo("Rebirth", "Fire Resistance while held. Once every 5 minutes, a killing blow revives you instead."),
             new AbilityInfo("Searing Edge", "Ignites targets. 15% chance to combust, burning everything nearby."),
             new AbilityInfo("Ember Volley", "Three exploding fireballs that set the ground they pass over on fire for a few seconds."),
-            new AbilityInfo("Firestorm", "Unleash a ring of fire that scorches and blasts back everything around you.")),
+            new AbilityInfo("Wall of Fire", "Raise a wall of fire across where you aim for 6 seconds: anything crossing it burns and is thrown back, and arrows burn up in it.")),
 
     FROST("frost", "Everwinter", "Frost Sword", "❄", 0x9BE3F2, 0xFFFFFF,
             "Carved from ice that has not melted since the world was young. The wounds it leaves never quite stop freezing.",
@@ -46,7 +46,7 @@ public enum SwordType {
             new AbilityInfo("Ocean's Blessing", "Conduit Power and Dolphin's Grace while held."),
             new AbilityInfo("Undertow", "20% chance to drag the target towards you and slow it."),
             new AbilityInfo("Riptide Surge", "Surge forward like a riptide, slamming through every enemy in your path."),
-            new AbilityInfo("Tidal Wave", "Send a crashing wave forward that sweeps enemies away.")),
+            new AbilityInfo("Ride the Tide", "Surf a wall of water for 3.5 seconds, steering with your crosshair. Enemies in your path are swept up and carried until it breaks.")),
 
     VERDANT("verdant", "Elderbloom", "Verdant Sword", "🌿", 0x2FBF71, 0xE8C64A,
             "Grown, not forged, from the heartwood of the world's oldest tree. Wherever it fights, roots break through the ground.",
@@ -67,7 +67,7 @@ public enum SwordType {
             new AbilityInfo("Blood Reserve", "+3 max hearts while held."),
             new AbilityInfo("Bloodthirst", "Heal 15% of damage dealt. 25% chance to make the target bleed."),
             new AbilityInfo("Blood Crescent", "Launch a crimson slash that cuts through every enemy in its path."),
-            new AbilityInfo("Crimson Harvest", "Rip the life out of all nearby enemies and heal from it.")),
+            new AbilityInfo("Blood Bond", "Chain up to four nearby enemies to you for 6 seconds: they can't escape the chains, every second drains them to heal you, and the chains tear them when they snap.")),
 
     SOLAR("solar", "Solaris", "Solar Sword", "☀", 0xF2C94C, 0xFFF6C9,
             "Blessed at dawn by the last of the sun-priests and kept in light ever since. The dead burn at the mere sight of it.",
@@ -87,7 +87,7 @@ public enum SwordType {
             "Hammered from the core of a fallen star, still warm after ten thousand years. Gravity itself kneels to whoever holds it.",
             new AbilityInfo("Zero-G", "Lower gravity, higher jumps and no fall damage while held."),
             new AbilityInfo("Starstrike", "20% chance to launch the target into orbit with Levitation."),
-            new AbilityInfo("Gravity Pulse", "Hurl nearby enemies into the sky, then slam them back down."),
+            new AbilityInfo("Telekinesis", "Seize the enemy under your crosshair and drag it through the air with your aim for 3 seconds, smashing it into others and walls, then hurl it."),
             new AbilityInfo("Meteor Shower", "Rain meteors down on the area you're looking at.")),
 
     CHRONO("chrono", "Aeon", "Chrono Sword", "⌛", 0x7FE0D0, 0xE8C35A,
@@ -138,7 +138,7 @@ public enum SwordType {
             "Hurled from the heavens to end a war between gods, it fell for an age. It has been searching for a worthy arm ever since.",
             new AbilityInfo("Long Reach", "+1.5 blocks of attack reach while held. Keeps the spear's charge attack."),
             new AbilityInfo("Impale", "20% chance to pin the target in place for +3 damage."),
-            new AbilityInfo("Javelin", "Hurl a spectral spear that pierces every enemy in its path, then returns to you."),
+            new AbilityInfo("Skyhook", "Throw the spear on a chain: an enemy it hits is dragged to you, and a wall or ground it hits pulls you to it."),
             new AbilityInfo("Phalanx", "Fans of spears erupt from the ground in a line ahead, ending in a giant spear that launches enemies.")),
 
     CHAKRAM("chakram", "Zephyr", "Wind Chakram", "☸", 0x4CC38A, 0xE8C64A, Material.NETHERITE_SWORD,
@@ -160,7 +160,7 @@ public enum SwordType {
             new AbilityInfo("Arcane Ward", "A 2-heart magic ward that recharges 12 seconds after it breaks."),
             new AbilityInfo("Arcane Spark", "25% chance for a spark to leap to another nearby enemy."),
             new AbilityInfo("Arcane Missiles", "Fire five homing amethyst missiles at the enemies in front of you."),
-            new AbilityInfo("Crystal Nova", "Rings of amethyst crystals burst from the ground around you, launching enemies.")),
+            new AbilityInfo("Crystal Sentinel", "Conjure a floating crystal where you aim: for 8 seconds it fires at nearby enemies and mends you and your teammates near it.")),
 
     TRIDENT("trident", "Leviathan", "Abyssal Trident", "Ψ", 0x2EC4C4, 0x0B4F6C, Material.TRIDENT,
             "Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.",
@@ -181,7 +181,7 @@ public enum SwordType {
             new AbilityInfo("Imperial Guard", "+1 block of reach and +4 armor while held. Keeps the spear's charge attack."),
             new AbilityInfo("Jade Cleave", "25% chance to sweep everything in front of you for half the damage."),
             new AbilityInfo("Dragon Sweep", "Spin the halberd in a full circle, cutting and hurling back everything around you."),
-            new AbilityInfo("Jade Dragon", "Release a jade dragon that winds forward through your enemies, biting and tossing them.")),
+            new AbilityInfo("Jade Dragon", "Release a jade dragon you steer with your crosshair for 4.5 seconds, biting and tossing every enemy it passes through.")),
 
     WARGLAIVE("warglaive", "Eclipse", "Lunar Warglaive", "☾", 0x8FA8FF, 0x2B2F6B, Material.NETHERITE_SWORD,
             "Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.",
@@ -208,7 +208,7 @@ public enum SwordType {
             "Buried with a pharaoh who refused to stay buried. When it is raised, the desert rises with it.",
             new AbilityInfo("Sun-Blessed", "Regeneration I in daylight while held."),
             new AbilityInfo("Pharaoh's Curse", "20% chance to curse the target: Weakness, Slowness and +20% damage from you for 5 seconds."),
-            new AbilityInfo("Sandstorm", "Send a sand tornado forward that lifts, blinds and grinds enemies along its path."),
+            new AbilityInfo("Sandstorm", "Send out a sand tornado that drifts wherever your crosshair points for 4 seconds, lifting, blinding and grinding enemies."),
             new AbilityInfo("Tomb of Sands", "Seal nearby enemies in sandstone tombs, then collapse them."));
 
     public static final String MODEL_NAMESPACE = "customs";
