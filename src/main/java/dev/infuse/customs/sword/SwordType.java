@@ -153,7 +153,7 @@ public enum SwordType {
             new AbilityInfo("Bloodlust", "Up to +50% melee damage the lower your health. Disables shields like any axe."),
             new AbilityInfo("Cleave", "Every hit also strikes enemies beside the target for 40% of the damage."),
             new AbilityInfo("Whirlwind", "Spin with the axe for 2.5 seconds, carving through everything around you."),
-            new AbilityInfo("Warcry", "A roar that grants you Strength II and Resistance, and weakens and slows enemies.")),
+            new AbilityInfo("Warcry", "A giant spectral axe crashes down ahead. You gain Strength II and Resistance; enemies are weakened and slowed.")),
 
     STAFF("staff", "Arcanum", "Arcane Staff", "⚚", 0xB57EDC, 0xF3D9FF, Material.NETHERITE_SWORD,
             "Grown from a single amethyst that hummed with magic for ten thousand years. It still hums, and now it answers.",

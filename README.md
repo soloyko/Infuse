@@ -4,8 +4,13 @@ A Paper **1.21.11** plugin that adds 15 legendary swords and 13 other legendary 
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier and a khopesh). Each has its own name and lore, a 3D model
 (bundled resource pack), a passive, an on-hit effect and two activated abilities, drawn with
-glowing 3D effects: crescent slashes, shockwaves, beams, spell circles and more. Admins can place **weapon altars**: one-block 3D forges where players craft a weapon
-by bringing its ingredients, no crafting grid needed.
+glowing 3D effects: jagged lightning, ground that cracks and glows, pillars of fire, ice and
+stone spikes, rifts, spectral heads, crescent slashes and more. Admins can place **stone
+altars**: one-block 3D forges where players craft a weapon by bringing its ingredients, no
+crafting grid needed.
+
+Formerly called OP Swords: upgrading keeps your config, altars and every weapon players own
+(see *Install*).
 
 ![The fifteen swords](docs/swords.png)
 
@@ -62,7 +67,7 @@ thrown.
 | ⚰ **Requiem** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Final Harvest** (30s): a giant spectral scythe falls on the target, harder the more health it's missing |
 | ♆ **Skypiercer** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Javelin** (8s): a spectral spear pierces a line of enemies and comes back | **Phalanx** (25s): spears burst from the ground in a line, launching enemies |
 | ☸ **Zephyr** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
-| ᛉ **Ragnarök** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): Strength II and Resistance for you, Weakness and Slowness for enemies |
+| ᛉ **Ragnarök** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): a giant spectral axe crashes down ahead; Strength II and Resistance for you, Weakness and Slowness for enemies |
 | ⚚ **Arcanum** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Nova** (25s): rings of amethyst burst from the ground around you |
 | ✴ **Nightbloom** · Amethyst Shuriken | Speed I, Jump Boost I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
 | ⚜ **Jadewarden** · Jade Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Dragon Sweep** (9s): a full circle of the halberd that hurls everyone back | **Jade Dragon** (32s): a jade serpent winds forward through your enemies, biting and tossing them |
@@ -74,17 +79,23 @@ thrown.
 
 ## Effects
 
-![Moonfall, Tomb of Sands, Jade Dragon and Seismic Slam](docs/effects.jpg)
+![Thunder Strike, Firestorm, Blizzard and Warcry](docs/effects.jpg)
 
-Every hit with an Customs weapon draws a glowing effect in its colour, shaped by the kind of weapon: swords
-slash, scythes and axes cut a wide arc, spears and the rapier thrust a line of light, the hammer
-lands an impact ring and throwing weapons make quick spinning cuts. Every ability unfolds a
-spell circle under the caster, and kills end in a burst of light with the victim's essence rising
+Every hit with a Customs weapon draws a glowing effect in its colour, shaped by the kind of
+weapon: swords slash, scythes and axes cut a wide arc, spears and the rapier thrust a line of
+light, the hammer lands an impact ring and throwing weapons make quick spinning cuts; critical
+hits cut twice. Using an ability shows the weapon's element: flames, frost, sparks, splashes,
+leaves, runes, shadow, blood or a sweep of wind. Kills end in a burst of light with the victim's essence rising
 out of it, plus a finish that fits the weapon (ice shattering, a sunbeam, a sand burst, souls
 scattering, a lightning bolt...). The abilities themselves use
-3D effects drawn with display entities and a set of effect models in the resource pack:
-shockwave rings that sweep across the ground, beams, star bursts, flying crescents, a falling
-moon, a jade serpent and sandstone tombs. They fade out smoothly, never touch the world, and a
+3D effects drawn with display entities and a set of effect models in the resource pack, and
+each has its own signature: Thunder Strike is a forked bolt that scorches the ground, Firestorm
+sends rings of fire pillars outward, Blizzard opens with a spiral of ice spikes, Dragon Breath
+pours from a spectral dragon head, Seismic Slam cracks the earth and raises stone spikes,
+Gravity Pulse lifts enemies in violet columns, the Wail sends screaming skulls spiralling out,
+drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Stasis Field turns the
+hands of a giant clock, Singularity spins an accretion disk, Supernova swells into a sun,
+Warcry brings a giant spectral axe down on the ground, and Moonfall drops a crescent moon. They fade out smoothly, never touch the world, and a
 glow or burst on yourself is hidden from you so it never fills your screen (others still see it).
 
 Ability damage is credited to the player, so kills, mob aggro, world PvP settings and
@@ -126,14 +137,14 @@ saved with the world.
 
 </details>
 
-## Weapon altars
+## Stone altars
 
-![A weapon altar forging Eclipse: the warglaive floats in a soft light over a spinning magic circle, its recipe circling above it](docs/altars.png)
+![A stone altar forging Eclipse: the warglaive floats in a soft light over the altar, its recipe circling above it](docs/altars.png)
 
-A weapon altar is a single block with its own 3D model: an eight-pointed stepped plinth of
-blackstone and deepslate trimmed with gold, four pillars around a tall glowing crystal core,
-bands of glyphs, crystals floating over corner obelisks and a magic circle spinning on top, all
-in the colour of the weapon it holds. The weapon
+A weapon altar is a single block with its own 3D model: a weathered stone altar of mossy and
+cracked stone bricks, buttresses holding a heavy slab of smooth stone, runes carved into its
+pillar and candles on the slab, the runes and candle flames glowing in the colour of the weapon
+it holds. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 
@@ -164,6 +175,13 @@ players had on their own altars are given back to them, and those altars keep fo
 
 Upgrading: new weapons and settings are added to your existing `config.yml`
 automatically, and old Inferno/Emerald swords turn into Cinderwing/Elderbloom when next held.
+
+**Upgrading from OP Swords:** delete the old `OPSwords-*.jar` and drop in `Customs-*.jar`. On
+first start `plugins/OPSwords` is moved to `plugins/Customs` (config, altars and legendary-mode
+records included). Weapons and altar items made before the rename keep working and update to
+the new look when held, when their owner joins, or when the chest holding them is opened. The
+command is now `/customs` and permissions are `customs.*` instead of `opswords.*`, so update
+any permission plugin entries.
 
 <img src="docs/inventory.png" alt="Swords in the inventory" width="400">
 

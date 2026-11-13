@@ -130,7 +130,8 @@ public final class AxeWeapon extends SwordAbility {
         Vector forward = center.getDirection().setY(0).lengthSquared() < 1.0E-4 ? new Vector(0, 0, 1)
                 : center.getDirection().setY(0).normalize();
         // a giant spectral axe rises behind you and comes down on the ground ahead
-        Location axeAt = center.clone().subtract(forward.clone().multiply(0.6)).add(0, 3.2, 0);
+        Vector right = new Vector(-forward.getZ(), 0, forward.getX());
+        Location axeAt = center.clone().add(right.clone().multiply(1.6)).add(forward.clone().multiply(1.2)).add(0, 3.0, 0);
         axeAt.setYaw(0);
         axeAt.setPitch(0);
         org.bukkit.entity.ItemDisplay axe = displays().item(axeAt, plugin.items().create(type), 4.5f,
@@ -138,13 +139,14 @@ public final class AxeWeapon extends SwordAbility {
         axe.setGlowing(true);
         axe.setGlowColorOverride(org.bukkit.Color.fromRGB(0xFF3A5A));
         float yaw = (float) Math.atan2(-forward.getX(), forward.getZ());
-        org.joml.Quaternionf raised = new org.joml.Quaternionf().rotateY(-yaw).rotateX(-0.9f);
-        org.joml.Quaternionf struck = new org.joml.Quaternionf().rotateY(-yaw).rotateX(1.7f);
+        // the model stands blade-up; turn it so the bit faces forward, raise it back, then swing it down
+        org.joml.Quaternionf raised = new org.joml.Quaternionf().rotateY(-yaw + (float) (Math.PI / 2)).rotateZ(0.5f);
+        org.joml.Quaternionf struck = new org.joml.Quaternionf().rotateY(-yaw + (float) (Math.PI / 2)).rotateZ(-1.9f);
         axe.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(), raised, new org.joml.Vector3f(4.5f),
                 new org.joml.Quaternionf()));
         displays().later(5, () -> dev.infuse.customs.ability.Displays.animate(axe, new org.bukkit.util.Transformation(
-                new org.joml.Vector3f(0, -1.0f, 0), struck, new org.joml.Vector3f(4.5f), new org.joml.Quaternionf()), 4));
-        Location strike = Combat.ground(center.clone().add(forward.clone().multiply(3.2)).add(0, 1.5, 0));
+                new org.joml.Vector3f(0, -1.4f, 0), struck, new org.joml.Vector3f(4.5f), new org.joml.Quaternionf()), 4));
+        Location strike = Combat.ground(center.clone().add(forward.clone().multiply(3.6)).add(right.clone().multiply(1.0)).add(0, 1.5, 0));
         displays().later(9, () -> {
             fx().crack(strike, 0xFF4A6A, 6f, 50);
             fx().shockwave(strike, 0xC77DFF, 8f, 9);
@@ -156,6 +158,12 @@ public final class AxeWeapon extends SwordAbility {
             }
             Fx.sound(strike, Sound.ENTITY_GENERIC_EXPLODE, 1.2f, 0.7f);
             Fx.sound(strike, Sound.BLOCK_ANVIL_LAND, 1f, 0.5f);
+            if (alive(player)) {
+                for (LivingEntity target : combat().nearby(player, strike.clone().add(0, 0.5, 0), 3.2)) {
+                    combat().damage(player, target, 7, true);
+                    Combat.setVelocity(target, target.getVelocity().setY(0.7));
+                }
+            }
         });
         displays().later(20, () -> displays().remove(axe));
         applyEffect(player, PotionEffectType.STRENGTH, 160, 1);
