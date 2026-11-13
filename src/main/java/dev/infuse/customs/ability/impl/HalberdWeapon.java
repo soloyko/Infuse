@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -44,7 +45,6 @@ public final class HalberdWeapon extends SwordAbility {
     private static final int GOLD = 0xE8C35A;
     private static final BlockData BODY = Material.EMERALD_BLOCK.createBlockData();
     private static final BlockData SCALE = Material.GOLD_BLOCK.createBlockData();
-    private static final BlockData HEAD = Material.GREEN_GLAZED_TERRACOTTA.createBlockData();
 
     public HalberdWeapon(CustomsPlugin plugin) {
         super(plugin, SwordType.HALBERD);
@@ -106,7 +106,10 @@ public final class HalberdWeapon extends SwordAbility {
         return true;
     }
 
-    /** Jade Dragon: a serpent of jade winds forward 20 blocks, biting and tossing enemies. */
+    /**
+     * Jade Dragon: a serpent of jade with a glowing dragon's head winds forward about 20 blocks,
+     * rising and diving, biting and tossing enemies. Its scales are turned along its body.
+     */
     @Override
     public boolean secondary(Player player) {
         Location eye = player.getEyeLocation().subtract(0, 0.6, 0);
@@ -117,33 +120,33 @@ public final class HalberdWeapon extends SwordAbility {
         Vector dir = forward.normalize();
         Vector side = Fx.right(dir);
         Location start = eye.clone().add(dir.clone().multiply(2)); // not in the caster's face
-        int segments = 16;
-        List<Display> body = new ArrayList<>();
+        int segments = 18;
+        List<BlockDisplay> body = new ArrayList<>();
+        List<Float> sizes = new ArrayList<>();
         Location spawnAt = start.clone();
         spawnAt.setYaw(0);
         spawnAt.setPitch(0);
-        BlockDisplay head = displays().block(spawnAt, HEAD, new Vector3f(0.9f), new Quaternionf(), 70);
-        head.setGlowing(true);
-        head.setGlowColorOverride(Color.fromRGB(JADE));
-        head.setBrightness(new Display.Brightness(15, 15));
+        org.bukkit.entity.ItemDisplay head = fx().spectralHead(start, Material.DRAGON_HEAD, JADE, 1.9f, dir, 70);
         head.setTeleportDuration(1);
         for (int i = 0; i < segments; i++) {
-            float size = (i % 3 == 1 ? 0.55f : 0.8f) - i * 0.03f;
-            BlockDisplay seg = displays().block(spawnAt, i % 3 == 1 ? SCALE : BODY, new Vector3f(size), new Quaternionf(), 70);
+            boolean gold = i % 3 == 1;
+            // thick behind the head, tapering to a thin tail
+            float size = (float) ((gold ? 0.62 : 0.95) * (1.0 - i * 0.032));
+            BlockDisplay seg = displays().block(spawnAt, gold ? SCALE : BODY, new Vector3f(size), new Quaternionf(), 70);
             seg.setBrightness(new Display.Brightness(15, 15));
             seg.setTeleportDuration(1);
-            if (i % 3 == 1) {
-                seg.setGlowing(true);
-                seg.setGlowColorOverride(Color.fromRGB(GOLD));
-            }
+            seg.setGlowing(true);
+            seg.setGlowColorOverride(Color.fromRGB(gold ? GOLD : JADE));
             body.add(seg);
+            sizes.add(size);
         }
-        org.bukkit.entity.ItemDisplay aura = fx().orb(start, JADE, 2.2f, 70);
+        org.bukkit.entity.ItemDisplay aura = fx().orb(start, JADE, 2.6f, 70);
         Deque<Location> trail = new ArrayDeque<>();
         Set<UUID> bitten = new HashSet<>();
         Fx.sound(start, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1.6f);
         Fx.sound(start, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.2f, 0.6f);
-        fx().flash(start, JADE, 2.5f);
+        fx().flash(start, JADE, 2.8f);
+        fx().castCircle(player.getLocation(), JADE, 2.2f);
 
         new BukkitRunnable() {
             int ticks;
@@ -157,42 +160,64 @@ public final class HalberdWeapon extends SwordAbility {
                     return;
                 }
                 base.add(dir.clone().multiply(0.45));
-                double wave = Math.sin(ticks * 0.45) * 1.6;
-                double bob = Math.sin(ticks * 0.3) * 0.5 + 0.4;
+                double wave = Math.sin(ticks * 0.42) * 1.8;
+                double bob = Math.sin(ticks * 0.27) * 0.9 + 0.6;
                 Location headAt = base.clone().add(side.clone().multiply(wave)).add(0, bob, 0);
                 if (!headAt.getBlock().isPassable()) {
                     headAt.add(0, 1, 0);
                 }
+                Location previous = trail.isEmpty() ? start : trail.peekFirst();
                 trail.addFirst(headAt.clone());
-                while (trail.size() > segments + 2) {
+                while (trail.size() > segments * 2 + 2) {
                     trail.removeLast();
                 }
-                {
-                    head.teleport(headAt);
-                    aura.teleport(headAt);
-                    Vector heading = dir.clone().add(side.clone().multiply(Math.cos(ticks * 0.45) * 0.7)).normalize();
-                    Displays.animateBlock(head, new Vector3f(0.95f), new Quaternionf().rotateY((float) Math.atan2(-heading.getX(), heading.getZ())),
-                            new Vector3f(), 1);
-                    List<Location> points = new ArrayList<>(trail);
-                    for (int i = 0; i < body.size(); i++) {
-                        int idx = Math.min(points.size() - 1, i + 1);
-                        if (idx >= 0 && body.get(i).isValid()) {
-                            body.get(i).teleport(points.get(idx));
-                        }
+                Vector heading = headAt.toVector().subtract(previous.toVector());
+                if (heading.lengthSquared() < 1.0E-4) {
+                    heading = dir.clone();
+                }
+                head.teleport(headAt.clone().add(heading.clone().normalize().multiply(0.3)));
+                head.setInterpolationDelay(0);
+                head.setInterpolationDuration(1);
+                head.setTransformation(new Transformation(new Vector3f(), dev.infuse.customs.ability.Fx3D.headRotation(heading),
+                        new Vector3f(1.9f), new Quaternionf()));
+                aura.teleport(headAt);
+                // body segments follow the head's path two steps apart, each turned along it
+                List<Location> points = new ArrayList<>(trail);
+                for (int i = 0; i < body.size(); i++) {
+                    int idx = Math.min(points.size() - 1, (i + 1) * 2);
+                    BlockDisplay seg = body.get(i);
+                    if (idx < 0 || !seg.isValid()) {
+                        continue;
                     }
+                    Location at = points.get(idx);
+                    Location ahead = points.get(Math.max(0, idx - 1));
+                    Vector along = ahead.toVector().subtract(at.toVector());
+                    Quaternionf turn = along.lengthSquared() < 1.0E-4 ? new Quaternionf()
+                            : new Quaternionf().rotateY((float) Math.atan2(-along.getX(), along.getZ()))
+                            .rotateX((float) -Math.asin(Math.max(-1, Math.min(1, along.clone().normalize().getY()))))
+                            .rotateZ((float) (Math.PI / 4));
+                    seg.teleport(at);
+                    Displays.animateBlock(seg, new Vector3f(sizes.get(i)), turn, new Vector3f(), 1);
                 }
-                Fx.particle(headAt, Particle.DUST, 3, 0.25, 0, Fx.dust(PALE_JADE, 1.4f));
-                Fx.particle(headAt, Particle.HAPPY_VILLAGER, 1, 0.3, 0);
-                if (ticks % 4 == 0) {
-                    Fx.particle(headAt, Particle.END_ROD, 1, 0.1, 0.02);
+                Fx.particle(headAt, Particle.DUST, 4, 0.3, 0, Fx.dust(PALE_JADE, 1.5f));
+                if (ticks % 2 == 0) {
+                    Fx.particle(headAt, Particle.HAPPY_VILLAGER, 1, 0.4, 0);
                 }
-                for (LivingEntity target : combat().nearby(player, headAt, 1.8)) {
+                if (ticks % 3 == 0 && points.size() > 6) {
+                    Location tail = points.get(Math.min(points.size() - 1, segments * 2 - 2));
+                    Fx.particle(tail, Particle.END_ROD, 1, 0.1, 0.01);
+                    Fx.particle(tail, Particle.DUST, 2, 0.15, 0, Fx.dust(GOLD, 1.1f));
+                }
+                for (LivingEntity target : combat().nearby(player, headAt, 1.9)) {
                     if (bitten.add(target.getUniqueId())) {
                         combat().damage(player, target, 9);
                         Combat.setVelocity(target, dir.clone().multiply(0.4).setY(0.9));
                         Location at = Combat.center(target);
-                        fx().burst(at, JADE, 2f);
-                        fx().cut(at, dir, Math.PI / 2, 0.5, PALE_JADE, 1.5f, 2);
+                        fx().burst(at, JADE, 2.2f);
+                        // jaws: two cuts closing on the target
+                        fx().cut(at, heading, Math.PI / 2 - 0.5, 0.6, PALE_JADE, 1.7f, 2);
+                        fx().cut(at, heading, -Math.PI / 2 + 0.5, 0.6, GOLD, 1.7f, 2);
+                        Fx.particle(at, Particle.BLOCK, 12, 0.3, 0.1, BODY);
                         Fx.sound(at, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
                         Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.8f, 0.8f);
                     }
@@ -204,8 +229,10 @@ public final class HalberdWeapon extends SwordAbility {
 
             private void finish() {
                 Location end = head.isValid() ? head.getLocation() : base;
-                fx().burst(end, JADE, 2.4f);
-                fx().flash(end, PALE_JADE, 2f);
+                fx().burst(end, JADE, 2.6f);
+                fx().flash(end, PALE_JADE, 2.2f);
+                fx().shockwave(end, JADE, 3f, 7);
+                Fx.sound(end, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.6f, 1.9f);
                 displays().remove(head);
                 displays().remove(aura);
                 for (int i = 0; i < body.size(); i++) {
@@ -213,6 +240,7 @@ public final class HalberdWeapon extends SwordAbility {
                     displays().later(1 + i, () -> {
                         if (seg.isValid()) {
                             Fx.particle(seg.getLocation(), Particle.BLOCK, 6, 0.2, 0.05, BODY);
+                            fx().flash(seg.getLocation(), JADE, 0.8f);
                         }
                         displays().remove(seg);
                     });

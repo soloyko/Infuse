@@ -46,6 +46,7 @@ public final class Settings {
     public final boolean meleeSlashes;
     public final boolean castCircles;
     public final boolean killEffects;
+    public final boolean damageNumbers;
     public final boolean deathMessages;
     public final boolean protectDroppedSwords;
     public final Set<String> disabledWorlds;
@@ -81,6 +82,7 @@ public final class Settings {
         meleeSlashes = c.getBoolean("settings.melee-slashes", true);
         castCircles = c.getBoolean("settings.cast-circles", true);
         killEffects = c.getBoolean("settings.kill-effects", true);
+        damageNumbers = c.getBoolean("settings.damage-numbers", true);
         deathMessages = c.getBoolean("settings.death-messages", true);
         protectDroppedSwords = c.getBoolean("settings.protect-dropped-swords", true);
         String triggerName = c.getString("controls.trigger", "offhand").toLowerCase(Locale.ROOT).replace('_', '-');
@@ -138,7 +140,7 @@ public final class Settings {
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 8;
+    private static final int ITEM_FORMAT = 9;
 
     private static Recipe readRecipe(ConfigurationSection r, String label, Logger log) {
         if (r == null) {

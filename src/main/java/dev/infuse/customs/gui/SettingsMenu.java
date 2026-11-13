@@ -124,6 +124,8 @@ public final class SettingsMenu extends Menu {
         flag(22, Material.FEATHER, "Hit Effects", "A glowing slash, thrust or impact on every melee hit.", "settings.melee-slashes");
         flag(23, Material.BLAZE_ROD, "Cast Effects", "Using an ability shows the weapon's element around you.", "settings.cast-circles");
         flag(24, Material.FIREWORK_STAR, "Kill Effects", "Kills end in a burst of light that fits the weapon.", "settings.kill-effects");
+        flag(25, Material.NAME_TAG, "Damage Numbers", "Hits show how much damage they dealt above the target.",
+                "settings.damage-numbers");
 
         // crafting and altars
         flag(28, Material.SMITHING_TABLE, "Crafting", "Weapons can be crafted at all (crafting table or altar).", "crafting.enabled");

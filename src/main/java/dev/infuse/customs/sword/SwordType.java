@@ -139,7 +139,7 @@ public enum SwordType {
             new AbilityInfo("Long Reach", "+1.5 blocks of attack reach while held. Keeps the spear's charge attack."),
             new AbilityInfo("Impale", "20% chance to pin the target in place for +3 damage."),
             new AbilityInfo("Javelin", "Hurl a spectral spear that pierces every enemy in its path, then returns to you."),
-            new AbilityInfo("Phalanx", "Spears erupt from the ground in a line ahead, skewering and launching enemies.")),
+            new AbilityInfo("Phalanx", "Fans of spears erupt from the ground in a line ahead, ending in a giant spear that launches enemies.")),
 
     CHAKRAM("chakram", "Zephyr", "Wind Chakram", "☸", 0x4CC38A, 0xE8C64A, Material.NETHERITE_SWORD,
             "A royal war-disc blessed by all four winds. Thrown true, it always finds its way home.",
@@ -181,7 +181,7 @@ public enum SwordType {
             new AbilityInfo("Imperial Guard", "+1 block of reach and +4 armor while held. Keeps the spear's charge attack."),
             new AbilityInfo("Jade Cleave", "25% chance to sweep everything in front of you for half the damage."),
             new AbilityInfo("Dragon Sweep", "Spin the halberd in a full circle, cutting and hurling back everything around you."),
-            new AbilityInfo("Jade Dragon", "Release a jade serpent that winds forward through your enemies, biting and tossing them.")),
+            new AbilityInfo("Jade Dragon", "Release a jade dragon that winds forward through your enemies, biting and tossing them.")),
 
     WARGLAIVE("warglaive", "Eclipse", "Lunar Warglaive", "☾", 0x8FA8FF, 0x2B2F6B, Material.NETHERITE_SWORD,
             "Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.",

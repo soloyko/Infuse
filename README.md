@@ -65,12 +65,12 @@ thrown.
 | --- | --- | --- | --- | --- |
 | ⚒ **Earthshaker** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
 | ⚰ **Requiem** · Reaper's Scythe | Kills refresh Reap and grant speed | +50% vs targets below 35% health | **Reap** (8s): 220° sweeping arc, heals you per enemy hit | **Final Harvest** (30s): a giant spectral scythe falls on the target, harder the more health it's missing |
-| ♆ **Skypiercer** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Javelin** (8s): a spectral spear pierces a line of enemies and comes back | **Phalanx** (25s): spears burst from the ground in a line, launching enemies |
+| ♆ **Skypiercer** · Celestial Spear | +1.5 blocks reach | 20%: **Impale** pins the target, +3 damage | **Javelin** (8s): a spectral spear pierces a line of enemies and comes back | **Phalanx** (25s): fans of spears burst from the ground in a line, ending in a giant spear |
 | ☸ **Zephyr** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
 | ᛉ **Ragnarök** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): a giant spectral axe crashes down ahead; Strength II and Resistance for you, Weakness and Slowness for enemies |
 | ⚚ **Arcanum** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Nova** (25s): rings of amethyst burst from the ground around you |
 | ✴ **Nightbloom** · Amethyst Shuriken | Speed I, Jump Boost I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
-| ⚜ **Jadewarden** · Jade Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Dragon Sweep** (9s): a full circle of the halberd that hurls everyone back | **Jade Dragon** (32s): a jade serpent winds forward through your enemies, biting and tossing them |
+| ⚜ **Jadewarden** · Jade Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Dragon Sweep** (9s): a full circle of the halberd that hurls everyone back | **Jade Dragon** (32s): a jade dragon winds forward through your enemies, biting and tossing them |
 | ☾ **Eclipse** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moonfall** (35s): a giant crescent moon falls on the target area and shatters |
 | ⚙ **Ripsaw** · Cyber Sawblade | **Overclock**: quick hits build heat; at 5 heat the next hit vents for +6 | 25%: **Arc Spark** jumps to two more enemies | **Grinder** (10s): two seconds of a spinning blade shredding what's in front | **EMP Overload** (30s): a pulse that stuns and reveals enemies and speeds you up |
 | ♛ **Valiance** · Royal Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
@@ -96,8 +96,15 @@ Gravity Pulse lifts enemies in violet columns, the Wail sends screaming skulls s
 drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Riposte raises a
 shield sigil, Arcane Missiles pour out of a rune portal, dashes leave afterimages, Stasis Field turns the
 hands of a giant clock, Singularity spins an accretion disk, Supernova swells into a sun,
-Warcry brings a giant spectral axe down on the ground, and Moonfall drops a crescent moon. They fade out smoothly, never touch the world, and a
+Warcry brings a giant spectral axe down on the ground, Moonfall drops a crescent moon, Jade
+Dragon is a winding serpent with a dragon's head, Phalanx raises fans of spears that end in a
+giant one, and thrown weapons leave streaks and rings of light behind them. They fade out smoothly, never touch the world, and a
 glow or burst on yourself is hidden from you so it never fills your screen (others still see it).
+
+Every hit also shows a **damage number** above the target: gold with a ✸ for critical swings,
+the weapon's colour for abilities. Fast hits on the same target (beams, flurries, a fan of
+shuriken) add up on one number with a hit count instead of piling up. Turn them off with
+`settings.damage-numbers` or in the settings menu.
 
 Ability damage is credited to the player, so kills, mob aggro, world PvP settings and
 protection plugins all work as normal. No ability breaks or places blocks: the
@@ -140,11 +147,12 @@ saved with the world.
 
 ## Stone altars
 
-![A stone pedestal altar holding Valiance, runes glowing in its panel](docs/altars.png)
+![Four stone altars, their rune windows glowing in the colour of each weapon](docs/altars.png)
 
-A weapon altar is a single block with its own pixel-perfect 3D model: a stone pedestal with a
-dark two-tier base, a pale pillar with framed panels and a heavy dark slab with a pale top. The
-window in each panel glows in the colour of the weapon it holds. The weapon
+A weapon altar is a single block with its own 3D model, built from real stone textures: a
+polished deepslate base on deepslate tiles, a smooth stone pillar wrapped in raised deepslate
+trim that flares out under a heavy capital, and a calcite top. On each side a carved window
+holds a rune that glows in the colour of the weapon on the altar. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 
@@ -272,7 +280,9 @@ cooldowns and recipe, or to let a legendary weapon be forged again. Changes are 
   `unbreakable`, `protect-dropped-swords` (dropped swords never despawn and glow).
 - Cosmetics: `action-bar-hud`, `ability-ready-sound`, `held-aura`, `death-messages`,
   `melee-slashes` (a glowing slash on every hit), `cast-circles` (a spell circle when you use an
-  ability) and `kill-effects` (a burst of light on kills).
+  ability), `kill-effects` (a burst of light on kills) and `damage-numbers` (hits show the damage
+  dealt above the target: gold for critical swings, the weapon's colour for abilities; rapid hits
+  add up on one number).
 - `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`,
   `crafting.crafting-table` (turn off to make altars the only way to forge) and `altars.enabled`.
 - Changes apply on `/customs reload`; swords players already own update the next time they're held.
@@ -306,8 +316,8 @@ python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 ```
 
 The effect models are original too: `tools/fx_models.py` generates the slash, ring, burst, glow,
-beam and spell-circle models in four fade levels. The altar model is original: `tools/altar_model.py` generates it (pedestal, glow layer and the
-spinning magic circle) from vanilla textures plus a few small rune, glyph and crystal textures.
+beam and spell-circle models in four fade levels. The altar model is original: `tools/altar_model.py` generates it (pedestal, glowing rune windows and the
+spinning magic circle) from vanilla stone textures, referenced by name, plus a few small rune and glyph textures.
 
 To use a different model for a weapon, change its entry in `SWORDS` at the top of
 `tools/import_majestica.py`, re-run it and rebuild. `tools/modelpreview.py` renders models to a

@@ -163,8 +163,11 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
         Location start = player.getEyeLocation().subtract(0, 0.4, 0);
         Vector dir = start.getDirection().normalize();
         ItemDisplay disc = spawnDisc(start, dir, 80); // ring faces the thrower as it flies away
-        ItemDisplay discGlow = fx().orb(start, 0x6FE3A8, 1.6f, 80);
+        ItemDisplay discGlow = fx().orb(start, 0x6FE3A8, 2.2f, 80);
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1f, 1.6f);
+        Fx.sound(start, Sound.ENTITY_BREEZE_SHOOT, 0.8f, 1.4f);
+        // the throw: a gust ring bursts off your hand
+        fx().wave(start.clone().add(dir.clone().multiply(2.2)), dir, 0xBFF5D8, 1.2f, 6);
         Set<UUID> outbound = new HashSet<>();
         Set<UUID> inbound = new HashSet<>();
 
@@ -184,14 +187,18 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                 }
                 spin(disc, dir, ticks * 0.9);
                 if (!back) {
-                    RayTraceResult block = pos.getWorld().rayTraceBlocks(pos, dir, 1.6, FluidCollisionMode.NEVER, true);
-                    if (block != null || ticks >= 10) {
+                    RayTraceResult block = pos.getWorld().rayTraceBlocks(pos, dir, 1.3, FluidCollisionMode.NEVER, true);
+                    if (block != null || ticks >= 13) {
                         back = true;
+                        // it turns in mid-air: a flare of wind where it stops
+                        fx().wave(pos, dir, 0x6FE3A8, 2.2f, 7);
+                        fx().flash(pos, 0xE8C64A, 1.4f);
+                        Fx.particle(pos, Particle.GUST, 1, 0, 0);
                         if (block != null) {
                             Fx.sound(pos, Sound.ITEM_TRIDENT_HIT_GROUND, 0.8f, 1.6f);
                         }
                     } else {
-                        pos.add(dir.clone().multiply(1.6));
+                        pos.add(dir.clone().multiply(1.3));
                     }
                 } else {
                     Location home = player.getEyeLocation().subtract(0, 0.4, 0);
@@ -209,6 +216,13 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                 disc.teleport(pos);
                 discGlow.teleport(pos);
                 Fx.particle(pos, Particle.SMALL_GUST, 2, 0.2, 0.01);
+                // rings of wind trail behind the spinning blade
+                if (ticks % 2 == 0 && pos.distanceSquared(player.getEyeLocation()) > 9) {
+                    Vector flight = back ? player.getEyeLocation().toVector().subtract(pos.toVector()) : dir.clone();
+                    if (flight.lengthSquared() > 1.0E-4) {
+                        fx().wave(pos, flight.normalize(), ticks % 4 == 0 ? 0x4CC38A : 0xBFF5D8, 1.0f, 5);
+                    }
+                }
                 if (ticks % 4 == 0) {
                     Fx.sound(pos, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5f, 1.9f);
                 }

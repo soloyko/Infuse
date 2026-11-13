@@ -38,6 +38,7 @@ public final class CustomsPlugin extends JavaPlugin {
     private ForgeRegistry forges;
     private Displays displays;
     private dev.infuse.customs.ability.Fx3D fx;
+    private dev.infuse.customs.ability.DamageNumbers damageNumbers;
     private AltarService altars;
 
     /** Before the rename the data folder was plugins/OPSwords: move it so configs and altars carry over. */
@@ -64,6 +65,7 @@ public final class CustomsPlugin extends JavaPlugin {
         combat = new Combat(this);
         displays = new Displays(this);
         fx = new dev.infuse.customs.ability.Fx3D(displays);
+        damageNumbers = new dev.infuse.customs.ability.DamageNumbers(displays);
         cooldowns = new CooldownManager();
         status = new StatusManager(this);
         passives = new PassiveManager(this);
@@ -229,6 +231,10 @@ public final class CustomsPlugin extends JavaPlugin {
 
     public ForgeRegistry forges() {
         return forges;
+    }
+
+    public dev.infuse.customs.ability.DamageNumbers damageNumbers() {
+        return damageNumbers;
     }
 
     public dev.infuse.customs.ability.Fx3D fx() {

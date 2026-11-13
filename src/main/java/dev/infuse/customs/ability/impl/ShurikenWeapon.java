@@ -37,7 +37,7 @@ public final class ShurikenWeapon extends SwordAbility {
     private static final int MAGENTA = 0xE040FB;
     private static final int PETAL = 0xFF9AF5;
     private static final int DEEP = 0x7B1FA2;
-    private static final float STAR_SCALE = 1.1f;
+    private static final float STAR_SCALE = 1.5f;
 
     public ShurikenWeapon(CustomsPlugin plugin) {
         super(plugin, SwordType.SHURIKEN);
@@ -82,7 +82,7 @@ public final class ShurikenWeapon extends SwordAbility {
                 ItemDisplay.ItemDisplayTransform.NONE, 40);
         star.setGlowing(true);
         star.setGlowColorOverride(org.bukkit.Color.fromRGB(MAGENTA));
-        ItemDisplay glow = fx().orb(start, MAGENTA, 0.9f, 40);
+        ItemDisplay glow = fx().orb(start, MAGENTA, 1.3f, 40);
 
         new BukkitRunnable() {
             final Location pos = start.clone();
@@ -110,7 +110,11 @@ public final class ShurikenWeapon extends SwordAbility {
                 star.setInterpolationDuration(1);
                 star.setTransformation(new Transformation(new Vector3f(), spin(heading, ticks * 1.1f), new Vector3f(STAR_SCALE),
                         new Quaternionf()));
-                Fx.particle(pos, Particle.DUST, 1, 0.05, 0, Fx.dust(PETAL, 1.0f));
+                Fx.particle(pos, Particle.DUST, 2, 0.08, 0, Fx.dust(PETAL, 1.2f));
+                // a fading streak of light behind each star
+                if (ticks % 2 == 0) {
+                    fx().flash(pos.clone().subtract(heading.clone().multiply(0.6)), ticks % 4 == 0 ? PETAL : MAGENTA, 0.7f);
+                }
                 if (ticks % 3 == 0) {
                     Fx.particle(pos, Particle.CHERRY_LEAVES, 1, 0.1, 0);
                 }
@@ -169,6 +173,12 @@ public final class ShurikenWeapon extends SwordAbility {
             int delay = Math.abs(i);
             displays().later(1 + delay, () -> throwStar(player, eye, shot, 5, new HashSet<>(), true));
         }
+        // the throwing arc: a wide flat sweep of petals off your hand
+        Vector flat = dir.clone().setY(0);
+        if (flat.lengthSquared() > 1.0E-4) {
+            fx().slash(eye0.clone().add(flat.clone().normalize().multiply(0.9)), flat.normalize(), 0.0, MAGENTA, 2.6f, 2);
+        }
+        Fx.particle(eye, Particle.CHERRY_LEAVES, 10, 0.6, 0.02);
         Fx.sound(eye, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1.7f);
         Fx.sound(eye, Sound.ITEM_TRIDENT_THROW, 0.8f, 1.8f);
         return true;

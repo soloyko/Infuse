@@ -74,6 +74,23 @@ public final class Displays implements Listener {
         return display;
     }
 
+    /** Floating text (damage numbers, labels): faces the viewer, no background. */
+    public org.bukkit.entity.TextDisplay text(Location at, net.kyori.adventure.text.Component text, float scale, int lifeTicks) {
+        org.bukkit.entity.TextDisplay display = at.getWorld().spawn(at, org.bukkit.entity.TextDisplay.class, d -> {
+            d.text(text);
+            d.setBillboard(Display.Billboard.CENTER);
+            d.setShadowed(true);
+            d.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
+            d.setAlignment(org.bukkit.entity.TextDisplay.TextAlignment.CENTER);
+            d.setBrightness(new Display.Brightness(15, 15));
+            d.setTransformation(new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(scale), new Quaternionf()));
+            prepare(d);
+            d.setViewRange(0.6f);
+        });
+        track(display, lifeTicks);
+        return display;
+    }
+
     private void prepare(Display d) {
         born.put(d.getUniqueId(), Bukkit.getCurrentTick());
         d.setPersistent(false);

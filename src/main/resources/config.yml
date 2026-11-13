@@ -38,6 +38,9 @@ settings:
   cast-circles: true
   # Kills with a weapon end in a burst of light in the weapon's colour.
   kill-effects: true
+  # Damage numbers pop out of anything a weapon hits: gold for critical swings, the weapon's
+  # colour for abilities. Rapid hits on one target add up on a single number.
+  damage-numbers: true
   # Custom death messages for kills with a weapon, e.g. "Steve was frozen solid by Alex".
   death-messages: true
   # Dropped weapons never despawn, can't be destroyed and glow.

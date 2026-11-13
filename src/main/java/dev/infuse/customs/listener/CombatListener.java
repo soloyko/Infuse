@@ -61,6 +61,26 @@ public final class CombatListener implements Listener {
         }
     }
 
+    /** Damage numbers for hits with a Customs weapon or its abilities. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onHitNumber(EntityDamageByEntityEvent event) {
+        if (!plugin.settings().damageNumbers || !(event.getEntity() instanceof LivingEntity target)
+                || !(event.getDamageSource().getCausingEntity() instanceof Player attacker) || attacker == target) {
+            return;
+        }
+        double dealt = event.getFinalDamage();
+        if (dealt < 0.05 || target instanceof org.bukkit.entity.ArmorStand) {
+            return;
+        }
+        SwordType type = plugin.items().heldType(attacker);
+        if (type == null) {
+            return;
+        }
+        boolean ability = plugin.combat().isAbilityDamage();
+        boolean crit = !ability && event.isCritical();
+        plugin.damageNumbers().show(attacker, target, dealt, type.color().value(), crit, ability);
+    }
+
     /** Kills with a Customs weapon (melee or ability) end in a burst of light in its colour. */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onKill(org.bukkit.event.entity.EntityDeathEvent event) {
