@@ -42,15 +42,32 @@ moves the whole server on with `/customs arc next`, up to **Arc V**:
 - Each arc **unlocks its nine weapons** for forging. Weapons from earlier arcs stay unlocked;
   weapons from later arcs are locked (altars show "🔒 unlocks in Arc III", crafting tables refuse
   them and the recipe book says when they open up).
-- Each arc brings a **twist** for the whole server:
+- Each arc brings a **PvP twist** for the whole server:
 
 | Arc | Twist |
 | --- | --- |
-| **I · Awakening** | **Grace of Dawn**: no one can hurt another player, and some monsters spawn Awakened (glowing, twice the health, harder hits) and drop materials for the weapons you can forge |
-| **II · Ascension** | **Featherfall**: gravity is 35% lighter for everyone, falls hurt half as much, and every ability recharges 25% faster |
+| **I · Awakening** | **Bounty Hunt**: every ten minutes one player becomes the bounty. They glow and everyone else gets an arrow and the distance to them on the action bar. Kill them for a reward, or survive five minutes and the reward is theirs. Every player kill also heals the killer fully and gives Strength for 10 seconds |
+| **II · Ascension** | **War of the Three Orders**: every player joins an order (see below). Orders can't hurt their own, each has its own blessing and relic, and every kill of another order scores for yours. When the arc ends the top order is crowned and its members share the spoils |
 | **III · Dominion** | **Spoils of War**: anyone carrying a legendary weapon glows for everyone to see, and whoever kills a player takes every legendary weapon they carried |
-| **IV · Cataclysm** | **Meteor Storms**: every few minutes meteors crash down around players (a red warning ring, then the impact), leaving forging materials in the crater; monsters hit 50% harder |
-| **V · Eternity** | **Endless Night**: the sun never rises again, and once every ten minutes a killing blow revives you instead |
+| **IV · Cataclysm** | **Collapse**: the world border closes in on spawn over the arc (3000 → 300 blocks over 4 hours by default) while meteors crash down around players and leave forging materials in their craters. The old border comes back when the arc ends |
+| **V · Eternity** | **Eternal Hearts**: the sun never rises again, every player kill steals one of the victim's hearts (up to ten extra) and every death costs one (down to five fewer) |
+
+### The three orders (Arc II)
+
+When Arc II starts every player picks an order from a menu (`/customs order` opens it again);
+anyone who doesn't choose within a minute is put in the smallest order, and no order can get two
+members ahead of the smallest. Members get a coloured name and tag, can't hurt each other (with
+weapons or abilities), and carry their order's relic, which can't be dropped or crafted with and
+goes away when the arc ends.
+
+| Order | Blessing | Relic (right-click) |
+| --- | --- | --- |
+| ☀ **Solar Order** | **Radiance**: Fire Resistance, and your hits set enemies alight | **Sunstone · Solar Flare** (60s): blinds and burns every enemy within 8 blocks while your order nearby regenerates |
+| ☾ **Lunar Covenant** | **Moonlit**: Night Vision; at night, Speed I and 15% more damage | **Moonstone · Eclipse Veil** (75s): you and your order nearby vanish from enemy eyes (armour too) and run faster for 6s |
+| ✦ **Astral Syndicate** | **Starborn**: no fall damage, and every fifth hit on an enemy deals 4 extra damage | **Starstone · Starfall Gate** (60s): teleport to the nearest member of your order, or blink 10 blocks ahead |
+
+The boss bar keeps the score; `/customs order list` shows it too, and admins can move a player
+with `/customs order set <player> <order>`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, the
 twist and the newly forgeable weapons in chat, and a bar at the top of the screen that stays for
@@ -343,6 +360,8 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs list` | — | All weapons (hover for details, click for lore) |
 | `/customs arc` | — | Which arc the server is in and its twist |
 | `/customs arc start` / `next` / `set <1-5>` / `end` | `customs.admin` | Run the server's arcs |
+| `/customs order` / `order list` | — | Arc II: choose your order / see the score |
+| `/customs order set <player> <order>` | `customs.admin` | Arc II: put a player in an order |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |

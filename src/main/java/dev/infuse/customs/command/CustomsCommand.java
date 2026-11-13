@@ -48,6 +48,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             case "altar", "altars" -> altar(sender, label, args);
             case "list" -> list(sender);
             case "arc", "arcs" -> arc(sender, label, args);
+            case "order", "orders", "faction" -> order(sender, label, args);
             case "info" -> info(sender, args);
             case "pack" -> pack(sender, args);
             case "resetcooldowns", "resetcd" -> resetCooldowns(sender, args);
@@ -65,6 +66,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
         line(sender, "/" + label + " arc", "Which arc the server is in, and its twist");
+        line(sender, "/" + label + " order", "Arc II: choose your order");
         if (sender.hasPermission(ADMIN)) {
             line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
             line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
@@ -74,6 +76,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
             line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
             line(sender, "/" + label + " arc start|next|set <1-5>|end", "Run the server's arcs");
+            line(sender, "/" + label + " order set <player> <solar|lunar|astral>", "Arc II: put a player in an order");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -177,6 +180,49 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             Text.send(sender, "<gray>" + type.swordName() + " can be forged again.");
         } else {
             Text.send(sender, "<gray>" + type.swordName() + " hasn't been forged.");
+        }
+    }
+
+    /** /customs order [list|set <player> <order>]: Arc II's orders. */
+    private void order(CommandSender sender, String label, String[] args) {
+        dev.infuse.customs.arc.Orders orders = plugin.arcs().orders();
+        String action = args.length < 2 ? "choose" : args[1].toLowerCase(Locale.ROOT);
+        if (!orders.active()) {
+            Text.send(sender, "<gray>The orders only exist during Arc II.");
+            return;
+        }
+        switch (action) {
+            case "list" -> {
+                sender.sendMessage(Text.plain("War of the Three Orders  ", NamedTextColor.GOLD).append(orders.scoreLine()));
+                for (dev.infuse.customs.arc.Orders.Order o : dev.infuse.customs.arc.Orders.Order.values()) {
+                    sender.sendMessage(o.label().append(Text.plain("  " + orders.count(o) + " sworn, " + orders.score(o) + (orders.score(o) == 1 ? " kill" : " kills"),
+                            NamedTextColor.GRAY)));
+                }
+            }
+            case "set" -> {
+                if (denied(sender)) {
+                    return;
+                }
+                Player target = args.length > 2 ? Bukkit.getPlayerExact(args[2]) : null;
+                dev.infuse.customs.arc.Orders.Order o = args.length > 3 ? dev.infuse.customs.arc.Orders.Order.parse(args[3]) : null;
+                if (target == null || o == null) {
+                    Text.send(sender, "<red>Usage: <white>/" + label + " order set <player> <solar|lunar|astral>");
+                    return;
+                }
+                orders.join(target, o, true);
+            }
+            default -> {
+                if (!(sender instanceof Player player)) {
+                    Text.send(sender, "<red>Only players can choose an order.");
+                    return;
+                }
+                if (orders.of(player) != null) {
+                    Text.send(player, Text.plain("You are sworn to the ", NamedTextColor.GRAY).append(orders.of(player).label())
+                            .append(Text.plain(".", NamedTextColor.GRAY)));
+                    return;
+                }
+                new dev.infuse.customs.gui.OrderMenu(plugin).open(player);
+            }
         }
     }
 
@@ -423,7 +469,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         boolean admin = sender.hasPermission(ADMIN);
         List<String> options = new ArrayList<>();
         if (args.length == 1) {
-            options.addAll(List.of("list", "info", "recipes", "pack", "arc"));
+            options.addAll(List.of("list", "info", "recipes", "pack", "arc", "order"));
             if (admin) {
                 options.addAll(List.of("give", "menu", "settings", "resetcooldowns", "unforge", "altar", "reload"));
             }
@@ -453,12 +499,22 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                         options.addAll(List.of("start", "next", "set", "end"));
                     }
                 }
+                case "order", "orders", "faction" -> {
+                    options.add("list");
+                    if (admin) {
+                        options.add("set");
+                    }
+                }
                 default -> {
                 }
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give") && admin) {
             options.addAll(ids());
             options.add("all");
+        } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("order") && args[1].equalsIgnoreCase("set") && admin) {
+            Bukkit.getOnlinePlayers().forEach(p -> options.add(p.getName()));
+        } else if (args.length == 4 && args[0].toLowerCase(Locale.ROOT).startsWith("order") && args[1].equalsIgnoreCase("set") && admin) {
+            options.addAll(List.of("solar", "lunar", "astral"));
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("arc") && args[1].equalsIgnoreCase("set") && admin) {
             options.addAll(List.of("1", "2", "3", "4", "5"));
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("altar") && admin) {

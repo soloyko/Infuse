@@ -10,23 +10,23 @@ import java.util.List;
  */
 public enum Arc {
     I("I", "Awakening", 0xECBA44,
-            "Grace of Dawn", "No one can hurt another player, and some monsters rise Awakened: glowing, tougher, and carrying forging materials.",
+            "Bounty Hunt", "Every ten minutes one player becomes the bounty: they glow and everyone is shown the way to them. Kill them for a reward, or survive five minutes and claim it yourself. Every kill heals the killer fully.",
             SwordType.MANTIS, SwordType.SHURIKEN, SwordType.KATANA, SwordType.SPLITTER, SwordType.CRIMSON, SwordType.MACE, SwordType.ECHO, SwordType.CANDLE, SwordType.FROST),
 
     II("II", "Ascension", 0x5CF2C2,
-            "Featherfall", "Gravity is lighter for everyone, falls hurt half as much, and every ability recharges 25% faster.",
+            "War of the Three Orders", "Everyone joins the Solar Order, the Lunar Covenant or the Astral Syndicate. Orders can't hurt their own, each has its own blessing and relic, and every kill scores for your order. The order with the most kills wins the arc.",
             SwordType.DEATHKNIGHT, SwordType.COSMIC, SwordType.VERDANT, SwordType.RIBBON, SwordType.SHADOW, SwordType.CHAKRAM, SwordType.WARGLAIVE, SwordType.MAUL, SwordType.STARS),
 
     III("III", "Dominion", 0x9B5DE5,
-            "Spoils of War", "Anyone carrying a legendary weapon glows for all to see, and whoever kills a player takes their legendary weapons.",
+            "Spoils of War", "Anyone carrying a legendary weapon glows for all to see, and whoever kills a player takes every legendary weapon they carried.",
             SwordType.SOUL, SwordType.SCYTHE, SwordType.ASHURA, SwordType.TRIDENT, SwordType.STAFF, SwordType.RAPIER, SwordType.HAMMER, SwordType.KHOPESH, SwordType.CLAWS),
 
     IV("IV", "Cataclysm", 0xE5482C,
-            "Meteor Storms", "Meteors rain down around players every few minutes, leaving forging materials in their craters, and monsters hit 50% harder.",
+            "Collapse", "The world border closes in on spawn for the whole arc while meteors crash down around players. There is nowhere left to hide.",
             SwordType.VOID, SwordType.AXE, SwordType.CLAYMORE, SwordType.SPEAR, SwordType.CUTLASS, SwordType.SAWBLADE, SwordType.STORM, SwordType.PLAGUE, SwordType.GLAIVE),
 
     V("V", "Eternity", 0xDDE6FF,
-            "Endless Night", "The sun never rises again, and death is not the end: once every ten minutes a killing blow revives you instead.",
+            "Eternal Hearts", "The sun never rises again. Every player you kill gives you one of their hearts, up to ten extra; every death costs you one.",
             SwordType.MIRROR, SwordType.TIDE, SwordType.NEEDLE, SwordType.DRAGON, SwordType.DAGGERS, SwordType.HALBERD, SwordType.SOLAR, SwordType.PHOENIX, SwordType.CHRONO);
 
     private final String numeral;
@@ -45,7 +45,7 @@ public enum Arc {
         this.members = List.of(members);
     }
 
-    /** The name of this arc's twist, e.g. "Grace of Dawn". */
+    /** The name of this arc's twist, e.g. "Bounty Hunt". */
     public String twist() {
         return twist;
     }

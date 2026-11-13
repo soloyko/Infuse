@@ -88,6 +88,7 @@ public final class CustomsPlugin extends JavaPlugin {
         pm.registerEvents(displays, this);
         pm.registerEvents(altars, this);
         pm.registerEvents(arcs, this);
+        pm.registerEvents(arcs.orders(), this);
         abilities.registerListeners();
 
         PluginCommand command = getCommand("customs");

@@ -57,6 +57,10 @@ public final class Combat {
             if (!plugin.settings().abilitiesHitPlayers) {
                 return false;
             }
+            // allies in the current arc (the same order in Arc II)
+            if (plugin.arcs() != null && plugin.arcs().allies(caster, player)) {
+                return false;
+            }
             GameMode mode = player.getGameMode();
             if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
                 return false;
