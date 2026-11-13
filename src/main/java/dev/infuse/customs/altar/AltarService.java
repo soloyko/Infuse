@@ -86,6 +86,12 @@ public final class AltarService implements Listener {
     private static final float ICON_SCALE = 0.3f;
     private static final double HOLOGRAM_HEIGHT = RING_HEIGHT + 0.45;
     private static final float HOLOGRAM_SCALE = 0.62f;
+    /** Tops of the candles on the altar model (see tools/altar_model.py), relative to the block centre. */
+    private static final double[][] CANDLE_TIPS = {
+            {(2.6 - 8) / 16, (13.9 + 3.4 + 0.3 - 8) / 16, (2.6 - 8) / 16},
+            {(13.4 - 8) / 16, (13.9 + 2.6 + 0.3 - 8) / 16, (2.6 - 8) / 16},
+            {(2.6 - 8) / 16, (13.9 + 2.2 + 0.3 - 8) / 16, (13.4 - 8) / 16},
+            {(13.4 - 8) / 16, (13.9 + 3.0 + 0.3 - 8) / 16, (13.4 - 8) / 16}};
     /** Animation steps (2 ticks each) for one turn of the ingredient ring. */
     private static final int RING_PERIOD = 90;
 
@@ -451,8 +457,16 @@ public final class AltarService implements Listener {
         Location weaponAt = altar.center().add(0, FLOAT_HEIGHT, 0);
         int tint = type.color().value();
         altar.hiddenUntil = altar.spin + 25;
+        // the recipe is drawn into the weapon: every ingredient flies in and vanishes into it
         for (Altar.Ingredient ingredient : altar.ingredients) {
-            shrink(ingredient.icon(), 0f, 8);
+            Display icon = ingredient.icon();
+            if (icon.isValid()) {
+                icon.setTeleportDuration(8);
+                icon.teleport(weaponAt);
+                shrink(icon, 0.08f, 8);
+                Location from = icon.getLocation();
+                Fx.line(from, weaponAt, 0.25, p -> Fx.particle(p, Particle.DUST, 1, 0.02, 0, Fx.dust(tint, 0.9f)));
+            }
             if (ingredient.label() != null) {
                 shrink(ingredient.label(), 0f, 4);
             }
@@ -688,6 +702,7 @@ public final class AltarService implements Listener {
             }
             if (altar.spin == altar.hiddenUntil) {
                 for (Altar.Ingredient ingredient : altar.ingredients) {
+                    ingredient.icon().setTeleportDuration(2);
                     shrink(ingredient.icon(), ICON_SCALE, 10);
                     if (ingredient.label() != null) {
                         shrink(ingredient.label(), 0.42f, 10);
@@ -695,7 +710,7 @@ public final class AltarService implements Listener {
                 }
             }
             int count = altar.ingredients.size();
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count && altar.spin >= altar.hiddenUntil; i++) {
                 Altar.Ingredient ingredient = altar.ingredients.get(i);
                 Location at = ringPoint(altar, i, count);
                 if (ingredient.icon().isValid()) {
@@ -709,6 +724,13 @@ public final class AltarService implements Listener {
                 Display mote = altar.motes.get(i);
                 if (mote.isValid()) {
                     mote.teleport(motePoint(altar, i, altar.spin));
+                }
+            }
+            if (altar.spin % 8 == 0) {
+                // the candles on the slab flicker
+                for (double[] candle : CANDLE_TIPS) {
+                    Location tip = altar.center().add(candle[0], candle[1], candle[2]);
+                    Fx.particle(tip, Particle.SMALL_FLAME, 1, 0.01, 0.003);
                 }
             }
             if (altar.type != null && altar.spin % 5 == 0) {
