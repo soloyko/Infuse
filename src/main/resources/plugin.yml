@@ -20,10 +20,10 @@ permissions:
       opswords.craft: true
       opswords.pack: true
   opswords.use:
-    description: Use sword abilities and passives.
+    description: Use weapon abilities and passives.
     default: true
   opswords.craft:
-    description: Craft OP swords.
+    description: Craft OP weapons (crafting table and weapon altars).
     default: true
   opswords.pack:
     description: Re-download the resource pack with /opswords pack.

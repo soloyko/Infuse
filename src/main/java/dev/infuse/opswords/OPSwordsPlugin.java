@@ -83,7 +83,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
         resourcePack.start();
         altars.start();
 
-        getLogger().info("Loaded " + SwordType.values().length + " OP swords.");
+        getLogger().info("Loaded " + SwordType.values().length + " OP weapons.");
     }
 
     @Override

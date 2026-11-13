@@ -66,7 +66,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
             line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
             line(sender, "/" + label + " resetcooldowns [player]", "Clear ability cooldowns");
-            line(sender, "/" + label + " unforge <sword>", "Legendary mode: allow a weapon to be crafted again");
+            line(sender, "/" + label + " unforge <weapon>", "Legendary mode: allow a weapon to be crafted again");
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
             line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
             line(sender, "/" + label + " reload", "Reload config.yml");
@@ -92,7 +92,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 3) {
-            Text.send(sender, "<gray>Usage: <white>/" + label + " give <player> <sword|all>");
+            Text.send(sender, "<gray>Usage: <white>/" + label + " give <player> <weapon|all>");
             return;
         }
         Player target = Bukkit.getPlayerExact(args[1]);
@@ -118,7 +118,7 @@ public final class OPSwordsCommand implements CommandExecutor, TabCompleter {
         }
         Component what = types.size() == 1
                 ? Text.sword(types.get(0))
-                : Component.text("all " + types.size() + " OP swords", NamedTextColor.GOLD);
+                : Component.text("all " + types.size() + " OP weapons", NamedTextColor.GOLD);
         Text.send(sender, Component.text("Gave ", NamedTextColor.GRAY).append(what)
                 .append(Component.text(" to " + target.getName() + ".", NamedTextColor.GRAY)));
         if (target != sender) {

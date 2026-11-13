@@ -151,7 +151,7 @@ public final class DragonSword extends SwordAbility {
     private void impact(Player player) {
         Location center = player.getLocation();
         double radius = 6;
-        Fx.particle(center, Particle.EXPLOSION_EMITTER, 1, 0, 0);
+        Fx.ring(center.clone().add(0, 0.4, 0), 2.6, 5, p -> Fx.particle(p, Particle.EXPLOSION, 1, 0.2, 0));
         for (double r = 1; r <= radius; r += 1) {
             Fx.ring(center.clone().add(0, 0.2, 0), r, (int) (r * 10),
                     p -> Fx.particle(p, Particle.DRAGON_BREATH, 1, 0.05, 0.02, BREATH_POWER));

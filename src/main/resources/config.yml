@@ -25,11 +25,11 @@ settings:
   # Extra multiplier for ability damage against players, on top of the one above.
   # Lower it if abilities feel too strong in PvP (e.g. 0.75).
   ability-damage-multiplier-vs-players: 1.0
-  # Shows ability cooldowns on the action bar while a sword is held.
+  # Shows ability cooldowns on the action bar while an OP weapon is held.
   action-bar-hud: true
-  # Plays a chime when an ability comes off cooldown while you hold the sword.
+  # Plays a chime when an ability comes off cooldown while you hold the weapon.
   ability-ready-sound: true
-  # Faint themed particles around a held sword (hidden while invisible).
+  # Faint themed particles around a held weapon (hidden while invisible).
   held-aura: true
   # A glowing slash in the weapon's colour on every melee hit.
   melee-slashes: true
@@ -37,17 +37,17 @@ settings:
   cast-circles: true
   # Kills with an OP weapon end in a burst of light in the weapon's colour.
   kill-effects: true
-  # Custom death messages for kills with an OP sword, e.g. "Steve was frozen solid by Alex".
+  # Custom death messages for kills with an OP weapon, e.g. "Steve was frozen solid by Alex".
   death-messages: true
-  # Dropped OP swords never despawn, can't be destroyed and glow.
+  # Dropped OP weapons never despawn, can't be destroyed and glow.
   protect-dropped-swords: true
   # Abilities do nothing in these worlds.
   disabled-worlds: []
 
 controls:
-  # How abilities are fired while holding a sword:
+  # How abilities are fired while holding an OP weapon:
   #   offhand     - swap-hand key (F by default) = first ability, Sneak + F = second ability.
-  #                 Right-click stays a normal sword. Tooltips show each player's own key.
+  #                 Right-click keeps its normal use. Tooltips show each player's own key.
   #   right-click - Right-Click = first ability, Sneak + Right-Click = second ability
   #   both        - either works
   trigger: offhand
@@ -60,7 +60,7 @@ resource-pack:
   # true = players must accept the pack or they're disconnected.
   required: false
   # Shown on the download prompt. MiniMessage format.
-  prompt: "<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <gray>uses a resource pack for its 3D sword models."
+  prompt: "<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <gray>uses a resource pack for its 3D weapon models."
   self-host:
     # This port must be open to players (TCP). On a shared host, use an extra port
     # your host gave you.
@@ -93,7 +93,7 @@ altars:
   # right-clicking the altar with the ingredients in their inventory.
   enabled: true
 
-# Per-sword settings. Keys are the sword ids (see /opswords list).
+# Per-weapon settings. Keys are the weapon ids (see /opswords list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds
 #   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,

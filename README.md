@@ -76,7 +76,9 @@ thrown.
 
 ![Moonfall, Tomb of Sands, Jade Dragon and Seismic Slam](docs/effects.jpg)
 
-Every hit with an OP weapon draws a glowing crescent slash in its colour, every ability unfolds a
+Every hit with an OP weapon draws a glowing effect in its colour, shaped by the kind of weapon: swords
+slash, scythes and axes cut a wide arc, spears and the rapier thrust a line of light, the hammer
+lands an impact ring and throwing weapons make quick spinning cuts. Every ability unfolds a
 spell circle under the caster, and kills end in a burst of light with the victim's essence rising
 out of it, plus a finish that fits the weapon (ice shattering, a sunbeam, a sand burst, souls
 scattering, a lightning bolt...). The abilities themselves use
