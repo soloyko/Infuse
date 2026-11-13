@@ -93,7 +93,8 @@ each has its own signature: Thunder Strike is a forked bolt that scorches the gr
 sends rings of fire pillars outward, Blizzard opens with a spiral of ice spikes, Dragon Breath
 pours from a spectral dragon head, Seismic Slam cracks the earth and raises stone spikes,
 Gravity Pulse lifts enemies in violet columns, the Wail sends screaming skulls spiralling out,
-drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Stasis Field turns the
+drains snake to you as tendrils, Void Step and Shadow Strike open rifts, Riposte raises a
+shield sigil, Arcane Missiles pour out of a rune portal, dashes leave afterimages, Stasis Field turns the
 hands of a giant clock, Singularity spins an accretion disk, Supernova swells into a sun,
 Warcry brings a giant spectral axe down on the ground, and Moonfall drops a crescent moon. They fade out smoothly, never touch the world, and a
 glow or burst on yourself is hidden from you so it never fills your screen (others still see it).
@@ -139,7 +140,7 @@ saved with the world.
 
 ## Stone altars
 
-![A stone altar forging Eclipse: the warglaive floats in a soft light over the altar, its recipe circling above it](docs/altars.png)
+![A stone pedestal altar holding Valiance, runes glowing in its panel](docs/altars.png)
 
 A weapon altar is a single block with its own 3D model: a stone pedestal with a dark two-tier
 base, a pale pillar with framed panels and corner brackets, and a heavy slab on top. Runes glow

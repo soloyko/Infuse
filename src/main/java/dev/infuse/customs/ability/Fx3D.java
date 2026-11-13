@@ -704,6 +704,34 @@ public final class Fx3D {
         }
     }
 
+    /** A glowing copy of a weapon pointing along {@code dir} that lingers and shrinks away: an afterimage. */
+    public void afterimage(Location at, ItemStack weapon, Vector dir, int rgb, float scale, int life) {
+        Quaternionf rot = Displays.pointing(dir);
+        ItemDisplay d = displays.item(noRotation(at), weapon, scale, rot, ItemDisplay.ItemDisplayTransform.NONE, life + 8);
+        d.setGlowing(true);
+        d.setGlowColorOverride(Color.fromRGB(rgb & 0xFFFFFF));
+        d.setBrightness(FULL_BRIGHT);
+        hideNear(d, at, 1.2);
+        displays.later(life, () -> Displays.animate(d, transform(rot, new Vector3f(scale * 0.15f)), 6));
+    }
+
+    /**
+     * An upright rune sigil standing at {@code at}, facing along {@code facing}. The caller moves
+     * (teleports) and removes it.
+     */
+    public ItemDisplay sigil(Location at, Vector facing, int rgb, float size, int life) {
+        Vector f = facing.clone();
+        if (f.lengthSquared() < 1.0E-4) {
+            f = new Vector(0, 0, 1);
+        }
+        f.normalize();
+        Quaternionf stand = new Quaternionf().rotationTo(0, 1, 0, (float) f.getX(), (float) f.getY(), (float) f.getZ());
+        ItemDisplay d = spawn(noRotation(at), Shape.RUNE, rgb, transform(stand, new Vector3f(0.1f)), Display.Billboard.FIXED, life);
+        d.setTeleportDuration(1);
+        displays.later(1, () -> Displays.animate(d, transform(stand, new Vector3f(size)), 4));
+        return d;
+    }
+
     /** Burst + glow + ring: a big hit landing. */
     public void impact(Location at, int rgb, float size) {
         burst(at, rgb, size);

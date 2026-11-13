@@ -104,6 +104,11 @@ public final class StaffWeapon extends SwordAbility implements Listener {
     @Override
     public boolean primary(Player player) {
         Fx.sound(player.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1f, 1.4f);
+        // a rune portal opens above your shoulder as the missiles leave
+        Vector look = player.getEyeLocation().getDirection();
+        Location portal = player.getEyeLocation().add(0, 0.9, 0).subtract(look.clone().setY(0).multiply(0.4));
+        org.bukkit.entity.ItemDisplay rune = fx().sigil(portal, look, 0xC48BFF, 1.6f, 22);
+        displays().later(14, () -> fx().fade(rune, dev.infuse.customs.ability.Fx3D.Shape.RUNE, 0xC48BFF, 1, 2));
         for (int i = 0; i < 5; i++) {
             int index = i;
             displays().later(1 + i * 2L, () -> missile(player, index));

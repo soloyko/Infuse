@@ -109,6 +109,10 @@ public final class WarglaiveWeapon extends SwordAbility {
                 }
                 Location at = player.getLocation().add(0, 1, 0);
                 fx().slash(at, heading, ticks % 2 == 0 ? 0.5 : -0.5, ticks % 2 == 0 ? SILVER : MOON, 1.9f, 2);
+                if (ticks % 2 == 1) {
+                    fx().afterimage(at.clone().subtract(heading.clone().multiply(0.8)), plugin.items().create(type), heading,
+                            MOON, 1.4f, 5);
+                }
                 Fx.particle(at, Particle.END_ROD, 3, 0.3, 0.02);
                 Fx.particle(at, Particle.DUST, 4, 0.3, 0, Fx.dust(MIDNIGHT, 1.4f));
                 for (LivingEntity target : combat().nearby(player, at, 2.4)) {

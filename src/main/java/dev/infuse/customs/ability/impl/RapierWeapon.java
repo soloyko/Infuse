@@ -38,6 +38,20 @@ public final class RapierWeapon extends SwordAbility implements Listener {
     private static final int GOLD = 0xD4A017;
     private static final int WHITE = 0xFFFDF0;
 
+    /** The shield sigil shown during each player's stance. */
+    private final Map<UUID, org.bukkit.entity.ItemDisplay> wards = new HashMap<>();
+
+    private static Location wardSpot(Player player) {
+        Vector look = player.getLocation().getDirection().setY(0);
+        if (look.lengthSquared() < 1.0E-4) {
+            look = new Vector(0, 0, 1);
+        }
+        Location at = player.getLocation().add(0, 1.1, 0).add(look.normalize().multiply(1.1));
+        at.setYaw(0);
+        at.setPitch(0);
+        return at;
+    }
+
     /** Players in a parry stance, until this tick. */
     private final Map<UUID, Integer> stance = new HashMap<>();
 
@@ -92,6 +106,16 @@ public final class RapierWeapon extends SwordAbility implements Listener {
         fx().shockwave(player.getLocation(), GOLD, 1.8f, 5);
         Fx.sound(eye, Sound.ITEM_TRIDENT_RIPTIDE_1, 1f, 1.6f);
         Fx.sound(eye, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.9f);
+        // golden afterimages of the rapier trail the lunge
+        org.bukkit.inventory.ItemStack blade = plugin.items().create(type);
+        for (int i = 0; i < 4; i++) {
+            displays().later(1 + i, () -> {
+                if (alive(player)) {
+                    Location at = player.getEyeLocation().subtract(0, 0.5, 0).subtract(dir.clone().multiply(0.6));
+                    fx().afterimage(at, blade, dir, GOLD, 1.5f, 4);
+                }
+            });
+        }
         if (target != null) {
             displays().later(5, () -> {
                 if (target.isValid() && alive(player)) {
@@ -113,6 +137,9 @@ public final class RapierWeapon extends SwordAbility implements Listener {
         Fx.sound(player.getLocation(), Sound.ITEM_SHIELD_BLOCK, 1f, 1.6f);
         Fx.sound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 0.8f, 1.2f);
         fx().shockwave(player.getLocation(), GOLD, 2f, 6);
+        // a golden shield sigil hovers in front of you for the whole stance
+        org.bukkit.entity.ItemDisplay ward = fx().sigil(wardSpot(player), player.getLocation().getDirection().setY(0), GOLD, 1.5f, 40);
+        wards.put(player.getUniqueId(), ward);
         new BukkitRunnable() {
             int ticks;
 
@@ -120,7 +147,13 @@ public final class RapierWeapon extends SwordAbility implements Listener {
             public void run() {
                 ticks++;
                 Integer end = stance.get(player.getUniqueId());
+                if (ward.isValid() && end != null && end == until) {
+                    ward.teleport(wardSpot(player));
+                }
                 if (!alive(player) || end == null || end != until || ticks > 30) {
+                    if (wards.remove(player.getUniqueId(), ward)) {
+                        fx().fade(ward, dev.infuse.customs.ability.Fx3D.Shape.RUNE, GOLD, 1, 1);
+                    }
                     if (end != null && end == until) {
                         stance.remove(player.getUniqueId());
                     }
@@ -156,6 +189,12 @@ public final class RapierWeapon extends SwordAbility implements Listener {
         }
         event.setCancelled(true);
         stance.remove(player.getUniqueId());
+        org.bukkit.entity.ItemDisplay ward = wards.remove(player.getUniqueId());
+        if (ward != null && ward.isValid()) {
+            fx().burst(ward.getLocation(), GOLD, 2.6f);
+            Fx.particle(ward.getLocation(), Particle.BLOCK, 20, 0.4, 0.1, org.bukkit.Material.GOLD_BLOCK.createBlockData());
+            displays().remove(ward);
+        }
         Location c = Combat.center(player);
         fx().burst(c, WHITE, 2.4f);
         fx().shockwave(player.getLocation(), GOLD, 3f, 6);
