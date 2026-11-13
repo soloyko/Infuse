@@ -24,7 +24,7 @@ public enum SwordType {
             "A feather of the first phoenix, beaten into a blade over a fire that never went out. Whoever carries it rises from their own ashes.",
             new AbilityInfo("Rebirth", "Fire Resistance while held. Once every 5 minutes, a killing blow revives you instead."),
             new AbilityInfo("Searing Edge", "Ignites targets. 15% chance to combust, burning everything nearby."),
-            new AbilityInfo("Ember Volley", "Hurl a spread of three exploding fireballs."),
+            new AbilityInfo("Ember Volley", "Three exploding fireballs that set the ground they pass over on fire for a few seconds."),
             new AbilityInfo("Firestorm", "Unleash a ring of fire that scorches and blasts back everything around you.")),
 
     FROST("frost", "Everwinter", "Frost Sword", "❄", 0x9BE3F2, 0xFFFFFF,
@@ -73,7 +73,7 @@ public enum SwordType {
             "Blessed at dawn by the last of the sun-priests and kept in light ever since. The dead burn at the mere sight of it.",
             new AbilityInfo("Radiance", "Haste II while held. Nearby enemies are revealed with Glowing."),
             new AbilityInfo("Sunfire", "Ignites targets. Undead take +50% damage."),
-            new AbilityInfo("Solar Beam", "Fire a piercing beam of sunlight that burns everything in a line."),
+            new AbilityInfo("Solar Beam", "Channel a beam of sunlight for 1.5 seconds that follows your aim, burning everything it sweeps across."),
             new AbilityInfo("Supernova", "Charge up, then explode in a blinding blast of solar fire.")),
 
     VOID("void", "Voidreaver", "Void Sword", "🌌", 0xA64DFF, 0x3A1A5C,
@@ -109,7 +109,7 @@ public enum SwordType {
             new AbilityInfo("Soul Siphon", "Every kill heals 4 health and grants Absorption."),
             new AbilityInfo("Soul Rend", "20% chance to tear at the target's soul for +4 damage."),
             new AbilityInfo("Spectral Hounds", "Summon three spectral hounds that hunt your target for 15 seconds."),
-            new AbilityInfo("Wail of the Damned", "A wail that withers, weakens and scatters every enemy around you.")),
+            new AbilityInfo("Wail of the Damned", "Wither, weaken and scatter enemies around you; six screaming skulls then hunt them down.")),
 
     ECHO("echo", "Deepwhisper", "Echo Sword", "🔊", 0x22C2C7, 0x0B2A33,
             "Grown in the sculk beneath the Deep Dark, where silence is a weapon. It hears your heartbeat before you even swing.",

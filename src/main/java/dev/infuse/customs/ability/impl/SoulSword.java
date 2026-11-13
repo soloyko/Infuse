@@ -238,39 +238,62 @@ public final class SoulSword extends SwordAbility implements Listener {
         fx().shockwave(center, 0x4FE3E0, 10f, 12);
         fx().shockwave(center, 0x1E8C8A, 6f, 9);
         fx().flash(center.clone().add(0, 1, 0), 0x7FFFF5, 2.6f);
-        // spectral skulls burst out of you, screaming, and spiral away
+        // spectral skulls burst out of you screaming, circle once, then hunt down an enemy each
         for (int i = 0; i < 6; i++) {
             double a0 = i * Math.PI * 2 / 6;
+            LivingEntity prey = targets.get(i % targets.size());
             Location start = center.clone().add(0, 1.4, 0);
             org.bukkit.entity.ItemDisplay skull = fx().spectralHead(start, org.bukkit.Material.WITHER_SKELETON_SKULL, 0x4FE3E0, 0.9f,
-                    new org.bukkit.util.Vector(Math.cos(a0), 0, Math.sin(a0)), 30);
+                    new org.bukkit.util.Vector(Math.cos(a0), 0, Math.sin(a0)), 50);
             new BukkitRunnable() {
                 int t;
+                Location pos = start.clone();
 
                 @Override
                 public void run() {
                     t++;
-                    if (!skull.isValid() || t > 18) {
-                        if (skull.isValid()) {
-                            fx().burst(skull.getLocation(), 0x7FFFF5, 1.2f);
-                            Fx.particle(skull.getLocation(), Particle.SOUL, 6, 0.2, 0.03);
-                        }
+                    if (!skull.isValid() || t > 45 || !alive(player)) {
                         displays().remove(skull);
                         cancel();
                         return;
                     }
-                    double a = a0 + t * 0.18;
-                    double d = 0.6 + t * 0.5;
-                    org.bukkit.util.Vector heading = new org.bukkit.util.Vector(Math.cos(a), 0, Math.sin(a));
-                    Location at = center.clone().add(heading.clone().multiply(d)).add(0, 1.4 + Math.sin(t * 0.5) * 0.3, 0);
-                    skull.teleport(at);
-                    skull.setInterpolationDelay(0);
-                    skull.setInterpolationDuration(2);
-                    skull.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(),
-                            dev.infuse.customs.ability.Fx3D.headRotation(heading.clone().add(new org.bukkit.util.Vector(-heading.getZ(), 0, heading.getX()).multiply(0.6))),
-                            new org.joml.Vector3f(0.9f), new org.joml.Quaternionf()));
+                    Location next;
+                    if (t <= 8) {
+                        double a = a0 + t * 0.25;
+                        next = center.clone().add(Math.cos(a) * (0.6 + t * 0.25), 1.4 + t * 0.08, Math.sin(a) * (0.6 + t * 0.25));
+                    } else {
+                        if (!prey.isValid() || prey.isDead()) {
+                            fx().burst(pos, 0x7FFFF5, 1.2f);
+                            displays().remove(skull);
+                            cancel();
+                            return;
+                        }
+                        Location aim = Combat.center(prey);
+                        org.bukkit.util.Vector to = aim.toVector().subtract(pos.toVector());
+                        double d = to.length();
+                        if (d < 0.9) {
+                            combat().damage(player, prey, 3, true);
+                            applyEffect(prey, PotionEffectType.WITHER, 60, 0);
+                            fx().burst(aim, 0x7FFFF5, 1.6f);
+                            Fx.particle(aim, Particle.SOUL, 10, 0.3, 0.04);
+                            Fx.sound(aim, Sound.ENTITY_VEX_HURT, 0.8f, 0.6f);
+                            displays().remove(skull);
+                            cancel();
+                            return;
+                        }
+                        next = pos.clone().add(to.multiply(Math.min(1.1, d) / d));
+                    }
+                    org.bukkit.util.Vector heading = next.toVector().subtract(pos.toVector());
+                    pos = next;
+                    skull.teleport(next);
+                    if (heading.lengthSquared() > 1.0E-4) {
+                        skull.setInterpolationDelay(0);
+                        skull.setInterpolationDuration(2);
+                        skull.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(),
+                                dev.infuse.customs.ability.Fx3D.headRotation(heading), new org.joml.Vector3f(0.9f), new org.joml.Quaternionf()));
+                    }
                     if (t % 2 == 0) {
-                        Fx.particle(at, Particle.SOUL_FIRE_FLAME, 2, 0.1, 0.01);
+                        Fx.particle(next, Particle.SOUL_FIRE_FLAME, 2, 0.1, 0.01);
                     }
                 }
             }.runTaskTimer(plugin, 1L, 1L);

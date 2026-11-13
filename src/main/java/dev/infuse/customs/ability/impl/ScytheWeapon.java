@@ -87,6 +87,12 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         if (look.lengthSquared() < 1.0E-4) {
             look = new Vector(0, 0, 1);
         }
+        // soul fire bursts up along the arc of the sweep
+        for (int i = 0; i <= 8; i++) {
+            double a = start + (end - start) * i / 8.0;
+            Location spot = Combat.ground(origin.clone().add(-Math.sin(a) * 3.2, 1.5, Math.cos(a) * 3.2));
+            displays().later(i * 6 / 8 + 1, () -> fx().flamePillar(spot, 0.8f, 1.4f, 10, true));
+        }
         fx().slash(origin.clone().add(0, 1.0, 0), look.clone().rotateAroundY(0.9), 0.15, 0x5FFFD0, 3.0f, 5);
         Vector lookCopy = look.clone();
         displays().later(3, () -> fx().slash(player.getLocation().add(0, 1.0, 0), lookCopy.clone().rotateAroundY(-0.9), 0.15, 0xB8FFF0, 3.0f, 5));
@@ -226,6 +232,11 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         Fx.sound(at, Sound.ITEM_TRIDENT_HIT, 1.2f, 0.5f);
         Fx.sound(at, Sound.ENTITY_WITHER_BREAK_BLOCK, 0.6f, 1.4f);
         fx().impact(at, 0x2BD9A8, 3f);
+        fx().crack(target.getLocation(), 0x2BD9A8, 4f, 40);
+        for (int i = 0; i < 3; i++) {
+            double a = i * Math.PI * 2 / 3;
+            fx().drift(at, new Vector(Math.cos(a) * 1.5, 2.6, Math.sin(a) * 1.5), 0x7FFFE0, 0.6f, 18 + i * 3);
+        }
         fx().cut(at, player.getLocation().getDirection(), Math.PI / 2, 0.5, 0x7FFFE0, 2.6f, 3);
         combat().damage(player, target, damage, true);
         if (target.isDead()) {

@@ -70,39 +70,64 @@ public final class SolarSword extends SwordAbility {
         }
     }
 
-    /** Solar Beam: an instant piercing beam up to 30 blocks. */
+    /**
+     * Solar Beam: a beam of sunlight that burns for 1.5 seconds and follows your aim, so it can be
+     * swept across enemies. Each enemy is burned at most every half second.
+     */
     @Override
     public boolean primary(Player player) {
-        Location eye = player.getEyeLocation();
-        Vector dir = eye.getDirection();
-        double length = Combat.clearDistance(player, 30);
-        for (double d = 0.8; d <= length; d += 0.3) {
-            Location p = eye.clone().add(dir.clone().multiply(d));
-            Fx.particle(p, Particle.DUST, 1, 0.03, 0, Fx.dust(d % 0.9 < 0.3 ? PALE : GOLD, 1.5f));
-            if (((int) (d * 10)) % 9 == 0) {
-                Fx.particle(p, Particle.END_ROD, 1, 0.05, 0.01);
-            }
-        }
-        Location end = eye.clone().add(dir.clone().multiply(length));
-        Fx.particle(end, Particle.FLAME, 25, 0.3, 0.08);
-        Fx.sound(eye, Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.8f);
-        Fx.sound(eye, Sound.ENTITY_GUARDIAN_ATTACK, 0.8f, 1.6f);
-        Location hand = dev.infuse.customs.ability.Fx3D.handOrigin(player);
-        fx().beam(hand, end, 0xFFC93A, 2.2f, 12);
-        fx().beam(hand, end, 0xFFF6D0, 0.8f, 9);
-        fx().flash(hand, 0xFFE08A, 1.2f);
-        fx().impact(end, 0xFFB52E, 2.2f);
+        Fx.sound(player.getEyeLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.8f);
+        Fx.sound(player.getEyeLocation(), Sound.ENTITY_GUARDIAN_ATTACK, 0.8f, 1.6f);
+        java.util.Map<java.util.UUID, Integer> lastHit = new java.util.HashMap<>();
+        new BukkitRunnable() {
+            int ticks;
 
-        Location mid = eye.clone().add(dir.clone().multiply(length / 2));
-        for (LivingEntity target : combat().nearby(player, mid, length / 2 + 2)) {
-            if (target.getBoundingBox().expand(0.6).rayTrace(eye.toVector(), dir, length) == null) {
-                continue;
+            @Override
+            public void run() {
+                if (!alive(player) || ticks >= 30 || plugin.items().heldType(player) != type) {
+                    cancel();
+                    return;
+                }
+                Location eye = player.getEyeLocation();
+                Vector dir = eye.getDirection();
+                double length = Combat.clearDistance(player, 30);
+                Location end = eye.clone().add(dir.clone().multiply(length));
+                if (ticks % 2 == 0) {
+                    Location hand = dev.infuse.customs.ability.Fx3D.handOrigin(player);
+                    fx().beam(hand, end, 0xFFC93A, ticks == 0 ? 2.4f : 1.5f, 3);
+                    fx().beam(hand, end, 0xFFF6D0, ticks == 0 ? 0.9f : 0.55f, 3);
+                    fx().flash(end, 0xFFB52E, 1.3f);
+                    Fx.particle(end, Particle.FLAME, 6, 0.25, 0.04);
+                    for (double d = 2.5; d <= length; d += 2.2) {
+                        Fx.particle(eye.clone().add(dir.clone().multiply(d)), Particle.END_ROD, 1, 0.05, 0.01);
+                    }
+                }
+                if (ticks % 6 == 0) {
+                    Location ground = Combat.ground(end.clone().add(0, 0.5, 0));
+                    if (ground.distanceSquared(end) < 4) {
+                        fx().flamePillar(ground, 0.8f, 1.4f, 12, false);
+                    }
+                    Fx.sound(end, Sound.BLOCK_FIRE_AMBIENT, 1f, 1.4f);
+                }
+                Location mid = eye.clone().add(dir.clone().multiply(length / 2));
+                for (LivingEntity target : combat().nearby(player, mid, length / 2 + 2)) {
+                    if (target.getBoundingBox().expand(0.6).rayTrace(eye.toVector(), dir, length) == null) {
+                        continue;
+                    }
+                    Integer last = lastHit.get(target.getUniqueId());
+                    if (last != null && ticks - last < 10) {
+                        continue;
+                    }
+                    lastHit.put(target.getUniqueId(), ticks);
+                    combat().damage(player, target, scaled(target, last == null ? 6 : 3), true);
+                    target.setFireTicks(Math.max(target.getFireTicks(), 80));
+                    target.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0, false, false, true));
+                    fx().burst(Combat.center(target), 0xFFE08A, 1.3f);
+                    Fx.particle(Combat.center(target), Particle.FLAME, 10, 0.3, 0.05);
+                }
+                ticks++;
             }
-            combat().damage(player, target, scaled(target, 8));
-            target.setFireTicks(Math.max(target.getFireTicks(), 80));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0, false, false, true));
-            Fx.particle(Combat.center(target), Particle.FLAME, 15, 0.3, 0.05);
-        }
+        }.runTaskTimer(plugin, 0L, 1L);
         return true;
     }
 

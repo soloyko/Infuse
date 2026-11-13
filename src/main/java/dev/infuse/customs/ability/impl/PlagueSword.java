@@ -168,6 +168,19 @@ public final class PlagueSword extends SwordAbility {
                 }
                 if (ticks % 20 == 0) {
                     Fx.sound(cloud, Sound.BLOCK_BREWING_STAND_BREW, 0.8f, 0.6f);
+                    // toxic bubbles swell up out of the cloud and pop
+                    ThreadLocalRandom br = ThreadLocalRandom.current();
+                    for (int b = 0; b < 2; b++) {
+                        double a = br.nextDouble(Math.PI * 2);
+                        double d = br.nextDouble() * radius * 0.8;
+                        Location bubble = cloud.clone().add(Math.cos(a) * d, 0.2, Math.sin(a) * d);
+                        fx().drift(bubble, new org.bukkit.util.Vector(0, br.nextDouble(1.2, 2.2), 0), 0xB4E85A, 0.7f, 12);
+                        displays().later(12, () -> {
+                            fx().burst(bubble.clone().add(0, 1.6, 0), 0xB4E85A, 1.0f);
+                            Fx.particle(bubble.clone().add(0, 1.6, 0), Particle.ITEM_SLIME, 6, 0.2, 0.05);
+                            Fx.sound(bubble, Sound.BLOCK_BUBBLE_COLUMN_BUBBLE_POP, 1f, 0.7f);
+                        });
+                    }
                     for (LivingEntity target : combat().nearby(player, cloud, radius)) {
                         if (Math.abs(target.getLocation().getY() - cloud.getY()) > 2.5) {
                             continue;

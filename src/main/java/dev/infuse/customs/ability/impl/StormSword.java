@@ -47,6 +47,8 @@ public final class StormSword extends SwordAbility {
             return;
         }
         target.getWorld().strikeLightningEffect(target.getLocation());
+        fx().bolt(target.getLocation().add(0, 12, 0), target.getLocation(), 0xCFE8FF, 0.6f, 5, 2);
+        fx().crack(Combat.ground(target.getLocation()), 0x7FC8FF, 2.4f, 30);
         event.setDamage(event.getDamage() + 5);
         applyEffect(target, PotionEffectType.SLOWNESS, 20, 3);
         Fx.particle(Combat.center(target), Particle.ELECTRIC_SPARK, 40, 0.4, 0.3);

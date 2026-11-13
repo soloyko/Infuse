@@ -124,6 +124,10 @@ public final class SpearWeapon extends SwordAbility {
                     Fx.particle(pos, Particle.END_ROD, 1, 0.02, 0.01);
                     if (block != null) {
                         stuck = 0;
+                        Location landed = pos.clone();
+                        fx().beam(landed.clone().add(0, 12, 0), landed, 0xFFF0B8, 1.2f, 12);
+                        fx().burst(landed, 0xFFE08A, 2.2f);
+                        fx().shockwave(Combat.ground(landed.clone().add(0, 0.5, 0)), 0xE9C46A, 3f, 7);
                         Fx.sound(pos, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 1f);
                         Block b = block.getHitBlock();
                         if (b != null) {

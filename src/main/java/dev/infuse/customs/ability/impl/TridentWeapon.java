@@ -87,6 +87,8 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         Entity hit = event.getHitEntity();
         Location point = hit != null ? hit.getLocation() : trident.getLocation();
         point.getWorld().strikeLightningEffect(point);
+        fx().bolt(point.clone().add(0, 14, 0), point, 0x9FF5F5, 0.8f, 6, 2);
+        fx().crack(Combat.ground(point.clone().add(0, 0.5, 0)), 0x2EC4C4, 3f, 36);
         Fx.particle(point.clone().add(0, 0.5, 0), Particle.ELECTRIC_SPARK, 30, 0.6, 0.2);
         Fx.particle(point.clone().add(0, 0.3, 0), Particle.SPLASH, 40, 0.8, 0.1);
         for (LivingEntity target : combat().nearby(player, point, 2.5)) {
@@ -145,6 +147,8 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         if (!alive(player) || player.getWorld() != ground.getWorld()) {
             return;
         }
+            // the storm follows the trident down
+            displays().later(10, () -> fx().bolt(ground.clone().add(0, 14, 0), ground.clone().add(0, 0.2, 0), 0x9FF5F5, 0.5f, 5, 1));
         Location start = ground.clone().add(0, 14, 0);
         start.setYaw(0);
         start.setPitch(0);

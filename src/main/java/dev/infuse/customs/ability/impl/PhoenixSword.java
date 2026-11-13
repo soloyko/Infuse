@@ -160,6 +160,7 @@ public final class PhoenixSword extends SwordAbility implements Listener {
             fireball.setAcceleration(shot.clone().multiply(0.1));
             fireball.getPersistentDataContainer().set(fireballKey, PersistentDataType.BYTE, (byte) 1);
             fx().follow(fireball, 0xFF8A2A, 1.3f, 60);
+            scorchTrail(player, fireball);
         }
         Fx.sound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1f, 1f);
         Fx.sound(player.getLocation(), Sound.ITEM_FIRECHARGE_USE, 0.8f, 0.8f);
@@ -177,6 +178,8 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         Fx.particle(at, Particle.EXPLOSION, 1, 0, 0);
         Fx.sound(at, Sound.ENTITY_GENERIC_BURN, 0.8f, 1.2f);
         fx().burst(at, 0xFF8A2A, 1.6f);
+        fx().flamePillar(dev.infuse.customs.ability.Combat.ground(at.clone().add(0, 0.5, 0)), 1.4f, 2.6f, 16, false);
+        fx().shockwave(dev.infuse.customs.ability.Combat.ground(at.clone().add(0, 0.5, 0)), 0xFF8A2A, 2.4f, 6);
         fx().flash(at, 0xFFD24A, 1.4f);
         for (LivingEntity target : combat().nearby(player, at, 2.5)) {
             combat().damage(player, target, 4);
@@ -233,5 +236,47 @@ public final class PhoenixSword extends SwordAbility implements Listener {
             }
         }.runTaskTimer(plugin, 0L, 1L);
         return true;
+    }
+
+    /**
+     * The ground under a flying fireball catches fire: flames burst up along its path and burn
+     * anyone standing in them for three seconds.
+     */
+    private void scorchTrail(Player player, SmallFireball fireball) {
+        java.util.List<Location> trail = new java.util.ArrayList<>();
+        new BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (ticks > 100 || !alive(player)) {
+                    cancel();
+                    return;
+                }
+                if (fireball.isValid() && ticks % 3 == 0 && ticks <= 40) {
+                    Location below = fireball.getLocation();
+                    Location ground = dev.infuse.customs.ability.Combat.ground(below.clone());
+                    if (below.getY() - ground.getY() < 4) {
+                        trail.add(ground);
+                        fx().flamePillar(ground, 0.75f, 1.0f + (float) Math.random() * 0.5f, 60, false);
+                    }
+                }
+                if (ticks % 10 == 0) {
+                    java.util.Set<java.util.UUID> burned = new java.util.HashSet<>();
+                    for (Location spot : trail) {
+                        for (LivingEntity target : combat().nearby(player, spot.clone().add(0, 0.6, 0), 1.0)) {
+                            if (burned.add(target.getUniqueId())) {
+                                combat().damage(player, target, 1.5, true);
+                                target.setFireTicks(Math.max(target.getFireTicks(), 60));
+                            }
+                        }
+                    }
+                }
+                if (!fireball.isValid() && trail.isEmpty()) {
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
     }
 }

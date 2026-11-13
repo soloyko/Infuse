@@ -216,6 +216,7 @@ public final class CosmicSword extends SwordAbility {
                 Fx.particle(impact, Particle.LAVA, 6, 0.5, 0);
                 Fx.sound(impact, Sound.ENTITY_GENERIC_EXPLODE, 1.4f, 0.9f);
                 fx().impact(impact.clone().add(0, 0.8, 0), 0x8E7BFF, 2.6f);
+                fx().flamePillar(impact, 0.9f, 1.6f, 12, false);
                 if (!alive(player)) {
                     return;
                 }

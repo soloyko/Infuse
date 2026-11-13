@@ -135,6 +135,8 @@ public final class FrostSword extends SwordAbility {
         Fx.particle(at, Particle.SNOWFLAKE, 30, 0.5, 0.05);
         Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 1f, 0.8f);
         fx().burst(at, 0xBDF3FF, 2.0f);
+        // a spike of ice bursts out of the ground under the target
+        fx().spike(target.getLocation(), Material.BLUE_ICE.createBlockData(), 2.4f, 0.8f, 0.15, 30);
         fx().shockwave(target.getLocation(), 0x8FD8FF, 2.6f, 6);
         Fx.sound(at, Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.8f);
         for (LivingEntity nearby : combat().nearby(player, at, 2.5)) {

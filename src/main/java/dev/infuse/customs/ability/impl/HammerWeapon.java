@@ -77,6 +77,7 @@ public final class HammerWeapon extends SwordAbility implements Listener {
             displays().eruptGround(at.clone().add(Math.cos(a) * 1.4, 0, Math.sin(a) * 1.4), 0.5f, 0.5f);
         }
         Fx.sound(at, Sound.ENTITY_IRON_GOLEM_ATTACK, 0.9f, 0.6f);
+        fx().crack(Combat.ground(target.getLocation()), 0xFF8A2A, 3f, 30);
     }
 
     /** Seismic Slam: a ring of erupting earth rolls out to 8 blocks. */
@@ -154,6 +155,15 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         Fx.sound(player.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.5f, 0.5f);
         Fx.sound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 0.6f);
         fx().shockwave(player.getLocation(), 0xB08A5A, 2.6f, 8);
+        // stone spikes burst up in a ring as the bulwark rises
+        Location bulwarkAt = player.getLocation();
+        for (int i = 0; i < 10; i++) {
+            double a = i * Math.PI / 5;
+            Location spot = Combat.ground(bulwarkAt.clone().add(Math.cos(a) * 3.2, 1.5, Math.sin(a) * 3.2));
+            int delay = i % 3;
+            displays().later(1 + delay, () -> fx().spike(spot, Material.COBBLED_DEEPSLATE.createBlockData(), 1.3f, 0.6f, 0.45, 24));
+        }
+        fx().crack(bulwarkAt, 0xB08A5A, 4.5f, 40);
 
         BlockData[] stone = {Material.DEEPSLATE_BRICKS.createBlockData(), Material.CHISELED_DEEPSLATE.createBlockData(),
                 Material.POLISHED_DEEPSLATE.createBlockData()};
