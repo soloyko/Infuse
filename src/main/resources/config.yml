@@ -1,14 +1,18 @@
 # ╔══════════════════════════════════════════════════════════╗
 # ║                      OP SWORDS                           ║
-# ║  15 legendary swords with 3D models and unique abilities ║
+# ║   15 legendary swords and 7 other weapons, with 3D       ║
+# ║   models, unique abilities and weapon altars             ║
 # ╚══════════════════════════════════════════════════════════╝
 #
-# Controls (while holding a sword, see controls.trigger):
+# Controls (while holding a weapon, see controls.trigger):
 #   Swap-hand key (F)          -> first ability
 #   Sneak + swap-hand key (F)  -> second ability
 #
-# /opswords reload applies changes. Swords players already own update
+# /opswords reload applies changes. Weapons players already own update
 # automatically the next time they hold them.
+
+# Used to upgrade older configs. Don't change it.
+config-version: 2
 
 settings:
   # Swords never lose durability.
@@ -67,11 +71,12 @@ resource-pack:
 
 crafting:
   enabled: true
-  # Broadcasts a message when someone forges an OP sword.
+  # Broadcasts a message when someone forges an OP weapon.
   announce: true
-  # Legendary mode: each sword can only be crafted once per server. Admins can still
-  # /opswords give, and /opswords unforge <sword> allows it to be crafted again.
-  unique-swords: false
+  # Legendary mode: each weapon can only be crafted (or forged at an altar) once per server,
+  # so there is only ever one of each. Admins can still /opswords give, and
+  # /opswords unforge <weapon> allows it to be crafted again. Set to false to allow copies.
+  unique-swords: true
   # Weapons can be crafted in a crafting table. Set to false to make weapon altars the only
   # way to forge them.
   crafting-table: true

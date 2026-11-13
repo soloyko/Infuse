@@ -124,6 +124,12 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
     /** Adds settings and swords from newer versions to an existing config.yml, keeping the user's values. */
     private void mergeNewDefaults() {
+        if (getConfig().getInt("config-version", 1) < 2) {
+            // 1.5.1: legendary mode became the default; every weapon can be crafted once
+            getConfig().set("crafting.unique-swords", true);
+            getLogger().info("Legendary mode is now on: each weapon can only be crafted once."
+                    + " Set crafting.unique-swords to false to allow copies.");
+        }
         getConfig().set("altars.recipe", null); // 1.4 only: altars are now placed by admins, not crafted
         getConfig().options().copyDefaults(true);
         saveConfig();

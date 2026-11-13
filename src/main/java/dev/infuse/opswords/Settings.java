@@ -106,7 +106,7 @@ public final class Settings {
         craftingEnabled = c.getBoolean("crafting.enabled", true);
         craftingAnnounce = c.getBoolean("crafting.announce", true);
         craftingTable = c.getBoolean("crafting.crafting-table", true);
-        uniqueSwords = c.getBoolean("crafting.unique-swords", false);
+        uniqueSwords = c.getBoolean("crafting.unique-swords", true);
         altarsEnabled = c.getBoolean("altars.enabled", true);
 
         swords = new EnumMap<>(SwordType.class);

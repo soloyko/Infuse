@@ -169,9 +169,11 @@ bringing the ingredients to a weapon altar, set per sword in `config.yml`
 
 (`S` = netherite sword unless noted.) An OP sword can never be used up as an ingredient.
 
-**Legendary mode** (`crafting.unique-swords: true`): each sword can only be crafted once per
-server. `/opswords list` and the recipe book show who forged what; `/opswords unforge <sword>`
-lets a lost sword be crafted again. Admins can always `/opswords give`.
+**Legendary mode** (on by default, `crafting.unique-swords`): every weapon can only be crafted
+once per server, at a crafting table or an altar, so there is only ever one of each.
+`/opswords list`, the recipe book and the altars show who forged what; `/opswords unforge
+<weapon>` lets a lost weapon be crafted again. Admins can always `/opswords give`. Set it to
+`false` to allow copies.
 
 ## Commands
 
