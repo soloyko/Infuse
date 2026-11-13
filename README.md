@@ -1,4 +1,4 @@
-# Infuse — OP Swords
+# Customs
 
 A Paper **1.21.11** plugin that adds 15 legendary swords and 13 other legendary weapons (a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
@@ -76,7 +76,7 @@ thrown.
 
 ![Moonfall, Tomb of Sands, Jade Dragon and Seismic Slam](docs/effects.jpg)
 
-Every hit with an OP weapon draws a glowing effect in its colour, shaped by the kind of weapon: swords
+Every hit with an Customs weapon draws a glowing effect in its colour, shaped by the kind of weapon: swords
 slash, scythes and axes cut a wide arc, spears and the rapier thrust a line of light, the hammer
 lands an impact ring and throwing weapons make quick spinning cuts. Every ability unfolds a
 spell circle under the caster, and kills end in a burst of light with the victim's essence rising
@@ -137,9 +137,9 @@ in the colour of the weapon it holds. The weapon
 floats above it (swords point-down, the other weapons head-up), with **its recipe circling above
 it** and a nameplate.
 
-- **Only admins place altars.** Get one with `/opswords altar give` or the `/opswords menu`; it
-  can't be crafted. Place it, then right-click it with an OP weapon to choose what it forges (or
-  look at it and run `/opswords altar set <weapon>`). Sneak + right-click with an empty hand
+- **Only admins place altars.** Get one with `/customs altar give` or the `/customs menu`; it
+  can't be crafted. Place it, then right-click it with an Customs weapon to choose what it forges (or
+  look at it and run `/customs altar set <weapon>`). Sneak + right-click with an empty hand
   picks it back up; only admins can break it.
 - **Players forge at it**: right-click the altar with the ingredients in your inventory. They're
   taken and the weapon goes straight into your inventory. Looking at an altar shows what you're
@@ -148,19 +148,19 @@ it** and a nameplate.
   legendary mode (the altar then shows who forged it).
 
 Set `crafting.crafting-table: false` to make altars the only way to get weapons. Altars are saved
-in `plugins/OPSwords/altars.yml`; `altars.enabled` turns them off. (Upgrading from 1.4: weapons
+in `plugins/Customs/altars.yml`; `altars.enabled` turns them off. (Upgrading from 1.4: weapons
 players had on their own altars are given back to them, and those altars keep forging that weapon.)
 
 ## Install
 
-1. Build it (below) or grab `OPSwords-<version>.jar`, put it in `plugins/`, start the server.
+1. Build it (below) or grab `Customs-<version>.jar`, put it in `plugins/`, start the server.
 2. Players are offered the resource pack when they join. By default the plugin hosts it itself
    on **TCP port 8163**, so open that port (or change it in `config.yml`).
    - On a host that only gives you one port, set `resource-pack.mode: url` and upload
-     `plugins/OPSwords/OPSwords-ResourcePack.zip` somewhere (or merge it into your own server pack).
-   - Players can re-download with `/opswords pack`.
-3. Get weapons with `/opswords give <player> <weapon|all>` (id or name, e.g. `dragon` or
-   `wyrmsbane`), the `/opswords menu` GUI, crafting or a weapon altar.
+     `plugins/Customs/Customs-ResourcePack.zip` somewhere (or merge it into your own server pack).
+   - Players can re-download with `/customs pack`.
+3. Get weapons with `/customs give <player> <weapon|all>` (id or name, e.g. `dragon` or
+   `wyrmsbane`), the `/customs menu` GUI, crafting or a weapon altar.
 
 Upgrading: new weapons and settings are added to your existing `config.yml`
 automatically, and old Inferno/Emerald swords turn into Cinderwing/Elderbloom when next held.
@@ -172,7 +172,7 @@ automatically, and old Inferno/Emerald swords turn into Cinderwing/Elderbloom wh
 Every weapon has a shaped recipe around its vanilla base item, made in a crafting table or by
 bringing the ingredients to a weapon altar, set per sword in `config.yml`
 (`crafting.enabled` turns all of them off). Players can browse them in-game with
-`/opswords recipes`, and crafted swords are signed "Forged by <player>". The defaults:
+`/customs recipes`, and crafted swords are signed "Forged by <player>". The defaults:
 
 | Sword | Shape | Key |
 | --- | --- | --- |
@@ -205,35 +205,35 @@ bringing the ingredients to a weapon altar, set per sword in `config.yml`
 | Valiance | `GDG / DSD / GDG` | G gold block, D diamond |
 | Sandreaver | `TLT / GSG / TLT` | T chiseled sandstone, L lapis block, G gold block |
 
-(`S` = netherite sword unless noted.) An OP sword can never be used up as an ingredient.
+(`S` = netherite sword unless noted.) An Customs weapon can never be used up as an ingredient.
 
 **Legendary mode** (on by default, `crafting.unique-swords`): every weapon can only be crafted
 once per server, at a crafting table or an altar, so there is only ever one of each.
-`/opswords list`, the recipe book and the altars show who forged what; `/opswords unforge
-<weapon>` lets a lost weapon be crafted again. Admins can always `/opswords give`. Set it to
+`/customs list`, the recipe book and the altars show who forged what; `/customs unforge
+<weapon>` lets a lost weapon be crafted again. Admins can always `/customs give`. Set it to
 `false` to allow copies.
 
 ## Commands
 
 | Command | Permission | |
 | --- | --- | --- |
-| `/opswords list` | — | All weapons (hover for details, click for lore) |
-| `/opswords info [weapon]` | — | Lore and abilities of a weapon |
-| `/opswords recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
-| `/opswords pack` | `opswords.pack` | Re-send the resource pack |
-| `/opswords give <player> <weapon\|all>` | `opswords.admin` | Give weapons |
-| `/opswords menu` | `opswords.admin` | Take weapons and altars from a GUI |
-| `/opswords altar give [player] [amount]` | `opswords.admin` | Give weapon altars |
-| `/opswords altar set <weapon>` | `opswords.admin` | Make the altar you look at forge a weapon (or place a new one on the block you look at) |
-| `/opswords altar remove` / `list` | `opswords.admin` | Remove the altar you look at / list all altars and their weapons |
-| `/opswords resetcooldowns [player\|*]` | `opswords.admin` | Clear cooldowns |
-| `/opswords unforge <weapon>` | `opswords.admin` | Legendary mode: allow crafting a weapon again |
-| `/opswords reload` | `opswords.admin` | Reload `config.yml` |
+| `/customs list` | — | All weapons (hover for details, click for lore) |
+| `/customs info [weapon]` | — | Lore and abilities of a weapon |
+| `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
+| `/customs pack` | `customs.pack` | Re-send the resource pack |
+| `/customs give <player> <weapon\|all>` | `customs.admin` | Give weapons |
+| `/customs menu` | `customs.admin` | Take weapons and altars from a GUI |
+| `/customs altar give [player] [amount]` | `customs.admin` | Give weapon altars |
+| `/customs altar set <weapon>` | `customs.admin` | Make the altar you look at forge a weapon (or place a new one on the block you look at) |
+| `/customs altar remove` / `list` | `customs.admin` | Remove the altar you look at / list all altars and their weapons |
+| `/customs resetcooldowns [player\|*]` | `customs.admin` | Clear cooldowns |
+| `/customs unforge <weapon>` | `customs.admin` | Legendary mode: allow crafting a weapon again |
+| `/customs reload` | `customs.admin` | Reload `config.yml` |
 
-Aliases: `/opsword`, `/swords`.
+Aliases: `/custom`, `/weapons`.
 
-Other permissions: `opswords.use` (abilities and passives, default everyone),
-`opswords.craft` (default everyone), `opswords.bypass.cooldown` (default nobody).
+Other permissions: `customs.use` (abilities and passives, default everyone),
+`customs.craft` (default everyone), `customs.bypass.cooldown` (default nobody).
 
 ## Config highlights
 
@@ -246,12 +246,12 @@ Other permissions: `opswords.use` (abilities and passives, default everyone),
   ability) and `kill-effects` (a burst of light on kills).
 - `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`,
   `crafting.crafting-table` (turn off to make altars the only way to forge) and `altars.enabled`.
-- Changes apply on `/opswords reload`; swords players already own update the next time they're held.
+- Changes apply on `/customs reload`; swords players already own update the next time they're held.
 
 ## For developers
 
-`dev.infuse.opswords.api.SwordAbilityEvent` fires before any ability; cancel it to block the
-ability (no cooldown is started). Swords are identified by the `opswords:sword` persistent data key.
+`dev.infuse.customs.api.SwordAbilityEvent` fires before any ability; cancel it to block the
+ability (no cooldown is started). Swords are identified by the `customs:sword` persistent data key.
 
 ## Building
 
@@ -261,14 +261,14 @@ Requires Java 21.
 ./gradlew build
 ```
 
-Output in `build/dist/`: the plugin jar and `OPSwords-ResourcePack.zip`.
+Output in `build/dist/`: the plugin jar and `Customs-ResourcePack.zip`.
 The pack in `resourcepack/` is embedded into the jar at build time. Every push is also built by
-GitHub Actions; the jar and pack are attached to each run as the `OPSwords` artifact.
+GitHub Actions; the jar and pack are attached to each run as the `Customs` artifact.
 
 ### The resource pack
 
 The 3D models and textures come from the **Blades of Majestica** resource pack. 15 of its 119
-weapons (15 swords and the 13 other weapons) are imported into the `op_swords` namespace, so they're applied by the plugin with the
+weapons (15 swords and the 13 other weapons) are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
 ```

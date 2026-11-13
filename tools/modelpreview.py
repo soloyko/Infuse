@@ -1,6 +1,6 @@
 """Minimal Minecraft item-model preview renderer (orthographic, textured, shaded).
 
-    python3 tools/modelpreview.py resourcepack/assets out.png op_swords:item/dragon [...]
+    python3 tools/modelpreview.py resourcepack/assets out.png customs:item/dragon [...]
 
 Renders each model in its GUI pose, from the side and edge-on. UVs that fall outside a texture
 (which would sample other textures in-game) are painted magenta so they stand out.

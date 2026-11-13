@@ -1,9 +1,9 @@
-"""Imports the OP Swords models from the Blades of Majestica resource pack.
+"""Imports the Customs weapon models from the Blades of Majestica resource pack.
 
     python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 
 Copies the 15 chosen models (and their textures and animations) into resourcepack/ under the
-op_swords namespace, so they are applied with the item_model component instead of the original
+customs namespace, so they are applied with the item_model component instead of the original
 pack's rename-in-an-anvil trick. Edit SWORDS to swap a model, then re-run and rebuild the plugin.
 Needs Pillow and numpy (for the pack icon).
 """
@@ -16,7 +16,7 @@ import zipfile
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PACK = os.path.join(ROOT, 'resourcepack')
-NS = 'op_swords'
+NS = 'customs'
 
 # weapon id -> model file in the Majestica pack (assets/minecraft/models/item/<name>.json)
 SWORDS = {

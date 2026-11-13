@@ -1,0 +1,22 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "customs:item/altar_base"
+      },
+      {
+        "type": "minecraft:model",
+        "model": "customs:item/altar_glow",
+        "tints": [
+          {
+            "type": "minecraft:custom_model_data",
+            "index": 0,
+            "default": 15254362
+          }
+        ]
+      }
+    ]
+  }
+}

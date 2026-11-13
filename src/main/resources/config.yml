@@ -8,11 +8,11 @@
 #   Swap-hand key (F)          -> first ability
 #   Sneak + swap-hand key (F)  -> second ability
 #
-# /opswords reload applies changes. Weapons players already own update
+# /customs reload applies changes. Weapons players already own update
 # automatically the next time they hold them.
 
 # Used to upgrade older configs. Don't change it.
-config-version: 2
+config-version: 3
 
 settings:
   # Swords never lose durability.
@@ -60,7 +60,7 @@ resource-pack:
   # true = players must accept the pack or they're disconnected.
   required: false
   # Shown on the download prompt. MiniMessage format.
-  prompt: "<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <gray>uses a resource pack for its 3D weapon models."
+  prompt: "<gradient:#ECBA44:#C4415B><bold>Customs</bold></gradient> <gray>uses a resource pack for its 3D weapon models."
   self-host:
     # This port must be open to players (TCP). On a shared host, use an extra port
     # your host gave you.
@@ -80,20 +80,20 @@ crafting:
   # Broadcasts a message when someone forges an OP weapon.
   announce: true
   # Legendary mode: each weapon can only be crafted (or forged at an altar) once per server,
-  # so there is only ever one of each. Admins can still /opswords give, and
-  # /opswords unforge <weapon> allows it to be crafted again. Set to false to allow copies.
+  # so there is only ever one of each. Admins can still /customs give, and
+  # /customs unforge <weapon> allows it to be crafted again. Set to false to allow copies.
   unique-swords: true
   # Weapons can be crafted in a crafting table. Set to false to make weapon altars the only
   # way to forge them.
   crafting-table: true
 
 altars:
-  # Weapon altars: one-block 3D altars that only admins can place (/opswords altar give).
+  # Weapon altars: one-block 3D altars that only admins can place (/customs altar give).
   # Each one holds a weapon, with its recipe circling above it. Players forge that weapon by
   # right-clicking the altar with the ingredients in their inventory.
   enabled: true
 
-# Per-weapon settings. Keys are the weapon ids (see /opswords list).
+# Per-weapon settings. Keys are the weapon ids (see /customs list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
 #   cooldowns                    : seconds
 #   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,

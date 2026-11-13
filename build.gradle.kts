@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "dev.infuse"
-version = "1.8.0"
+version = "2.0.0"
 
 repositories {
     mavenCentral()
@@ -28,7 +28,7 @@ tasks.withType<JavaCompile>().configureEach {
 // (the plugin self-hosts it) and handed out as a standalone download.
 val packZip by tasks.registering(Zip::class) {
     from("resourcepack")
-    archiveFileName.set("OPSwords-ResourcePack.zip")
+    archiveFileName.set("Customs-ResourcePack.zip")
     destinationDirectory.set(layout.buildDirectory.dir("generated/pack"))
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
@@ -43,10 +43,10 @@ tasks.processResources {
 }
 
 tasks.jar {
-    archiveFileName.set("OPSwords-${project.version}.jar")
+    archiveFileName.set("Customs-${project.version}.jar")
 }
 
-// ./gradlew dist -> build/dist/{OPSwords-x.y.z.jar, OPSwords-ResourcePack.zip}
+// ./gradlew dist -> build/dist/{Customs-x.y.z.jar, Customs-ResourcePack.zip}
 tasks.register<Copy>("dist") {
     group = "build"
     description = "Collects the plugin jar and the resource pack zip into build/dist."

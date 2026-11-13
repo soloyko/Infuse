@@ -1,33 +1,33 @@
-name: OPSwords
+name: Customs
 version: '${version}'
-main: dev.infuse.opswords.OPSwordsPlugin
+main: dev.infuse.customs.CustomsPlugin
 api-version: '1.21.11'
-description: 15 legendary OP swords and 13 other weapons with 3D models, lore, unique abilities, glowing effects and weapon altars.
+description: 15 legendary swords and 13 other weapons with 3D models, lore, unique abilities, glowing effects and stone altars.
 authors: [Infuse]
 
 commands:
-  opswords:
-    description: OP Swords commands.
+  customs:
+    description: Customs commands.
     usage: /<command> help
-    aliases: [opsword, swords]
+    aliases: [custom, weapons]
 
 permissions:
-  opswords.admin:
+  customs.admin:
     description: Give weapons and altars, place and set up altars, open the menu, reset cooldowns and reload.
     default: op
     children:
-      opswords.use: true
-      opswords.craft: true
-      opswords.pack: true
-  opswords.use:
+      customs.use: true
+      customs.craft: true
+      customs.pack: true
+  customs.use:
     description: Use weapon abilities and passives.
     default: true
-  opswords.craft:
-    description: Craft OP weapons (crafting table and weapon altars).
+  customs.craft:
+    description: Craft weapons (crafting table and weapon altars).
     default: true
-  opswords.pack:
-    description: Re-download the resource pack with /opswords pack.
+  customs.pack:
+    description: Re-download the resource pack with /customs pack.
     default: true
-  opswords.bypass.cooldown:
+  customs.bypass.cooldown:
     description: Use abilities with no cooldown.
     default: false
