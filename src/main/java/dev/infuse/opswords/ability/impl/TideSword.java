@@ -68,6 +68,7 @@ public final class TideSword extends SwordAbility {
         status().protectFromFall(player, 60);
         Fx.sound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_3, 1.2f, 1f);
         Fx.sound(player.getLocation(), Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 1f);
+        fx().shockwave(player.getLocation(), 0x3FA9F5, 2.4f, 6);
         Set<UUID> hit = new HashSet<>();
 
         new BukkitRunnable() {
@@ -116,6 +117,7 @@ public final class TideSword extends SwordAbility {
         Vector right = Fx.right(dir);
         Fx.sound(origin, Sound.ENTITY_GENERIC_SPLASH, 1.5f, 0.6f);
         Fx.sound(origin, Sound.ITEM_BUCKET_EMPTY, 1.2f, 0.5f);
+        fx().shockwave(origin, 0x8FD3FF, 3f, 6);
         Set<UUID> hit = new HashSet<>();
         Vector forward = dir;
 

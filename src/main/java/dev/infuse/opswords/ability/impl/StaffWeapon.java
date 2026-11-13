@@ -148,6 +148,7 @@ public final class StaffWeapon extends SwordAbility implements Listener {
         shard.setBillboard(Display.Billboard.CENTER);
         shard.setBrightness(new Display.Brightness(15, 15));
         Fx.sound(pos, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.2f + index * 0.1f);
+        org.bukkit.entity.ItemDisplay glow = fx().orb(pos, 0xB57EDC, 0.9f, 50);
 
         new BukkitRunnable() {
             int ticks;
@@ -180,7 +181,9 @@ public final class StaffWeapon extends SwordAbility implements Listener {
                     Fx.burst(pos, Particle.END_ROD, 10, 0.15);
                     Fx.particle(pos, Particle.DUST, 10, 0.25, 0, Fx.dust(PALE, 1.2f));
                     Fx.sound(pos, Sound.BLOCK_AMETHYST_BLOCK_BREAK, 1f, 1.4f);
+                    fx().burst(pos, 0xE6C8FF, 1.4f);
                     displays().remove(shard);
+                    displays().remove(glow);
                     cancel();
                     return;
                 }
@@ -194,6 +197,8 @@ public final class StaffWeapon extends SwordAbility implements Listener {
         Location center = player.getLocation();
         Fx.sound(center, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.5f, 0.8f);
         Fx.sound(center, Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1f, 0.8f);
+        fx().castCircle(center, 0xB57EDC, 6.2f);
+        fx().shockwave(center, 0xE6C8FF, 6f, 14);
         Set<UUID> hit = new HashSet<>();
         double[] radii = {1.6, 3.0, 4.4, 5.8};
         for (int ring = 0; ring < radii.length; ring++) {

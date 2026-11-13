@@ -196,6 +196,8 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         Fx.ring(at, 1.6, 18, p -> Fx.particle(p, Particle.DUST, 1, 0.05, 0, Fx.dust(TEAL, 1.4f)));
         Fx.sound(at, Sound.ITEM_TRIDENT_HIT_GROUND, 1f, 0.8f);
         Fx.sound(at, Sound.ENTITY_GENERIC_SPLASH, 0.8f, 1.2f);
+        fx().shockwave(at, 0x2EC4C4, 2.2f, 6);
+        fx().flash(at.clone().add(0, 0.4, 0), 0x9FF5F5, 1.6f);
         displays().eruptGround(at, 0.5f, 0.5f);
         for (LivingEntity target : combat().nearby(player, at, 1.9)) {
             combat().damage(player, target, hit.add(target.getUniqueId()) ? 7 : 3);
@@ -220,6 +222,7 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         }
         Fx.sound(center, Sound.AMBIENT_UNDERWATER_ENTER, 1.2f, 0.6f);
         Fx.sound(center, Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 1.5f, 0.8f);
+        fx().castCircle(center, 0x2EC4C4, 6.5f);
 
         new BukkitRunnable() {
             int ticks;
@@ -293,6 +296,9 @@ public final class TridentWeapon extends SwordAbility implements Listener {
         Fx.sound(center, Sound.ENTITY_GENERIC_SPLASH, 1.5f, 0.6f);
         Fx.sound(center, Sound.AMBIENT_UNDERWATER_EXIT, 1.5f, 0.8f);
         Fx.sound(center, Sound.ITEM_TRIDENT_RIPTIDE_3, 1.2f, 0.7f);
+        fx().beam(center, center.clone().add(0, 8, 0), 0x9FF5F5, 2.2f, 10);
+        fx().shockwave(center, 0x2EC4C4, 5.5f, 8);
+        fx().burst(center.clone().add(0, 1.5, 0), 0xD8FFFF, 3f);
         BlockDisplay column = displays().block(center.clone().add(0, 0.2, 0), WATER_GLASS, new Vector3f(1.4f, 0.1f, 1.4f),
                 new Quaternionf(), 30);
         column.setBrightness(new org.bukkit.entity.Display.Brightness(12, 15));

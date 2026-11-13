@@ -101,6 +101,12 @@ public final class EchoSword extends SwordAbility implements Listener {
             Fx.particle(eye.clone().add(dir.clone().multiply(d)), Particle.SONIC_BOOM, 1, 0, 0);
         }
         Fx.sound(eye, Sound.ENTITY_WARDEN_SONIC_BOOM, 3f, 1f);
+        Location boomStart = eye.clone().add(dir.clone().multiply(1.5)).subtract(0, 0.2, 0);
+        Location boomEnd = eye.clone().add(dir.clone().multiply(length));
+        fx().beam(boomStart, boomEnd, 0x1FB5B0, 1.4f, 8);
+        for (double d = 5; d <= length; d += 4) {
+            fx().wave(eye.clone().add(dir.clone().multiply(d)), dir, 0x7FF3EA, 1.6f, 5);
+        }
         Location mid = eye.clone().add(dir.clone().multiply(length / 2));
         for (LivingEntity target : combat().nearby(player, mid, length / 2 + 2)) {
             if (target.getBoundingBox().expand(0.8).rayTrace(eye.toVector(), dir, length) == null) {
@@ -118,6 +124,8 @@ public final class EchoSword extends SwordAbility implements Listener {
         Location center = player.getLocation();
         Fx.sound(center, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 2f, 1f);
         Fx.sound(center, Sound.ENTITY_WARDEN_ROAR, 0.6f, 1.2f);
+        fx().shockwave(center, 0x0F7C78, 14f, 16);
+        fx().shockwave(center, 0x1FB5B0, 9f, 12);
         for (int delay = 0; delay < 20; delay += 5) {
             Fx.particle(center.clone().add(0, 0.6, 0), Particle.SHRIEK, 1, 0, 0, delay);
         }

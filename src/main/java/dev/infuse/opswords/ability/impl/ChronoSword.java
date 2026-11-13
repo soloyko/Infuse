@@ -105,6 +105,8 @@ public final class ChronoSword extends SwordAbility implements Listener {
         double radius = 5;
         Fx.sound(center, Sound.BLOCK_BEACON_POWER_SELECT, 1.2f, 2f);
         Fx.sound(center, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 1f, 1.4f);
+        fx().castCircle(center.clone().subtract(0, 1, 0), 0x5FE3E0, 5.2f);
+        fx().shockwave(center.clone().subtract(0, 1, 0), 0xC9FFFB, 5f, 10);
         Map<Projectile, Vector> frozen = new HashMap<>();
         Map<Fireball, Vector> frozenPower = new HashMap<>();
 
@@ -232,6 +234,9 @@ public final class ChronoSword extends SwordAbility implements Listener {
         past.clear();
         Fx.particle(dest.clone().add(0, 1, 0), Particle.REVERSE_PORTAL, 40, 0.4, 0.1);
         Fx.sound(dest, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 1f, 1.6f);
+        fx().beam(from.clone().add(0, 1, 0), dest.clone().add(0, 1, 0), 0x5FE3E0, 0.6f, 8);
+        fx().flash(dest.clone().add(0, 1, 0), 0xC9FFFB, 2.4f);
+        fx().castCircle(dest, 0x5FE3E0, 1.8f);
         return true;
     }
 

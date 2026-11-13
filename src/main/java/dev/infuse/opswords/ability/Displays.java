@@ -42,6 +42,10 @@ public final class Displays implements Listener {
         this.key = new NamespacedKey(plugin, "effect_display");
     }
 
+    public OPSwordsPlugin plugin() {
+        return plugin;
+    }
+
     /** A block model, centred on {@code at}, scaled and rotated about its centre. */
     public BlockDisplay block(Location at, BlockData data, Vector3f scale, Quaternionf rotation, int lifeTicks) {
         BlockDisplay display = at.getWorld().spawn(at, BlockDisplay.class, d -> {

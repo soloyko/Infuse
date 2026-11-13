@@ -37,6 +37,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
     private ResourcePackService resourcePack;
     private ForgeRegistry forges;
     private Displays displays;
+    private dev.infuse.opswords.ability.Fx3D fx;
     private AltarService altars;
 
     @Override
@@ -48,6 +49,7 @@ public final class OPSwordsPlugin extends JavaPlugin {
         items = new SwordItems(this);
         combat = new Combat(this);
         displays = new Displays(this);
+        fx = new dev.infuse.opswords.ability.Fx3D(displays);
         cooldowns = new CooldownManager();
         status = new StatusManager(this);
         passives = new PassiveManager(this);
@@ -181,6 +183,10 @@ public final class OPSwordsPlugin extends JavaPlugin {
 
     public ForgeRegistry forges() {
         return forges;
+    }
+
+    public dev.infuse.opswords.ability.Fx3D fx() {
+        return fx;
     }
 
     public Displays displays() {

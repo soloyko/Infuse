@@ -23,6 +23,12 @@ import dev.infuse.opswords.ability.impl.ScytheWeapon;
 import dev.infuse.opswords.ability.impl.SpearWeapon;
 import dev.infuse.opswords.ability.impl.StaffWeapon;
 import dev.infuse.opswords.ability.impl.TridentWeapon;
+import dev.infuse.opswords.ability.impl.ShurikenWeapon;
+import dev.infuse.opswords.ability.impl.HalberdWeapon;
+import dev.infuse.opswords.ability.impl.WarglaiveWeapon;
+import dev.infuse.opswords.ability.impl.SawbladeWeapon;
+import dev.infuse.opswords.ability.impl.RapierWeapon;
+import dev.infuse.opswords.ability.impl.KhopeshWeapon;
 import dev.infuse.opswords.api.SwordAbilityEvent;
 import dev.infuse.opswords.sword.AbilitySlot;
 import dev.infuse.opswords.sword.SwordType;
@@ -67,6 +73,12 @@ public final class AbilityRegistry {
         register(new AxeWeapon(plugin));
         register(new StaffWeapon(plugin));
         register(new TridentWeapon(plugin));
+        register(new ShurikenWeapon(plugin));
+        register(new HalberdWeapon(plugin));
+        register(new WarglaiveWeapon(plugin));
+        register(new SawbladeWeapon(plugin));
+        register(new RapierWeapon(plugin));
+        register(new KhopeshWeapon(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
                 throw new IllegalStateException("No ability registered for " + type);
@@ -126,6 +138,9 @@ public final class AbilityRegistry {
             plugin.getLogger().log(java.util.logging.Level.SEVERE,
                     "Error running " + type.id() + " " + slot.name().toLowerCase(Locale.ROOT) + " ability", ex);
             return;
+        }
+        if (fired && plugin.settings().castCircles) {
+            plugin.fx().castCircle(player.getLocation(), type.color().value(), slot == AbilitySlot.PRIMARY ? 1.5f : 2.2f);
         }
         if (fired && !player.hasPermission("opswords.bypass.cooldown")) {
             plugin.cooldowns().start(player.getUniqueId(), type, slot, plugin.settings().sword(type).cooldown(slot));

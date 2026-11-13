@@ -96,6 +96,9 @@ public final class VoidSword extends SwordAbility {
         Location landing = destination.clone().add(0, 1, 0);
         Fx.particle(landing, Particle.REVERSE_PORTAL, 50, 0.5, 0.1);
         Fx.sound(destination, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.2f);
+        fx().beam(from.clone().add(0, 1, 0), landing, 0x8E3BD9, 0.7f, 7);
+        fx().burst(landing, 0xB26BFF, 1.8f);
+        fx().flash(from.clone().add(0, 1, 0), 0x5A1E9E, 1.8f);
         for (LivingEntity target : combat().nearby(player, landing, 2.5)) {
             combat().damage(player, target, 4);
             applyEffect(target, PotionEffectType.BLINDNESS, 20, 0);
@@ -192,6 +195,9 @@ public final class VoidSword extends SwordAbility {
         Fx.burst(center, Particle.SQUID_INK, 40, 0.4);
         Fx.sound(center, Sound.ENTITY_WARDEN_SONIC_BOOM, 1.5f, 0.8f);
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1f, 0.6f);
+        fx().shockwave(center.clone().subtract(0, 0.8, 0), 0x8E3BD9, 7f, 8);
+        fx().wave(center, new org.bukkit.util.Vector(0, 1, 0.0001), 0xB26BFF, 4f, 6);
+        fx().burst(center, 0xD9B8FF, 3.5f);
         for (LivingEntity target : combat().nearby(player, center, 6)) {
             combat().damage(player, target, 7, true);
             Combat.knockback(target, center, 1.6, 0.6);

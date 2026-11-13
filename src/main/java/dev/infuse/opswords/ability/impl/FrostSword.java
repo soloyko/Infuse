@@ -127,6 +127,8 @@ public final class FrostSword extends SwordAbility {
         Fx.particle(at, Particle.BLOCK, 50, 0.4, 0.1, Material.PACKED_ICE.createBlockData());
         Fx.particle(at, Particle.SNOWFLAKE, 30, 0.5, 0.05);
         Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 1f, 0.8f);
+        fx().burst(at, 0xBDF3FF, 2.0f);
+        fx().shockwave(target.getLocation(), 0x8FD8FF, 2.6f, 6);
         Fx.sound(at, Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.8f);
         for (LivingEntity nearby : combat().nearby(player, at, 2.5)) {
             if (nearby != target) {
@@ -169,6 +171,8 @@ public final class FrostSword extends SwordAbility {
         double radius = 7;
         Fx.sound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 0.6f);
         Fx.sound(player.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.6f);
+        fx().shockwave(player.getLocation(), 0xBDF3FF, 7f, 10);
+        fx().shockwave(player.getLocation(), 0x6FC8FF, 5f, 14);
 
         new BukkitRunnable() {
             int ticks;

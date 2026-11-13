@@ -155,6 +155,8 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         Fx.particle(at, Particle.FLAME, 30, 0.5, 0.1);
         Fx.particle(at, Particle.EXPLOSION, 1, 0, 0);
         Fx.sound(at, Sound.ENTITY_GENERIC_BURN, 0.8f, 1.2f);
+        fx().burst(at, 0xFF8A2A, 1.6f);
+        fx().flash(at, 0xFFD24A, 1.4f);
         for (LivingEntity target : combat().nearby(player, at, 2.5)) {
             combat().damage(player, target, 4);
             target.setFireTicks(Math.max(target.getFireTicks(), 80));
@@ -169,6 +171,9 @@ public final class PhoenixSword extends SwordAbility implements Listener {
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 1.3f);
         Fx.sound(center, Sound.ITEM_FIRECHARGE_USE, 1f, 0.6f);
         Fx.particle(center.clone().add(0, 1, 0), Particle.FLAME, 60, 0.4, 0.2);
+        fx().shockwave(center, 0xFF6A1F, 9f, 16);
+        fx().shockwave(center, 0xFFC23A, 6f, 11);
+        fx().flash(center.clone().add(0, 1, 0), 0xFF8A2A, 2.5f);
         Set<UUID> hit = new HashSet<>();
 
         new BukkitRunnable() {

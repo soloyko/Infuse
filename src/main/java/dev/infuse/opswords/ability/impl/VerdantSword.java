@@ -100,6 +100,8 @@ public final class VerdantSword extends SwordAbility implements Listener {
         }
         Fx.sound(center, Sound.BLOCK_ROOTS_PLACE, 1.5f, 0.6f);
         Fx.sound(center, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
+        fx().shockwave(center, 0x5BD16A, 7f, 10);
+        fx().shockwave(center, 0xB8F07A, 4.5f, 7);
         for (LivingEntity target : targets) {
             combat().damage(player, target, 4);
             root(target);
@@ -193,6 +195,9 @@ public final class VerdantSword extends SwordAbility implements Listener {
         Fx.ring(player.getLocation().add(0, 0.2, 0), 1.5, 24, p -> Fx.particle(p, Particle.HAPPY_VILLAGER, 1, 0, 0));
         Fx.sound(at, Sound.ITEM_TOTEM_USE, 0.5f, 1.5f);
         Fx.sound(at, Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.6f);
+        fx().flash(at, 0xB8F07A, 3f);
+        fx().burst(at, 0xFFF3A0, 2.2f);
+        fx().shockwave(player.getLocation(), 0x5BD16A, 3.5f, 8);
         return true;
     }
 

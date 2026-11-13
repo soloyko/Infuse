@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -95,6 +96,7 @@ public final class AxeWeapon extends SwordAbility {
                 if (ticks % 5 == 0) {
                     Fx.ring(center, 2.4, 6, p -> Fx.particle(p, Particle.SWEEP_ATTACK, 1, 0, 0));
                     Fx.sound(center, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f);
+                    fx().slash(center, new Vector(Math.cos(a), 0, Math.sin(a)), 0.1, 0xC77DFF, 2.8f, 3);
                     for (LivingEntity target : combat().nearby(player, center, 3.5)) {
                         combat().damage(player, target, 3, true);
                         Combat.knockback(target, center, 0.3, 0.15);
@@ -125,6 +127,10 @@ public final class AxeWeapon extends SwordAbility {
         Location center = player.getLocation();
         Fx.sound(center, Sound.ITEM_GOAT_HORN_SOUND_2, 2f, 0.8f);
         Fx.sound(center, Sound.ENTITY_RAVAGER_ROAR, 1f, 1f);
+        fx().shockwave(center, 0xC77DFF, 8f, 9);
+        fx().shockwave(center, 0xFF4A6A, 5.5f, 12);
+        fx().wave(center.clone().add(0, 1.2, 0), center.getDirection().setY(0).lengthSquared() < 1.0E-4
+                ? new Vector(0, 0, 1) : center.getDirection().setY(0), 0xFF4A6A, 3f, 7);
         applyEffect(player, PotionEffectType.STRENGTH, 160, 1);
         applyEffect(player, PotionEffectType.RESISTANCE, 160, 0);
         combat().heal(player, 4);

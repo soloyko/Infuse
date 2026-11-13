@@ -29,11 +29,9 @@ import java.util.function.Consumer;
 public abstract class Menu implements InventoryHolder {
 
     static final int ROWS = 6;
-    /** Swords: three centred rows of five. */
-    static final int[] SWORD_SLOTS = {11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 29, 30, 31, 32, 33};
-    /** The other weapons: one full row. */
-    static final int[] WEAPON_SLOTS = {37, 38, 39, 40, 41, 42, 43};
     static final int INFO = 4;
+    static final int TAB_SWORDS = 2;
+    static final int TAB_WEAPONS = 6;
     static final int BACK = 45;
     static final int ALTAR = 48;
     static final int CLOSE = 49;
@@ -68,21 +66,71 @@ public abstract class Menu implements InventoryHolder {
         }
     }
 
-    /** Where a weapon goes in the overview layout. */
-    static int slotOf(SwordType type) {
-        int swordIndex = 0;
-        int weaponIndex = 0;
-        for (SwordType t : SwordType.values()) {
-            if (t == type) {
-                return t.isSword() ? SWORD_SLOTS[swordIndex] : WEAPON_SLOTS[weaponIndex];
-            }
-            if (t.isSword()) {
-                swordIndex++;
-            } else {
-                weaponIndex++;
+    /** The two tabs of the overview menus. */
+    public enum Page {
+        SWORDS, WEAPONS;
+
+        public static Page of(SwordType type) {
+            return type.isSword() ? SWORDS : WEAPONS;
+        }
+
+        List<SwordType> types() {
+            return java.util.Arrays.stream(SwordType.values()).filter(t -> t.isSword() == (this == SWORDS)).toList();
+        }
+    }
+
+    /**
+     * Slots for {@code count} items inside the frame: centred rows of up to {@code perRow}, the
+     * rows centred vertically. A row with an even number of items leaves its middle slot free so
+     * it stays symmetric.
+     */
+    static int[] layout(int count, int perRow) {
+        int rows = Math.max(1, (count + perRow - 1) / perRow);
+        int firstRow = 1 + Math.max(0, (4 - rows) / 2);
+        int[] slots = new int[count];
+        int i = 0;
+        for (int r = 0; r < rows && i < count; r++) {
+            int n = Math.min(perRow, count - i);
+            int width = (n % 2 == 0) ? n + 1 : n; // even rows skip the centre column
+            int startCol = 1 + (7 - width) / 2;
+            int middle = startCol + width / 2;
+            for (int c = startCol; c < startCol + width && i < count; c++) {
+                if (n % 2 == 0 && c == middle) {
+                    continue;
+                }
+                slots[i++] = (firstRow + r) * 9 + c;
             }
         }
-        throw new IllegalStateException();
+        return slots;
+    }
+
+    /** Lays the page's weapons out; {@code place} puts each one in its slot. */
+    static void fill(Page page, java.util.function.BiConsumer<Integer, SwordType> place) {
+        List<SwordType> types = page.types();
+        int[] slots = layout(types.size(), page == Page.SWORDS ? 5 : 7);
+        for (int i = 0; i < types.size(); i++) {
+            place.accept(slots[i], types.get(i));
+        }
+    }
+
+    /** The two tab buttons in the header; clicking one opens {@code open.apply(page)}. */
+    protected void tabs(Page current, java.util.function.Function<Page, Menu> open) {
+        for (Page page : Page.values()) {
+            boolean active = page == current;
+            SwordType icon = page == Page.SWORDS ? SwordType.DRAGON : SwordType.HAMMER;
+            String label = page == Page.SWORDS ? "Swords" : "Other Weapons";
+            ItemStack tab = button(Material.PAPER,
+                    (active ? Text.plain("▶ ", NamedTextColor.GOLD) : Component.empty())
+                            .append(Text.plain(label, active ? NamedTextColor.GOLD : NamedTextColor.GRAY))
+                            .decoration(TextDecoration.BOLD, active),
+                    List.of(Text.caps(page.types().size() + " weapons", NamedTextColor.DARK_GRAY),
+                            active ? Text.plain("Showing", NamedTextColor.GREEN) : Text.plain("Click to show", NamedTextColor.YELLOW)));
+            tab.editMeta(meta -> {
+                meta.setItemModel(icon.itemModel());
+                meta.setEnchantmentGlintOverride(active);
+            });
+            set(page == Page.SWORDS ? TAB_SWORDS : TAB_WEAPONS, tab, active ? null : player -> open.apply(page).open(player));
+        }
     }
 
     static ItemStack button(Material material, Component name, List<Component> lore) {
@@ -101,7 +149,7 @@ public abstract class Menu implements InventoryHolder {
                 Text.gradient("⚔ OP Swords", TextColor.color(0xECBA44), TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD),
                 List.of(Text.caps(subtitle, NamedTextColor.GRAY),
                         Component.empty(),
-                        Text.plain("15 legendary swords and 7 other weapons.", NamedTextColor.WHITE),
+                        Text.plain("15 legendary swords and 13 other weapons.", NamedTextColor.WHITE),
                         Component.empty(),
                         AbilitySlot.PRIMARY.label(trigger).color(NamedTextColor.YELLOW)
                                 .append(Text.plain("  first ability", NamedTextColor.GRAY)),

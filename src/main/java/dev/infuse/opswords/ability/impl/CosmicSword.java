@@ -74,6 +74,8 @@ public final class CosmicSword extends SwordAbility {
         }
         Fx.sound(center, Sound.ENTITY_SHULKER_SHOOT, 1.2f, 0.5f);
         Fx.sound(center, Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1.6f);
+        fx().shockwave(center, 0x7B6CFF, 8f, 9);
+        fx().shockwave(center, 0xC6B8FF, 5f, 6);
         for (LivingEntity target : targets) {
             combat().damage(player, target, 3);
             Vector out = target.getLocation().toVector().subtract(center.toVector()).setY(0);
@@ -108,6 +110,7 @@ public final class CosmicSword extends SwordAbility {
                     }
                 }
                 Fx.sound(player.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1f, 0.8f);
+                fx().shockwave(player.getLocation(), 0x4B3BD9, 8f, 7);
             }
         }.runTaskTimer(plugin, 1L, 1L);
         return true;
@@ -195,6 +198,7 @@ public final class CosmicSword extends SwordAbility {
                 Fx.particle(impact, Particle.DUST, 30, 1.5, 0, Fx.dust(INDIGO, 1.8f));
                 Fx.particle(impact, Particle.LAVA, 6, 0.5, 0);
                 Fx.sound(impact, Sound.ENTITY_GENERIC_EXPLODE, 1.4f, 0.9f);
+                fx().impact(impact.clone().add(0, 0.8, 0), 0x8E7BFF, 2.6f);
                 if (!alive(player)) {
                     return;
                 }

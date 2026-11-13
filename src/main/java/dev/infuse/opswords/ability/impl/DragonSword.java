@@ -78,6 +78,8 @@ public final class DragonSword extends SwordAbility {
                     Fx.particle(point, Particle.DRAGON_BREATH, 3, spread, 0.01, BREATH_POWER);
                 }
                 Fx.sound(eye, Sound.ENTITY_BLAZE_SHOOT, 0.5f, 0.6f);
+                fx().flash(eye.clone().add(dir.clone().multiply(2.4)), 0xD14BE8, 1.8f);
+                fx().flash(eye.clone().add(dir.clone().multiply(4.8)), 0x9A2EDB, 2.8f);
                 for (LivingEntity target : combat().nearby(player, eye, BREATH_RANGE)) {
                     Vector to = Combat.center(target).toVector().subtract(eye.toVector());
                     boolean inCone = to.lengthSquared() < 1 || dir.angle(to) <= BREATH_HALF_ANGLE;
@@ -163,6 +165,9 @@ public final class DragonSword extends SwordAbility {
         }
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.3f, 0.7f);
         Fx.sound(center, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 0.7f);
+        fx().shockwave(center, type.color().value(), 6.5f, 7);
+        fx().shockwave(center, 0xC93BE0, 4f, 5);
+        fx().impact(center.clone().add(0, 1, 0), type.color().value(), 3.2f);
         for (LivingEntity target : combat().nearby(player, center, radius)) {
             double distance = Combat.distanceToBody(target, center);
             double damage = Math.max(5, 12 * (1 - distance / (radius + 1)));

@@ -114,6 +114,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
         Fx.particle(feet, Particle.GUST, 1, 0, 0);
         Fx.particle(feet, Particle.SMALL_GUST, 8, 0.4, 0.02);
         Fx.sound(feet, Sound.ENTITY_BREEZE_JUMP, 1f, 1.2f);
+        fx().shockwave(feet, 0xBFF5D8, 1.6f, 5);
     }
 
     @EventHandler
@@ -212,6 +213,7 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
                         combat().damage(player, target, 6, true);
                         Fx.particle(Combat.center(target), Particle.SWEEP_ATTACK, 1, 0, 0);
                         Fx.sound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.8f, 1.5f);
+                        fx().slash(Combat.center(target), dir, Math.random() * Math.PI, 0x4CC38A, 1.4f, 2);
                     }
                 }
             }
@@ -227,6 +229,8 @@ public final class ChakramWeapon extends SwordAbility implements Listener {
             discs.add(spawnDisc(orbit(player, i, 0), outward(i, 0), 130));
         }
         Fx.sound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1.2f, 0.8f);
+        fx().shockwave(player.getLocation(), 0x4CC38A, 4f, 8);
+        fx().shockwave(player.getLocation().add(0, 1, 0), 0xE8C64A, 3f, 10);
         Set<UUID> deflected = new HashSet<>();
 
         new BukkitRunnable() {

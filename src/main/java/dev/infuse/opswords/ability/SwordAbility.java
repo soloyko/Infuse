@@ -75,6 +75,10 @@ public abstract class SwordAbility {
         return plugin.status();
     }
 
+    protected Fx3D fx() {
+        return plugin.fx();
+    }
+
     protected Displays displays() {
         return plugin.displays();
     }
@@ -101,6 +105,24 @@ public abstract class SwordAbility {
         // Buffs on players show no swirl particles: on yourself they'd cover your screen.
         boolean quiet = entity instanceof Player && type.getCategory() == PotionEffectTypeCategory.BENEFICIAL;
         entity.addPotionEffect(new PotionEffect(type, ticks, amplifier, false, !quiet, true));
+    }
+
+    /** Pins a target in place (it can still fall) for {@code ticks}. */
+    protected void hold(LivingEntity target, int ticks) {
+        applyEffect(target, PotionEffectType.SLOWNESS, ticks, 6);
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int t;
+
+            @Override
+            public void run() {
+                if (!target.isValid() || t++ >= ticks) {
+                    cancel();
+                    return;
+                }
+                org.bukkit.util.Vector v = target.getVelocity();
+                Combat.setVelocity(target, new org.bukkit.util.Vector(0, Math.min(0, v.getY()), 0));
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
     }
 
     protected void addModifier(ItemMeta meta, Attribute attribute, String name, double amount,

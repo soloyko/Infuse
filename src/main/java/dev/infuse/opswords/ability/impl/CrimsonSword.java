@@ -60,6 +60,9 @@ public final class CrimsonSword extends SwordAbility {
         Fx.sound(start, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.6f);
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1f, 0.8f);
         Set<UUID> hit = new HashSet<>();
+        float size = 2.2f;
+        org.bukkit.entity.ItemDisplay crescent = fx().movingSlash(start.clone().subtract(dir.clone().multiply(0.94 * size)),
+                dir, 0, 0xD3122E, size, 40);
 
         new BukkitRunnable() {
             final Location center = start.clone();
@@ -68,14 +71,20 @@ public final class CrimsonSword extends SwordAbility {
             @Override
             public void run() {
                 if (!alive(player) || center.getWorld() != player.getWorld() || steps++ >= 14) {
+                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, 0xD3122E, 1, 1);
                     cancel();
                     return;
                 }
                 center.add(dir.clone().multiply(1.2));
                 if (!center.getBlock().isPassable()) {
                     Fx.particle(center, Particle.DUST, 20, 0.5, 0, Fx.dust(DARK_RED, 1.5f));
+                    fx().burst(center, 0xD3122E, 1.8f);
+                    fx().fade(crescent, dev.infuse.opswords.ability.Fx3D.Shape.SLASH, 0xD3122E, 1, 1);
                     cancel();
                     return;
+                }
+                if (crescent.isValid()) {
+                    crescent.teleport(center.clone().subtract(dir.clone().multiply(0.94 * size)));
                 }
                 for (double s = -1.6; s <= 1.6; s += 0.2) {
                     Location p = center.clone().add(right.clone().multiply(s)).subtract(dir.clone().multiply(s * s * 0.25));
@@ -111,6 +120,7 @@ public final class CrimsonSword extends SwordAbility {
             status().bleed(player, target, 4);
             healed += 3;
             Location from = Combat.center(target);
+            fx().beam(from, Combat.center(player), 0xC4142E, 0.45f, 9);
             new BukkitRunnable() {
                 int t;
 
@@ -137,6 +147,8 @@ public final class CrimsonSword extends SwordAbility {
         }, 10L);
         Fx.sound(player.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.5f, 1f);
         Fx.sound(player.getLocation(), Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1f, 0.6f);
+        fx().shockwave(player.getLocation(), 0xD3122E, 8f, 10);
+        fx().flash(Combat.center(player), 0xFF2E4A, 2.4f);
         return true;
     }
 }

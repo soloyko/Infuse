@@ -16,16 +16,21 @@ import java.util.Map;
 public final class SwordMenu extends Menu {
 
     public SwordMenu(OPSwordsPlugin plugin) {
+        this(plugin, Page.SWORDS);
+    }
+
+    public SwordMenu(OPSwordsPlugin plugin, Page page) {
         super(ROWS, Text.mm("<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <dark_gray>· Armory"));
         info(plugin, "Click a weapon to take a copy.");
-        for (SwordType type : SwordType.values()) {
+        tabs(page, p -> new SwordMenu(plugin, p));
+        fill(page, (slot, type) -> {
             ItemStack icon = plugin.items().create(type);
             List<Component> lore = new ArrayList<>(icon.lore() == null ? List.of() : icon.lore());
             lore.add(Component.empty());
             lore.add(Text.plain("Click to take one", NamedTextColor.YELLOW));
             icon.lore(lore);
-            set(slotOf(type), icon, player -> give(plugin, player, plugin.items().create(type), Text.sword(type)));
-        }
+            set(slot, icon, player -> give(plugin, player, plugin.items().create(type), Text.sword(type)));
+        });
         if (plugin.settings().altarsEnabled) {
             ItemStack altar = plugin.altars().createAltarItem(1);
             set(ALTAR, altar, player -> give(plugin, player, plugin.altars().createAltarItem(1),

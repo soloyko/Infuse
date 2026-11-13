@@ -43,6 +43,9 @@ public final class Settings {
     public final boolean actionBarHud;
     public final boolean readySound;
     public final boolean heldAura;
+    public final boolean meleeSlashes;
+    public final boolean castCircles;
+    public final boolean killEffects;
     public final boolean deathMessages;
     public final boolean protectDroppedSwords;
     public final Set<String> disabledWorlds;
@@ -75,6 +78,9 @@ public final class Settings {
         actionBarHud = c.getBoolean("settings.action-bar-hud", true);
         readySound = c.getBoolean("settings.ability-ready-sound", true);
         heldAura = c.getBoolean("settings.held-aura", true);
+        meleeSlashes = c.getBoolean("settings.melee-slashes", true);
+        castCircles = c.getBoolean("settings.cast-circles", true);
+        killEffects = c.getBoolean("settings.kill-effects", true);
         deathMessages = c.getBoolean("settings.death-messages", true);
         protectDroppedSwords = c.getBoolean("settings.protect-dropped-swords", true);
         String triggerName = c.getString("controls.trigger", "offhand").toLowerCase(Locale.ROOT).replace('_', '-');

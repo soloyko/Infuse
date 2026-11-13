@@ -69,6 +69,8 @@ public final class StormSword extends SwordAbility {
         Fx.particle(point.clone().add(0, 0.5, 0), Particle.FLASH, 1, 0, 0, Color.fromRGB(0xDDEEFF));
         Fx.particle(point.clone().add(0, 0.5, 0), Particle.ELECTRIC_SPARK, 60, 1.0, 0.4);
         Fx.sound(point, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 2f, 1f);
+        fx().beam(point.clone().add(0, 14, 0), point, 0xBFE3FF, 1.0f, 6);
+        fx().impact(point.clone().add(0, 0.8, 0), 0x7FC8FF, 3f);
         for (LivingEntity target : combat().nearby(player, point, radius)) {
             combat().damage(player, target, damage);
             Combat.knockback(target, point, 0.6, 0.5);
@@ -115,6 +117,8 @@ public final class StormSword extends SwordAbility {
                 });
                 Fx.particle(to, Particle.ELECTRIC_SPARK, 25, 0.35, 0.25);
                 Fx.particle(to, Particle.FLASH, 1, 0, 0, Color.fromRGB(0xBFE3FF));
+                fx().beam(from, to, 0x9FD6FF, 0.5f, 5);
+                fx().burst(to, 0xD8EEFF, 1.4f);
                 Fx.sound(to, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 1.2f + hops * 0.1f);
                 combat().damage(player, current, 7);
                 applyEffect(current, PotionEffectType.SLOWNESS, 30, 2);

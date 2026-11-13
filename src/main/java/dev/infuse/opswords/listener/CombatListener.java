@@ -1,6 +1,7 @@
 package dev.infuse.opswords.listener;
 
 import dev.infuse.opswords.OPSwordsPlugin;
+import dev.infuse.opswords.ability.Combat;
 import dev.infuse.opswords.ability.Fx;
 import dev.infuse.opswords.sword.SwordType;
 import dev.infuse.opswords.util.Text;
@@ -46,6 +47,29 @@ public final class CombatListener implements Listener {
             return;
         }
         plugin.abilities().get(type).onMelee(player, target, event);
+        if (plugin.settings().meleeSlashes && !event.isCancelled()) {
+            plugin.fx().melee(player.getEyeLocation(), player.getEyeLocation().getDirection(), Combat.center(target),
+                    type.color().value());
+        }
+    }
+
+    /** Kills with an OP weapon (melee or ability) end in a burst of light in its colour. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onKill(org.bukkit.event.entity.EntityDeathEvent event) {
+        Player killer = event.getEntity().getKiller();
+        if (killer == null || !plugin.settings().killEffects) {
+            return;
+        }
+        SwordType type = plugin.items().heldType(killer);
+        if (type == null) {
+            return;
+        }
+        int rgb = type.color().value();
+        org.bukkit.Location at = Combat.center(event.getEntity());
+        plugin.fx().burst(at, rgb, 2.2f);
+        plugin.fx().flash(at, type.accent().value(), 1.6f);
+        plugin.fx().shockwave(event.getEntity().getLocation(), rgb, 2.2f, 7);
+        dev.infuse.opswords.ability.Fx.particle(at, org.bukkit.Particle.END_ROD, 12, 0.2, 0.12);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

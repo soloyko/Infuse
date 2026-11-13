@@ -168,6 +168,7 @@ public final class SpearWeapon extends SwordAbility {
                 applyEffect(target, PotionEffectType.SLOWNESS, 30, 1);
                 Fx.particle(Combat.center(target), Particle.CRIT, 15, 0.3, 0.3);
                 Fx.sound(target.getLocation(), Sound.ITEM_TRIDENT_HIT, 1f, 1f);
+                fx().burst(Combat.center(target), 0xE9C46A, 1.6f);
             }
         }
     }
@@ -210,6 +211,8 @@ public final class SpearWeapon extends SwordAbility {
         }
         Fx.sound(base, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
         Fx.sound(base, Sound.ITEM_TRIDENT_HIT_GROUND, 0.8f, 1.4f);
+        fx().shockwave(base, 0xE9C46A, 1.6f, 6);
+        fx().beam(base, base.clone().add(0, 2.6, 0), 0xFFF0B8, 0.5f, 6);
         for (LivingEntity target : combat().nearby(player, base.clone().add(0, 0.8, 0), 1.6)) {
             if (hit.add(target.getUniqueId())) {
                 combat().damage(player, target, 7);

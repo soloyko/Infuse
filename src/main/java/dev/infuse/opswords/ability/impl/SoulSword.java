@@ -231,6 +231,9 @@ public final class SoulSword extends SwordAbility implements Listener {
         Fx.sound(center, Sound.ENTITY_GHAST_HURT, 1.5f, 0.5f);
         Fx.sound(center, Sound.ENTITY_VEX_CHARGE, 1.2f, 0.5f);
         Fx.sound(center, Sound.PARTICLE_SOUL_ESCAPE, 2f, 0.6f);
+        fx().shockwave(center, 0x4FE3E0, 10f, 12);
+        fx().shockwave(center, 0x1E8C8A, 6f, 9);
+        fx().flash(center.clone().add(0, 1, 0), 0x7FFFF5, 2.6f);
         new BukkitRunnable() {
             double radius = 1;
 

@@ -43,6 +43,12 @@ SWORDS = {
     'axe': 'demonlordsgreataxe',
     'staff': 'arcanethyst',
     'trident': 'aquantictrident',
+    'shuriken': 'amethyst_shuriken',
+    'halberd': 'jadehalberd',
+    'warglaive': 'watching_warglaive',
+    'sawblade': 'cyberneticsawblade',
+    'rapier': 'royalrapier',
+    'khopesh': 'pharaohs_treasure',
 }
 
 # Blockbench-only fields Minecraft ignores
@@ -143,14 +149,14 @@ def pack_icon():
 
 
 def clean():
-    """Removes previously imported weapons, keeping files made by other tools (the altar)."""
+    """Removes previously imported weapons, keeping files made by other tools (altar, effects)."""
     base = os.path.join(PACK, 'assets', NS)
     for sub in ('items', 'models/item', 'textures/item'):
         folder = os.path.join(base, sub)
         if not os.path.isdir(folder):
             continue
         for name in os.listdir(folder):
-            if name.startswith('altar'):
+            if name.startswith('altar') or name == 'fx':
                 continue
             path = os.path.join(folder, name)
             shutil.rmtree(path) if os.path.isdir(path) else os.remove(path)

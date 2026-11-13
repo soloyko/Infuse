@@ -72,6 +72,29 @@ public final class Aura {
             case CHAKRAM -> show(player, Particle.SMALL_GUST, at, 1, 0.15, 0.3, 0.15, 0);
             case AXE -> show(player, Particle.DUST, at, 2, 0.12, 0.3, 0.12, 0, Fx.dust(0xC77DFF, 0.7f));
             case STAFF -> show(player, Particle.WITCH, at, 2, 0.15, 0.3, 0.15, 0);
+            case SHURIKEN -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.CHERRY_LEAVES, at, 1, 0.15, 0.3, 0.15, 0);
+                }
+            }
+            case HALBERD -> show(player, Particle.DUST, at, 1, 0.12, 0.35, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0x3FBF7F : 0xE8C35A, 0.8f));
+            case WARGLAIVE -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.35, 0.12, 0, Fx.dust(0x2B2F6B, 0.9f));
+                if (tick % 3 == 0) {
+                    show(player, Particle.END_ROD, at, 1, 0.12, 0.35, 0.12, 0.005);
+                }
+            }
+            case SAWBLADE -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.ELECTRIC_SPARK, at, 1, 0.1, 0.3, 0.1, 0.05);
+                }
+            }
+            case RAPIER -> {
+                if (tick % 2 == 0) {
+                    show(player, Particle.DUST, at, 1, 0.08, 0.35, 0.08, 0, Fx.dust(0xF5E6B8, 0.7f));
+                }
+            }
+            case KHOPESH -> show(player, Particle.FALLING_DUST, at, 1, 0.12, 0.3, 0.12, 0, org.bukkit.Material.SAND.createBlockData());
             case TRIDENT -> {
                 show(player, Particle.DRIPPING_WATER, at, 1, 0.12, 0.35, 0.12, 0);
                 if (tick % 3 == 0) {

@@ -89,6 +89,9 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         }
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.2f, 0.6f);
         Fx.sound(center, Sound.BLOCK_ANVIL_LAND, 1f, 0.5f);
+        fx().shockwave(center, 0xE8822A, 8.5f, 12);
+        fx().shockwave(center, 0xFFC27A, 5f, 8);
+        fx().impact(center.clone().add(0, 0.6, 0), 0xFF9A3C, 2.4f);
         Fx.particle(center.clone().add(0, 0.3, 0), Particle.EXPLOSION, 2, 0.4, 0);
         Set<UUID> hit = new HashSet<>();
 
@@ -138,6 +141,7 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         applyEffect(player, PotionEffectType.RESISTANCE, BULWARK_TICKS, 1);
         Fx.sound(player.getLocation(), Sound.BLOCK_DEEPSLATE_PLACE, 1.5f, 0.5f);
         Fx.sound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 0.6f);
+        fx().shockwave(player.getLocation(), 0xB08A5A, 2.6f, 8);
 
         BlockData[] stone = {Material.DEEPSLATE_BRICKS.createBlockData(), Material.CHISELED_DEEPSLATE.createBlockData(),
                 Material.POLISHED_DEEPSLATE.createBlockData()};
@@ -209,6 +213,7 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         Combat.knockback(attacker, player.getLocation(), 1.1, 0.4);
         Fx.particle(Combat.center(attacker), Particle.BLOCK, 15, 0.3, 0.1, Material.DEEPSLATE.createBlockData());
         Fx.sound(attacker.getLocation(), Sound.BLOCK_DEEPSLATE_HIT, 1.2f, 0.6f);
+        fx().burst(Combat.center(attacker), 0xE8822A, 1.4f);
     }
 
     @Override

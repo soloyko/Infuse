@@ -1,9 +1,10 @@
 # Infuse — OP Swords
 
-A Paper **1.21.11** plugin that adds 15 legendary swords and 7 other legendary weapons (a
-hammer, a scythe, a spear, a chakram, an axe, a staff and a trident). Each has its own name and
-lore, a 3D model (bundled resource pack), a passive, an on-hit effect and two activated
-abilities. Admins can place **weapon altars**: one-block 3D forges where players craft a weapon
+A Paper **1.21.11** plugin that adds 15 legendary swords and 13 other legendary weapons (a
+hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
+warglaive, a cyber sawblade, a rapier and a khopesh). Each has its own name and lore, a 3D model
+(bundled resource pack), a passive, an on-hit effect and two activated abilities, drawn with
+glowing 3D effects: crescent slashes, shockwaves, beams, spell circles and more. Admins can place **weapon altars**: one-block 3D forges where players craft a weapon
 by bringing its ingredients, no crafting grid needed.
 
 ![The fifteen swords](docs/swords.png)
@@ -49,8 +50,11 @@ messages ("Steve was frozen solid by Alex wielding ❄ Everwinter").
 
 ![Earthshaker, Requiem, Skypiercer, Zephyr, Ragnarök, Arcanum and Leviathan on their altars](docs/weapons.png)
 
+<img src="docs/weapons-menu.png" alt="The Other Weapons tab of the armory menu with all 13 weapons" width="420">
+
 They're built on the matching vanilla item, so the hammer keeps the mace's smash attack, the
-spear keeps its charge, the axe still disables shields and the trident can still be thrown.
+spear and halberd keep their charge, the axe still disables shields and the trident can still be
+thrown.
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
@@ -60,7 +64,24 @@ spear keeps its charge, the axe still disables shields and the trident can still
 | ☸ **Zephyr** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
 | ᛉ **Ragnarök** · Berserker Axe | Up to +50% damage the lower your health | **Cleave**: 40% to enemies beside the target | **Whirlwind** (14s): spin for 2.5s, carving through everything around you | **Warcry** (40s): Strength II and Resistance for you, Weakness and Slowness for enemies |
 | ⚚ **Arcanum** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Nova** (25s): rings of amethyst burst from the ground around you |
+| ✴ **Nightbloom** · Amethyst Shuriken | Speed I, Jump Boost I | 25%: **Petal Cut** flings a spare star at another enemy | **Star Fan** (6s): five spinning shuriken that each ricochet once | **Thousand Cuts** (26s): flash between up to six enemies, cutting each, then return |
+| ⚜ **Jadewarden** · Jade Halberd | +1 reach, +4 armor | 25%: **Jade Cleave** sweeps everything in front for half damage | **Dragon Sweep** (9s): a full circle of the halberd that hurls everyone back | **Jade Dragon** (32s): a jade serpent winds forward through your enemies, biting and tossing them |
+| ☾ **Eclipse** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moonfall** (35s): a giant crescent moon falls on the target area and shatters |
+| ⚙ **Ripsaw** · Cyber Sawblade | **Overclock**: quick hits build heat; at 5 heat the next hit vents for +6 | 25%: **Arc Spark** jumps to two more enemies | **Grinder** (10s): two seconds of a spinning blade shredding what's in front | **EMP Overload** (30s): a pulse that stuns and reveals enemies and speeds you up |
+| ♛ **Valiance** · Royal Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
+| ☥ **Sandreaver** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado lifts, blinds and grinds enemies on its path | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
 | Ψ **Leviathan** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Trident Rain** (10s): five spectral tridents fall on the target area | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
+
+## Effects
+
+![Moonfall, Tomb of Sands, Jade Dragon and Seismic Slam](docs/effects.jpg)
+
+Every hit with an OP weapon draws a glowing crescent slash in its colour, every ability unfolds a
+spell circle under the caster, and kills end in a burst of light. The abilities themselves use
+3D effects drawn with display entities and a set of effect models in the resource pack:
+shockwave rings that sweep across the ground, beams, star bursts, flying crescents, a falling
+moon, a jade serpent and sandstone tombs. They fade out smoothly, never touch the world, and a
+glow or burst on yourself is hidden from you so it never fills your screen (others still see it).
 
 Ability damage is credited to the player, so kills, mob aggro, world PvP settings and
 protection plugins all work as normal. No ability breaks or places blocks: the
@@ -92,6 +113,12 @@ saved with the world.
 - **Ragnarök** — The axe that will end the world, carved with runes of doom. It grows hungrier the closer you are to death.
 - **Arcanum** — Grown from a single amethyst that hummed with magic for ten thousand years. It still hums.
 - **Leviathan** — Raised from the trench where the old sea god sleeps. Wherever it is thrown, the storm follows.
+- **Nightbloom** — Four petals of living amethyst, folded by a clan that was never seen. It blooms only in the dark.
+- **Jadewarden** — Carried by the emperor's last guard, who held the gate alone for a hundred days. The jade remembers every one.
+- **Eclipse** — Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.
+- **Ripsaw** — A prototype from a future that never happened. Nobody remembers who built it; everyone remembers the noise.
+- **Valiance** — The queen's own blade, which never lost a duel. It only asks that you strike first.
+- **Sandreaver** — Buried with a pharaoh who refused to stay buried. The desert still answers when it is raised.
 
 </details>
 
@@ -166,6 +193,12 @@ bringing the ingredients to a weapon altar, set per sword in `config.yml`
 | Ragnarök | `INI / GSG / INI` | I iron block, N netherite ingot, G goat horn, **S netherite axe** |
 | Arcanum | `CLC / BSB / CLC` | C amethyst cluster, L lapis block, B bottle o' enchanting |
 | Leviathan | `PCP / LSL / PDP` | P prismarine shard, C conduit, L lightning rod, D diamond block, **S trident** |
+| Nightbloom | `PAP / ASA / PAP` | P phantom membrane, A amethyst block |
+| Jadewarden | `EGE / GSG / EGE` | E emerald block, G gold block, **S netherite spear** |
+| Eclipse | `PQP / OSO / PQP` | P phantom membrane, Q quartz block, O crying obsidian |
+| Ripsaw | `RCR / ISI / RCR` | R redstone block, C copper block, I iron block |
+| Valiance | `GDG / DSD / GDG` | G gold block, D diamond |
+| Sandreaver | `TLT / GSG / TLT` | T chiseled sandstone, L lapis block, G gold block |
 
 (`S` = netherite sword unless noted.) An OP sword can never be used up as an ingredient.
 
@@ -203,7 +236,9 @@ Other permissions: `opswords.use` (abilities and passives, default everyone),
 - `settings.abilities-hit-players`, `ability-damage-multiplier`,
   `ability-damage-multiplier-vs-players` (tone abilities down for PvP only), `disabled-worlds`,
   `unbreakable`, `protect-dropped-swords` (dropped swords never despawn and glow).
-- Cosmetics: `action-bar-hud`, `ability-ready-sound`, `held-aura`, `death-messages`.
+- Cosmetics: `action-bar-hud`, `ability-ready-sound`, `held-aura`, `death-messages`,
+  `melee-slashes` (a glowing slash on every hit), `cast-circles` (a spell circle when you use an
+  ability) and `kill-effects` (a burst of light on kills).
 - `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`,
   `crafting.crafting-table` (turn off to make altars the only way to forge) and `altars.enabled`.
 - Changes apply on `/opswords reload`; swords players already own update the next time they're held.
@@ -228,7 +263,7 @@ GitHub Actions; the jar and pack are attached to each run as the `OPSwords` arti
 ### The resource pack
 
 The 3D models and textures come from the **Blades of Majestica** resource pack. 15 of its 119
-weapons (15 swords and the 7 other weapons) are imported into the `op_swords` namespace, so they're applied by the plugin with the
+weapons (15 swords and the 13 other weapons) are imported into the `op_swords` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
 ```
@@ -236,7 +271,8 @@ pip install pillow numpy
 python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 ```
 
-The altar model is original: `tools/altar_model.py` generates it (pedestal, glow layer and the
+The effect models are original too: `tools/fx_models.py` generates the slash, ring, burst, glow,
+beam and spell-circle models in four fade levels. The altar model is original: `tools/altar_model.py` generates it (pedestal, glow layer and the
 spinning magic circle) from vanilla textures plus a few small rune, glyph and crystal textures.
 
 To use a different model for a weapon, change its entry in `SWORDS` at the top of

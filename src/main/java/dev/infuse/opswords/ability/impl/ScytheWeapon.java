@@ -83,6 +83,13 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         double end = Math.toRadians(yaw + 110);
         Fx.sound(origin, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.2f, 0.5f);
         Fx.sound(origin, Sound.ITEM_TRIDENT_THROW, 0.8f, 0.6f);
+        Vector look = origin.getDirection().setY(0);
+        if (look.lengthSquared() < 1.0E-4) {
+            look = new Vector(0, 0, 1);
+        }
+        fx().slash(origin.clone().add(0, 1.0, 0), look.clone().rotateAroundY(0.9), 0.15, 0x2BD9A8, 3.4f, 4);
+        Vector lookCopy = look.clone();
+        displays().later(3, () -> fx().slash(player.getLocation().add(0, 1.0, 0), lookCopy.clone().rotateAroundY(-0.9), 0.15, 0x7FFFE0, 3.4f, 4));
         Set<UUID> hit = new HashSet<>();
 
         new BukkitRunnable() {
@@ -218,6 +225,8 @@ public final class ScytheWeapon extends SwordAbility implements Listener {
         Fx.particle(at, Particle.SWEEP_ATTACK, 3, 0.4, 0);
         Fx.sound(at, Sound.ITEM_TRIDENT_HIT, 1.2f, 0.5f);
         Fx.sound(at, Sound.ENTITY_WITHER_BREAK_BLOCK, 0.6f, 1.4f);
+        fx().impact(at, 0x2BD9A8, 3f);
+        fx().slash(at.clone().add(0, 0.6, 0), player.getLocation().getDirection(), Math.PI / 2, 0x7FFFE0, 3f, 3);
         combat().damage(player, target, damage, true);
         if (target.isDead()) {
             tell(player, Text.plain("☠ Harvested", type.color()));

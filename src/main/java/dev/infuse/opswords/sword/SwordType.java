@@ -167,7 +167,49 @@ public enum SwordType {
             new AbilityInfo("Stormborn", "Always returns when thrown, and calls down lightning where it hits, in any weather. Water Breathing while held."),
             new AbilityInfo("Undertow", "20% chance to drag the target under: +3 damage and Slowness III."),
             new AbilityInfo("Trident Rain", "Five spectral tridents fall on the target area, each bursting into a wave."),
-            new AbilityInfo("Maelstrom", "A whirlpool drags enemies around and in for four seconds, then erupts as a geyser."));
+            new AbilityInfo("Maelstrom", "A whirlpool drags enemies around and in for four seconds, then erupts as a geyser.")),
+
+    SHURIKEN("shuriken", "Nightbloom", "Amethyst Shuriken", "✴", 0xE040FB, 0x7B1FA2, Material.NETHERITE_SWORD,
+            "Four petals of living amethyst, folded by a clan that was never seen. It blooms only in the dark.",
+            new AbilityInfo("Light Feet", "Speed I and Jump Boost I while held."),
+            new AbilityInfo("Petal Cut", "25% chance to fling a spare shuriken at another nearby enemy."),
+            new AbilityInfo("Star Fan", "Throw five spinning shuriken in a fan; each one ricochets to a second enemy."),
+            new AbilityInfo("Thousand Cuts", "Flash between up to six nearby enemies, cutting each one, then return to where you started.")),
+
+    HALBERD("halberd", "Jadewarden", "Jade Halberd", "⚜", 0x3FBF7F, 0xE8C35A, Material.NETHERITE_SPEAR,
+            "Carried by the emperor's last guard, who held the gate alone for a hundred days. The jade remembers every one.",
+            new AbilityInfo("Imperial Guard", "+1 block of reach and +4 armor while held. Keeps the spear's charge attack."),
+            new AbilityInfo("Jade Cleave", "25% chance to sweep everything in front of you for half the damage."),
+            new AbilityInfo("Dragon Sweep", "Spin the halberd in a full circle, cutting and hurling back everything around you."),
+            new AbilityInfo("Jade Dragon", "Release a jade serpent that winds forward through your enemies, biting and tossing them.")),
+
+    WARGLAIVE("warglaive", "Eclipse", "Lunar Warglaive", "☾", 0x8FA8FF, 0x2B2F6B, Material.NETHERITE_SWORD,
+            "Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.",
+            new AbilityInfo("Moonlit", "Night Vision while held. Melee hits deal +25% damage at night or in the dark."),
+            new AbilityInfo("Crescent Echo", "20% chance for a spectral crescent to hit the target again a moment later."),
+            new AbilityInfo("Lunar Dash", "Dash forward through your enemies, leaving a trail of silver crescents."),
+            new AbilityInfo("Moonfall", "A giant crescent moon falls on the target area and shatters.")),
+
+    SAWBLADE("sawblade", "Ripsaw", "Cyber Sawblade", "⚙", 0xFF7A1A, 0x29E0FF, Material.NETHERITE_SWORD,
+            "A prototype from a future that never happened. Nobody remembers who built it; everyone remembers the noise.",
+            new AbilityInfo("Overclock", "Hits in quick succession build heat. At 5 heat your next hit vents for +6 damage."),
+            new AbilityInfo("Arc Spark", "25% chance for electricity to jump to two nearby enemies."),
+            new AbilityInfo("Grinder", "Rev the blade for two seconds, shredding everything in front of you."),
+            new AbilityInfo("EMP Overload", "Release an electromagnetic pulse: enemies are stunned and revealed, and you speed up.")),
+
+    RAPIER("rapier", "Valiance", "Royal Rapier", "♛", 0xF5E6B8, 0xD4A017, Material.NETHERITE_SWORD,
+            "The queen's own blade, which never lost a duel. It only asks that you strike first.",
+            new AbilityInfo("Finesse", "+25% attack speed and +10% movement speed while held."),
+            new AbilityInfo("Precision", "+50% damage against enemies at full health."),
+            new AbilityInfo("Flèche", "Lunge forward and run the first enemy in your path through."),
+            new AbilityInfo("Riposte", "Take a parry stance: the next attack against you is blocked and answered with a flurry of thrusts.")),
+
+    KHOPESH("khopesh", "Sandreaver", "Pharaoh's Khopesh", "☥", 0xE3B341, 0x1FA3A3, Material.NETHERITE_SWORD,
+            "Buried with a pharaoh who refused to stay buried. The desert still answers when it is raised.",
+            new AbilityInfo("Sun-Blessed", "Regeneration I in daylight while held."),
+            new AbilityInfo("Pharaoh's Curse", "20% chance to curse the target: Weakness, Slowness and +20% damage from you for 5 seconds."),
+            new AbilityInfo("Sandstorm", "Send a sand tornado forward that lifts, blinds and grinds enemies along its path."),
+            new AbilityInfo("Tomb of Sands", "Seal nearby enemies in sandstone tombs, then collapse them."));
 
     public static final String MODEL_NAMESPACE = "op_swords";
 
@@ -217,7 +259,7 @@ public enum SwordType {
         return base == null ? Material.NETHERITE_SWORD : base;
     }
 
-    /** True for the 15 swords, false for the hammer, scythe, spear, chakram, axe, staff and trident. */
+    /** True for the 15 swords, false for the other weapons. */
     public boolean isSword() {
         return base == null;
     }
@@ -292,6 +334,12 @@ public enum SwordType {
             case CHAKRAM -> "carried off by the wind";
             case AXE -> "cleaved in two";
             case TRIDENT -> "skewered by the tide";
+            case SHURIKEN -> "cut to ribbons";
+            case HALBERD -> "felled at the gate";
+            case WARGLAIVE -> "eclipsed";
+            case SAWBLADE -> "shredded";
+            case RAPIER -> "outdueled";
+            case KHOPESH -> "buried in the sands";
             case STAFF -> "unmade by arcane fire";
         };
     }

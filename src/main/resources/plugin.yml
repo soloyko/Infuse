@@ -2,7 +2,7 @@ name: OPSwords
 version: '${version}'
 main: dev.infuse.opswords.OPSwordsPlugin
 api-version: '1.21.11'
-description: 15 legendary OP swords and 7 other weapons with 3D models, lore, unique abilities and weapon altars.
+description: 15 legendary OP swords and 13 other weapons with 3D models, lore, unique abilities, glowing effects and weapon altars.
 authors: [Infuse]
 
 commands:

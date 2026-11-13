@@ -131,6 +131,8 @@ public final class PlagueSword extends SwordAbility {
         Fx.line(eye.clone().subtract(0, 0.3, 0), cloud, 0.5, p -> Fx.particle(p, Particle.DUST, 1, 0.05, 0, Fx.dust(TOXIC, 1.1f)));
         Fx.sound(eye, Sound.ENTITY_SPLASH_POTION_THROW, 1f, 0.6f);
         Fx.sound(cloud, Sound.ENTITY_SPLASH_POTION_BREAK, 1.2f, 0.5f);
+        fx().shockwave(cloud, 0x9CD64A, 4.2f, 9);
+        fx().flash(cloud.clone().add(0, 0.8, 0), 0x7FB83A, 3f);
         double radius = 4;
 
         new BukkitRunnable() {
@@ -195,6 +197,8 @@ public final class PlagueSword extends SwordAbility {
             Fx.particle(at, Particle.ITEM_SLIME, 20, 0.4, 0.1);
             Fx.particle(at, Particle.BLOCK, 20, 0.4, 0.1, Material.MOSS_BLOCK.createBlockData());
             Fx.sound(at, Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 1.6f);
+            fx().burst(at, 0xB4E85A, 1.6f + stacks * 0.3f);
+            fx().beam(eye.clone().subtract(0, 0.3, 0), at, 0x7FB83A, 0.35f, 5);
             combat().damage(player, target, 3 + 2.5 * stacks, true);
             // the burst infects anyone standing next to it
             for (LivingEntity near : combat().nearby(player, at, 3)) {

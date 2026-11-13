@@ -25,10 +25,15 @@ public final class RecipeMenu {
 
     /** All weapons and the altar; click one to see how to craft it. */
     public static Menu overview(OPSwordsPlugin plugin) {
+        return overview(plugin, Menu.Page.SWORDS);
+    }
+
+    public static Menu overview(OPSwordsPlugin plugin, Menu.Page page) {
         Menu menu = new Menu(Menu.ROWS, Text.mm("<gradient:#ECBA44:#C4415B><bold>OP Swords</bold></gradient> <dark_gray>· Recipes")) {
         };
         menu.info(plugin, "Click a weapon to see its recipe.");
-        for (SwordType type : SwordType.values()) {
+        menu.tabs(page, p -> overview(plugin, p));
+        Menu.fill(page, (slot, type) -> {
             ItemStack icon = plugin.items().create(type);
             List<Component> lore = new ArrayList<>(icon.lore() == null ? List.of() : icon.lore());
             lore.add(Component.empty());
@@ -38,8 +43,8 @@ public final class RecipeMenu {
             }
             lore.add(Text.plain("Click to view the recipe", NamedTextColor.YELLOW));
             icon.lore(lore);
-            menu.set(Menu.slotOf(type), icon, player -> recipe(plugin, type).open(player));
-        }
+            menu.set(slot, icon, player -> recipe(plugin, type).open(player));
+        });
         if (plugin.settings().altarsEnabled) {
             menu.set(Menu.ALTAR, Menu.button(Material.LODESTONE,
                     Text.gradient("⛩ Weapon Altars", net.kyori.adventure.text.format.TextColor.color(0xF5D78E),
@@ -78,6 +83,8 @@ public final class RecipeMenu {
                     ? Text.plain("Craft in a crafting table", NamedTextColor.GREEN)
                     : Text.plain("Forge at a weapon altar", NamedTextColor.GREEN), lore), null);
         }
+        menu.set(Menu.BACK, Menu.button(Material.ARROW, Text.plain("← Back", NamedTextColor.GRAY), List.of()),
+                player -> overview(plugin, Menu.Page.of(type)).open(player));
         return menu;
     }
 

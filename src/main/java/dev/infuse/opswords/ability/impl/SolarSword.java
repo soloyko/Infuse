@@ -87,6 +87,9 @@ public final class SolarSword extends SwordAbility {
         Fx.particle(end, Particle.FLAME, 25, 0.3, 0.08);
         Fx.sound(eye, Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.8f);
         Fx.sound(eye, Sound.ENTITY_GUARDIAN_ATTACK, 0.8f, 1.6f);
+        fx().beam(eye.clone().add(dir.clone().multiply(0.8)).subtract(0, 0.25, 0), end, 0xFFC93A, 1.3f, 9);
+        fx().beam(eye.clone().add(dir.clone().multiply(0.8)).subtract(0, 0.25, 0), end, 0xFFF6D0, 0.5f, 6);
+        fx().impact(end, 0xFFB52E, 2.2f);
 
         Location mid = eye.clone().add(dir.clone().multiply(length / 2));
         for (LivingEntity target : combat().nearby(player, mid, length / 2 + 2)) {
@@ -144,6 +147,10 @@ public final class SolarSword extends SwordAbility {
         }
         Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 1.3f);
         Fx.sound(center, Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.5f, 1f);
+        fx().shockwave(center.clone().subtract(0, 0.9, 0), 0xFFD24A, 10f, 10);
+        fx().shockwave(center.clone().subtract(0, 0.9, 0), 0xFFF6D0, 6f, 7);
+        fx().burst(center, 0xFFE08A, 5f);
+        fx().flash(center, 0xFFB52E, 4.5f);
         for (LivingEntity target : combat().nearby(player, center, radius)) {
             combat().damage(player, target, scaled(target, 10));
             applyEffect(target, PotionEffectType.BLINDNESS, 60, 0);
