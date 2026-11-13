@@ -140,7 +140,7 @@ public final class AbilityRegistry {
             return;
         }
         if (fired && plugin.settings().castCircles) {
-            plugin.fx().castCircle(player.getLocation(), type.color().value(), slot == AbilitySlot.PRIMARY ? 1.5f : 2.2f);
+            plugin.fx().castFlourish(player, type.element(), type.color().value(), slot == AbilitySlot.SECONDARY);
         }
         if (fired && !player.hasPermission("customs.bypass.cooldown")) {
             plugin.cooldowns().start(player.getUniqueId(), type, slot, plugin.settings().sword(type).cooldown(slot));

@@ -77,7 +77,7 @@ import java.util.logging.Level;
 public final class AltarService implements Listener {
 
     private static final String ADMIN = "customs.admin";
-    private static final int DEFAULT_TINT = 0xE8C35A;
+    private static final int DEFAULT_TINT = 0x9FD8FF;
     private static final double FLOAT_HEIGHT = 1.12;
     private static final float WEAPON_HEIGHT = 1.25f;
     private static final double HALO_HEIGHT = 0.56;
@@ -318,8 +318,8 @@ public final class AltarService implements Listener {
         if (dropAltarItem) {
             block.getWorld().dropItemNaturally(altar.center(), createAltarItem(1));
         }
-        Fx.particle(altar.center(), Particle.BLOCK, 30, 0.4, 0.1, Material.POLISHED_DEEPSLATE.createBlockData());
-        Fx.sound(altar.center(), Sound.BLOCK_DEEPSLATE_BRICKS_BREAK, 1f, 0.8f);
+        Fx.particle(altar.center(), Particle.BLOCK, 30, 0.4, 0.1, Material.STONE_BRICKS.createBlockData());
+        Fx.sound(altar.center(), Sound.BLOCK_STONE_BREAK, 1f, 0.8f);
         save();
         return true;
     }

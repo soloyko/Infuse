@@ -83,6 +83,9 @@ public final class CosmicSword extends SwordAbility {
                 out.normalize().multiply(0.3);
             }
             Combat.setVelocity(target, out.setY(1.3));
+            Location base = target.getLocation();
+            fx().beam(base, base.clone().add(0, 7, 0), 0x8E7BFF, 1.4f, 16);
+            fx().follow(target, 0xB8A8FF, 1.2f, 20);
         }
         new BukkitRunnable() {
             int ticks;
@@ -106,6 +109,12 @@ public final class CosmicSword extends SwordAbility {
                     if (target.isValid() && !target.isDead() && combat().canHit(player, target)) {
                         Combat.setVelocity(target, new Vector(0, -3, 0));
                         combat().damage(player, target, 4, true);
+                        Location land = Combat.ground(target.getLocation());
+                        displays().later(3, () -> {
+                            fx().crack(land, 0x7B6CFF, 3.2f, 36);
+                            fx().shockwave(land, 0xC6B8FF, 2.6f, 6);
+                            displays().eruptGround(land, 0.6f, 0.7f);
+                        });
                         Fx.particle(Combat.center(target), Particle.DUST, 12, 0.3, 0, Fx.dust(INDIGO, 1.5f));
                     }
                 }

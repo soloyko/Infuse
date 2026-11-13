@@ -61,17 +61,33 @@ public final class DragonSword extends SwordAbility {
     @Override
     public boolean primary(Player player) {
         Fx.sound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 1.3f);
+        // a spectral dragon head forms in front of you and does the breathing
+        org.bukkit.entity.ItemDisplay head = fx().spectralHead(headSpot(player), org.bukkit.Material.DRAGON_HEAD, 0xC93BE0, 2.2f,
+                player.getEyeLocation().getDirection(), 40);
+        head.setTeleportDuration(4);
+        fx().flash(headSpot(player), 0xE05BF0, 2f);
         new BukkitRunnable() {
             int pulse;
 
             @Override
             public void run() {
                 if (!alive(player) || pulse++ >= 8) {
+                    if (head.isValid()) {
+                        fx().burst(head.getLocation(), 0xC93BE0, 1.8f);
+                    }
+                    displays().remove(head);
                     cancel();
                     return;
                 }
                 Location eye = player.getEyeLocation();
                 Vector dir = eye.getDirection();
+                if (head.isValid()) {
+                    head.teleport(headSpot(player));
+                    head.setInterpolationDelay(0);
+                    head.setInterpolationDuration(4);
+                    head.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(),
+                            dev.infuse.customs.ability.Fx3D.headRotation(dir), new org.joml.Vector3f(2.2f), new org.joml.Quaternionf()));
+                }
                 for (double d = 1; d <= BREATH_RANGE; d += 0.7) {
                     Location point = eye.clone().add(dir.clone().multiply(d));
                     double spread = d * 0.16;
@@ -171,6 +187,7 @@ public final class DragonSword extends SwordAbility {
         Fx.sound(center, Sound.ENTITY_ENDER_DRAGON_GROWL, 1f, 0.7f);
         fx().shockwave(center, type.color().value(), 6.5f, 7);
         fx().shockwave(center, 0xC93BE0, 4f, 5);
+        fx().crack(center, 0xE05BF0, 6f, 50);
         fx().impact(center.clone().add(0, 1, 0), type.color().value(), 3.2f);
         for (LivingEntity target : combat().nearby(player, center, radius)) {
             double distance = Combat.distanceToBody(target, center);
@@ -178,5 +195,15 @@ public final class DragonSword extends SwordAbility {
             combat().damage(player, target, damage, true);
             Combat.knockback(target, center, 1.4, 0.7);
         }
+    }
+
+    /** Where the spectral head floats: just in front of and above the caster's eyes, off to the side. */
+    private static Location headSpot(Player player) {
+        Location eye = player.getEyeLocation();
+        Vector look = eye.getDirection().normalize();
+        Location at = eye.clone().add(look.multiply(2.6)).add(0, 0.55, 0);
+        at.setYaw(0);
+        at.setPitch(0);
+        return at;
     }
 }

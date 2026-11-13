@@ -124,6 +124,45 @@ def beam(core):
     return f
 
 
+def crack_textures(size=128, seed=7):
+    """Ground cracks radiating from the centre: a soft glow and a thin bright core."""
+    import random
+    from PIL import ImageDraw, ImageFilter
+    rnd = random.Random(seed)
+    core = Image.new('L', (size, size), 0)
+    draw = ImageDraw.Draw(core)
+    c = size / 2
+
+    def branch(x, y, angle, length, width, depth):
+        steps = max(2, int(length / 6))
+        for _ in range(steps):
+            angle += rnd.uniform(-0.45, 0.45)
+            nx, ny = x + math.cos(angle) * length / steps, y + math.sin(angle) * length / steps
+            draw.line([(x, y), (nx, ny)], fill=255, width=max(1, int(width)))
+            if depth > 0 and rnd.random() < 0.28:
+                branch(nx, ny, angle + rnd.choice((-1, 1)) * rnd.uniform(0.5, 1.0), length * 0.45, width * 0.7, depth - 1)
+            x, y = nx, ny
+            width = max(1, width * 0.9)
+
+    for k in range(7):
+        a = k * math.pi * 2 / 7 + rnd.uniform(-0.25, 0.25)
+        branch(c, c, a, size * rnd.uniform(0.36, 0.48), 4.0, 2)
+    draw.ellipse([c - 5, c - 5, c + 5, c + 5], fill=255)
+    glow = core.filter(ImageFilter.GaussianBlur(3.2))
+    gpx = glow.load()
+    out_glow = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    out_core = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    cpx, ogp, ocp = core.load(), out_glow.load(), out_core.load()
+    for y in range(size):
+        for x in range(size):
+            g = min(1.0, gpx[x, y] / 55.0)
+            if g > 0.02:
+                ogp[x, y] = (255, 255, 255, int(g * 255))
+            if cpx[x, y] > 0:
+                ocp[x, y] = (255, 255, 255, 235)
+    return out_glow, out_core
+
+
 def rune_texture():
     """The altar's magic circle, reused as the cast circle."""
     path = os.path.join(ASSETS, 'textures', 'item', 'altar', 'halo.png')
@@ -176,6 +215,8 @@ SHAPES = {
              lambda g, c: [upright(g, True), upright(c, False, z=8.05)]),
     'beam': (32, beam(False), beam(True),
              lambda g, c: cross(g, True, 6) + cross(c, False, 2)),
+    'crack': (None, None, None,
+              lambda g, c: [flat(g, 8, True), flat(c, 8.05, False)]),
     'rune': (None, None, None,
              lambda g, c: [flat(g, 8, True)]),
 }
@@ -199,8 +240,11 @@ def write(rel, data):
 def main():
     count = 0
     for name, (size, glow_fn, core_fn, elements) in SHAPES.items():
-        base_glow = rune_texture() if name == 'rune' else image(size, glow_fn)
-        base_core = image(size, core_fn) if core_fn else None
+        if name == 'crack':
+            base_glow, base_core = crack_textures()
+        else:
+            base_glow = rune_texture() if name == 'rune' else image(size, glow_fn)
+            base_core = image(size, core_fn) if core_fn else None
         for level, factor in enumerate(FADES):
             glow_tex = f'customs:item/fx/{name}_{level}'
             core_tex = f'customs:item/fx/{name}_core_{level}'

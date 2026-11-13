@@ -127,10 +127,37 @@ public final class AxeWeapon extends SwordAbility {
         Location center = player.getLocation();
         Fx.sound(center, Sound.ITEM_GOAT_HORN_SOUND_2, 2f, 0.8f);
         Fx.sound(center, Sound.ENTITY_RAVAGER_ROAR, 1f, 1f);
-        fx().shockwave(center, 0xC77DFF, 8f, 9);
-        fx().shockwave(center, 0xFF4A6A, 5.5f, 12);
-        fx().wave(center.clone().add(0, 1.2, 0), center.getDirection().setY(0).lengthSquared() < 1.0E-4
-                ? new Vector(0, 0, 1) : center.getDirection().setY(0), 0xFF4A6A, 3f, 7);
+        Vector forward = center.getDirection().setY(0).lengthSquared() < 1.0E-4 ? new Vector(0, 0, 1)
+                : center.getDirection().setY(0).normalize();
+        // a giant spectral axe rises behind you and comes down on the ground ahead
+        Location axeAt = center.clone().subtract(forward.clone().multiply(0.6)).add(0, 3.2, 0);
+        axeAt.setYaw(0);
+        axeAt.setPitch(0);
+        org.bukkit.entity.ItemDisplay axe = displays().item(axeAt, plugin.items().create(type), 4.5f,
+                new org.joml.Quaternionf(), org.bukkit.entity.ItemDisplay.ItemDisplayTransform.NONE, 30);
+        axe.setGlowing(true);
+        axe.setGlowColorOverride(org.bukkit.Color.fromRGB(0xFF3A5A));
+        float yaw = (float) Math.atan2(-forward.getX(), forward.getZ());
+        org.joml.Quaternionf raised = new org.joml.Quaternionf().rotateY(-yaw).rotateX(-0.9f);
+        org.joml.Quaternionf struck = new org.joml.Quaternionf().rotateY(-yaw).rotateX(1.7f);
+        axe.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(), raised, new org.joml.Vector3f(4.5f),
+                new org.joml.Quaternionf()));
+        displays().later(5, () -> dev.infuse.customs.ability.Displays.animate(axe, new org.bukkit.util.Transformation(
+                new org.joml.Vector3f(0, -1.0f, 0), struck, new org.joml.Vector3f(4.5f), new org.joml.Quaternionf()), 4));
+        Location strike = Combat.ground(center.clone().add(forward.clone().multiply(3.2)).add(0, 1.5, 0));
+        displays().later(9, () -> {
+            fx().crack(strike, 0xFF4A6A, 6f, 50);
+            fx().shockwave(strike, 0xC77DFF, 8f, 9);
+            fx().shockwave(strike, 0xFF4A6A, 5.5f, 12);
+            fx().impact(strike.clone().add(0, 0.6, 0), 0xFF4A6A, 2.6f);
+            for (int i = 0; i < 6; i++) {
+                double a = i * Math.PI / 3;
+                displays().eruptGround(strike.clone().add(Math.cos(a) * 1.6, 0.3, Math.sin(a) * 1.6), 0.6f, 0.9f);
+            }
+            Fx.sound(strike, Sound.ENTITY_GENERIC_EXPLODE, 1.2f, 0.7f);
+            Fx.sound(strike, Sound.BLOCK_ANVIL_LAND, 1f, 0.5f);
+        });
+        displays().later(20, () -> displays().remove(axe));
         applyEffect(player, PotionEffectType.STRENGTH, 160, 1);
         applyEffect(player, PotionEffectType.RESISTANCE, 160, 0);
         combat().heal(player, 4);

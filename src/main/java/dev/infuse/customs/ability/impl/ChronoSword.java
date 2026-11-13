@@ -235,6 +235,7 @@ public final class ChronoSword extends SwordAbility implements Listener {
         Fx.particle(dest.clone().add(0, 1, 0), Particle.REVERSE_PORTAL, 40, 0.4, 0.1);
         Fx.sound(dest, Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 1f, 1.6f);
         fx().beam(from.clone().add(0, 1, 0), dest.clone().add(0, 1, 0), 0x5FE3E0, 0.6f, 8);
+        fx().rift(from.clone().add(0, 1, 0), dest.toVector().subtract(from.toVector()), 0x5FE3E0, 2.0f, 24);
         fx().flash(dest.clone().add(0, 1, 0), 0xC9FFFB, 2.4f);
         fx().castCircle(dest, 0x5FE3E0, 1.8f);
         return true;

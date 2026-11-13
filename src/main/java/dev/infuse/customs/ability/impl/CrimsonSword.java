@@ -128,7 +128,7 @@ public final class CrimsonSword extends SwordAbility {
             status().bleed(player, target, 4);
             healed += 3;
             Location from = Combat.center(target);
-            fx().beam(from, Combat.center(player).add(0, 0.4, 0), 0xC4142E, 0.55f, 10);
+            fx().tendril(from, () -> alive(player) ? Combat.center(player).add(0, 0.3, 0) : null, BLOOD_GLOW, 1.0f, 11, null);
             new BukkitRunnable() {
                 int t;
 

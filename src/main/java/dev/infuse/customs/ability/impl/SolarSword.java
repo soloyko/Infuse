@@ -122,6 +122,15 @@ public final class SolarSword extends SwordAbility {
                 ticks++;
                 Location center = player.getLocation().add(0, 1, 0);
                 if (ticks <= 20) {
+                    // sunbeams converge on you from all around while the light gathers
+                    if (ticks % 3 == 1) {
+                        double a = ticks * 1.3;
+                        Location from = center.clone().add(Math.cos(a) * 7, 1.5 + Math.sin(ticks) * 2, Math.sin(a) * 7);
+                        fx().beam(from, center, 0xFFE08A, 0.5f, 5);
+                    }
+                    if (ticks == 6 || ticks == 14) {
+                        fx().flash(center, 0xFFD24A, 1.2f + ticks * 0.08f);
+                    }
                     double radius = 3.0 * (1 - ticks / 20.0) + 0.4;
                     double y = ticks / 20.0 * 1.5 - 0.8;
                     Fx.ring(center.clone().add(0, y, 0), radius, 14, p -> Fx.particle(p, Particle.END_ROD, 1, 0, 0));
@@ -153,6 +162,17 @@ public final class SolarSword extends SwordAbility {
         fx().shockwave(center.clone().subtract(0, 0.9, 0), 0xFFF6D0, 6f, 7);
         fx().burst(center, 0xFFE08A, 5f);
         fx().flash(center, 0xFFB52E, 4.5f);
+        // a small sun swells where you stood, then burns out, throwing rays in every direction
+        org.bukkit.entity.ItemDisplay sun = fx().orb(center.clone().add(0, 0.5, 0), 0xFFC93A, 1.5f, 30);
+        displays().later(1, () -> dev.infuse.customs.ability.Displays.animate(sun, new org.bukkit.util.Transformation(
+                new org.joml.Vector3f(), new org.joml.Quaternionf(), new org.joml.Vector3f(7f), new org.joml.Quaternionf()), 6));
+        fx().fade(sun, dev.infuse.customs.ability.Fx3D.Shape.GLOW, 0xFFC93A, 10, 4);
+        for (int i = 0; i < 10; i++) {
+            double a = i * Math.PI / 5;
+            Location tip = center.clone().add(Math.cos(a) * 9, 0.4 + (i % 2) * 1.6, Math.sin(a) * 9);
+            fx().beam(center.clone().add(0, 0.5, 0), tip, 0xFFF0B0, 0.7f, 8);
+        }
+        fx().crack(center.clone().subtract(0, 1, 0), 0xFFB52E, 9f, 50);
         for (LivingEntity target : combat().nearby(player, center, radius)) {
             combat().damage(player, target, scaled(target, 10));
             applyEffect(target, PotionEffectType.BLINDNESS, 60, 0);

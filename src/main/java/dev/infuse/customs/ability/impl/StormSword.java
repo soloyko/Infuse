@@ -69,8 +69,30 @@ public final class StormSword extends SwordAbility {
         Fx.particle(point.clone().add(0, 0.5, 0), Particle.FLASH, 1, 0, 0, Color.fromRGB(0xDDEEFF));
         Fx.particle(point.clone().add(0, 0.5, 0), Particle.ELECTRIC_SPARK, 60, 1.0, 0.4);
         Fx.sound(point, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 2f, 1f);
-        fx().beam(point.clone().add(0, 14, 0), point, 0xBFE3FF, 1.0f, 6);
+        // a jagged bolt out of the sky with forks, two smaller strikes around it, and scorched,
+        // glowing cracks left in the ground
+        fx().bolt(point.clone().add(0, 16, 0), point, 0xCFE8FF, 0.9f, 7, 3);
+        fx().bolt(point.clone().add(0, 16, 0), point, 0x6FB8FF, 1.6f, 5, 0);
+        java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
+        for (int i = 0; i < 2; i++) {
+            double a = r.nextDouble(Math.PI * 2);
+            Location side = Combat.ground(point.clone().add(Math.cos(a) * r.nextDouble(1.5, 2.8), 1.5, Math.sin(a) * r.nextDouble(1.5, 2.8)));
+            displays().later(2 + i * 2L, () -> {
+                fx().bolt(side.clone().add(0, 10, 0), side, 0xA8D4FF, 0.5f, 5, 1);
+                Fx.particle(side.clone().add(0, 0.3, 0), Particle.ELECTRIC_SPARK, 20, 0.4, 0.2);
+            });
+        }
+        fx().crack(point, 0x7FC8FF, 3.2f, 40);
         fx().impact(point.clone().add(0, 0.8, 0), 0x7FC8FF, 3f);
+        // the ground keeps crackling for a moment
+        for (int t = 4; t <= 24; t += 5) {
+            displays().later(t, () -> {
+                double a = r.nextDouble(Math.PI * 2);
+                Location from = point.clone().add(0, 0.2, 0);
+                Location to = point.clone().add(Math.cos(a) * 1.8, 0.2, Math.sin(a) * 1.8);
+                fx().bolt(from, to, 0x9FD6FF, 0.18f, 3, 0);
+            });
+        }
         for (LivingEntity target : combat().nearby(player, point, radius)) {
             combat().damage(player, target, damage);
             Combat.knockback(target, point, 0.6, 0.5);
@@ -117,7 +139,8 @@ public final class StormSword extends SwordAbility {
                 });
                 Fx.particle(to, Particle.ELECTRIC_SPARK, 25, 0.35, 0.25);
                 Fx.particle(to, Particle.FLASH, 1, 0, 0, Color.fromRGB(0xBFE3FF));
-                fx().beam(from, to, 0x9FD6FF, 0.5f, 5);
+                fx().bolt(from, to, 0xBFE3FF, 0.45f, 6, 1);
+                fx().bolt(from, to, 0x5FA8FF, 0.8f, 4, 0);
                 fx().burst(to, 0xD8EEFF, 1.4f);
                 Fx.sound(to, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 1.2f + hops * 0.1f);
                 combat().damage(player, current, 7);

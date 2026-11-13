@@ -207,7 +207,7 @@ public final class PlagueSword extends SwordAbility {
             Fx.particle(at, Particle.BLOCK, 20, 0.4, 0.1, Material.MOSS_BLOCK.createBlockData());
             Fx.sound(at, Sound.ENTITY_GENERIC_EXPLODE, 0.6f, 1.6f);
             fx().burst(at, 0xB4E85A, 1.6f + stacks * 0.3f);
-            fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), at, 0x7FB83A, 0.4f, 6);
+            fx().tendril(dev.infuse.customs.ability.Fx3D.handOrigin(player), () -> at, 0x9CD64A, 0.9f, 7, null);
             combat().damage(player, target, 3 + 2.5 * stacks, true);
             // the burst infects anyone standing next to it
             for (LivingEntity near : combat().nearby(player, at, 3)) {

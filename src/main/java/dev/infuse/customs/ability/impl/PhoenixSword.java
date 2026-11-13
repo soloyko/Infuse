@@ -187,6 +187,16 @@ public final class PhoenixSword extends SwordAbility implements Listener {
                     return;
                 }
                 Location ring = center.clone().add(0, 0.2, 0);
+                // pillars of real fire race outward with the ring
+                if (radius >= 2.5 && ((int) (radius * 2)) % 3 == 0) {
+                    int pillars = (int) (5 + radius * 1.6);
+                    double offset = radius * 0.7;
+                    for (int i = 0; i < pillars; i++) {
+                        double a = i * Math.PI * 2 / pillars + offset;
+                        Location spot = dev.infuse.customs.ability.Combat.ground(center.clone().add(Math.cos(a) * radius, 1.5, Math.sin(a) * radius));
+                        fx().flamePillar(spot, 0.9f, (float) (1.2 + Math.random() * 1.1), 12, ((int) radius) % 3 == 2);
+                    }
+                }
                 Fx.ring(ring, radius, (int) (radius * 12), p -> Fx.particle(p, Particle.FLAME, 1, 0.05, 0.02));
                 Fx.ring(ring.clone().add(0, 0.8, 0), radius, (int) (radius * 5), p -> Fx.particle(p, Particle.SOUL_FIRE_FLAME, 1, 0.05, 0.01));
                 if (((int) (radius * 2)) % 3 == 0) {

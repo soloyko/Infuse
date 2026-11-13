@@ -92,6 +92,18 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         fx().shockwave(center, 0xE8822A, 8.5f, 12);
         fx().shockwave(center, 0xFFC27A, 5f, 8);
         fx().impact(center.clone().add(0, 0.6, 0), 0xFF9A3C, 2.4f);
+        fx().crack(center, 0xFF8A2A, 7f, 50);
+        for (int ring = 0; ring < 2; ring++) {
+            int count = ring == 0 ? 6 : 11;
+            double radius = ring == 0 ? 2.8 : 5.4;
+            int delay = 2 + ring * 4;
+            for (int i = 0; i < count; i++) {
+                double a = i * Math.PI * 2 / count + ring * 0.3;
+                Location spot = Combat.ground(center.clone().add(Math.cos(a) * radius, 1.5, Math.sin(a) * radius));
+                org.bukkit.block.data.BlockData rock = (i % 2 == 0 ? Material.COBBLED_DEEPSLATE : Material.STONE).createBlockData();
+                displays().later(delay, () -> fx().spike(spot, rock, 1.5f - 0.2f * delay / 6f, 0.75f, 0.35, 28));
+            }
+        }
         Fx.particle(center.clone().add(0, 0.3, 0), Particle.EXPLOSION, 2, 0.4, 0);
         Set<UUID> hit = new HashSet<>();
 

@@ -259,6 +259,21 @@ public enum SwordType {
         return base == null ? Material.NETHERITE_SWORD : base;
     }
 
+    /** The element of this weapon's magic: decides how casting its abilities looks. */
+    public dev.infuse.customs.ability.Fx3D.Element element() {
+        return switch (this) {
+            case DRAGON, PHOENIX, SOLAR -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
+            case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
+            case STORM, SAWBLADE -> dev.infuse.customs.ability.Fx3D.Element.STORM;
+            case TIDE, TRIDENT -> dev.infuse.customs.ability.Fx3D.Element.WATER;
+            case VERDANT, PLAGUE -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
+            case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
+            case SHADOW, SOUL, ECHO, SCYTHE -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
+            case CRIMSON, AXE -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
+            default -> dev.infuse.customs.ability.Fx3D.Element.MARTIAL;
+        };
+    }
+
     /** How melee hits with this weapon are drawn. */
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {

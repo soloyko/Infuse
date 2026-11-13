@@ -97,6 +97,9 @@ public final class VoidSword extends SwordAbility {
         Fx.particle(landing, Particle.REVERSE_PORTAL, 50, 0.5, 0.1);
         Fx.sound(destination, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1.2f);
         fx().beam(from.clone().add(0, 1, 0), landing, 0x8E3BD9, 0.7f, 7);
+        org.bukkit.util.Vector along = landing.toVector().subtract(from.toVector()).setY(0);
+        fx().rift(from.clone().add(0, 1, 0), along, 0xB26BFF, 2.2f, 26);
+        fx().rift(landing, along, 0xB26BFF, 2.2f, 26);
         fx().burst(landing, 0xB26BFF, 1.8f);
         fx().flash(from.clone().add(0, 1, 0), 0x5A1E9E, 1.8f);
         for (LivingEntity target : combat().nearby(player, landing, 2.5)) {

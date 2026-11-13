@@ -179,7 +179,29 @@ public final class FrostSword extends SwordAbility {
         Fx.sound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 0.6f);
         Fx.sound(player.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.6f);
         fx().shockwave(player.getLocation(), 0xBDF3FF, 7f, 10);
-        fx().shockwave(player.getLocation(), 0x6FC8FF, 5f, 14);
+        // a spiral of ice spikes bursts out of the ground around you
+        Location origin = player.getLocation();
+        java.util.Set<java.util.UUID> speared = new java.util.HashSet<>();
+        for (int i = 0; i < 16; i++) {
+            double a = i * 0.85;
+            double d = 1.6 + i * 0.32;
+            Location spot = Combat.ground(origin.clone().add(Math.cos(a) * d, 1.5, Math.sin(a) * d));
+            int delay = i;
+            boolean blue = i % 3 == 0;
+            displays().later(1 + delay, () -> {
+                fx().spike(spot, (blue ? Material.BLUE_ICE : Material.PACKED_ICE).createBlockData(),
+                        (float) (1.6 + Math.min(1.6, delay * 0.12)), 0.6f, 0.25, 34);
+                Fx.particle(spot.clone().add(0, 0.4, 0), Particle.BLOCK, 10, 0.3, 0.1, Material.PACKED_ICE.createBlockData());
+                Fx.sound(spot, Sound.BLOCK_GLASS_PLACE, 0.6f, 1.6f);
+                for (LivingEntity target : combat().nearby(player, spot.clone().add(0, 1, 0), 1.4)) {
+                    if (speared.add(target.getUniqueId())) {
+                        combat().damage(player, target, 4);
+                        freeze(target, 120);
+                        Combat.setVelocity(target, target.getVelocity().setY(0.55));
+                    }
+                }
+            });
+        }
 
         new BukkitRunnable() {
             int ticks;

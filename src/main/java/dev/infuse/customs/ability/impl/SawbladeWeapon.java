@@ -80,7 +80,7 @@ public final class SawbladeWeapon extends SwordAbility {
             }
             arcs++;
             Location to = Combat.center(other);
-            fx().beam(at, to, CYAN, 0.35f, 4);
+            fx().bolt(at, to, CYAN, 0.3f, 4, 0);
             fx().burst(to, CYAN, 1.1f);
             combat().damage(player, other, 3);
             Fx.sound(to, Sound.ENTITY_BEE_STING, 0.6f, 2f);
@@ -197,7 +197,7 @@ public final class SawbladeWeapon extends SwordAbility {
             applyEffect(target, PotionEffectType.GLOWING, 100, 0);
             applyEffect(target, PotionEffectType.WEAKNESS, 80, 0);
             Location at = Combat.center(target);
-            fx().beam(center, at, CYAN, 0.3f, 4);
+            fx().bolt(center, at, CYAN, 0.3f, 5, 1);
             Fx.particle(at, Particle.ELECTRIC_SPARK, 20, 0.4, 0.2);
         }
     }

@@ -102,9 +102,15 @@ public final class VerdantSword extends SwordAbility implements Listener {
         Fx.sound(center, Sound.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1.2f);
         fx().shockwave(center, 0x5BD16A, 7f, 10);
         fx().shockwave(center, 0xB8F07A, 4.5f, 7);
+        Location hand = dev.infuse.customs.ability.Fx3D.handOrigin(player);
         for (LivingEntity target : targets) {
             combat().damage(player, target, 4);
             root(target);
+            // a vine lashes out to each enemy, bursting into leaves when it wraps them
+            fx().tendril(hand, () -> target.isValid() ? Combat.center(target) : null, 0x6FD45A, 1.0f, 9, () -> {
+                Fx.particle(Combat.center(target), Particle.BLOCK, 12, 0.3, 0.1, Material.AZALEA_LEAVES.createBlockData());
+                fx().burst(Combat.center(target), 0xB8F07A, 1.2f);
+            });
         }
         return true;
     }

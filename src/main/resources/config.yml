@@ -33,7 +33,8 @@ settings:
   held-aura: true
   # A glowing slash in the weapon's colour on every melee hit.
   melee-slashes: true
-  # A spell circle unfolds under the player when they use an ability.
+  # Using an ability shows the weapon's element: flames, frost, sparks, splashes, leaves,
+  # runes, shadow, blood or a sweep of wind.
   cast-circles: true
   # Kills with an OP weapon end in a burst of light in the weapon's colour.
   kill-effects: true
