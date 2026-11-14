@@ -3,8 +3,9 @@
 A Paper **1.21.11** plugin that adds 48 legendary weapons: 45 in five arcs (swords, plus a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier, a khopesh, spectral claws, cursed daggers, a holy mace, a
-glaive, a power fuse hammer and a cyber mantis blade) and three faction weapons carried by the
-leaders of Arc II's factions, each named after its model in the Blades of Majestica pack. Each has its own name and lore, a 3D model
+glaive, a power fuse hammer and a cyber mantis blade), each named after its model in the Blades
+of Majestica pack, plus three faction weapons with their own original models, carried by the
+leaders of Arc II's factions. Each has its own name and lore, a 3D model
 (bundled resource pack), a passive, an on-hit effect and two activated abilities, drawn with
 glowing 3D effects: jagged lightning, ground that cracks and glows, pillars of fire, ice and
 stone spikes, rifts, spectral heads, crescent slashes and more. Admins can place **stone
@@ -447,7 +448,7 @@ GitHub Actions; the jar and pack are attached to each run as the `Customs` artif
 
 ### The resource pack
 
-The 3D models and textures come from the **Blades of Majestica** resource pack. 48 of its 119
+The 3D models and textures come from the **Blades of Majestica** resource pack. 45 of its 119
 weapons are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
@@ -455,6 +456,11 @@ weapons are imported into the `customs` namespace, so they're applied by the plu
 pip install pillow numpy
 python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 ```
+
+The three faction weapons (Hero Sword, Mjolnir, Fallen God's Spear) are original: painted as
+pixel art with a depth for every pixel by `python3 tools/faction_models.py`, which builds a relief
+model from it (bevelled blades, raised guards and gems) with glowing parts that emit light and an
+animated shimmer.
 
 The effect models are original too: `tools/fx_models.py` generates the slash, ring, burst, glow,
 beam and spell-circle models in four fade levels. The altar model is original: `tools/altar_model.py` generates it (pedestal, glowing rune windows and the
