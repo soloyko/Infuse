@@ -66,7 +66,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         line(sender, "/" + label + " recipes [weapon]", "How to craft each weapon and the altar");
         line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
-        line(sender, "/" + label + " arc", "Which arc the server is in, and its twist");
+        line(sender, "/" + label + " arc", "The arcs: which one the server is in, its twist and weapons");
         line(sender, "/" + label + " session", "Whether a session is running, and the top killers");
         line(sender, "/" + label + " faction", "Arc II: the factions, their leaders and points");
         if (sender.hasPermission(ADMIN)) {
@@ -275,6 +275,10 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
     private void arc(CommandSender sender, String label, String[] args) {
         var arcs = plugin.arcs();
         String action = args.length < 2 ? "status" : args[1].toLowerCase(Locale.ROOT);
+        if (action.equals("status") && args.length < 2 && sender instanceof Player player) {
+            new dev.infuse.customs.gui.ArcMenu(plugin, player).open(player);
+            return;
+        }
         if (action.equals("status") || action.equals("info")) {
             arcs.status().forEach(sender::sendMessage);
             return;
@@ -549,6 +553,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                     }
                 }
                 case "arc", "arcs" -> {
+                    options.add("info");
                     if (admin) {
                         options.addAll(List.of("start", "next", "set", "end"));
                     }

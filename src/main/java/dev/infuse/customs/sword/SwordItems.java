@@ -159,6 +159,8 @@ public final class SwordItems {
         }
         if (type.isFactionWeapon()) {
             lore.add(Text.caps("faction weapon  ·  soulbound to its leader", NamedTextColor.DARK_GRAY));
+        } else if (type.arc() != null) {
+            lore.add(Text.caps(type.arc().label() + "  ·  " + type.arc().title(), type.arc().color()));
         }
         lore.add(Component.empty());
         for (String line : Text.wrap(type.bio(), LORE_WIDTH)) {
