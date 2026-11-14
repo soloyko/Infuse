@@ -158,6 +158,9 @@ public final class SettingsMenu extends Menu {
         });
         arcButton(39);
         sessionButton(41);
+        flag(37, Material.DRAGON_BREATH, "Arc Bar", "A bar at the top of the screen with the arc, the session clock and faction points.", "arcs.boss-bar");
+        flag(38, Material.OAK_SIGN, "Session Sidebar", "During a session: the clock, faction points or the bounty, and the top killers on the right.", "arcs.sidebar");
+        flag(42, Material.BOOK, "Tab List Header", "The arc above the tab list, the session and faction points below it.", "arcs.tab-list");
         set(BACK, button(Material.ARROW, Text.plain("← Armory", NamedTextColor.GRAY), List.of()), p -> new SwordMenu(plugin).open(p));
         closeButton();
     }

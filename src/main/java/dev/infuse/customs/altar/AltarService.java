@@ -77,6 +77,7 @@ import java.util.logging.Level;
 public final class AltarService implements Listener {
 
     private static final String ADMIN = "customs.admin";
+    private static final int LOCKED_TINT = 0x5E5E6E;
     private static final int DEFAULT_TINT = 0x9FD8FF;
     private static final double FLOAT_HEIGHT = 1.12;
     private static final float WEAPON_HEIGHT = 1.25f;
@@ -507,19 +508,22 @@ public final class AltarService implements Listener {
         }
         SwordType type = altar.type;
         int tint = type == null ? DEFAULT_TINT : type.color().value();
+        // an altar whose weapon is locked by the arcs goes cold: grey runes, a red-edged weapon
+        boolean locked = type != null && plugin.arcs().lockReason(type) != null;
+        int runes = locked ? LOCKED_TINT : tint;
         Location center = altar.center();
 
         altar.visuals.add(world.spawn(center, ItemDisplay.class, d -> {
-            d.setItemStack(modelItem("altar_base", tint));
+            d.setItemStack(modelItem("altar_base", runes));
             prepare(d);
         }));
         altar.visuals.add(world.spawn(center, ItemDisplay.class, d -> {
-            d.setItemStack(modelItem("altar_glow", tint));
-            d.setBrightness(new Display.Brightness(15, 15));
+            d.setItemStack(modelItem("altar_glow", runes));
+            d.setBrightness(new Display.Brightness(locked ? 6 : 15, locked ? 6 : 15));
             prepare(d);
         }));
         ItemDisplay halo = world.spawn(center.clone().add(0, HALO_HEIGHT, 0), ItemDisplay.class, d -> {
-            d.setItemStack(modelItem("altar_halo", tint));
+            d.setItemStack(modelItem("altar_halo", runes));
             d.setBrightness(new Display.Brightness(15, 15));
             prepare(d);
         });
@@ -534,7 +538,7 @@ public final class AltarService implements Listener {
             d.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.NONE);
             d.setTransformation(models.onAltar(type, WEAPON_HEIGHT, 0));
             d.setGlowing(true);
-            d.setGlowColorOverride(Color.fromRGB(tint));
+            d.setGlowColorOverride(Color.fromRGB(locked ? 0x8A2A2A : tint));
             d.setTeleportDuration(20);
             prepare(d);
         });

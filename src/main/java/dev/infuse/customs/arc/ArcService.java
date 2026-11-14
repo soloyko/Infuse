@@ -87,6 +87,8 @@ public final class ArcService implements Listener {
     /** Bounty Hunt: the current bounty and when they win. */
     private @Nullable UUID bounty;
     private long bountyUntil;
+    /** "☠ BOUNTY ☠" floating over the bounty's name. */
+    private org.bukkit.entity.@Nullable TextDisplay bountyMark;
 
     public ArcService(CustomsPlugin plugin) {
         this.plugin = plugin;
@@ -512,6 +514,10 @@ public final class ArcService implements Listener {
                 p.setGlowing(false);
             }
         }
+        if (bountyMark != null) {
+            bountyMark.remove();
+            bountyMark = null;
+        }
     }
 
     /** Takes the twist out of play for good: results announced, its progress cleared. */
@@ -651,6 +657,7 @@ public final class ArcService implements Listener {
             return;
         }
         target.setGlowing(true);
+        markBounty(target, left);
         target.sendActionBar(Text.caps("you are the bounty · " + clock(left), Arc.I.color()));
         String[] arrows = {"⬆", "⬈", "➡", "⬊", "⬇", "⬋", "⬅", "⬉"};
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -679,6 +686,40 @@ public final class ArcService implements Listener {
             }
         }
         bounty = null;
+        if (bountyMark != null) {
+            bountyMark.remove();
+            bountyMark = null;
+        }
+    }
+
+    /** The skull over the bounty's head, with the time they have left; everyone but the bounty sees it. */
+    private void markBounty(Player target, long left) {
+        Component text = Text.plain("☠ ", Arc.I.color()).append(Text.caps("bounty", Arc.I.color()).decorate(TextDecoration.BOLD))
+                .append(Text.plain(" ☠", Arc.I.color())).append(Component.newline())
+                .append(Text.plain(clock(left), NamedTextColor.WHITE));
+        if (bountyMark != null && bountyMark.isValid() && target.getPassengers().contains(bountyMark)) {
+            bountyMark.text(text);
+            return;
+        }
+        if (bountyMark != null) {
+            bountyMark.remove();
+        }
+        if (target.isDead()) {
+            return;
+        }
+        bountyMark = target.getWorld().spawn(target.getLocation().add(0, 2, 0), org.bukkit.entity.TextDisplay.class, t -> {
+            t.text(text);
+            t.setPersistent(false);
+            t.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+            t.setShadowed(true);
+            t.setAlignment(org.bukkit.entity.TextDisplay.TextAlignment.CENTER);
+            t.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
+            // two lines: lifted clear of the name tag
+            t.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(0, 0.8f, 0), new org.joml.Quaternionf(),
+                    new org.joml.Vector3f(0.85f), new org.joml.Quaternionf()));
+        });
+        target.addPassenger(bountyMark);
+        target.hideEntity(plugin, bountyMark);
     }
 
     // ---------------------------------------------------------------- ceremony and boss bar
