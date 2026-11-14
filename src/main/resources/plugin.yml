@@ -1,0 +1,33 @@
+name: Customs
+version: '${version}'
+main: dev.infuse.customs.CustomsPlugin
+api-version: '1.21.11'
+description: 45 legendary weapons in five arcs, with 3D models, lore, unique abilities, glowing effects and stone altars.
+authors: [Infuse]
+
+commands:
+  customs:
+    description: Customs commands.
+    usage: /<command> help
+    aliases: [custom, weapons]
+
+permissions:
+  customs.admin:
+    description: Give weapons and altars, place and set up altars, open the menu, reset cooldowns and reload.
+    default: op
+    children:
+      customs.use: true
+      customs.craft: true
+      customs.pack: true
+  customs.use:
+    description: Use weapon abilities and passives.
+    default: true
+  customs.craft:
+    description: Craft weapons (crafting table and weapon altars).
+    default: true
+  customs.pack:
+    description: Re-download the resource pack with /customs pack.
+    default: true
+  customs.bypass.cooldown:
+    description: Use abilities with no cooldown.
+    default: false
