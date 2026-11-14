@@ -334,6 +334,17 @@ public final class ArcService implements Listener {
         }
         if (top.isEmpty()) {
             Bukkit.broadcast(Text.plain("  No one was slain.", NamedTextColor.GRAY));
+        } else {
+            // the session's most valuable player: a burst of light and a moment on screen
+            Player mvp = Bukkit.getPlayer(top.get(0).getKey());
+            if (mvp != null) {
+                Location at = mvp.getLocation();
+                plugin.fx().beam(at.clone().add(0, 30, 0), at, 0xF2C94C, 1.2f, 40);
+                plugin.fx().burst(at.clone().add(0, 2.2, 0), 0xF2C94C, 3f);
+                Fx.particle(at.clone().add(0, 1, 0), Particle.TOTEM_OF_UNDYING, 60, 0.6, 0.4);
+                mvp.playSound(at, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1.2f);
+                mvp.sendActionBar(Text.caps("session mvp · " + top.get(0).getValue() + " kills", net.kyori.adventure.text.format.TextColor.color(0xF2C94C)));
+            }
         }
         Bukkit.broadcast(Component.empty());
         Title over = Title.title(Text.plain("SESSION OVER", NamedTextColor.RED).decorate(TextDecoration.BOLD),

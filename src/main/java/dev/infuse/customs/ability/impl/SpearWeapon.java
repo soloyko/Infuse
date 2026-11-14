@@ -96,6 +96,10 @@ public final class SpearWeapon extends SwordAbility {
         Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1.2f, 0.7f);
         Fx.sound(start, Sound.BLOCK_CHAIN_PLACE, 1f, 0.8f);
 
+        // a real chain between your hand and the spear
+        dev.infuse.customs.ability.Tether links = new dev.infuse.customs.ability.Tether(displays(),
+                new org.bukkit.block.data.BlockData[]{org.bukkit.Material.IRON_CHAIN.createBlockData()}, 0.4f, 0.4f, 0.6, null, true, 130);
+
         new BukkitRunnable() {
             final Location pos = start.clone();
             int ticks;
@@ -122,6 +126,11 @@ public final class SpearWeapon extends SwordAbility {
                     default -> reel(hand);
                 }
                 chain(hand, pos);
+                // starts a little way out of the hand, so it isn't in front of your eyes
+                Vector out = pos.toVector().subtract(hand.toVector());
+                if (out.lengthSquared() > 1.2) {
+                    links.update(hand.clone().add(out.clone().normalize().multiply(0.8)), pos, 0.0, 0, ticks);
+                }
             }
 
             private void flyOut() {
@@ -235,6 +244,7 @@ public final class SpearWeapon extends SwordAbility {
 
             private void finish() {
                 displays().remove(hook);
+                links.remove();
                 cancel();
             }
         }.runTaskTimer(plugin, 1L, 1L);

@@ -430,6 +430,7 @@ public final class Factions implements Listener {
         members.clear();
         leaders.clear();
         scores.clear();
+        leaderAway.clear();
     }
 
     private static String teamName(Faction f) {
@@ -705,7 +706,50 @@ public final class Factions implements Listener {
 
     // ---------------------------------------------------------------- blessings
 
+    /** When each faction's leader was first seen offline, for succession. */
+    private final EnumMap<Faction, Long> leaderAway = new EnumMap<>(Faction.class);
+    private static final long SUCCESSION_MS = 120_000L;
+
+    /**
+     * A faction whose leader has been offline for two minutes passes the weapon to a random online
+     * member, so a war can't be won by logging out.
+     */
+    private void succession() {
+        long now = System.currentTimeMillis();
+        for (Faction f : Faction.values()) {
+            UUID id = leaders.get(f);
+            if (id == null || Bukkit.getPlayer(id) != null) {
+                leaderAway.remove(f);
+                continue;
+            }
+            long since = leaderAway.computeIfAbsent(f, k -> now);
+            if (now - since < SUCCESSION_MS) {
+                continue;
+            }
+            List<Player> heirs = new ArrayList<>();
+            for (UUID member : roster(f)) {
+                Player p = Bukkit.getPlayer(member);
+                if (p != null && !member.equals(id) && !p.isDead()) {
+                    heirs.add(p);
+                }
+            }
+            if (heirs.isEmpty()) {
+                continue;
+            }
+            Player heir = heirs.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(heirs.size()));
+            leaderAway.remove(f);
+            assign(heir, f, true);
+            Bukkit.broadcast(f.label().append(Text.plain(": " + name(id) + " has abandoned the fight. ", NamedTextColor.GRAY))
+                    .append(Text.plain(heir.getName(), NamedTextColor.WHITE))
+                    .append(Text.plain(" takes up the ", NamedTextColor.GRAY)).append(Text.sword(f.weapon)).append(Text.plain(".", NamedTextColor.GRAY)));
+            Location at = heir.getLocation();
+            plugin.fx().beam(at.clone().add(0, 30, 0), at, f.color.value(), 1.4f, 40);
+            plugin.fx().shockwave(at.clone().add(0, 0.05, 0), f.color.value(), 6f, 12);
+        }
+    }
+
     private void bless() {
+        succession();
         for (Player p : Bukkit.getOnlinePlayers()) {
             Faction f = of(p);
             boolean leader = f != null && p.getUniqueId().equals(leaders.get(f));
