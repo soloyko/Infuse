@@ -37,6 +37,10 @@ public final class BloodListener implements Listener {
             return;
         }
 
+        // The bounty always passes to the killer, even on a repeat kill.
+        plugin.events().onBountyKilled(victim, killer);
+        if (plugin.events().current().orElse(null) == EventType.LAST_STAND) EventListener.fullHeal(killer);
+
         if (!plugin.killCooldowns().tryRecord(killer.getUniqueId(), victim.getUniqueId())) {
             plugin.messages().send(killer, "blood.repeat-kill", text("player", victim.getName()));
             return;
@@ -52,9 +56,6 @@ public final class BloodListener implements Listener {
             plugin.messages().send(killer, "blood.shattered", text("player", victim.getName()),
                     text("amount", shatter.killerGain()));
         }
-
-        plugin.events().onBountyKilled(victim, killer);
-        if (plugin.events().current().orElse(null) == EventType.LAST_STAND) EventListener.fullHeal(killer);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
