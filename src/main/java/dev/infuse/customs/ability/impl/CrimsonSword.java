@@ -152,13 +152,21 @@ public final class CrimsonSword extends SwordAbility {
             applyEffect(target, PotionEffectType.SLOWNESS, BOND_TICKS, 0);
         }
 
+        java.util.Map<LivingEntity, BloodChain> chains = new java.util.HashMap<>();
+
         new BukkitRunnable() {
             int ticks;
 
             @Override
             public void run() {
                 ticks++;
-                bound.removeIf(t -> !t.isValid() || t.isDead() || t.getWorld() != player.getWorld());
+                bound.removeIf(t -> {
+                    boolean gone = !t.isValid() || t.isDead() || t.getWorld() != player.getWorld();
+                    if (gone && chains.containsKey(t)) {
+                        chains.remove(t).remove();
+                    }
+                    return gone;
+                });
                 if (!alive(player) || bound.isEmpty() || ticks > BOND_TICKS) {
                     snap();
                     return;
@@ -166,7 +174,7 @@ public final class CrimsonSword extends SwordAbility {
                 Location from = player.getLocation().add(0, 1.1, 0);
                 for (LivingEntity target : bound) {
                     Location to = Combat.center(target);
-                    chain(from, to, ticks);
+                    chains.computeIfAbsent(target, k -> new BloodChain()).update(from, to, ticks);
                     // the chain only lets them get so far: past it, they're yanked back towards you
                     Vector away = to.toVector().subtract(from.toVector());
                     double distance = away.length();
@@ -193,6 +201,8 @@ public final class CrimsonSword extends SwordAbility {
 
             private void snap() {
                 cancel();
+                chains.values().forEach(BloodChain::remove);
+                chains.clear();
                 for (LivingEntity target : bound) {
                     if (!target.isValid() || target.isDead()) {
                         continue;
@@ -214,23 +224,68 @@ public final class CrimsonSword extends SwordAbility {
         return true;
     }
 
-    /** A chain of blood between you and a bound enemy: dark links with a bright pulse running along it. */
-    private void chain(Location from, Location to, int tick) {
-        Vector span = to.toVector().subtract(from.toVector());
-        double length = span.length();
-        if (length < 0.5) {
-            return;
+    /**
+     * A chain between you and a bound enemy: real iron chain links outlined in blood red, sagging
+     * in the middle, with a bright pulse running along it.
+     */
+    private final class BloodChain {
+        private final List<org.bukkit.entity.BlockDisplay> links = new java.util.ArrayList<>();
+
+        void update(Location from, Location to, int tick) {
+            Vector span = to.toVector().subtract(from.toVector());
+            double length = span.length();
+            int n = Math.max(1, (int) Math.ceil(length / 0.85));
+            while (links.size() < n) {
+                org.bukkit.entity.BlockDisplay link = displays().block(from, org.bukkit.Material.IRON_CHAIN.createBlockData(),
+                        new org.joml.Vector3f(0.6f), new org.joml.Quaternionf(), BOND_TICKS + 40);
+                link.setGlowing(true);
+                link.setGlowColorOverride(org.bukkit.Color.fromRGB(BLOOD_GLOW));
+                link.setBrightness(new org.bukkit.entity.Display.Brightness(12, 12));
+                link.setTeleportDuration(1);
+                links.add(link);
+            }
+            while (links.size() > n) {
+                displays().remove(links.remove(links.size() - 1));
+            }
+            double sagMax = Math.min(0.7, length * 0.07);
+            for (int i = 0; i < n; i++) {
+                double t0 = i / (double) n;
+                double t1 = (i + 1) / (double) n;
+                Vector a = from.toVector().add(span.clone().multiply(t0)).subtract(new Vector(0, Math.sin(t0 * Math.PI) * sagMax, 0));
+                Vector b = from.toVector().add(span.clone().multiply(t1)).subtract(new Vector(0, Math.sin(t1 * Math.PI) * sagMax, 0));
+                Vector seg = b.clone().subtract(a);
+                double len = seg.length();
+                if (len < 1.0E-3) {
+                    continue;
+                }
+                Vector mid = a.clone().add(b).multiply(0.5);
+                org.joml.Quaternionf rot = new org.joml.Quaternionf().rotationTo(0, 1, 0,
+                        (float) (seg.getX() / len), (float) (seg.getY() / len), (float) (seg.getZ() / len));
+                // every other link turned a quarter, like a real chain
+                if (i % 2 == 1) {
+                    rot.rotateY((float) (Math.PI / 2));
+                }
+                org.bukkit.entity.BlockDisplay link = links.get(i);
+                if (!link.isValid()) {
+                    continue;
+                }
+                Location at = mid.toLocation(from.getWorld());
+                link.teleport(at);
+                link.setInterpolationDelay(0);
+                link.setInterpolationDuration(1);
+                link.setTransformation(dev.infuse.customs.ability.Displays.centered(new org.joml.Vector3f(0.55f, (float) len * 1.05f, 0.55f), rot));
+            }
+            // the pulse of blood running along it
+            double pulse = (tick * 0.35) % 1.0;
+            Vector p = from.toVector().add(span.clone().multiply(pulse)).subtract(new Vector(0, Math.sin(pulse * Math.PI) * sagMax, 0));
+            Fx.particle(p.toLocation(from.getWorld()), Particle.DUST, 3, 0.05, 0, Fx.dust(BLOOD_GLOW, 1.4f));
         }
-        // it sags a little in the middle, like a real chain
-        Vector step = span.clone().multiply(0.4 / length);
-        int links = (int) (length / 0.4);
-        double pulse = (tick * 0.35) % 1.0;
-        for (int i = 1; i < links; i++) {
-            double t = i / (double) links;
-            double sag = Math.sin(t * Math.PI) * Math.min(0.6, length * 0.06);
-            Location link = from.clone().add(step.clone().multiply(i)).subtract(0, sag, 0);
-            boolean lit = Math.abs(t - pulse) < 0.08;
-            Fx.particle(link, Particle.DUST, 1, 0, 0, Fx.dust(lit ? BLOOD_GLOW : (i % 2 == 0 ? DARK_RED : 0x3A0A10), lit ? 1.3f : 0.9f));
+
+        void remove() {
+            for (org.bukkit.entity.BlockDisplay link : links) {
+                displays().remove(link);
+            }
+            links.clear();
         }
     }
 }

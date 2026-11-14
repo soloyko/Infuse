@@ -192,9 +192,16 @@ public final class DaggersWeapon extends SwordAbility implements Listener {
         applyEffect(player, PotionEffectType.SPEED, 60, 1);
         for (Location p : new Location[]{a, b}) {
             fx().flash(p, VIOLET, 2.2f);
+            fx().rift(p, b.toVector().subtract(a.toVector()), VIOLET, 1.6f, 14);
+            fx().castCircle(p.clone().subtract(0, 1, 0), VIOLET, 1.4f);
             Fx.particle(p, Particle.SOUL, 14, 0.4, 0.05);
             Fx.particle(p, Particle.WITCH, 20, 0.4, 0.05);
         }
+        // the soul torn out in the swap rises from where the enemy stood, and fades
+        Vector up = new Vector(0, 1, 0);
+        fx().spectralHead(b.clone().add(0, 0.6, 0), org.bukkit.Material.WITHER_SKELETON_SKULL, VIOLET, 1.1f,
+                a.toVector().subtract(b.toVector()).setY(0), 22);
+        fx().drift(b.clone().add(0, 0.8, 0), up.multiply(2.2), SOUL, 0.8f, 16);
         Fx.sound(a, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.7f);
         Fx.sound(b, Sound.PARTICLE_SOUL_ESCAPE, 1.5f, 0.8f);
         Fx.sound(b, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.9f);

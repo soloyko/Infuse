@@ -85,7 +85,7 @@ back when the session ends. Their abilities help the whole faction:
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
 | ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge forward; the first enemy in the way is bowled over and stunned | **Rally** (45s): you and your faction within 12 blocks gain Strength, Speed and a quick heal; enemies close by are pushed back |
-| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): lightning strikes the enemy you aim at, then arcs to three more | **Bulwark Roar** (45s): you and your faction nearby gain Resistance II and Absorption II; enemies close by are thrown back |
+| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): a storm gathers where you aim; lightning strikes there and keeps striking enemies under the cloud for 4s | **Bulwark Roar** (45s): you and your faction nearby gain Resistance II and Absorption II; enemies close by are thrown back |
 | ♆ **Fallen God's Spear** · Spear of the Covenant | **Longreach**: +1.5 reach | 20%: **Skewer** pins the target | **Godspear Lunge** (10s): a long lunge that skewers the first enemy and carries it to the end | **War Banner** (45s): plant a banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
 
 `/customs faction` shows the factions, their leaders and points; admins can move a player with

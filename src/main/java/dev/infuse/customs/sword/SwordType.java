@@ -302,7 +302,7 @@ public enum SwordType {
             "The House of the Hammer's oldest heirloom. Storms gather wherever it is raised in anger.",
             new AbilityInfo("Stormborn", "Immune to lightning while held."),
             new AbilityInfo("Thunderclap", "20% chance for lightning to strike the target for +4 damage."),
-            new AbilityInfo("Stormcall", "Call lightning down on the enemy under your crosshair; it arcs to other enemies nearby."),
+            new AbilityInfo("Stormcall", "A storm gathers where you aim: lightning strikes there, and for four seconds keeps striking enemies under the cloud."),
             new AbilityInfo("Bulwark Roar", "You and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back.")),
 
     GODSPEAR("godspear", "Fallen God's Spear", "Spear of the Covenant", "♆", 0xD83A3A, 0x2A0E0E, Material.NETHERITE_SPEAR,

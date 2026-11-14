@@ -15,8 +15,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Mjolnir, the Hammer of the House (Arc II faction weapon of the House of the Hammer).
@@ -42,69 +40,92 @@ public final class MjolnirWeapon extends SwordAbility {
         Fx.sound(feet, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1f, 1.2f);
     }
 
-    /** Stormcall: a storm gathers over the enemy you aim at; lightning strikes it, then arcs to up to three more nearby. */
+    /**
+     * Stormcall: a storm gathers over the enemy (or the spot) you aim at. Lightning strikes there
+     * at once, and for four seconds keeps striking enemies under the cloud.
+     */
     @Override
     public boolean primary(Player player) {
         LivingEntity target = combat().lookTarget(player, 32, 0.8);
-        if (target == null) {
-            tell(player, "Look at an enemy to call the storm down on.");
-            return false;
+        Location ground;
+        if (target != null) {
+            ground = target.getLocation();
+        } else {
+            Location aim = combat().aimPoint(player, 32);
+            if (aim == null) {
+                tell(player, "Aim at an enemy or the ground to call the storm.");
+                return false;
+            }
+            ground = Combat.ground(aim.clone().add(0, 0.5, 0));
         }
-        Location feet = target.getLocation();
-        // the storm cloud: a wide, flat bank of dark haze above the target, lit from within by the strike
-        Location cloud = feet.clone().add(0, 9, 0);
+        Location cloud = ground.clone().add(0, 9, 0);
         java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
-        for (int i = 0; i < 9; i++) {
-            double a = i * Math.PI * 2 / 9 + r.nextDouble(0.3);
-            double d = i % 2 == 0 ? 2.6 : 1.5;
+        // the storm cloud: a wide, flat bank of dark haze, lit from within by every strike
+        for (int i = 0; i < 10; i++) {
+            double a = i * Math.PI * 2 / 10 + r.nextDouble(0.3);
+            double d = i % 2 == 0 ? 3.2 : 1.8;
             fx().haze(cloud.clone().add(Math.cos(a) * d, r.nextDouble(-0.35, 0.35), Math.sin(a) * d), i % 3 == 0 ? 0x39425A : 0x262C3C,
-                    (float) r.nextDouble(2.2, 3.0), 36 + r.nextInt(10));
+                    (float) r.nextDouble(2.4, 3.2), ZONE_TICKS + 10 + r.nextInt(10));
         }
-        fx().haze(cloud, 0x1C2230, 3.2f, 44);
-        Fx.particle(cloud, Particle.LARGE_SMOKE, 30, 2.2, 0.01);
-        Fx.particle(cloud.clone().subtract(0, 0.6, 0), Particle.CLOUD, 25, 2.4, 0.01);
-        Fx.sound(cloud, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.7f, 1.3f);
-        // the hammer's own arc to the target, then the strike
-        fx().bolt(dev.infuse.customs.ability.Fx3D.handOrigin(player), Combat.center(target), ARC, 0.25f, 4, 1);
-        feet.getWorld().strikeLightningEffect(feet);
-        fx().bolt(cloud, feet, ARC, 0.9f, 8, 3);
-        fx().flash(cloud, 0xE8F4FF, 5f);
-        fx().crack(feet, ARC, 2.8f, 40);
-        fx().shockwave(feet.clone().add(0, 0.05, 0), GOLD, 3.5f, 8);
-        Fx.particle(Combat.center(target), Particle.ELECTRIC_SPARK, 40, 0.5, 0.4);
-        combat().damage(player, target, 8, true);
-        Set<LivingEntity> struck = new HashSet<>();
-        struck.add(target);
-        LivingEntity from = target;
-        for (int jump = 0; jump < 3; jump++) {
-            LivingEntity next = null;
-            for (LivingEntity near : combat().nearby(player, from.getLocation(), 6)) {
-                if (!struck.contains(near)) {
-                    next = near;
-                    break;
-                }
-            }
-            if (next == null) {
-                break;
-            }
-            LivingEntity hop = next;
-            Location a = Combat.center(from);
-            int delay = (jump + 1) * 3;
-            displays().later(delay, () -> {
-                if (!hop.isValid() || hop.isDead() || !alive(player)) {
+        fx().haze(cloud, 0x1C2230, 3.6f, ZONE_TICKS + 20);
+        fx().castCircle(ground, ARC, (float) ZONE_RADIUS);
+        Fx.particle(cloud, Particle.LARGE_SMOKE, 30, 2.6, 0.01);
+        Fx.sound(cloud, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.8f, 1.2f);
+        fx().bolt(dev.infuse.customs.ability.Fx3D.handOrigin(player), target != null ? Combat.center(target) : ground.clone().add(0, 1, 0), ARC, 0.25f, 4, 1);
+        strike(player, cloud, ground, target, 8);
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int ticks;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (ticks > ZONE_TICKS || !alive(player) || ground.getWorld() != player.getWorld()) {
+                    cancel();
                     return;
                 }
-                fx().bolt(a, Combat.center(hop), ARC, 0.4f, 6, 1);
-                fx().bolt(cloud, hop.getLocation(), ARC, 0.5f, 5, 1);
-                fx().flash(Combat.center(hop), ARC, 2f);
-                combat().damage(player, hop, 5, true);
-                Fx.particle(Combat.center(hop), Particle.ELECTRIC_SPARK, 20, 0.4, 0.3);
-                Fx.sound(hop.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 0.8f, 1.5f);
-            });
-            struck.add(next);
-            from = next;
-        }
+                if (ticks % 4 == 0) {
+                    // the storm's edge, crackling
+                    double a = r.nextDouble(Math.PI * 2);
+                    Fx.particle(ground.clone().add(Math.cos(a) * ZONE_RADIUS, 0.3, Math.sin(a) * ZONE_RADIUS), Particle.ELECTRIC_SPARK, 4, 0.2, 0.05);
+                    Fx.particle(cloud.clone().add(r.nextDouble(-2.5, 2.5), -0.6, r.nextDouble(-2.5, 2.5)), Particle.FALLING_WATER, 3, 0.4, 0);
+                }
+                if (ticks % 15 != 0) {
+                    return;
+                }
+                java.util.List<LivingEntity> under = combat().nearby(player, ground, ZONE_RADIUS);
+                if (under.isEmpty()) {
+                    // a strike on empty ground, to show where the storm is
+                    double a = r.nextDouble(Math.PI * 2);
+                    double d = r.nextDouble(ZONE_RADIUS);
+                    strike(player, cloud, Combat.ground(ground.clone().add(Math.cos(a) * d, 1.5, Math.sin(a) * d)), null, 0);
+                } else {
+                    LivingEntity hit = under.get(r.nextInt(under.size()));
+                    strike(player, cloud, hit.getLocation(), hit, 5);
+                }
+            }
+        }.runTaskTimer(plugin, 1L, 1L);
         return true;
+    }
+
+    private static final int ZONE_TICKS = 80;
+    private static final double ZONE_RADIUS = 5;
+
+    /** One bolt out of the cloud onto {@code spot}, hurting {@code victim} if there is one. */
+    private void strike(Player player, Location cloud, Location spot, LivingEntity victim, double damage) {
+        Location from = cloud.clone().add((Math.random() - 0.5) * 3, 0, (Math.random() - 0.5) * 3);
+        spot.getWorld().strikeLightningEffect(spot);
+        fx().bolt(from, spot, ARC, 0.8f, 7, 2);
+        fx().flash(cloud, 0xE8F4FF, 4f);
+        fx().crack(spot, ARC, 2.2f, 30);
+        fx().shockwave(spot.clone().add(0, 0.05, 0), GOLD, 2.6f, 7);
+        Fx.particle(spot.clone().add(0, 0.6, 0), Particle.ELECTRIC_SPARK, 30, 0.5, 0.3);
+        Fx.sound(spot, Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1.2f, 1.1f);
+        if (victim != null && victim.isValid() && !victim.isDead()) {
+            combat().damage(player, victim, damage, true);
+            applyEffect(victim, PotionEffectType.SLOWNESS, 20, 2);
+            fx().flash(Combat.center(victim), ARC, 2f);
+        }
     }
 
     /**
