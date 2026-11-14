@@ -220,6 +220,10 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                             + " players in survival are online.");
                     return;
                 }
+                if (sender instanceof Player player && !(args.length > 1 && args[1].equalsIgnoreCase("list"))) {
+                    new dev.infuse.customs.gui.FactionMenu(plugin, player).open(player);
+                    return;
+                }
                 factions.status().forEach(sender::sendMessage);
                 if (sender instanceof Player player) {
                     dev.infuse.customs.arc.Factions.Faction mine = factions.of(player);

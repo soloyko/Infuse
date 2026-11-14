@@ -386,6 +386,50 @@ public final class ArcService implements Listener {
         }
         refreshBar();
         updateBoard();
+        updateTab();
+    }
+
+    /** Whether we put a header and footer on the tab list (so we clear it once when it's no longer due). */
+    private boolean tabShown;
+
+    /** The tab list's header and footer: the arc, the session and, in Arc II, the faction points (arcs.tab-list). */
+    private void updateTab() {
+        boolean due = (current != null || session) && plugin.getConfig().getBoolean("arcs.tab-list", true);
+        if (!due) {
+            if (tabShown) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendPlayerListHeaderAndFooter(Component.empty(), Component.empty());
+                }
+                tabShown = false;
+            }
+            return;
+        }
+        Component header = Component.newline()
+                .append(Text.gradient("⚔ Customs ⚔", net.kyori.adventure.text.format.TextColor.color(0xECBA44),
+                        net.kyori.adventure.text.format.TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD));
+        if (current != null) {
+            header = header.append(Component.newline()).append(Text.plain(current.label() + " · " + current.title(), current.color()));
+        }
+        header = header.append(Component.newline());
+        long now = System.currentTimeMillis();
+        Component footer = Component.newline();
+        if (session) {
+            footer = footer.append(Text.plain("● ", NamedTextColor.GREEN))
+                    .append(Text.caps("session " + (sessionEnds > 0 ? clock(sessionEnds - now) + " left" : clock(now - sessionStarted)), NamedTextColor.GREEN));
+            if (current != null && twist(current)) {
+                footer = footer.append(Text.plain("  ·  " + current.twist(), NamedTextColor.WHITE));
+            }
+        } else {
+            footer = footer.append(Text.caps("no session running", NamedTextColor.DARK_GRAY));
+        }
+        if (factions.active() && factions.formed()) {
+            footer = footer.append(Component.newline()).append(factions.scoreLine());
+        }
+        footer = footer.append(Component.newline());
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.sendPlayerListHeaderAndFooter(header, footer);
+        }
+        tabShown = true;
     }
 
     /** The sidebar while a session runs (arcs.sidebar). */

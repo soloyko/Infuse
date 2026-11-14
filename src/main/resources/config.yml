@@ -115,6 +115,8 @@ arcs:
   # During a session, show the clock, faction points or the bounty, and the top killers on the
   # right of the screen (stays hidden if another plugin already uses the sidebar).
   sidebar: true
+  # Show the arc, the session clock and faction points above and below the tab list.
+  tab-list: true
   # Turn single twists off (the arc still unlocks its weapons).
   twists:
     awakening: true
