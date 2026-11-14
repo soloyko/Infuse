@@ -12,7 +12,7 @@
 # automatically the next time they hold them.
 
 # Used to upgrade older configs. Don't change it.
-config-version: 3
+config-version: 4
 
 settings:
   # Swords never lose durability.
@@ -104,8 +104,8 @@ arcs:
   # during a session (an admin starts one with /customs session start [minutes]):
   #   I   Awakening  - Bounty Hunt: a rotating bounty everyone is pointed at; kills heal fully
   #   II  Ascension  - Faction War: when the session starts, three random players lead the Order
-  #                    of the Blade, the House of the Soulflame and the Covenant of the Fallen (with
-  #                    the Hero Sword, True Excalibur and the Fallen God's Sword), two random players
+  #                    of the Moonlight, the Court of Blood and the Abominable Host (with the
+  #                    Holy Moonlight Sword, Rivers of Blood and the Abominable Great Saber), two random players
   #                    join each. No friendly fire; kills score; an unsworn player slain by a
   #                    faction's weapon joins that faction. The top faction wins at session end.
   #   III, IV, V     - no twist: they unlock their weapons.
@@ -490,29 +490,75 @@ swords:
       shape: ["OCO", "ESE", "OCO"]
       ingredients: {O: CRYING_OBSIDIAN, C: END_CRYSTAL, E: ECHO_SHARD, S: NETHERITE_SWORD}
   # The faction weapons of Arc II: handed to faction members, never forged (no recipe).
-  herosword:     # Hero Sword (Order of the Blade)
+  herosword:     # Hero Sword (Arc III)
     enabled: true
     attack-damage: 12
     attack-speed: 1.6
     cooldowns: {primary: 10, secondary: 45}
     recipe:
-      enabled: false
-      shape: ["   ", " S ", "   "]
-      ingredients: {S: NETHERITE_SWORD}
-  excalibur:     # True Excalibur (House of the Soulflame)
+      enabled: true
+      shape: ["GDG", "LSL", "GDG"]
+      ingredients: {G: GOLD_BLOCK, D: DIAMOND_BLOCK, L: LAPIS_BLOCK, S: NETHERITE_SWORD}
+  excalibur:     # True Excalibur (Arc V)
     enabled: true
     attack-damage: 13
     attack-speed: 1.4
     cooldowns: {primary: 12, secondary: 45}
     recipe:
-      enabled: false
-      shape: ["   ", " S ", "   "]
-      ingredients: {S: NETHERITE_SWORD}
-  fallen:        # Fallen God's Sword (Covenant of the Fallen)
+      enabled: true
+      shape: ["LDL", "GSG", "LDL"]
+      ingredients: {L: SOUL_LANTERN, D: DIAMOND_BLOCK, G: GOLD_BLOCK, S: NETHERITE_SWORD}
+  fallen:        # Fallen God's Sword (Arc IV)
     enabled: true
     attack-damage: 12
     attack-speed: 1.5
     cooldowns: {primary: 18, secondary: 45}
+    recipe:
+      enabled: true
+      shape: ["RNR", "OSO", "RNR"]
+      ingredients: {R: REDSTONE_BLOCK, N: NETHERITE_INGOT, O: CRYING_OBSIDIAN, S: NETHERITE_SWORD}
+  terra:         # Terra Blade (Arc I)
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.6
+    cooldowns: {primary: 25, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["AEA", "MSM", "AEA"]
+      ingredients: {A: FLOWERING_AZALEA, E: EMERALD_BLOCK, M: MOSS_BLOCK, S: NETHERITE_SWORD}
+  demonic:       # Demonic Blade (Arc II)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.5
+    cooldowns: {primary: 20, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["CWC", "BSB", "CBC"]
+      ingredients: {C: CRYING_OBSIDIAN, W: WITHER_SKELETON_SKULL, B: BLAZE_ROD, S: NETHERITE_SWORD}
+  # the faction swords of Arc II: carried by the faction leaders, never forged
+  moonlight:     # Holy Moonlight Sword (Order of the Moonlight)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 30, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  rivers:        # Rivers of Blood (Court of Blood)
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.8
+    cooldowns: {primary: 10, secondary: 35}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  abominable:    # Abominable Great Saber (Abominable Host)
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.3
+    cooldowns: {primary: 30, secondary: 35}
     recipe:
       enabled: false
       shape: ["   ", " S ", "   "]

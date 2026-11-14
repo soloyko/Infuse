@@ -85,7 +85,7 @@ public abstract class Menu implements InventoryHolder {
         }
 
         List<SwordType> types() {
-            return this == FACTIONS ? List.of(SwordType.HEROSWORD, SwordType.EXCALIBUR, SwordType.FALLEN) : arc().members();
+            return this == FACTIONS ? List.of(SwordType.MOONLIGHT, SwordType.RIVERS, SwordType.ABOMINABLE) : arc().members();
         }
     }
 
@@ -139,7 +139,7 @@ public abstract class Menu implements InventoryHolder {
                 lore.add(Text.plain("Carried by the faction leaders", NamedTextColor.GRAY));
                 lore.add(Text.plain("during sessions; never forged.", NamedTextColor.GRAY));
                 name = Text.plain("Factions", active ? net.kyori.adventure.text.format.TextColor.color(0xF2C94C) : NamedTextColor.GRAY);
-                icon = SwordType.HEROSWORD;
+                icon = SwordType.MOONLIGHT;
             } else {
                 lore.add(Text.caps(arc.title(), arc.color()));
                 lore.add(Text.plain(arc.hasTwist() ? "Twist: " + arc.twist() + " (in sessions)" : "No twist", NamedTextColor.GRAY));

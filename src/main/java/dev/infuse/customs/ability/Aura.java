@@ -185,6 +185,31 @@ public final class Aura {
                     show(player, Particle.SOUL_FIRE_FLAME, at, 1, 0.1, 0.3, 0.1, 0.003);
                 }
             }
+            case TERRA -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0x5BE35B : 0xF2E26A, 0.7f));
+                if (tick % 5 == 0) {
+                    show(player, Particle.CHERRY_LEAVES, at, 1, 0.12, 0.3, 0.12, 0);
+                }
+            }
+            case DEMONIC -> {
+                show(player, Particle.DUST, at, 1, 0.1, 0.3, 0.1, 0, Fx.dust(tick % 3 == 0 ? 0x14040A : 0xB01020, 0.7f));
+                if (tick % 4 == 0) {
+                    show(player, Particle.SMOKE, at, 1, 0.1, 0.3, 0.1, 0.005);
+                }
+            }
+            case MOONLIGHT -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0x8FF0E8, 0.7f));
+                if (tick % 3 == 0) {
+                    show(player, Particle.END_ROD, at, 1, 0.12, 0.3, 0.12, 0.003);
+                }
+            }
+            case RIVERS -> show(player, Particle.DUST, at, 1, 0.1, 0.35, 0.1, 0, Fx.dust(tick % 2 == 0 ? 0xC8102E : 0x3A0008, 0.8f));
+            case ABOMINABLE -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0xB04CFF : 0x2A0A3A, 0.7f));
+                if (tick % 5 == 0) {
+                    show(player, Particle.SQUID_INK, at, 1, 0.1, 0.3, 0.1, 0.003);
+                }
+            }
             case FALLEN -> {
                 show(player, Particle.DUST, at, 1, 0.1, 0.35, 0.1, 0, Fx.dust(tick % 3 == 0 ? 0x2A0E0E : 0xD83A3A, 0.7f));
                 if (tick % 4 == 0) {

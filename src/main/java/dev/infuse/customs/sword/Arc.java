@@ -6,27 +6,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The five arcs: nine weapons each, in no particular order. A server runs through them one at a
+ * The five arcs: ten weapons each, in no particular order. A server runs through them one at a
  * time (see ArcService): each arc unlocks its weapons for forging. Arcs I and II also have a PvP
  * twist, which runs during admin-started sessions.
  */
 public enum Arc {
     I("I", "Awakening", 0xECBA44,
             "Bounty Hunt", "During a session, one player at a time becomes the bounty: they glow and everyone is shown the way to them. Kill them for a reward, or survive the hunt and claim it yourself. Every kill heals the killer fully.",
-            SwordType.MANTIS, SwordType.SHURIKEN, SwordType.KATANA, SwordType.SPLITTER, SwordType.CRIMSON, SwordType.MACE, SwordType.ECHO, SwordType.CANDLE, SwordType.FROST),
+            SwordType.MANTIS, SwordType.SHURIKEN, SwordType.KATANA, SwordType.SPLITTER, SwordType.CRIMSON, SwordType.MACE, SwordType.ECHO, SwordType.CANDLE, SwordType.FROST, SwordType.TERRA),
 
     II("II", "Ascension", 0x5CF2C2,
-            "Faction War", "When a session starts, three random players become the leaders of the Order of the Blade, the House of the Soulflame and the Covenant of the Fallen, carrying the Hero Sword, True Excalibur and the Fallen God's Sword, and two random players join each. Factions can't hurt their own and every kill scores. Anyone unsworn who falls to a faction's weapon joins that faction. The top faction wins when the session ends.",
-            SwordType.DEATHKNIGHT, SwordType.COSMIC, SwordType.VERDANT, SwordType.RIBBON, SwordType.SHADOW, SwordType.CHAKRAM, SwordType.WARGLAIVE, SwordType.MAUL, SwordType.STARS),
+            "Faction War", "When a session starts, three random players become the leaders of the Order of the Moonlight, the Court of Blood and the Abominable Host, carrying the Holy Moonlight Sword, Rivers of Blood and the Abominable Great Saber, and two random players join each. Factions can't hurt their own and every kill scores. Anyone unsworn who falls to a faction's weapon joins that faction. The top faction wins when the session ends.",
+            SwordType.DEATHKNIGHT, SwordType.COSMIC, SwordType.VERDANT, SwordType.RIBBON, SwordType.SHADOW, SwordType.CHAKRAM, SwordType.WARGLAIVE, SwordType.MAUL, SwordType.STARS, SwordType.DEMONIC),
 
     III("III", "Dominion", 0x9B5DE5, null, null,
-            SwordType.SOUL, SwordType.SCYTHE, SwordType.ASHURA, SwordType.TRIDENT, SwordType.STAFF, SwordType.RAPIER, SwordType.HAMMER, SwordType.KHOPESH, SwordType.CLAWS),
+            SwordType.SOUL, SwordType.SCYTHE, SwordType.ASHURA, SwordType.TRIDENT, SwordType.STAFF, SwordType.RAPIER, SwordType.HAMMER, SwordType.KHOPESH, SwordType.CLAWS, SwordType.HEROSWORD),
 
     IV("IV", "Cataclysm", 0xE5482C, null, null,
-            SwordType.VOID, SwordType.AXE, SwordType.CLAYMORE, SwordType.SPEAR, SwordType.CUTLASS, SwordType.SAWBLADE, SwordType.STORM, SwordType.PLAGUE, SwordType.GLAIVE),
+            SwordType.VOID, SwordType.AXE, SwordType.CLAYMORE, SwordType.SPEAR, SwordType.CUTLASS, SwordType.SAWBLADE, SwordType.STORM, SwordType.PLAGUE, SwordType.GLAIVE, SwordType.FALLEN),
 
     V("V", "Eternity", 0xDDE6FF, null, null,
-            SwordType.MIRROR, SwordType.TIDE, SwordType.NEEDLE, SwordType.DRAGON, SwordType.DAGGERS, SwordType.HALBERD, SwordType.SOLAR, SwordType.PHOENIX, SwordType.CHRONO);
+            SwordType.MIRROR, SwordType.TIDE, SwordType.NEEDLE, SwordType.DRAGON, SwordType.DAGGERS, SwordType.HALBERD, SwordType.SOLAR, SwordType.PHOENIX, SwordType.CHRONO, SwordType.EXCALIBUR);
 
     private final String numeral;
     private final String title;

@@ -291,26 +291,63 @@ public enum SwordType {
             new AbilityInfo("Banish", "Erase the enemy under your crosshair from the world for 3 seconds, then drop it back out of a rift above where it stood.")),
 
     // ---- the faction weapons of Arc II (not forged: each member is given their faction's) ----
+    // ---- added in 2.9: one more weapon for each arc ----
+    TERRA("terra", "Terra Blade", "Blade of the Living Earth", "❀", 0x5BE35B, 0x1E6B2A,
+            "Grown, not forged: a seed planted in a battlefield, which drank the battle and came up as a blade. It keeps the balance between what lives and what dies.",
+            new AbilityInfo("Verdance", "Regeneration I while standing on grass, moss or leaves."),
+            new AbilityInfo("Lifebloom", "20% chance to heal 2 health as a flower bursts on the target."),
+            new AbilityInfo("Equilibrium", "You and the enemy you aim at share your health: both end with the average of the two. It can't kill."),
+            new AbilityInfo("Overgrowth", "A thorny hedge grows outward from you to 7 blocks: enemies it passes are rooted and poisoned, allies inside are healed.")),
+
+    DEMONIC("demonic", "Demonic Blade", "Blade of the Pact", "♆", 0xB01020, 0x14040A,
+            "Every edge on it was a promise somebody broke. It still collects.",
+            new AbilityInfo("Infernal Heart", "Immune to fire; below half health your hits deal 20% more."),
+            new AbilityInfo("Hellscorch", "20% chance to wreathe the target in hellfire: +3 damage and it burns."),
+            new AbilityInfo("Devil's Bargain", "Roll the devil's dice for one of five fates: a full heal, Strength II, a hellfire nova, a tithe of health from the enemy you aim at, or a price in hearts that makes your next hit deal +12."),
+            new AbilityInfo("Abyssal Maw", "A giant jaw of jagged teeth bursts out of the ground under the enemy you aim at and bites shut, holding it; enemies beside it are bitten too.")),
+
     HEROSWORD("herosword", "Hero Sword", "Blade of the Order", "⚔", 0x4DA3FF, 0xF2C94C,
-            "Carried at the head of every charge the Order of the Blade has ever made. It has never been carried at the back of one.",
+            "Carried at the head of every charge the Order of the Blade ever made, and never once at the back of one. The Order is gone; the sword is still looking for a charge to lead.",
             new AbilityInfo("Vanguard", "Resistance I while held."),
             new AbilityInfo("Shieldbreaker", "25% chance to break the target's guard: Weakness and Slowness for 3 seconds."),
             new AbilityInfo("Aegis", "Cast a shield of light on the ally you aim at (or yourself): it absorbs the next 8 damage for 10 seconds, then bursts, blinding enemies nearby."),
-            new AbilityInfo("Rally", "Raise the blade: you and your faction around you gain Strength, Speed and a quick heal.")),
+            new AbilityInfo("Rally", "A giant spectral Hero Sword plunges into the ground: you and your allies around it gain Strength, Speed and a quick heal.")),
 
     EXCALIBUR("excalibur", "True Excalibur", "Blade of the Soulflame", "✹", 0x2EE6C8, 0xF2C94C,
-            "Drawn from the stone a second time, by the House that swore to keep its flame. It burns the colour of a soul and never goes out.",
+            "Drawn from the stone a second time, and it came out burning the colour of a soul. The flame has never gone out.",
             new AbilityInfo("Soulfire Ward", "Immune to fire and lava while held."),
             new AbilityInfo("Soulbrand", "20% chance to brand the target with soulfire: +4 damage and it burns."),
             new AbilityInfo("Soulfall", "A mass of soulfire gathers where you aim: it crashes down there, and for four seconds keeps raining on enemies beneath it."),
-            new AbilityInfo("Excalibur's Oath", "Drive the blade into the ground: you and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back, burning.")),
+            new AbilityInfo("Excalibur's Oath", "Drive the blade into the ground: you and your allies around you gain Resistance and Absorption, and nearby enemies are thrown back, burning.")),
 
     FALLEN("fallen", "Fallen God's Sword", "Blade of the Covenant", "✝", 0xD83A3A, 0x2A0E0E,
-            "The Covenant of the Fallen says a god dropped it when it fell, and that it is still looking for a hand worth the weight.",
+            "They say a god dropped it when it fell, and that it is still looking for a hand worth the weight.",
             new AbilityInfo("Longreach", "+1.5 blocks of reach while held."),
             new AbilityInfo("Pinning Strike", "20% chance to pin the target in place for a second."),
             new AbilityInfo("Excommunicate", "Cast out the enemy you aim at for 5 seconds: it can't use weapon abilities and can't heal, and a crown of thorns marks it for everyone."),
-            new AbilityInfo("War Banner", "Plant a banner for 15 seconds: your faction near it regenerates and hits harder, enemies near it are weakened.")),
+            new AbilityInfo("War Banner", "Plant a banner for 15 seconds: you and your allies near it regenerate and hit harder, enemies near it are weakened.")),
+
+    // ---- the faction weapons of Arc II ----
+    MOONLIGHT("moonlight", "Holy Moonlight Sword", "Blade of the Moonlight", "☾", 0x8FF0E8, 0xE8FFFF,
+            "The Order of the Moonlight keeps it sheathed in daylight. Drawn under the moon, it shows its true length.",
+            new AbilityInfo("Moonblessed", "Night Vision while held; Regeneration I at night."),
+            new AbilityInfo("Moonlit Arc", "20% chance for a crescent of moonlight to sweep out behind the target, cutting the enemies there."),
+            new AbilityInfo("Gather the Order", "Channel the moon for a moment: every member of your faction within 40 blocks is drawn to your side in a pillar of moonlight and healed."),
+            new AbilityInfo("Full Moon", "A full moon rises over you for 8 seconds: your faction nearby regenerates and runs faster, enemies nearby are revealed, lose invisibility and are slowed.")),
+
+    RIVERS("rivers", "Rivers of Blood", "Blade of the Court", "♦", 0xC8102E, 0x3A0008,
+            "The Court of Blood pays its debts in what runs through this blade, and it is always owed.",
+            new AbilityInfo("Bloodborne", "Heal 10% of the melee damage you deal."),
+            new AbilityInfo("Hemorrhage", "25% chance to make the target bleed."),
+            new AbilityInfo("Corpse Piler", "Unleash a flurry of four blood slashes in front of you over a second: each cuts every enemy in the arc and makes it bleed."),
+            new AbilityInfo("Sanguine Tithe", "Tear blood from every enemy within 8 blocks and send it streaming to you and your faction nearby, healing you for what was taken.")),
+
+    ABOMINABLE("abominable", "Abominable Great Saber", "Blade of the Host", "✺", 0xB04CFF, 0x2A0A3A,
+            "Carved from something that was not yet dead when the carving began. The Abominable Host hears it whisper; the rest of us hear it scream.",
+            new AbilityInfo("Abominable Hide", "+4 armor and 50% knockback resistance while held."),
+            new AbilityInfo("Rend", "20% chance to rend the target: Wither II for 3 seconds."),
+            new AbilityInfo("Spawn the Brood", "Three violet broodlings burst out of the ground and hunt the enemies of your faction for 12 seconds."),
+            new AbilityInfo("Writhing Mass", "Violet tendrils burst out around you and seize every enemy within 7 blocks, dragging them in and holding them for 2 seconds while your faction nearby gains Strength.")),
 
     // ---- other weapons added in 2.3 ----
     CLAWS("claws", "Soul Claws", "Spectral Claws", "Ж", 0x2EE6D6, 0x0B3B4A, Material.NETHERITE_SWORD,
@@ -415,10 +452,10 @@ public enum SwordType {
             case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
             case STORM, SAWBLADE, MAUL, MANTIS -> dev.infuse.customs.ability.Fx3D.Element.STORM;
             case TIDE, TRIDENT, CUTLASS -> dev.infuse.customs.ability.Fx3D.Element.WATER;
-            case VERDANT, PLAGUE, GLAIVE, NEEDLE, RIBBON -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
-            case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE, STARS, SPLITTER -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
-            case SHADOW, SOUL, ECHO, SCYTHE, CLAWS, DEATHKNIGHT -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
-            case CRIMSON, AXE, DAGGERS, ASHURA, FALLEN -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
+            case VERDANT, PLAGUE, GLAIVE, NEEDLE, RIBBON, TERRA -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
+            case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE, STARS, SPLITTER, MOONLIGHT -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
+            case SHADOW, SOUL, ECHO, SCYTHE, CLAWS, DEATHKNIGHT, ABOMINABLE -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
+            case CRIMSON, AXE, DAGGERS, ASHURA, FALLEN, DEMONIC, RIVERS -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
             default -> dev.infuse.customs.ability.Fx3D.Element.MARTIAL;
         };
     }
@@ -426,7 +463,7 @@ public enum SwordType {
     /** How melee hits with this weapon are drawn. */
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {
-            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON, EXCALIBUR, FALLEN -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
+            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON, EXCALIBUR, FALLEN, ABOMINABLE, DEMONIC -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
             case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
             case HAMMER, MACE, MAUL -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
             case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SPIN;
@@ -441,7 +478,7 @@ public enum SwordType {
 
     /** The three faction weapons of Arc II: given to faction members, never forged. */
     public boolean isFactionWeapon() {
-        return this == HEROSWORD || this == EXCALIBUR || this == FALLEN;
+        return this == MOONLIGHT || this == RIVERS || this == ABOMINABLE;
     }
 
     /** True for the swords, false for the other weapons. */
@@ -546,6 +583,11 @@ public enum SwordType {
             case HEROSWORD -> "struck down in single combat";
             case EXCALIBUR -> "burned to the soul";
             case FALLEN -> "run through by a fallen god's blade";
+            case TERRA -> "returned to the earth";
+            case DEMONIC -> "claimed by the pact";
+            case MOONLIGHT -> "cut down under the moon";
+            case RIVERS -> "bled dry";
+            case ABOMINABLE -> "devoured by the Host";
         };
     }
 

@@ -190,6 +190,24 @@ public final class CombatListener implements Listener {
                 Fx.particle(at, Particle.SOUL_FIRE_FLAME, 30, 0.4, 0.08);
                 fx.flash(at, 0x2EE6C8, 2f);
             }
+            case TERRA -> {
+                Fx.particle(at, Particle.CHERRY_LEAVES, 20, 0.5, 0.02);
+                Fx.particle(at, Particle.HAPPY_VILLAGER, 15, 0.5, 0);
+            }
+            case DEMONIC -> {
+                Fx.particle(at, Particle.LAVA, 8, 0.3, 0);
+                Fx.particle(at, Particle.LARGE_SMOKE, 15, 0.4, 0.03);
+                fx.flash(at, 0xB01020, 2f);
+            }
+            case MOONLIGHT -> {
+                Fx.particle(at, Particle.END_ROD, 30, 0.5, 0.1);
+                fx.flash(at, 0x8FF0E8, 2f);
+            }
+            case RIVERS -> Fx.particle(at, Particle.DUST, 50, 0.6, 0, Fx.dust(0xC8102E, 1.4f));
+            case ABOMINABLE -> {
+                Fx.particle(at, Particle.SQUID_INK, 20, 0.4, 0.05);
+                Fx.particle(at, Particle.DUST, 30, 0.5, 0, Fx.dust(0xB04CFF, 1.3f));
+            }
             case FALLEN -> {
                 Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xD83A3A, 1.3f));
                 Fx.particle(at, Particle.CRIT, 25, 0.4, 0.3);

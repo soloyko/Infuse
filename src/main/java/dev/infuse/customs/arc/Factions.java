@@ -59,7 +59,7 @@ import java.util.UUID;
 
 /**
  * Arc II's faction war. When an admin starts a session, three random players become the leaders of
- * the Order of the Blade, the House of the Soulflame and the Covenant of the Fallen, each carrying their
+ * the Order of the Moonlight, the Court of Blood and the Abominable Host, each carrying their
  * faction's weapon, and two more random players join each of them. Factions can't hurt their own,
  * each has a blessing, every kill scores, and an unsworn player slain by a faction's weapon is
  * sworn into that faction. When the session ends the faction with the most points wins.
@@ -67,12 +67,12 @@ import java.util.UUID;
 public final class Factions implements Listener {
 
     public enum Faction {
-        BLADE("blade", "Order of the Blade", "Blade", "⚔", 0x4DA3FF, NamedTextColor.BLUE, SwordType.HEROSWORD, Material.BLUE_BANNER,
-                "Sharpened", "Haste I, and your melee hits on anyone outside the Order deal 10% more damage."),
-        FLAME("flame", "House of the Soulflame", "Soulflame", "✹", 0x2EE6C8, NamedTextColor.AQUA, SwordType.EXCALIBUR, Material.CYAN_BANNER,
-                "Soulward", "Two extra hearts and 30% knockback resistance."),
-        FALLEN("fallen", "Covenant of the Fallen", "Fallen", "✝", 0xD83A3A, NamedTextColor.RED, SwordType.FALLEN, Material.RED_BANNER,
-                "Swiftstep", "Speed I and half a block more reach.");
+        MOON("moon", "Order of the Moonlight", "Moonlight", "☾", 0x8FF0E8, NamedTextColor.AQUA, SwordType.MOONLIGHT, Material.LIGHT_BLUE_BANNER,
+                "Moonstep", "Speed I and Night Vision."),
+        BLOOD("blood", "Court of Blood", "Blood", "♦", 0xC8102E, NamedTextColor.RED, SwordType.RIVERS, Material.RED_BANNER,
+                "Bloodlust", "Your melee hits on anyone outside the Court deal 10% more damage and heal you 1."),
+        HOST("host", "Abominable Host", "Host", "✺", 0xB04CFF, NamedTextColor.LIGHT_PURPLE, SwordType.ABOMINABLE, Material.PURPLE_BANNER,
+                "Abominable Flesh", "Two extra hearts and 30% knockback resistance.");
 
         public final String id;
         public final String title;
@@ -103,7 +103,7 @@ public final class Factions implements Listener {
             return Text.plain(symbol + " " + title, color);
         }
 
-        /** "⚔ BLADE ⚔": short enough for a title on any screen. */
+        /** "☾ MOONLIGHT ☾": short enough for a title on any screen. */
         public Component banner() {
             return Text.plain(symbol + " " + shortName.toUpperCase(Locale.ROOT) + " " + symbol, color).decorate(TextDecoration.BOLD);
         }
@@ -122,10 +122,11 @@ public final class Factions implements Listener {
                 return null;
             }
             String in = input.toLowerCase(Locale.ROOT);
-            // the factions' names before their weapons became swords (2.8)
+            // the factions of earlier versions
             in = switch (in) {
-                case "hammer", "forge" -> "flame";
-                case "spear" -> "fallen";
+                case "blade" -> "moon";
+                case "hammer", "forge", "flame" -> "blood";
+                case "spear", "fallen" -> "host";
                 default -> in;
             };
             for (Faction f : values()) {
@@ -796,14 +797,15 @@ public final class Factions implements Listener {
                 crown(p, f);
             }
             switch (f) {
-                case BLADE -> quiet(p, PotionEffectType.HASTE, 50, 0);
-                case FLAME -> {
+                case MOON -> {
+                    quiet(p, PotionEffectType.SPEED, 50, 0);
+                    quiet(p, PotionEffectType.NIGHT_VISION, 260, 0);
+                }
+                case HOST -> {
                     ensure(p, Attribute.MAX_HEALTH, healthKey, 4);
                     ensure(p, Attribute.KNOCKBACK_RESISTANCE, knockbackKey, 0.3);
                 }
-                case FALLEN -> {
-                    quiet(p, PotionEffectType.SPEED, 50, 0);
-                    ensure(p, Attribute.ENTITY_INTERACTION_RANGE, reachKey, 0.5);
+                case BLOOD -> {
                 }
             }
         }
@@ -865,8 +867,12 @@ public final class Factions implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (a == Faction.BLADE && event.getDamager() == attacker && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+        if (a == Faction.BLOOD && event.getDamager() == attacker && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
             event.setDamage(event.getDamage() * 1.1);
+            AttributeInstance max = attacker.getAttribute(Attribute.MAX_HEALTH);
+            if (max != null) {
+                attacker.setHealth(Math.min(max.getValue(), attacker.getHealth() + 1));
+            }
         }
     }
 

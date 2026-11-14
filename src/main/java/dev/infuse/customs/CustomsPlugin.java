@@ -182,6 +182,26 @@ public final class CustomsPlugin extends JavaPlugin {
             }
             getConfig().set("config-version", 3);
         }
+        if (getConfig().getInt("config-version", 1) < 4) {
+            // 2.9: the Hero Sword, True Excalibur and the Fallen God's Sword left the factions for the
+            // arcs, so they get real recipes (they were faction-only, never forged, for a while)
+            var defaults = getConfig().getDefaults();
+            for (String id : List.of("herosword", "excalibur", "fallen")) {
+                getConfig().set("swords." + id + ".recipe", null);
+                var recipe = defaults == null ? null : defaults.getConfigurationSection("swords." + id + ".recipe");
+                if (recipe != null) {
+                    getConfig().set("swords." + id + ".recipe.enabled", recipe.getBoolean("enabled"));
+                    getConfig().set("swords." + id + ".recipe.shape", recipe.getStringList("shape"));
+                    var ingredients = recipe.getConfigurationSection("ingredients");
+                    if (ingredients != null) {
+                        for (String key : ingredients.getKeys(false)) {
+                            getConfig().set("swords." + id + ".recipe.ingredients." + key, ingredients.getString(key));
+                        }
+                    }
+                }
+            }
+            getConfig().set("config-version", 4);
+        }
         getConfig().set("altars.recipe", null); // 1.4 only: altars are now placed by admins, not crafted
         // 2.7 only: Arcs III to V lost their twists in 2.8
         for (String old : List.of("arcs.twists.dominion", "arcs.twists.cataclysm", "arcs.twists.eternity", "arcs.collapse",

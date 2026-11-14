@@ -69,10 +69,16 @@ SWORDS = {
     'ashura': 'ashura_blade',
     'deathknight': 'death_knight_sword',
     'splitter': 'creationsplitter',
-    # the faction weapons of Arc II
+    # added in 2.9 (the first three were Arc II faction weapons for a while)
     'herosword': 'herosword',
     'excalibur': 'excalibur',
     'fallen': 'fallengodsword',
+    'terra': 'terrablade',
+    'demonic': 'demonicblade',
+    # the faction weapons of Arc II
+    'moonlight': 'holymoonlightsword',
+    'rivers': 'riversofblood',
+    'abominable': 'abominablegreatsaber',
 }
 
 # Blockbench-only fields Minecraft ignores
