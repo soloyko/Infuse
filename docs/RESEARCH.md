@@ -6,7 +6,7 @@ Compiled 2026-11-14 from GitHub repository searches. Star counts are from that d
 
 ## 1. Tools for understanding YouTube videos
 
-Use these to pull transcripts from SMP videos (CatAdmirer, Wemmbu, Parrot, etc.) and study how they explain and hype their mechanics.
+Use these to pull transcripts from popular Minecraft SMP videos and study how they explain and hype their mechanics.
 
 | Repo | ★ | What it's for |
 |---|---|---|
@@ -53,7 +53,7 @@ Use these to pull transcripts from SMP videos (CatAdmirer, Wemmbu, Parrot, etc.)
 - [TeamHeather/Cataclysm](https://github.com/TeamHeather/Cataclysm): plugin for a real YouTube SMP.
 - [Nu11ified/GlitchSMP](https://github.com/Nu11ified/GlitchSMP): "glitches" as gameplay mechanics.
 - [shantek/UltimateBingo](https://github.com/shantek/UltimateBingo): event mini-game for SMPs.
-- Existing Infuse-style projects: `IkeVoodoo/Infuse-SMP-Plugin`, `TejasLamba2006/InfuseSMPReloaded`, `CloudnetDEV/Infuse-SMP-Skript`. Treat them as ideas only. Some repos found in search contain **decompiled jars**, so don't copy code from them (licensing).
+- Some SMP repos found in search contain **decompiled jars** of other people's plugins. Use them for ideas only and don't copy their code (licensing).
 
 ### Curated lists
 - [Bytekron/Awesome-Minecraft](https://github.com/Bytekron/Awesome-Minecraft): server software, proxies, plugins, tools.
@@ -62,7 +62,7 @@ Use these to pull transcripts from SMP videos (CatAdmirer, Wemmbu, Parrot, etc.)
 
 ## 3. What makes an SMP plugin *fun*
 
-Patterns common to the SMP plugins and YouTube series that took off (LifeSteal, Infuse, gems/trims/token SMPs, Glitch SMP):
+Patterns common to the SMP plugins and YouTube series that took off (LifeSteal, gems/trims/token SMPs, Glitch SMP):
 
 1. **One core idea you can explain in a sentence.** "Kill players to steal their hearts." "Drink infusions to get powers." If the pitch needs a paragraph, it won't spread.
 2. **Loss is real.** Players drop hearts, gems, or powers when they die. Taking something from another player creates rivalries, revenge arcs, and stories, which is what SMP content runs on.
@@ -76,7 +76,7 @@ Patterns common to the SMP plugins and YouTube series that took off (LifeSteal, 
 
 ## 4. What makes an SMP plugin *unique*
 
-Ways to stand out from the many LifeSteal and Infuse clones:
+Ways to stand out from the many LifeSteal-style clones:
 
 - **Interactions between powers.** Combos when two players' powers combine (fire + wind = firestorm) push people to form alliances.
 - **Powers with a drawback.** For example, a speed infusion that also drains hunger. Trade-offs make choices interesting.
@@ -87,9 +87,9 @@ Ways to stand out from the many LifeSteal and Infuse clones:
 
 ---
 
-## 5. Next steps for Infuse
+## 5. Suggested next steps
 
 1. Pick 10 reference SMP videos and run the transcript workflow in §1.
-2. Write a one-sentence pitch and a list of 8–12 infusions, each with: active ability, passive, drawback, counter, and visual.
+2. Write a one-sentence pitch for your plugin and list its core mechanics. For each power or item, note its active effect, passive effect, drawback, counter, and visual.
 3. Start from a Paper + run-paper template, then add CommandAPI and triumph-gui.
-4. Build the core loop (gain, lose on death, steal) before adding any extra content.
+4. Build the core loop first (how players gain, lose, and take things from each other) before adding extra content.
