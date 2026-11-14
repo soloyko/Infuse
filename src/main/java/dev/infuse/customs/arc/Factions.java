@@ -103,6 +103,11 @@ public final class Factions implements Listener {
             return Text.plain(symbol + " " + title, color);
         }
 
+        /** "⚔ BLADE ⚔": short enough for a title on any screen. */
+        public Component banner() {
+            return Text.plain(symbol + " " + shortName.toUpperCase(Locale.ROOT) + " " + symbol, color).decorate(TextDecoration.BOLD);
+        }
+
         public static @Nullable Faction of(SwordType weapon) {
             for (Faction f : values()) {
                 if (f.weapon == weapon) {
@@ -143,8 +148,6 @@ public final class Factions implements Listener {
     private final EnumMap<Faction, UUID> leaders = new EnumMap<>(Faction.class);
     private final EnumMap<Faction, Integer> scores = new EnumMap<>(Faction.class);
     private final List<BukkitTask> tasks = new ArrayList<>();
-    /** The emblem floating over each leader's name. */
-    private final Map<UUID, org.bukkit.entity.TextDisplay> crowns = new java.util.HashMap<>();
     /** Players sworn in by a faction's weapon, waiting to respawn and be told. */
     private final java.util.Set<UUID> justSworn = new java.util.HashSet<>();
     private boolean active;
@@ -354,8 +357,8 @@ public final class Factions implements Listener {
                 title = Title.title(Text.plain(f.symbol + " FACTION LEADER", f.color).decorate(TextDecoration.BOLD),
                         Text.caps("you lead the " + f.title + " and carry " + f.weapon.swordName(), NamedTextColor.WHITE), times);
             } else {
-                title = Title.title(Text.plain(f.symbol + " " + f.title.toUpperCase(Locale.ROOT), f.color).decorate(TextDecoration.BOLD),
-                        Text.caps("led by " + name(leaders.get(f)), NamedTextColor.WHITE), times);
+                title = Title.title(f.banner(),
+                        Text.caps(f.title + " · led by " + name(leaders.get(f)), NamedTextColor.WHITE), times);
             }
             p.showTitle(title);
             p.playSound(p.getLocation(), Sound.EVENT_RAID_HORN, 0.8f, 1f);
@@ -419,10 +422,24 @@ public final class Factions implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             unequip(p);
         }
-        for (UUID id : new ArrayList<>(crowns.keySet())) {
+        for (UUID id : leaders.values()) {
             uncrown(id);
         }
         justSworn.clear();
+    }
+
+    /** Removes faction teams left in the saved scoreboard (after a crash mid-war); start() makes them again if due. */
+    void purgeTeams() {
+        if (active) {
+            return;
+        }
+        Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+        for (Faction f : Faction.values()) {
+            Team team = board.getTeam(teamName(f));
+            if (team != null) {
+                team.unregister();
+            }
+        }
     }
 
     /** Clears the factions for the next session. */
@@ -460,12 +477,13 @@ public final class Factions implements Listener {
         } else {
             line = best.label().decorate(TextDecoration.BOLD).append(Text.plain(" wins the faction war with "
                     + top + (top == 1 ? " point!" : " points!"), NamedTextColor.GOLD));
-            title = Title.title(Text.plain(best.symbol + " " + best.title.toUpperCase(Locale.ROOT), best.color).decorate(TextDecoration.BOLD),
-                    Text.caps("wins the war", NamedTextColor.WHITE), times);
+            title = Title.title(best.banner(),
+                    Text.caps("the " + best.title + " wins the war", NamedTextColor.WHITE), times);
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (members.get(p.getUniqueId()) == best) {
                     arcs.reward(p, p.getUniqueId().equals(leaders.get(best)) ? 5 : 3);
                     p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+                    celebrate(p, best);
                 }
             }
         }
@@ -475,6 +493,31 @@ public final class Factions implements Listener {
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.showTitle(title);
+        }
+    }
+
+    /**
+     * Firework-like bursts in the faction's colours over a winner (made of effect displays and
+     * particles: real fireworks would hurt the players around them).
+     */
+    private void celebrate(Player p, Faction f) {
+        int[] colours = {f.color.value(), 0xFFFFFF, f.color.value(), 0xF2C94C};
+        java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
+        for (int i = 0; i < 6; i++) {
+            int colour = colours[i % colours.length];
+            long delay = 4L + i * 9L + r.nextInt(4);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!p.isOnline()) {
+                    return;
+                }
+                Location at = p.getLocation().add(r.nextDouble(-3, 3), r.nextDouble(5, 8), r.nextDouble(-3, 3));
+                plugin.fx().burst(at, colour, 3.2f);
+                plugin.fx().flash(at, colour, 2.4f);
+                Fx.particle(at, org.bukkit.Particle.FIREWORK, 40, 0.2, 0.25);
+                Fx.particle(at, org.bukkit.Particle.DUST, 30, 1.2, 0, Fx.dust(colour, 1.6f));
+                Fx.sound(at, r.nextBoolean() ? Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST : Sound.ENTITY_FIREWORK_ROCKET_BLAST, 2f, 1f);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> Fx.sound(at, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1.5f, 1f), 8L);
+            }, delay);
         }
     }
 
@@ -515,9 +558,8 @@ public final class Factions implements Listener {
         arcs.save();
         equip(player);
         if (faction != null) {
-            player.showTitle(Title.title(Text.plain(faction.symbol + " " + faction.title.toUpperCase(Locale.ROOT), faction.color)
-                            .decorate(TextDecoration.BOLD),
-                    Text.caps(leader ? "you lead the faction now" : "you have been sworn in", NamedTextColor.WHITE),
+            player.showTitle(Title.title(faction.banner(),
+                    Text.caps(leader ? "you lead the " + faction.title + " now" : "sworn to the " + faction.title, NamedTextColor.WHITE),
                     Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(600))));
             player.playSound(player.getLocation(), Sound.BLOCK_BELL_USE, 1f, 0.8f);
         }
@@ -571,35 +613,17 @@ public final class Factions implements Listener {
 
     /** "⚔ LEADER ⚔" floating over a leader's name, for everyone but the leader. */
     private void crown(Player player, Faction faction) {
-        org.bukkit.entity.TextDisplay d = crowns.get(player.getUniqueId());
-        if (d != null && d.isValid() && player.getPassengers().contains(d)) {
+        if (arcs.emblems().has(player.getUniqueId())) {
             return;
-        }
-        if (d != null) {
-            d.remove();
         }
         Component text = Text.plain(faction.symbol + " ", faction.color)
                 .append(Text.caps("leader", faction.color).decorate(TextDecoration.BOLD))
                 .append(Text.plain(" " + faction.symbol, faction.color));
-        org.bukkit.entity.TextDisplay emblem = player.getWorld().spawn(player.getLocation().add(0, 2, 0), org.bukkit.entity.TextDisplay.class, t -> {
-            t.text(text);
-            t.setPersistent(false);
-            t.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
-            t.setShadowed(true);
-            t.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
-            t.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(0, 0.55f, 0), new org.joml.Quaternionf(),
-                    new org.joml.Vector3f(0.85f), new org.joml.Quaternionf()));
-        });
-        player.addPassenger(emblem);
-        player.hideEntity(plugin, emblem);
-        crowns.put(player.getUniqueId(), emblem);
+        arcs.emblems().set(player, text, 2.55);
     }
 
     private void uncrown(UUID id) {
-        org.bukkit.entity.TextDisplay d = crowns.remove(id);
-        if (d != null) {
-            d.remove();
-        }
+        arcs.emblems().remove(id);
     }
 
     private void unequip(Player player) {
@@ -907,14 +931,50 @@ public final class Factions implements Listener {
         }
     }
 
+    /**
+     * A player joining after the factions formed takes an open member slot (each leader gets two
+     * members), in the faction with the fewest; once the slots are full, newcomers stay unsworn.
+     */
+    private void fillSlot(Player p) {
+        if (!active || !formed() || !p.isOnline() || members.containsKey(p.getUniqueId())
+                || (p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE)) {
+            return;
+        }
+        Faction pick = null;
+        int fewest = MEMBERS_PER_LEADER;
+        for (Faction f : Faction.values()) {
+            int n = roster(f).size() - (leaders.containsKey(f) ? 1 : 0);
+            if (n < fewest) {
+                fewest = n;
+                pick = f;
+            }
+        }
+        if (pick == null) {
+            return;
+        }
+        members.put(p.getUniqueId(), pick);
+        arcs.save();
+        equip(p);
+        Bukkit.broadcast(Text.plain(p.getName(), NamedTextColor.WHITE).append(Text.plain(" joins the ", NamedTextColor.GRAY))
+                .append(pick.label()).append(Text.plain(".", NamedTextColor.GRAY)));
+        p.showTitle(Title.title(pick.banner(),
+                Text.caps(pick.title + " · led by " + name(leaders.get(pick)), NamedTextColor.WHITE),
+                Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(700))));
+        Location at = p.getLocation();
+        plugin.fx().flash(at.clone().add(0, 1, 0), pick.color.value(), 2.4f);
+        plugin.fx().castCircle(at, pick.color.value(), 1.8f);
+        p.playSound(at, Sound.BLOCK_BELL_USE, 1f, 0.8f);
+        arcs.refreshBar();
+    }
+
     /** The moment a converted player comes back: their new faction's title, light and bell. */
     private void sworn(Player p) {
         Faction f = of(p);
         if (f == null || !p.isOnline()) {
             return;
         }
-        p.showTitle(Title.title(Text.plain(f.symbol + " " + f.title.toUpperCase(Locale.ROOT), f.color).decorate(TextDecoration.BOLD),
-                Text.caps("you fell to its weapon · now you fight for it", NamedTextColor.WHITE),
+        p.showTitle(Title.title(f.banner(),
+                Text.caps("you fell to its weapon · now you fight for the " + f.title, NamedTextColor.WHITE),
                 Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(700))));
         Location at = p.getLocation();
         plugin.fx().beam(at.clone().add(0, 20, 0), at, f.color.value(), 1.0f, 24);
@@ -934,6 +994,7 @@ public final class Factions implements Listener {
         Player p = event.getPlayer();
         if (active) {
             equip(p);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> fillSlot(p), 50L);
         } else {
             unequip(p);
         }

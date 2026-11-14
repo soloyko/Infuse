@@ -385,6 +385,8 @@ public final class Fx3D {
             Location p = noRotation(from).add(dir.clone().multiply(i / (glows + 1.0)));
             ItemDisplay g = spawn(p, Shape.GLOW, rgb, transform(new Quaternionf(), new Vector3f(width * 2.4f)),
                     Display.Billboard.CENTER, ticks + 10);
+            // a pillar ending at someone's feet would otherwise fill their screen
+            hideNear(g, p, width * 1.4 + 1.3);
             displays.later(1, () -> Displays.animate(g, transform(new Quaternionf(), new Vector3f(width * 0.9f)), ticks));
             fade(g, Shape.GLOW, rgb, Math.max(2, ticks - 4), 2);
         }

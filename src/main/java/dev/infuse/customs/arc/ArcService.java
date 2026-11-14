@@ -69,6 +69,7 @@ public final class ArcService implements Listener {
     private final File file;
     private final Factions factions;
     private final SessionBoard board = new SessionBoard();
+    private final Emblems emblems;
 
     private @Nullable Arc current;
     private long startedAt;
@@ -87,13 +88,16 @@ public final class ArcService implements Listener {
     /** Bounty Hunt: the current bounty and when they win. */
     private @Nullable UUID bounty;
     private long bountyUntil;
-    /** "☠ BOUNTY ☠" floating over the bounty's name. */
-    private org.bukkit.entity.@Nullable TextDisplay bountyMark;
 
     public ArcService(CustomsPlugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "arcs.yml");
+        this.emblems = new Emblems(plugin);
         this.factions = new Factions(plugin, this);
+    }
+
+    Emblems emblems() {
+        return emblems;
     }
 
     public Factions factions() {
@@ -170,6 +174,7 @@ public final class ArcService implements Listener {
             }
         }
         factions.read(data.getConfigurationSection("factions"));
+        factions.purgeTeams();
         migrate(data);
         applyTwist();
         if (ticker == null) {
@@ -254,6 +259,7 @@ public final class ArcService implements Listener {
         pauseTwist();
         hideBar();
         board.clear();
+        emblems.clear();
         if (ticker != null) {
             ticker.cancel();
             ticker = null;
@@ -275,9 +281,9 @@ public final class ArcService implements Listener {
         sessionEnds = minutes > 0 ? sessionStarted + minutes * 60_000L : 0;
         sessionKills.clear();
         save();
-        Title title = Title.title(Text.plain("SESSION STARTED", NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
-                Text.caps(minutes > 0 ? minutes + " minutes · fight well" : "fight well", NamedTextColor.WHITE),
-                Title.Times.times(Duration.ofMillis(400), Duration.ofSeconds(3), Duration.ofMillis(800)));
+        Title title = Title.title(Text.plain("SESSION", NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                Text.caps((minutes > 0 ? minutes + " minutes · " : "") + "starts in 3", NamedTextColor.WHITE),
+                Title.Times.times(Duration.ofMillis(300), Duration.ofMillis(1200), Duration.ZERO));
         Bukkit.broadcast(Component.empty());
         Bukkit.broadcast(Text.plain("━━━━━━  ", NamedTextColor.GREEN)
                 .append(Text.plain("A session has begun", NamedTextColor.GREEN).decorate(TextDecoration.BOLD))
@@ -296,11 +302,37 @@ public final class ArcService implements Listener {
             plugin.fx().beam(at.clone().add(0, 24, 0), at, 0x5CF27A, 0.9f, 24);
             plugin.fx().shockwave(at.clone().add(0, 0.05, 0), 0x5CF27A, 4f, 10);
         }
-        // let the session title have the screen before the factions' own titles
+        // three, two, one... then the twist comes into play
+        for (int n = 2; n >= 1; n--) {
+            int count = n;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!session) {
+                    return;
+                }
+                Title t = Title.title(Text.plain("SESSION", NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                        Text.caps("starts in " + count, NamedTextColor.WHITE), Title.Times.times(Duration.ZERO, Duration.ofMillis(1200), Duration.ZERO));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.showTitle(t);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 1.2f);
+                }
+            }, (3 - n) * 20L);
+        }
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (session) {
-                applyTwist();
+            if (!session) {
+                return;
             }
+            boolean factionTitles = twist(Arc.II);
+            Title fight = Title.title(Text.plain("FIGHT!", NamedTextColor.GREEN).decorate(TextDecoration.BOLD),
+                    current != null && twist(current) ? Text.caps(current.twist(), current.color()) : Component.empty(),
+                    Title.Times.times(Duration.ZERO, Duration.ofMillis(1500), Duration.ofMillis(600)));
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!factionTitles) {
+                    p.showTitle(fight); // in Arc II each player's faction title takes the screen instead
+                }
+                p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 0.5f, 1.4f);
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
+            }
+            applyTwist();
         }, 60L);
         refreshBar();
         return true;
@@ -339,8 +371,16 @@ public final class ArcService implements Listener {
             Player mvp = Bukkit.getPlayer(top.get(0).getKey());
             if (mvp != null) {
                 Location at = mvp.getLocation();
-                plugin.fx().beam(at.clone().add(0, 30, 0), at, 0xF2C94C, 1.2f, 40);
-                plugin.fx().burst(at.clone().add(0, 2.2, 0), 0xF2C94C, 3f);
+                // gold bursts overhead (a pillar of light would fill the MVP's own screen)
+                for (int i = 0; i < 4; i++) {
+                    long delay = i * 8L;
+                    Location burst = at.clone().add((i - 1.5) * 1.2, 4.5 + (i % 2), (i % 2 == 0 ? 1 : -1) * 0.8);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        plugin.fx().burst(burst, 0xF2C94C, 2.8f);
+                        Fx.particle(burst, Particle.FIREWORK, 25, 0.2, 0.2);
+                        Fx.sound(burst, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.5f, 1.1f);
+                    }, delay);
+                }
                 Fx.particle(at.clone().add(0, 1, 0), Particle.TOTEM_OF_UNDYING, 60, 0.6, 0.4);
                 mvp.playSound(at, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1.2f);
                 mvp.sendActionBar(Text.caps("session mvp · " + top.get(0).getValue() + " kills", net.kyori.adventure.text.format.TextColor.color(0xF2C94C)));
@@ -525,9 +565,8 @@ public final class ArcService implements Listener {
                 p.setGlowing(false);
             }
         }
-        if (bountyMark != null) {
-            bountyMark.remove();
-            bountyMark = null;
+        if (bounty != null) {
+            emblems.remove(bounty);
         }
     }
 
@@ -695,12 +734,9 @@ public final class ArcService implements Listener {
             if (p != null) {
                 p.setGlowing(false);
             }
+            emblems.remove(bounty);
         }
         bounty = null;
-        if (bountyMark != null) {
-            bountyMark.remove();
-            bountyMark = null;
-        }
     }
 
     /** The skull over the bounty's head, with the time they have left; everyone but the bounty sees it. */
@@ -708,29 +744,8 @@ public final class ArcService implements Listener {
         Component text = Text.plain("☠ ", Arc.I.color()).append(Text.caps("bounty", Arc.I.color()).decorate(TextDecoration.BOLD))
                 .append(Text.plain(" ☠", Arc.I.color())).append(Component.newline())
                 .append(Text.plain(clock(left), NamedTextColor.WHITE));
-        if (bountyMark != null && bountyMark.isValid() && target.getPassengers().contains(bountyMark)) {
-            bountyMark.text(text);
-            return;
-        }
-        if (bountyMark != null) {
-            bountyMark.remove();
-        }
-        if (target.isDead()) {
-            return;
-        }
-        bountyMark = target.getWorld().spawn(target.getLocation().add(0, 2, 0), org.bukkit.entity.TextDisplay.class, t -> {
-            t.text(text);
-            t.setPersistent(false);
-            t.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
-            t.setShadowed(true);
-            t.setAlignment(org.bukkit.entity.TextDisplay.TextAlignment.CENTER);
-            t.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
-            // two lines: lifted clear of the name tag
-            t.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(0, 0.8f, 0), new org.joml.Quaternionf(),
-                    new org.joml.Vector3f(0.85f), new org.joml.Quaternionf()));
-        });
-        target.addPassenger(bountyMark);
-        target.hideEntity(plugin, bountyMark);
+        // two lines: lifted clear of the name tag
+        emblems.set(target, text, 2.85);
     }
 
     // ---------------------------------------------------------------- ceremony and boss bar
@@ -774,10 +789,80 @@ public final class ArcService implements Listener {
             plugin.fx().beam(at.clone().add(0, 30, 0), at, arc.color().value(), 1.4f, 30);
             plugin.fx().flash(at.clone().add(0, 1.2, 0), arc.color().value(), 3f);
             plugin.fx().castCircle(at, arc.color().value(), 2.4f);
+            if (Bukkit.getOnlinePlayers().size() <= 20) {
+                weaponRing(p, arc);
+            }
         }
     }
 
     /** "Arc II · Faction War  ● session 9:37 left  ⚔ 1  ⚒ 0  ♆ 1" (kept short enough for small screens). */
+    /**
+     * The arc's newly forgeable weapons are presented to a player: a fan of glowing weapons at eye
+     * level in front of them, facing them, rising and turning slowly, then fading.
+     */
+    private void weaponRing(Player p, Arc arc) {
+        List<SwordType> weapons = arc.members();
+        List<org.bukkit.entity.ItemDisplay> fan = new ArrayList<>();
+        Location eye = p.getEyeLocation();
+        Vector forward = eye.getDirection().setY(0);
+        if (forward.lengthSquared() < 1.0E-4) {
+            forward = new Vector(0, 0, 1);
+        }
+        forward.normalize();
+        double facing = Math.atan2(forward.getZ(), forward.getX());
+        Vector ahead = forward.clone();
+        Location center = eye.clone().subtract(0, 0.35, 0);
+        for (int i = 0; i < weapons.size(); i++) {
+            Location at = center.clone();
+            at.setYaw(0);
+            at.setPitch(0);
+            org.bukkit.entity.ItemDisplay d = plugin.displays().item(at, plugin.items().create(weapons.get(i)), 0.8f,
+                    new org.joml.Quaternionf(), org.bukkit.entity.ItemDisplay.ItemDisplayTransform.NONE, 100);
+            d.setGlowing(true);
+            d.setGlowColorOverride(org.bukkit.Color.fromRGB(arc.color().value()));
+            d.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+            d.setTeleportDuration(3);
+            fan.add(d);
+        }
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int t;
+
+            @Override
+            public void run() {
+                t += 2;
+                if (t > 80 || !p.isOnline()) {
+                    fan.forEach(plugin.displays()::remove);
+                    cancel();
+                    return;
+                }
+                double grow = Math.min(1, t / 12.0);
+                double radius = 0.6 + 2.6 * grow;
+                for (int i = 0; i < fan.size(); i++) {
+                    org.bukkit.entity.ItemDisplay d = fan.get(i);
+                    if (!d.isValid()) {
+                        continue;
+                    }
+                    // spread over 140 degrees in front of the player, drifting slowly sideways
+                    double spread = Math.toRadians(140);
+                    double a = facing - spread / 2 + spread * i / Math.max(1, fan.size() - 1) + t * 0.004;
+                    Location at = center.clone().add(Math.cos(a) * radius, Math.sin(t * 0.08 + i) * 0.08 + t * 0.008, Math.sin(a) * radius);
+                    Vector toPlayer = center.toVector().subtract(at.toVector()).setY(0);
+                    at.setDirection(toPlayer.lengthSquared() < 1.0E-4 ? new Vector(0, 0, 1) : toPlayer);
+                    at.setYaw(at.getYaw() + (float) Math.sin(t * 0.06 + i) * 25f);
+                    at.setPitch(0);
+                    d.teleport(at);
+                    if (t == 70) {
+                        dev.infuse.customs.ability.Displays.animate(d, new org.bukkit.util.Transformation(new org.joml.Vector3f(),
+                                new org.joml.Quaternionf(), new org.joml.Vector3f(0.05f), new org.joml.Quaternionf()), 10);
+                    }
+                }
+                if (t % 8 == 0) {
+                    Fx.particle(center.clone().add(ahead.clone().multiply(radius)), Particle.END_ROD, 4, radius * 0.5, 0.02);
+                }
+            }
+        }.runTaskTimer(plugin, 2L, 2L);
+    }
+
     private Component barName() {
         Component name;
         if (current == null) {

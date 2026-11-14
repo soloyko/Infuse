@@ -58,7 +58,7 @@ menu) and moves the whole server on with `/customs arc next`, up to **Arc V**:
 
 A session is a stretch of play an admin starts and ends: `/customs session start [minutes]`
 (no length: until `/customs session end`), or the candle in the ⚙ settings menu. Starting one
-puts the current arc's twist in play; ending it (by hand or when the time runs out) announces
+counts down from three and puts the current arc's twist in play; ending it (by hand or when the time runs out) announces
 the results and the top three killers (the top one is crowned MVP), and the twist stops until
 the next session. The last ten seconds of a timed session count down on screen.
 `/customs session` shows how long it has run and who leads. Sessions survive restarts.
@@ -108,8 +108,8 @@ back when the session ends. Their abilities help the whole faction:
 heads); `/customs faction list` shows the same in chat. Admins can move a player with
 `/customs faction set <player> <blade|hammer|spear|none> [leader]`.
 
-Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, the
-twist and the newly forgeable weapons in chat, and a bar at the top of the screen that stays for
+Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, its
+nine newly forgeable weapons rising in a ring of light around you, the twist and the weapons in chat, and a bar at the top of the screen that stays for
 the whole arc. `/customs arc` opens a menu of the five arcs (done, current, ahead; their twists and
 weapons, click for recipes) and `/customs arc info` shows it in chat; `/customs arc set <1-5>` jumps to an arc
 and `/customs arc end` finishes them (everything unlocks, the twists stop). While no arc is

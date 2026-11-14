@@ -62,6 +62,15 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
     private void help(CommandSender sender, String label) {
         Text.send(sender, "<gradient:#ECBA44:#C4415B><bold>Customs</bold></gradient> <dark_gray>· <gray>"
                 + plugin.getPluginMeta().getVersion() + " <dark_gray>· <gray>click a command to fill it in");
+        // quick buttons for the menus players use most
+        Component buttons = Component.text("  ");
+        buttons = buttons.append(shortcut("Arcs", "/" + label + " arc", NamedTextColor.GOLD));
+        buttons = buttons.append(shortcut("Recipes", "/" + label + " recipes", NamedTextColor.AQUA));
+        if (plugin.arcs().factions().active()) {
+            buttons = buttons.append(shortcut("Factions", "/" + label + " faction", NamedTextColor.RED));
+        }
+        buttons = buttons.append(shortcut("Session", "/" + label + " session", NamedTextColor.GREEN));
+        sender.sendMessage(buttons);
         line(sender, "/" + label + " list", "Show all weapons");
         line(sender, "/" + label + " recipes [weapon]", "How to craft each weapon and the altar");
         line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
@@ -82,6 +91,13 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " faction set <player> <blade|hammer|spear|none> [leader]", "Arc II: move a player between factions");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
+    }
+
+    private static Component shortcut(String name, String command, NamedTextColor color) {
+        return Component.text("[" + name + "]", color)
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(Component.text(command, NamedTextColor.GRAY)))
+                .clickEvent(ClickEvent.runCommand(command))
+                .append(Component.text(" "));
     }
 
     private static void line(CommandSender sender, String usage, String description) {
