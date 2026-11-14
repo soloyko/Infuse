@@ -224,68 +224,23 @@ public final class CrimsonSword extends SwordAbility {
         return true;
     }
 
-    /**
-     * A chain between you and a bound enemy: real iron chain links outlined in blood red, sagging
-     * in the middle, with a bright pulse running along it.
-     */
+    /** A chain between you and a bound enemy: real iron chain links outlined in blood red, with a pulse of blood running along it. */
     private final class BloodChain {
-        private final List<org.bukkit.entity.BlockDisplay> links = new java.util.ArrayList<>();
+        private final dev.infuse.customs.ability.Tether links = new dev.infuse.customs.ability.Tether(displays(),
+                new org.bukkit.block.data.BlockData[]{org.bukkit.Material.IRON_CHAIN.createBlockData()}, 0.55f, 0.55f, 0.85,
+                BLOOD_GLOW, true, BOND_TICKS + 40);
 
         void update(Location from, Location to, int tick) {
             Vector span = to.toVector().subtract(from.toVector());
-            double length = span.length();
-            int n = Math.max(1, (int) Math.ceil(length / 0.85));
-            while (links.size() < n) {
-                org.bukkit.entity.BlockDisplay link = displays().block(from, org.bukkit.Material.IRON_CHAIN.createBlockData(),
-                        new org.joml.Vector3f(0.6f), new org.joml.Quaternionf(), BOND_TICKS + 40);
-                link.setGlowing(true);
-                link.setGlowColorOverride(org.bukkit.Color.fromRGB(BLOOD_GLOW));
-                link.setBrightness(new org.bukkit.entity.Display.Brightness(12, 12));
-                link.setTeleportDuration(1);
-                links.add(link);
-            }
-            while (links.size() > n) {
-                displays().remove(links.remove(links.size() - 1));
-            }
-            double sagMax = Math.min(0.7, length * 0.07);
-            for (int i = 0; i < n; i++) {
-                double t0 = i / (double) n;
-                double t1 = (i + 1) / (double) n;
-                Vector a = from.toVector().add(span.clone().multiply(t0)).subtract(new Vector(0, Math.sin(t0 * Math.PI) * sagMax, 0));
-                Vector b = from.toVector().add(span.clone().multiply(t1)).subtract(new Vector(0, Math.sin(t1 * Math.PI) * sagMax, 0));
-                Vector seg = b.clone().subtract(a);
-                double len = seg.length();
-                if (len < 1.0E-3) {
-                    continue;
-                }
-                Vector mid = a.clone().add(b).multiply(0.5);
-                org.joml.Quaternionf rot = new org.joml.Quaternionf().rotationTo(0, 1, 0,
-                        (float) (seg.getX() / len), (float) (seg.getY() / len), (float) (seg.getZ() / len));
-                // every other link turned a quarter, like a real chain
-                if (i % 2 == 1) {
-                    rot.rotateY((float) (Math.PI / 2));
-                }
-                org.bukkit.entity.BlockDisplay link = links.get(i);
-                if (!link.isValid()) {
-                    continue;
-                }
-                Location at = mid.toLocation(from.getWorld());
-                link.teleport(at);
-                link.setInterpolationDelay(0);
-                link.setInterpolationDuration(1);
-                link.setTransformation(dev.infuse.customs.ability.Displays.centered(new org.joml.Vector3f(0.55f, (float) len * 1.05f, 0.55f), rot));
-            }
-            // the pulse of blood running along it
+            double sag = Math.min(0.7, span.length() * 0.07);
+            links.update(from, to, sag, 0, tick);
             double pulse = (tick * 0.35) % 1.0;
-            Vector p = from.toVector().add(span.clone().multiply(pulse)).subtract(new Vector(0, Math.sin(pulse * Math.PI) * sagMax, 0));
+            Vector p = from.toVector().add(span.clone().multiply(pulse)).subtract(new Vector(0, Math.sin(pulse * Math.PI) * sag, 0));
             Fx.particle(p.toLocation(from.getWorld()), Particle.DUST, 3, 0.05, 0, Fx.dust(BLOOD_GLOW, 1.4f));
         }
 
         void remove() {
-            for (org.bukkit.entity.BlockDisplay link : links) {
-                displays().remove(link);
-            }
-            links.clear();
+            links.remove();
         }
     }
 }

@@ -74,20 +74,11 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
         Fx.sound(at, Sound.BLOCK_WOOL_PLACE, 1f, 1.2f);
     }
 
-    /** A ribbon between two points: alternating pink and white, rippling a little. */
-    private static void ribbon(Location from, Location to, int tick) {
-        Vector span = to.toVector().subtract(from.toVector());
-        double length = span.length();
-        if (length < 0.4) {
-            return;
-        }
-        int steps = (int) (length / 0.3);
-        for (int i = 1; i < steps; i++) {
-            double t = i / (double) steps;
-            double ripple = Math.sin(t * Math.PI * 3 + tick * 0.5) * 0.08;
-            Location p = from.clone().add(span.clone().multiply(t)).add(0, ripple, 0);
-            Fx.particle(p, Particle.DUST, 1, 0, 0, Fx.dust(i % 4 < 2 ? PINK : WHITE, 0.7f));
-        }
+    /** A real ribbon (pink and white silk, flat and fluttering) to string between two points every tick. */
+    private dev.infuse.customs.ability.Tether ribbon(int life) {
+        return new dev.infuse.customs.ability.Tether(displays(),
+                new org.bukkit.block.data.BlockData[]{org.bukkit.Material.PINK_WOOL.createBlockData(), org.bukkit.Material.WHITE_WOOL.createBlockData()},
+                0.16f, 0.025f, 0.45, PINK, false, life);
     }
 
     // ---- Marionette ----
@@ -108,6 +99,9 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
         fx().burst(at, PINK, 1.8f);
         Fx.sound(at, Sound.BLOCK_WOOL_BREAK, 1.2f, 0.8f);
         Fx.sound(player.getLocation(), Sound.ITEM_LEAD_TIED, 1.2f, 1f);
+
+        dev.infuse.customs.ability.Tether upper = ribbon(MARIONETTE_TICKS + 20);
+        dev.infuse.customs.ability.Tether lower = ribbon(MARIONETTE_TICKS + 20);
 
         new BukkitRunnable() {
             int ticks;
@@ -133,8 +127,8 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
                 Location hands = player.getLocation().add(0, 1.2, 0);
                 Location body = Combat.center(puppet);
                 Vector side = new Vector(-now.getDirection().getZ(), 0, now.getDirection().getX()).normalize().multiply(0.35);
-                ribbon(hands.clone().add(side), body.clone().add(0, 0.4, 0), ticks);
-                ribbon(hands.clone().subtract(side), body.clone().subtract(0, 0.2, 0), ticks + 3);
+                upper.update(hands.clone().add(side), body.clone().add(0, 0.4, 0), 0.25, 0.12, ticks);
+                lower.update(hands.clone().subtract(side), body.clone().subtract(0, 0.2, 0), 0.35, 0.12, ticks + 3);
                 if (ticks % 20 == 0) {
                     combat().damage(player, puppet, 1, true);
                     Fx.sound(body, Sound.BLOCK_WOOL_STEP, 1f, 1.4f);
@@ -143,6 +137,8 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
 
             private void snip() {
                 cancel();
+                upper.remove();
+                lower.remove();
                 if (puppet.isValid()) {
                     Fx.particle(Combat.center(puppet), Particle.DUST, 12, 0.3, 0, Fx.dust(PINK, 1.0f));
                     Fx.sound(puppet.getLocation(), Sound.ENTITY_SHEEP_SHEAR, 1f, 1.2f);
@@ -180,6 +176,12 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
         }
         Fx.sound(player.getLocation(), Sound.ITEM_LEAD_TIED, 1.4f, 0.7f);
         Fx.sound(player.getLocation(), Sound.BLOCK_WOOL_PLACE, 1.4f, 0.8f);
+        java.util.Map<LivingEntity, dev.infuse.customs.ability.Tether> ties = new java.util.HashMap<>();
+        // a bow tied at the knot
+        org.bukkit.entity.BlockDisplay bow = displays().block(player.getLocation(), org.bukkit.Material.PINK_WOOL.createBlockData(),
+                new org.joml.Vector3f(0.3f, 0.3f, 0.3f), new org.joml.Quaternionf().rotateXYZ(0.6f, 0.8f, 0.3f), TANGLE_TICKS + 20);
+        bow.setGlowing(true);
+        bow.setGlowColorOverride(org.bukkit.Color.fromRGB(WHITE));
 
         new BukkitRunnable() {
             int ticks;
@@ -190,6 +192,10 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
                 members.removeIf(m -> {
                     if (!m.isValid() || m.isDead()) {
                         knots.remove(m.getUniqueId());
+                        dev.infuse.customs.ability.Tether t = ties.remove(m);
+                        if (t != null) {
+                            t.remove();
+                        }
                         return true;
                     }
                     return false;
@@ -208,12 +214,15 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
                 for (int i = 0; i < members.size(); i++) {
                     LivingEntity m = members.get(i);
                     Location body = Combat.center(m);
-                    ribbon(body, knotAt, ticks + i * 2);
+                    ties.computeIfAbsent(m, k -> ribbon(TANGLE_TICKS + 20)).update(body, knotAt, 0.2, 0.1, ticks + i * 2);
                     Vector out = body.toVector().subtract(middle);
                     double distance = out.length();
                     if (distance > TANGLE_SLACK) {
                         Combat.setVelocity(m, out.multiply(-Math.min(0.9, (distance - TANGLE_SLACK) * 0.35 + 0.2) / distance).setY(0.12));
                     }
+                }
+                if (bow.isValid()) {
+                    bow.teleport(knotAt);
                 }
                 if (ticks % 4 == 0) {
                     Fx.particle(knotAt, Particle.DUST, 3, 0.15, 0, Fx.dust(PINK, 1.3f));
@@ -222,6 +231,9 @@ public final class RibbonWeapon extends SwordAbility implements Listener {
 
             private void untie() {
                 cancel();
+                ties.values().forEach(dev.infuse.customs.ability.Tether::remove);
+                ties.clear();
+                displays().remove(bow);
                 for (LivingEntity m : members) {
                     knots.remove(m.getUniqueId());
                     if (m.isValid() && !m.isDead() && alive(player)) {
