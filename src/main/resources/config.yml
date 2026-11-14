@@ -1,0 +1,573 @@
+# ╔══════════════════════════════════════════════════════════╗
+# ║                       CUSTOMS                            ║
+# ║   45 legendary weapons in five arcs, with 3D models,     ║
+# ║   unique abilities and weapon altars                     ║
+# ╚══════════════════════════════════════════════════════════╝
+#
+# Controls (while holding a weapon, see controls.trigger):
+#   Swap-hand key (F)          -> first ability
+#   Sneak + swap-hand key (F)  -> second ability
+#
+# /customs reload applies changes. Weapons players already own update
+# automatically the next time they hold them.
+
+# Used to upgrade older configs. Don't change it.
+config-version: 3
+
+settings:
+  # Swords never lose durability.
+  unbreakable: true
+  # Abilities can damage other players (PvP). World PvP settings and
+  # protection plugins that cancel player damage are still respected.
+  abilities-hit-players: true
+  # Multiplies all ability damage (not normal melee damage).
+  ability-damage-multiplier: 1.0
+  # Extra multiplier for ability damage against players, on top of the one above.
+  # Lower it if abilities feel too strong in PvP (e.g. 0.75).
+  ability-damage-multiplier-vs-players: 1.0
+  # Shows ability cooldowns on the action bar while a weapon is held.
+  action-bar-hud: true
+  # Plays a chime when an ability comes off cooldown while you hold the weapon.
+  ability-ready-sound: true
+  # Faint themed particles around a held weapon (hidden while invisible).
+  held-aura: true
+  # A glowing slash in the weapon's colour on every melee hit.
+  melee-slashes: true
+  # Using an ability shows the weapon's element: flames, frost, sparks, splashes, leaves,
+  # runes, shadow, blood or a sweep of wind.
+  cast-circles: true
+  # Kills with a weapon end in a burst of light in the weapon's colour.
+  kill-effects: true
+  # Damage numbers pop out of anything a weapon hits: gold for critical swings, the weapon's
+  # colour for abilities. Rapid hits on one target add up on a single number.
+  damage-numbers: true
+  # Custom death messages for kills with a weapon, e.g. "Steve was frozen solid by Alex".
+  death-messages: true
+  # Dropped weapons never despawn, can't be destroyed and glow.
+  protect-dropped-swords: true
+  # Abilities do nothing in these worlds.
+  disabled-worlds: []
+
+controls:
+  # How abilities are fired while holding a weapon:
+  #   offhand     - swap-hand key (F by default) = first ability, Sneak + F = second ability.
+  #                 Right-click keeps its normal use. Tooltips show each player's own key.
+  #   right-click - Right-Click = first ability, Sneak + Right-Click = second ability
+  #   both        - either works
+  trigger: offhand
+
+resource-pack:
+  # self-host: the plugin serves the bundled pack from a small built-in web server.
+  # url:       send the pack from your own link (for example a merged server pack).
+  # none:      don't send anything (you handle the pack yourself).
+  mode: self-host
+  # true = players must accept the pack or they're disconnected.
+  required: false
+  # Shown on the download prompt. MiniMessage format.
+  prompt: "<gradient:#ECBA44:#C4415B><bold>Customs</bold></gradient> <gray>uses a resource pack for its 3D weapon models."
+  self-host:
+    # This port must be open to players (TCP). On a shared host, use an extra port
+    # your host gave you.
+    port: 8163
+    bind-address: "0.0.0.0"
+    # Address players download the pack from. Leave blank to use the address each
+    # player typed to join (works for most servers).
+    public-address: ""
+  url:
+    link: ""
+    # SHA-1 of the zip. Leave blank and the plugin downloads the pack once on
+    # startup to work it out.
+    sha1: ""
+
+crafting:
+  enabled: true
+  # Broadcasts a message when someone forges a weapon.
+  announce: true
+  # Legendary mode: each weapon can only be crafted (or forged at an altar) once per server,
+  # so there is only ever one of each. Admins can still /customs give, and
+  # /customs unforge <weapon> allows it to be crafted again. Set to false to allow copies.
+  unique-swords: true
+  # Weapons can be crafted in a crafting table. Set to false to make weapon altars the only
+  # way to forge them.
+  crafting-table: true
+
+altars:
+  # Weapon altars: one-block 3D altars that only admins can place (/customs altar give).
+  # Each one holds a weapon, with its recipe circling above it. Players forge that weapon by
+  # right-clicking the altar with the ingredients in their inventory.
+  enabled: true
+
+arcs:
+  # The server's arcs. An admin starts Arc I with /customs arc start and moves on with
+  # /customs arc next, up to Arc V. Each arc unlocks its nine weapons for forging (earlier arcs
+  # stay unlocked; later ones are locked). Arcs I and II also bring a PvP twist, which only runs
+  # during a session (an admin starts one with /customs session start [minutes]):
+  #   I   Awakening  - Bounty Hunt: a rotating bounty everyone is pointed at; kills heal fully
+  #   II  Ascension  - Faction War: when the session starts, three random players lead the Order
+  #                    of the Blade, the House of the Forge and the Covenant of the Fallen (with
+  #                    the Hero Sword, the Molten Sword and the Fallen God's Sword), two random players
+  #                    join each. No friendly fire; kills score; an unsworn player slain by a
+  #                    faction's weapon joins that faction. The top faction wins at session end.
+  #   III, IV, V     - no twist: they unlock their weapons.
+  # While no arc is running, every weapon can be forged and there are no twists.
+  # Show the current arc, the session timer and the twist in a bar at the top of the screen.
+  boss-bar: true
+  # During a session, show the clock, faction points or the bounty, and the top killers on the
+  # right of the screen (stays hidden if another plugin already uses the sidebar).
+  sidebar: true
+  # Show the arc, the session clock and faction points above and below the tab list.
+  tab-list: true
+  # Turn single twists off (the arc still unlocks its weapons).
+  twists:
+    awakening: true
+    ascension: true
+  # Minutes a session lasts when /customs session start is given no length (0 = until an admin
+  # ends it with /customs session end).
+  session-minutes: 0
+  # Bounty Hunt: minutes between bounties, and how long each bounty has to survive.
+  bounty-interval-minutes: 10
+  bounty-minutes: 5
+  # Faction War: points for killing another faction's leader (any other kill is worth 1).
+  factions:
+    leader-kill-points: 3
+
+# Per-weapon settings. Keys are the weapon ids (see /customs list).
+#   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
+#   cooldowns                    : seconds
+#   recipe                       : shaped crafting recipe; S is the base weapon (netherite sword, mace,
+#                                  netherite spear, netherite axe or trident) in the defaults
+swords:
+  dragon:        # Dragon Slaying Blade
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["BHB", "NSN", "BEB"]
+      ingredients: {B: DRAGON_BREATH, H: DRAGON_HEAD, N: NETHERITE_INGOT, E: END_CRYSTAL, S: NETHERITE_SWORD}
+  phoenix:       # Phoenix Grace
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 6, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["BFB", "TST", "BMB"]
+      ingredients: {B: BLAZE_ROD, F: FIRE_CHARGE, T: TOTEM_OF_UNDYING, M: MAGMA_BLOCK, S: NETHERITE_SWORD}
+  frost:         # Frost Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["IPI", "DSD", "IPI"]
+      ingredients: {I: BLUE_ICE, P: POWDER_SNOW_BUCKET, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
+  storm:         # Thunder Bringer
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 10, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["LBL", "CSC", "LBL"]
+      ingredients: {L: LIGHTNING_ROD, B: BREEZE_ROD, C: COPPER_BLOCK, S: NETHERITE_SWORD}
+  tide:          # Aquatic Sacred Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 8, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["NHN", "PSP", "NTN"]
+      ingredients: {N: NAUTILUS_SHELL, H: HEART_OF_THE_SEA, P: PRISMARINE_CRYSTALS, T: TRIDENT, S: NETHERITE_SWORD}
+  verdant:       # Enigma
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 14, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["EGE", "MSM", "EGE"]
+      ingredients: {E: EMERALD_BLOCK, G: GOLDEN_APPLE, M: MOSS_BLOCK, S: NETHERITE_SWORD}
+  plague:        # Plague Longsword
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["WFW", "PSP", "WFW"]
+      ingredients: {W: WITHER_ROSE, F: FERMENTED_SPIDER_EYE, P: POISONOUS_POTATO, S: NETHERITE_SWORD}
+  crimson:       # Vampiric Needle
+    enabled: true
+    attack-damage: 11
+    attack-speed: 2.0
+    cooldowns: {primary: 9, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["RGR", "FSF", "RNR"]
+      ingredients: {R: REDSTONE_BLOCK, G: GHAST_TEAR, F: CRIMSON_FUNGUS, N: NETHERITE_INGOT, S: NETHERITE_SWORD}
+  solar:         # Righteous Relic
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 9, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["GBG", "LSL", "GLG"]
+      ingredients: {G: GOLD_BLOCK, B: BEACON, L: GLOWSTONE, S: NETHERITE_SWORD}
+  void:          # Demon Lord's Sword
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.5
+    cooldowns: {primary: 8, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["OEO", "CSC", "OEO"]
+      ingredients: {O: CRYING_OBSIDIAN, E: ENDER_EYE, C: END_CRYSTAL, S: NETHERITE_SWORD}
+  cosmic:        # Edge Of The Astral Plane
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["APA", "NSN", "APA"]
+      ingredients: {A: AMETHYST_BLOCK, P: ENDER_PEARL, N: NETHER_STAR, S: NETHERITE_SWORD}
+  chrono:        # Chrono Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 14, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["CRC", "DSD", "CRC"]
+      ingredients: {C: CLOCK, R: RECOVERY_COMPASS, D: DIAMOND_BLOCK, S: NETHERITE_SWORD}
+  shadow:        # Watcher Claymore
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["PNP", "OSO", "PNP"]
+      ingredients: {P: PHANTOM_MEMBRANE, N: NETHERITE_SCRAP, O: OBSIDIAN, S: NETHERITE_SWORD}
+  soul:          # Awakened Lichblade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 25, secondary: 32}
+    recipe:
+      enabled: true
+      shape: ["LKL", "BSB", "LKL"]
+      ingredients: {L: SOUL_LANTERN, K: WITHER_SKELETON_SKULL, B: BONE_BLOCK, S: NETHERITE_SWORD}
+  echo:          # Sculk Sword
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["ECE", "HSH", "ECE"]
+      ingredients: {E: ECHO_SHARD, C: SCULK_CATALYST, H: SCULK_SHRIEKER, S: NETHERITE_SWORD}
+  # ---- weapons that aren't swords ----
+  hammer:        # Hearthflame (mace)
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.0
+    cooldowns: {primary: 12, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["NAN", "OSO", "NAN"]
+      ingredients: {N: NETHERITE_INGOT, A: ANVIL, O: OBSIDIAN, S: MACE}
+  scythe:        # Requiem of the Ninth Abyss
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 8, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["PNP", "RSR", "PNP"]
+      ingredients: {P: PHANTOM_MEMBRANE, N: NETHER_STAR, R: WITHER_ROSE, S: NETHERITE_SWORD}
+  spear:         # Sunbreak (netherite spear)
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.4
+    cooldowns: {primary: 8, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["BGB", "ESE", "BGB"]
+      ingredients: {B: BREEZE_ROD, G: GOLD_BLOCK, E: END_ROD, S: NETHERITE_SPEAR}
+  chakram:       # Royal Chakram
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 5, secondary: 28}
+    recipe:
+      enabled: true
+      shape: ["WEW", "BSB", "WEW"]
+      ingredients: {W: WIND_CHARGE, E: EMERALD_BLOCK, B: BREEZE_ROD, S: NETHERITE_SWORD}
+  axe:           # Demon Lord's Great Axe (netherite axe)
+    enabled: true
+    attack-damage: 14
+    attack-speed: 1.0
+    cooldowns: {primary: 14, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["INI", "GSG", "INI"]
+      ingredients: {I: IRON_BLOCK, N: NETHERITE_INGOT, G: GOAT_HORN, S: NETHERITE_AXE}
+  staff:         # Arcanethyst
+    enabled: true
+    attack-damage: 9
+    attack-speed: 1.6
+    cooldowns: {primary: 6, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["CLC", "BSB", "CLC"]
+      ingredients: {C: AMETHYST_CLUSTER, L: LAPIS_BLOCK, B: EXPERIENCE_BOTTLE, S: NETHERITE_SWORD}
+  trident:       # Ocean's Rage (trident)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.2
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["PCP", "LSL", "PDP"]
+      ingredients: {P: PRISMARINE_SHARD, C: CONDUIT, L: LIGHTNING_ROD, D: DIAMOND_BLOCK, S: TRIDENT}
+  shuriken:      # Amethyst Shuriken
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 6, secondary: 26}
+    recipe:
+      enabled: true
+      shape: ["PAP", "ASA", "PAP"]
+      ingredients: {P: PHANTOM_MEMBRANE, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
+  halberd:       # Jade Halberd (netherite spear)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.2
+    cooldowns: {primary: 9, secondary: 32}
+    recipe:
+      enabled: true
+      shape: ["EGE", "GSG", "EGE"]
+      ingredients: {E: EMERALD_BLOCK, G: GOLD_BLOCK, S: NETHERITE_SPEAR}
+  warglaive:     # Watching Warglaive
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 8, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["PQP", "OSO", "PQP"]
+      ingredients: {P: PHANTOM_MEMBRANE, Q: QUARTZ_BLOCK, O: CRYING_OBSIDIAN, S: NETHERITE_SWORD}
+  sawblade:      # Cybernetic Chainsaw Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["RCR", "ISI", "RCR"]
+      ingredients: {R: REDSTONE_BLOCK, C: COPPER_BLOCK, I: IRON_BLOCK, S: NETHERITE_SWORD}
+  rapier:        # Royal Rapier
+    enabled: true
+    attack-damage: 10
+    attack-speed: 1.8
+    cooldowns: {primary: 6, secondary: 20}
+    recipe:
+      enabled: true
+      shape: ["GDG", "DSD", "GDG"]
+      ingredients: {G: GOLD_BLOCK, D: DIAMOND, S: NETHERITE_SWORD}
+  khopesh:       # Pharaoh's Treasure
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["TLT", "GSG", "TLT"]
+      ingredients: {T: CHISELED_SANDSTONE, L: LAPIS_BLOCK, G: GOLD_BLOCK, S: NETHERITE_SWORD}
+  katana:        # Katana
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.8
+    cooldowns: {primary: 8, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["IRI", "BSB", "IRI"]
+      ingredients: {I: IRON_BLOCK, R: REDSTONE_BLOCK, B: BAMBOO_BLOCK, S: NETHERITE_SWORD}
+  needle:        # Hornet's Needle
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 14, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["HBH", "ESE", "HBH"]
+      ingredients: {H: HONEYCOMB_BLOCK, B: BEEHIVE, E: SPIDER_EYE, S: NETHERITE_SWORD}
+  candle:        # Waxweaver
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["CHC", "GSG", "CHC"]
+      ingredients: {C: CANDLE, H: HONEYCOMB_BLOCK, G: GLOWSTONE, S: NETHERITE_SWORD}
+  claymore:      # Brimstone Claymore
+    enabled: true
+    attack-damage: 14
+    attack-speed: 1.2
+    cooldowns: {primary: 14, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["MOM", "BSB", "MOM"]
+      ingredients: {M: MAGMA_BLOCK, O: OBSIDIAN, B: BLAZE_ROD, S: NETHERITE_SWORD}
+  mirror:        # Silverine Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 25, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["GQG", "ASA", "GQG"]
+      ingredients: {G: GLASS, Q: QUARTZ_BLOCK, A: AMETHYST_SHARD, S: NETHERITE_SWORD}
+  cutlass:       # Sabre
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["GTG", "PSP", "GTG"]
+      ingredients: {G: GOLD_BLOCK, T: TNT, P: PRISMARINE, S: NETHERITE_SWORD}
+  ribbon:        # Ribbon Cleaver
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 16, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["WSW", "LXL", "WSW"]
+      ingredients: {W: PINK_WOOL, S: STRING, L: LEAD, X: NETHERITE_SWORD}
+  stars:         # Star's Edge
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 12, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["NEN", "ASA", "NEN"]
+      ingredients: {N: NETHER_STAR, E: END_ROD, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
+  ashura:        # Ashura's Blade
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.4
+    cooldowns: {primary: 25, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["GBG", "RSR", "GBG"]
+      ingredients: {G: GOLD_BLOCK, B: BLAZE_POWDER, R: REDSTONE_BLOCK, S: NETHERITE_SWORD}
+  deathknight:   # Death Knight's Sword
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.4
+    cooldowns: {primary: 30, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["BWB", "ISI", "BWB"]
+      ingredients: {B: BONE_BLOCK, W: WITHER_SKELETON_SKULL, I: BLUE_ICE, S: NETHERITE_SWORD}
+  splitter:      # Creation Splitter
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.5
+    cooldowns: {primary: 12, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["OCO", "ESE", "OCO"]
+      ingredients: {O: CRYING_OBSIDIAN, C: END_CRYSTAL, E: ECHO_SHARD, S: NETHERITE_SWORD}
+  # The faction weapons of Arc II: handed to faction members, never forged (no recipe).
+  herosword:     # Hero Sword (Order of the Blade)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  molten:        # Molten Sword (House of the Forge)
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.4
+    cooldowns: {primary: 12, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  fallen:        # Fallen God's Sword (Covenant of the Fallen)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.5
+    cooldowns: {primary: 10, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  claws:         # Soul Claws
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 8, secondary: 30}
+    recipe:
+      enabled: true
+      shape: ["BEB", "LSL", "BEB"]
+      ingredients: {B: BONE_BLOCK, E: ECHO_SHARD, L: LEATHER, S: NETHERITE_SWORD}
+  daggers:       # Thousand Demon Daggers
+    enabled: true
+    attack-damage: 10
+    attack-speed: 2.0
+    cooldowns: {primary: 20, secondary: 14}
+    recipe:
+      enabled: true
+      shape: ["CWC", "ASA", "CWC"]
+      ingredients: {C: CRYING_OBSIDIAN, W: WITHER_ROSE, A: AMETHYST_BLOCK, S: NETHERITE_SWORD}
+  mace:          # Divine Punisher
+    enabled: true
+    attack-damage: 11
+    attack-speed: 1.2
+    cooldowns: {primary: 30, secondary: 40}
+    recipe:
+      enabled: true
+      shape: ["GBG", "TMT", "GBG"]
+      ingredients: {G: GOLD_BLOCK, B: BEACON, T: TOTEM_OF_UNDYING, M: MACE}
+  glaive:        # Forest Guardian's Glaive
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 12, secondary: 35}
+    recipe:
+      enabled: true
+      shape: ["LML", "ESE", "LML"]
+      ingredients: {L: OAK_LOG, M: MOSS_BLOCK, E: EMERALD_BLOCK, S: NETHERITE_SPEAR}
+  maul:          # Power Fuse Hammer
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.0
+    cooldowns: {primary: 25, secondary: 20}
+    recipe:
+      enabled: true
+      shape: ["ICI", "LML", "ICI"]
+      ingredients: {I: IRON_BLOCK, C: COPPER_BLOCK, L: LODESTONE, M: MACE}
+  mantis:        # Cyber Mantis Blade
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.7
+    cooldowns: {primary: 20, secondary: 25}
+    recipe:
+      enabled: true
+      shape: ["ORO", "PSP", "ORO"]
+      ingredients: {O: OBSERVER, R: REDSTONE_BLOCK, P: PISTON, S: NETHERITE_SWORD}
