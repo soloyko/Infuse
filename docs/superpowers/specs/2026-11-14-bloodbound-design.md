@@ -11,7 +11,7 @@ A Paper 1.21.11 SMP plugin in Java. Players craft a weapon at an admin-placed al
 
 ## Goals / non-goals / anti-goals
 
-- **Goals:** a weapon progression players care about, real stakes on death, server-wide moments from events, and easy balancing.
+- **Goals:** five distinct weapon playstyles (melee, AoE, ranged, mobility); a weapon progression players care about, real stakes on death, server-wide moments from events, and easy balancing.
 - **Non-goals (v1):** custom 3D models or resource packs, economy/Vault, Discord integration, multi-server sync, Folia support.
 - **Anti-goals:**
   - One player snowballing beyond reach (prevented by catch-up bonuses and the shatter mechanic).
@@ -28,6 +28,7 @@ A Paper 1.21.11 SMP plugin in Java. Players craft a weapon at an admin-placed al
 ## Decided by the user
 
 - The altar is a **single lodestone block**. Only admins can place altars.
+- **Five weapon types.**
 - Weapons are **crafted at altars**. Crafting outside a session is refused.
 - Admins start sessions. A session is the time for fighting, fun and grinding.
 - Admins can trigger **custom events**.
@@ -44,20 +45,22 @@ A Paper 1.21.11 SMP plugin in Java. Players craft a weapon at an admin-placed al
 - `/bb altar list` and `/bb altar remove` (removes the nearest altar within 5 blocks).
 - **During a session:**
   - Altars show ambient particles.
-  - Right-clicking one opens the Altar menu. The menu shows the three weapon types and their recipe costs, which come from config.
+  - Right-clicking one opens the Altar menu. The menu shows the five weapon types and their recipe costs, which come from config.
   - Clicking a type takes the ingredients from the player's inventory and gives them the weapon.
 - **Outside a session:** right-clicking says the altar is dormant and opens nothing.
 
 ### Weapons
-Each player has at most one weapon type at a time, chosen when they first craft.
+Each player has at most one weapon at a time, choosing one of five types when they first craft.
 
 | Weapon | Base item | Passive (scales with tier) | Active, tier 2+ | Ultimate, tier 5 |
 |---|---|---|---|---|
 | **Crimson Blade** | Netherite sword | Lifesteal: heal a % of melee damage dealt | **Blood Dash:** dash forward about 8 blocks, damaging and slowing players you pass | **Hemorrhage:** for 6 s, every hit applies a short bleed (damage over time) |
 | **Ravager Axe** | Netherite axe | Sunder: bonus damage against armored targets, and hits stun shields | **Ground Slam:** leap, and on landing knock up and damage nearby players | **Berserk:** Strength and Speed for 8 s, but you take +25% damage |
 | **Tempest Trident** | Trident | Stormcharge: every 4th hit deals bonus damage with a lightning *effect* (no fire, no block damage) | **Gale:** pull players in a cone in front of you toward you | **Maelstrom:** strike lightning effects around you, damaging and launching nearby players |
+| **Earthshaker Mace** | Mace | Tremor: hits briefly Slow the target (scales with tier) | **Skyward:** launch yourself straight up, which sets up a mace smash | **Meteor:** for 8 s your next landing creates a shockwave that damages and launches nearby players (no block damage) |
+| **Phantom Bow** | Bow | Seeker: fully charged arrows curve slightly toward the nearest player in front (strength scales with tier) | **Volley:** fire a fan of 5 arrows | **Shadowstep:** for 8 s, your next arrow teleports you to where it lands |
 
-- **Using abilities:** right-click activates the active ability. Sneak + right-click activates the ultimate. Holding the weapon shows cooldowns in the action bar. Only the trident's throw uses its normal right-click, so the trident's active is **sneak + left-click** and its ultimate is **sneak + right-click**. (The builder confirms these controls feel right.)
+- **Using abilities:** press the **swap-hand key (F)** while holding the weapon for the active ability, and **Sneak + F** for the ultimate. The same controls work on every weapon and never clash with throwing a trident, drawing a bow or blocking. The normal hand swap is cancelled while holding a Bloodbound weapon. Holding the weapon shows cooldowns in the action bar.
 - **Tiers:** 1 to 5. Each tier gives configurable bonus damage and stronger passive values.
 - **Abilities, passives and tier bonuses work only during a session.** Outside a session the weapon acts like its plain base item.
 - **Ownership:**
