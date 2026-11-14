@@ -141,7 +141,7 @@ disables shields and the trident can still be thrown.
 | 🔊 **Sculk Sword** · Echo | Darkness immunity; sculk sensors ignore you | 20%: Darkness / slow | **Sonic Boom** (12s): charged warden blast through a line of enemies | **Shriek** (30s): darken and reveal all enemies, quicken yourself |
 | ✵ **Waxweaver** · Waxen Blade | Night Vision, Fire Resistance | 30%: hot wax, Slowness up to III | **Wickfire** (10s): a lit fuse races along the ground after the enemy you aim at and explodes when it catches up | **Melt** (30s): wax every enemy within 8 blocks; your next hit on one sets them all alight |
 | ❄ **Frost Blade** · Frost | +4 armor, +2 toughness, freeze immunity | Slowness II + freeze | **Cold Snap** (10s): a ring of frost closes in around the enemy you aim at; still inside when it closes, it freezes solid and the ice shatters around it | **Blizzard** (30s): 6s storm that freezes & damages |
-| ❀ **Terra Blade** · Blade of the Living Earth | **Verdance**: Regeneration I on grass, moss or leaves | 20%: **Lifebloom** heals you 2 | **Equilibrium** (25s): you and the enemy you aim at share your health; both end with the average (it can't kill) | **Overgrowth** (30s): a thorny hedge grows out to 7 blocks, rooting and poisoning enemies it passes and healing you and your allies inside |
+| ❀ **Terra Blade** · Blade of the Living Earth | **Verdance**: Regeneration I on grass, moss or leaves | 20%: **Lifebloom** heals you 2 | **Equilibrium** (25s): you and the enemy you aim at share your health; both move toward the average by up to 5 hearts (it can't kill) | **Overgrowth** (30s): a thorny hedge grows out to 7 blocks, rooting and poisoning enemies it passes and healing you and your allies inside |
 
 ### Arc II · Ascension
 

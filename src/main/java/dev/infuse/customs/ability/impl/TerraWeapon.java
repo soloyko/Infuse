@@ -41,6 +41,7 @@ public final class TerraWeapon extends SwordAbility {
     private static final int LEAF = 0x2E9E3E;
     private static final int GOLD = 0xF2E26A;
     private static final double HEDGE_RADIUS = 7;
+    private static final double MAX_SHIFT = 10;
 
     public TerraWeapon(CustomsPlugin plugin) {
         super(plugin, SwordType.TERRA);
@@ -70,8 +71,8 @@ public final class TerraWeapon extends SwordAbility {
     }
 
     /**
-     * Equilibrium: you and the enemy you aim at share what life you have between you. Both end
-     * with the average of your health (capped at each one's maximum); it never kills.
+     * Equilibrium: you and the enemy you aim at share what life you have between you: both move
+     * toward the average of your health, by up to five hearts each. It never kills.
      */
     @Override
     public boolean primary(Player player) {
@@ -82,11 +83,10 @@ public final class TerraWeapon extends SwordAbility {
         }
         double mine = player.getHealth();
         double theirs = target.getHealth();
-        double even = (mine + theirs) / 2;
-        double myMax = max(player);
-        double theirMax = max(target);
-        double newMine = Math.max(1, Math.min(myMax, even));
-        double newTheirs = Math.max(1, Math.min(theirMax, even));
+        // each side moves toward the average by at most five hearts, so a boss can't be halved
+        double shift = Math.min(MAX_SHIFT, Math.abs(mine - theirs) / 2);
+        double newMine = Math.max(1, Math.min(max(player), mine + Math.signum(theirs - mine) * shift));
+        double newTheirs = Math.max(1, Math.min(max(target), theirs - Math.signum(theirs - mine) * shift));
 
         Location a = player.getLocation().add(0, 1.1, 0);
         Location b = Combat.center(target);

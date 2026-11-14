@@ -296,7 +296,7 @@ public enum SwordType {
             "Grown, not forged: a seed planted in a battlefield, which drank the battle and came up as a blade. It keeps the balance between what lives and what dies.",
             new AbilityInfo("Verdance", "Regeneration I while standing on grass, moss or leaves."),
             new AbilityInfo("Lifebloom", "20% chance to heal 2 health as a flower bursts on the target."),
-            new AbilityInfo("Equilibrium", "You and the enemy you aim at share your health: both end with the average of the two. It can't kill."),
+            new AbilityInfo("Equilibrium", "You and the enemy you aim at share your health: both move toward the average, by up to 5 hearts each. It can't kill."),
             new AbilityInfo("Overgrowth", "A thorny hedge grows outward from you to 7 blocks: enemies it passes are rooted and poisoned, allies inside are healed.")),
 
     DEMONIC("demonic", "Demonic Blade", "Blade of the Pact", "♆", 0xB01020, 0x14040A,
