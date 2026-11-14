@@ -16,7 +16,7 @@ public enum Arc {
             SwordType.MANTIS, SwordType.SHURIKEN, SwordType.KATANA, SwordType.SPLITTER, SwordType.CRIMSON, SwordType.MACE, SwordType.ECHO, SwordType.CANDLE, SwordType.FROST),
 
     II("II", "Ascension", 0x5CF2C2,
-            "Faction War", "When a session starts, three random players become the leaders of the Order of the Blade, the House of the Hammer and the Covenant of the Spear, carrying the Hero Sword, Mjolnir and the Fallen God's Spear, and two random players join each. Factions can't hurt their own and every kill scores. Anyone unsworn who falls to a faction's weapon joins that faction. The top faction wins when the session ends.",
+            "Faction War", "When a session starts, three random players become the leaders of the Order of the Blade, the House of the Forge and the Covenant of the Fallen, carrying the Hero Sword, the Molten Sword and the Fallen God's Sword, and two random players join each. Factions can't hurt their own and every kill scores. Anyone unsworn who falls to a faction's weapon joins that faction. The top faction wins when the session ends.",
             SwordType.DEATHKNIGHT, SwordType.COSMIC, SwordType.VERDANT, SwordType.RIBBON, SwordType.SHADOW, SwordType.CHAKRAM, SwordType.WARGLAIVE, SwordType.MAUL, SwordType.STARS),
 
     III("III", "Dominion", 0x9B5DE5, null, null,

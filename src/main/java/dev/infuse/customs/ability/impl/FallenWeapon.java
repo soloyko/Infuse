@@ -22,18 +22,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 /**
- * Fallen God's Spear, the Spear of the Covenant (Arc II faction weapon of the Covenant of the Spear).
- * Passive Longreach, on-hit Skewer, F Godspear Lunge, Sneak+F War Banner.
+ * Fallen God's Sword, the Blade of the Covenant (Arc II faction weapon of the Covenant of the Fallen).
+ * Passive Longreach, on-hit Pinning Strike, F Godfall Lunge, Sneak+F War Banner.
  */
-public final class GodSpearWeapon extends SwordAbility {
+public final class FallenWeapon extends SwordAbility {
 
     private static final int RED = 0xD83A3A;
     private static final int DARK = 0x2A0E0E;
     private static final int BANNER_TICKS = 300;
     private static final double BANNER_RADIUS = 8;
 
-    public GodSpearWeapon(CustomsPlugin plugin) {
-        super(plugin, SwordType.GODSPEAR);
+    public FallenWeapon(CustomsPlugin plugin) {
+        super(plugin, SwordType.FALLEN);
     }
 
     @Override
@@ -46,11 +46,11 @@ public final class GodSpearWeapon extends SwordAbility {
         if (chance(0.2)) {
             hold(target, 20);
             Fx.particle(Combat.center(target), Particle.CRIT, 12, 0.3, 0.2);
-            Fx.sound(target.getLocation(), Sound.ITEM_TRIDENT_HIT, 1f, 0.9f);
+            Fx.sound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 0.8f);
         }
     }
 
-    /** Godspear Lunge: a long lunge; the first enemy is skewered, carried to the end of it and pinned by crimson spikes. */
+    /** Godfall Lunge: a long lunge; the first enemy is run through, carried to the end of it and pinned by crimson spikes. */
     @Override
     public boolean primary(Player player) {
         Vector dir = dev.infuse.customs.ability.Aim.flatLook(player);
@@ -87,7 +87,7 @@ public final class GodSpearWeapon extends SwordAbility {
                         break;
                     }
                 } else if (skewered.isValid()) {
-                    // carried along on the spear's point
+                    // carried along on the blade's point
                     Location tip = player.getLocation().add(dir.clone().multiply(1.8));
                     Combat.setVelocity(skewered, tip.toVector().subtract(skewered.getLocation().toVector()).multiply(0.8).setY(0.1));
                     Fx.particle(Combat.center(skewered), Particle.DUST, 3, 0.2, 0, Fx.dust(RED, 1.1f));
@@ -116,7 +116,7 @@ public final class GodSpearWeapon extends SwordAbility {
         return true;
     }
 
-    /** The Covenant's war banner: red, a black border and a gold spear down the middle. */
+    /** The Covenant's war banner: red, a black border and a gold sword down the middle. */
     private static ItemStack banner() {
         ItemStack item = ItemStack.of(Material.RED_BANNER);
         item.editMeta(org.bukkit.inventory.meta.BannerMeta.class, meta -> {

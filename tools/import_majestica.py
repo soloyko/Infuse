@@ -69,7 +69,10 @@ SWORDS = {
     'ashura': 'ashura_blade',
     'deathknight': 'death_knight_sword',
     'splitter': 'creationsplitter',
-    # (the faction weapons of Arc II are original models: tools/faction_models.py)
+    # the faction weapons of Arc II
+    'herosword': 'herosword',
+    'molten': 'moltensword',
+    'fallen': 'fallengodsword',
 }
 
 # Blockbench-only fields Minecraft ignores

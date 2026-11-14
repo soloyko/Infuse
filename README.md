@@ -3,9 +3,8 @@
 A Paper **1.21.11** plugin that adds 48 legendary weapons: 45 in five arcs (swords, plus a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier, a khopesh, spectral claws, cursed daggers, a holy mace, a
-glaive, a power fuse hammer and a cyber mantis blade), each named after its model in the Blades
-of Majestica pack, plus three faction weapons with their own original models, carried by the
-leaders of Arc II's factions. Each has its own name and lore, a 3D model
+glaive, a power fuse hammer and a cyber mantis blade), plus three faction swords carried by the
+leaders of Arc II's factions, each named after its model in the Blades of Majestica pack. Each has its own name and lore, a 3D model
 (bundled resource pack), a passive, an on-hit effect and two activated abilities, drawn with
 glowing 3D effects: jagged lightning, ground that cracks and glows, pillars of fire, ice and
 stone spikes, rifts, spectral heads, crescent slashes and more. Admins can place **stone
@@ -81,11 +80,12 @@ floating "☠ BOUNTY ☠" with their time left over their name.
 | Faction | Leader carries | Blessing (every member) |
 | --- | --- | --- |
 | ⚔ **Order of the Blade** | **Hero Sword** | **Sharpened**: Haste I, and melee hits on anyone outside the Order deal 10% more |
-| ⚒ **House of the Hammer** | **Mjolnir** | **Ironclad**: two extra hearts and 30% knockback resistance |
-| ♆ **Covenant of the Spear** | **Fallen God's Spear** | **Swiftstep**: Speed I and half a block more reach |
+| ⚒ **House of the Forge** | **Molten Sword** | **Ironclad**: two extra hearts and 30% knockback resistance |
+| ✝ **Covenant of the Fallen** | **Fallen God's Sword** | **Swiftstep**: Speed I and half a block more reach |
 
 When a session starts in Arc II, three random players in survival become the leaders, one per
-faction, and two more random players join each. Everyone else is **unsworn**: they fight for
+faction, and two more random players join each (players who join later fill any open member
+slots). Everyone else is **unsworn**: they fight for
 themselves, and if a faction's leader kills one with the faction's weapon, they are sworn into
 that faction (they come back with the faction's title and a pillar of its light). Members get
 a coloured name and tag and can't hurt each other (with weapons or abilities). Leaders glow in
@@ -101,12 +101,12 @@ back when the session ends. Their abilities help the whole faction:
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
 | ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge behind a shield of light; the first enemy in the way is bowled over and stunned | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your faction within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
-| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): a storm gathers where you aim; lightning strikes there and keeps striking enemies under the cloud for 4s | **Bulwark Roar** (45s): a hammer slam; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back |
-| ♆ **Fallen God's Spear** · Spear of the Covenant | **Longreach**: +1.5 reach | 20%: **Skewer** pins the target | **Godspear Lunge** (10s): a long lunge that skewers the first enemy, carries it to the end and pins it with crimson spikes | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
+| ⚒ **Molten Sword** · Blade of the Forge | **Forgeborn**: Fire Resistance | 20%: **Searing Strike**, +4 and the target burns | **Forgefall** (12s): a mass of molten slag gathers where you aim; it crashes down there and keeps raining on enemies beneath it for 4s | **Bulwark Roar** (45s): slam the blade down; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back and set alight |
+| ✝ **Fallen God's Sword** · Blade of the Covenant | **Longreach**: +1.5 reach | 20%: **Pinning Strike** pins the target | **Godfall Lunge** (10s): a long lunge that runs the first enemy through, carries it to the end and pins it with crimson spikes | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
 
 `/customs faction` opens a menu of the factions (banners, points, the leaders' and members'
 heads); `/customs faction list` shows the same in chat. Admins can move a player with
-`/customs faction set <player> <blade|hammer|spear|none> [leader]`.
+`/customs faction set <player> <blade|forge|fallen|none> [leader]`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, its
 nine newly forgeable weapons rising in a ring of light around you, the twist and the weapons in chat, and a bar at the top of the screen that stays for
@@ -404,7 +404,7 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs session` | — | Whether a session is running, for how long, and the top killers |
 | `/customs session start [minutes]` / `end` | `customs.admin` | Start or end a session (twists only run in sessions) |
 | `/customs faction` / `faction list` | — | Arc II: the faction menu (leaders, members, points) / the same in chat |
-| `/customs faction set <player> <blade\|hammer\|spear\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
+| `/customs faction set <player> <blade\|forge\|fallen\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |
@@ -473,7 +473,7 @@ GitHub Actions; the jar and pack are attached to each run as the `Customs` artif
 
 ### The resource pack
 
-The 3D models and textures come from the **Blades of Majestica** resource pack. 45 of its 119
+The 3D models and textures come from the **Blades of Majestica** resource pack. 48 of its 119
 weapons are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
@@ -481,11 +481,6 @@ weapons are imported into the `customs` namespace, so they're applied by the plu
 pip install pillow numpy
 python3 tools/import_majestica.py path/to/Blades_Of_Majestica.zip
 ```
-
-The three faction weapons (Hero Sword, Mjolnir, Fallen God's Spear) are original: painted as
-pixel art with a depth for every pixel by `python3 tools/faction_models.py`, which builds a relief
-model from it (bevelled blades, raised guards and gems) with glowing parts that emit light and an
-animated shimmer.
 
 The effect models are original too: `tools/fx_models.py` generates the slash, ring, burst, glow,
 beam and spell-circle models in four fade levels. The altar model is original: `tools/altar_model.py` generates it (pedestal, glowing rune windows and the

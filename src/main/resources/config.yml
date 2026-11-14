@@ -104,8 +104,8 @@ arcs:
   # during a session (an admin starts one with /customs session start [minutes]):
   #   I   Awakening  - Bounty Hunt: a rotating bounty everyone is pointed at; kills heal fully
   #   II  Ascension  - Faction War: when the session starts, three random players lead the Order
-  #                    of the Blade, the House of the Hammer and the Covenant of the Spear (with
-  #                    the Hero Sword, Mjolnir and the Fallen God's Spear), and two random players
+  #                    of the Blade, the House of the Forge and the Covenant of the Fallen (with
+  #                    the Hero Sword, the Molten Sword and the Fallen God's Sword), two random players
   #                    join each. No friendly fire; kills score; an unsworn player slain by a
   #                    faction's weapon joins that faction. The top faction wins at session end.
   #   III, IV, V     - no twist: they unlock their weapons.
@@ -499,24 +499,24 @@ swords:
       enabled: false
       shape: ["   ", " S ", "   "]
       ingredients: {S: NETHERITE_SWORD}
-  mjolnir:       # Mjolnir (House of the Hammer)
+  molten:        # Molten Sword (House of the Forge)
     enabled: true
     attack-damage: 13
-    attack-speed: 1.0
+    attack-speed: 1.4
     cooldowns: {primary: 12, secondary: 45}
     recipe:
       enabled: false
       shape: ["   ", " S ", "   "]
-      ingredients: {S: MACE}
-  godspear:      # Fallen God's Spear (Covenant of the Spear)
+      ingredients: {S: NETHERITE_SWORD}
+  fallen:        # Fallen God's Sword (Covenant of the Fallen)
     enabled: true
     attack-damage: 12
-    attack-speed: 1.4
+    attack-speed: 1.5
     cooldowns: {primary: 10, secondary: 45}
     recipe:
       enabled: false
       shape: ["   ", " S ", "   "]
-      ingredients: {S: NETHERITE_SPEAR}
+      ingredients: {S: NETHERITE_SWORD}
   claws:         # Soul Claws
     enabled: true
     attack-damage: 10

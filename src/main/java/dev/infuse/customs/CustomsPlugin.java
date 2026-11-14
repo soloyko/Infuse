@@ -185,7 +185,9 @@ public final class CustomsPlugin extends JavaPlugin {
         getConfig().set("altars.recipe", null); // 1.4 only: altars are now placed by admins, not crafted
         // 2.7 only: Arcs III to V lost their twists in 2.8
         for (String old : List.of("arcs.twists.dominion", "arcs.twists.cataclysm", "arcs.twists.eternity", "arcs.collapse",
-                "arcs.meteor-interval-minutes", "arcs.meteors-hit-creative")) {
+                "arcs.meteor-interval-minutes", "arcs.meteors-hit-creative",
+                // 2.8 only: the faction hammer and spear became swords in 2.9
+                "swords.mjolnir", "swords.godspear")) {
             getConfig().set(old, null);
         }
         getConfig().options().copyDefaults(true);

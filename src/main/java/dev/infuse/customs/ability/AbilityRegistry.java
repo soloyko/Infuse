@@ -47,8 +47,8 @@ import dev.infuse.customs.ability.impl.AshuraWeapon;
 import dev.infuse.customs.ability.impl.DeathKnightWeapon;
 import dev.infuse.customs.ability.impl.SplitterWeapon;
 import dev.infuse.customs.ability.impl.HeroSwordWeapon;
-import dev.infuse.customs.ability.impl.MjolnirWeapon;
-import dev.infuse.customs.ability.impl.GodSpearWeapon;
+import dev.infuse.customs.ability.impl.MoltenWeapon;
+import dev.infuse.customs.ability.impl.FallenWeapon;
 import dev.infuse.customs.api.SwordAbilityEvent;
 import dev.infuse.customs.sword.AbilitySlot;
 import dev.infuse.customs.sword.SwordType;
@@ -117,8 +117,8 @@ public final class AbilityRegistry {
         register(new DeathKnightWeapon(plugin));
         register(new SplitterWeapon(plugin));
         register(new HeroSwordWeapon(plugin));
-        register(new MjolnirWeapon(plugin));
-        register(new GodSpearWeapon(plugin));
+        register(new MoltenWeapon(plugin));
+        register(new FallenWeapon(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
                 throw new IllegalStateException("No ability registered for " + type);

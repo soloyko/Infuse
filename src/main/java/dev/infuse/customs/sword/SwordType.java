@@ -298,18 +298,18 @@ public enum SwordType {
             new AbilityInfo("Heroic Charge", "Charge forward; the first enemy you hit is knocked flat and stunned."),
             new AbilityInfo("Rally", "Raise the blade: you and your faction around you gain Strength, Speed and a quick heal.")),
 
-    MJOLNIR("mjolnir", "Mjolnir", "Hammer of the House", "⚒", 0xE0A030, 0x6B4A2B, Material.MACE,
-            "The House of the Hammer's oldest heirloom. Storms gather wherever it is raised in anger.",
-            new AbilityInfo("Stormborn", "Immune to lightning while held."),
-            new AbilityInfo("Thunderclap", "20% chance for lightning to strike the target for +4 damage."),
-            new AbilityInfo("Stormcall", "A storm gathers where you aim: lightning strikes there, and for four seconds keeps striking enemies under the cloud."),
-            new AbilityInfo("Bulwark Roar", "You and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back.")),
+    MOLTEN("molten", "Molten Sword", "Blade of the Forge", "⚒", 0xFF8A2A, 0xFFD27A,
+            "Drawn white-hot from the House of the Forge's first fire, and it has never cooled. Steel that meets it softens; so do the men holding it.",
+            new AbilityInfo("Forgeborn", "Immune to fire and lava while held."),
+            new AbilityInfo("Searing Strike", "20% chance to brand the target with molten steel: +4 damage and it burns."),
+            new AbilityInfo("Forgefall", "Molten slag gathers where you aim: it crashes down there, and for four seconds keeps raining on enemies beneath it."),
+            new AbilityInfo("Bulwark Roar", "Slam the blade down: you and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back.")),
 
-    GODSPEAR("godspear", "Fallen God's Spear", "Spear of the Covenant", "♆", 0xD83A3A, 0x2A0E0E, Material.NETHERITE_SPEAR,
-            "The Covenant of the Spear says a god threw it at the world and missed. They have never let anyone else miss since.",
+    FALLEN("fallen", "Fallen God's Sword", "Blade of the Covenant", "✝", 0xD83A3A, 0x2A0E0E,
+            "The Covenant of the Fallen says a god dropped it when it fell, and that it is still looking for a hand worth the weight.",
             new AbilityInfo("Longreach", "+1.5 blocks of reach while held."),
-            new AbilityInfo("Skewer", "20% chance to pin the target in place for a second."),
-            new AbilityInfo("Godspear Lunge", "Lunge a long way forward, skewering the first enemy and carrying it along."),
+            new AbilityInfo("Pinning Strike", "20% chance to pin the target in place for a second."),
+            new AbilityInfo("Godfall Lunge", "Lunge a long way forward, running the first enemy through and carrying it along."),
             new AbilityInfo("War Banner", "Plant a banner for 15 seconds: your faction near it regenerates and hits harder, enemies near it are weakened.")),
 
     // ---- other weapons added in 2.3 ----
@@ -361,7 +361,9 @@ public enum SwordType {
     private static final Map<String, SwordType> LEGACY_IDS = Map.of("inferno", PHOENIX, "emerald", VERDANT);
 
     /** Names from before 2.3 (weapons now carry their model's name), so old commands still work. */
-    private static final Map<String, SwordType> OLD_NAMES = Map.ofEntries(Map.entry("wyrmsbane", DRAGON), Map.entry("cinderwing", PHOENIX), Map.entry("everwinter", FROST), Map.entry("stormcaller", STORM), Map.entry("tidebreaker", TIDE), Map.entry("elderbloom", VERDANT), Map.entry("pestilence", PLAGUE), Map.entry("sanguine", CRIMSON), Map.entry("solaris", SOLAR), Map.entry("voidreaver", VOID), Map.entry("starfall", COSMIC), Map.entry("aeon", CHRONO), Map.entry("umbra", SHADOW), Map.entry("gravecaller", SOUL), Map.entry("deepwhisper", ECHO), Map.entry("earthshaker", HAMMER), Map.entry("requiem", SCYTHE), Map.entry("skypiercer", SPEAR), Map.entry("zephyr", CHAKRAM), Map.entry("ragnarok", AXE), Map.entry("arcanum", STAFF), Map.entry("leviathan", TRIDENT), Map.entry("nightbloom", SHURIKEN), Map.entry("jadewarden", HALBERD), Map.entry("eclipse", WARGLAIVE), Map.entry("ripsaw", SAWBLADE), Map.entry("valiance", RAPIER), Map.entry("sandreaver", KHOPESH), Map.entry("hollowmoon", KATANA), Map.entry("swarmsting", NEEDLE), Map.entry("vigil", CANDLE), Map.entry("cinderpeak", CLAYMORE), Map.entry("mirrorwake", MIRROR), Map.entry("saltfang", CUTLASS), Map.entry("ferox", CLAWS), Map.entry("malice", DAGGERS), Map.entry("verdict", MACE), Map.entry("wildheart", GLAIVE), Map.entry("magnetar", MAUL), Map.entry("raptorial", MANTIS));
+    private static final Map<String, SwordType> OLD_NAMES = Map.ofEntries(Map.entry("wyrmsbane", DRAGON), Map.entry("cinderwing", PHOENIX), Map.entry("everwinter", FROST), Map.entry("stormcaller", STORM), Map.entry("tidebreaker", TIDE), Map.entry("elderbloom", VERDANT), Map.entry("pestilence", PLAGUE), Map.entry("sanguine", CRIMSON), Map.entry("solaris", SOLAR), Map.entry("voidreaver", VOID), Map.entry("starfall", COSMIC), Map.entry("aeon", CHRONO), Map.entry("umbra", SHADOW), Map.entry("gravecaller", SOUL), Map.entry("deepwhisper", ECHO), Map.entry("earthshaker", HAMMER), Map.entry("requiem", SCYTHE), Map.entry("skypiercer", SPEAR), Map.entry("zephyr", CHAKRAM), Map.entry("ragnarok", AXE), Map.entry("arcanum", STAFF), Map.entry("leviathan", TRIDENT), Map.entry("nightbloom", SHURIKEN), Map.entry("jadewarden", HALBERD), Map.entry("eclipse", WARGLAIVE), Map.entry("ripsaw", SAWBLADE), Map.entry("valiance", RAPIER), Map.entry("sandreaver", KHOPESH), Map.entry("hollowmoon", KATANA), Map.entry("swarmsting", NEEDLE), Map.entry("vigil", CANDLE), Map.entry("cinderpeak", CLAYMORE), Map.entry("mirrorwake", MIRROR), Map.entry("saltfang", CUTLASS), Map.entry("ferox", CLAWS), Map.entry("malice", DAGGERS), Map.entry("verdict", MACE), Map.entry("wildheart", GLAIVE), Map.entry("magnetar", MAUL), Map.entry("raptorial", MANTIS),
+            // the faction weapons before they became swords
+            Map.entry("mjolnir", MOLTEN), Map.entry("godspear", FALLEN));
 
     private final String id;
     private final Material base;
@@ -409,14 +411,14 @@ public enum SwordType {
     /** The element of this weapon's magic: decides how casting its abilities looks. */
     public dev.infuse.customs.ability.Fx3D.Element element() {
         return switch (this) {
-            case DRAGON, PHOENIX, SOLAR, CANDLE, CLAYMORE -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
+            case DRAGON, PHOENIX, SOLAR, CANDLE, CLAYMORE, MOLTEN -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
             case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
-            case STORM, SAWBLADE, MAUL, MANTIS, MJOLNIR -> dev.infuse.customs.ability.Fx3D.Element.STORM;
+            case STORM, SAWBLADE, MAUL, MANTIS -> dev.infuse.customs.ability.Fx3D.Element.STORM;
             case TIDE, TRIDENT, CUTLASS -> dev.infuse.customs.ability.Fx3D.Element.WATER;
             case VERDANT, PLAGUE, GLAIVE, NEEDLE, RIBBON -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
             case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE, STARS, SPLITTER -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
             case SHADOW, SOUL, ECHO, SCYTHE, CLAWS, DEATHKNIGHT -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
-            case CRIMSON, AXE, DAGGERS, ASHURA, GODSPEAR -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
+            case CRIMSON, AXE, DAGGERS, ASHURA, FALLEN -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
             default -> dev.infuse.customs.ability.Fx3D.Element.MARTIAL;
         };
     }
@@ -424,9 +426,9 @@ public enum SwordType {
     /** How melee hits with this weapon are drawn. */
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {
-            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
-            case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE, GODSPEAR -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
-            case HAMMER, MACE, MAUL, MJOLNIR -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
+            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON, MOLTEN, FALLEN -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
+            case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
+            case HAMMER, MACE, MAUL -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
             case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SPIN;
             default -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SLASH;
         };
@@ -439,7 +441,7 @@ public enum SwordType {
 
     /** The three faction weapons of Arc II: given to faction members, never forged. */
     public boolean isFactionWeapon() {
-        return this == HEROSWORD || this == MJOLNIR || this == GODSPEAR;
+        return this == HEROSWORD || this == MOLTEN || this == FALLEN;
     }
 
     /** True for the swords, false for the other weapons. */
@@ -542,8 +544,8 @@ public enum SwordType {
             case DEATHKNIGHT -> "raised as a thrall";
             case SPLITTER -> "split from reality";
             case HEROSWORD -> "struck down in single combat";
-            case MJOLNIR -> "thunderstruck";
-            case GODSPEAR -> "skewered on a god's spear";
+            case MOLTEN -> "melted down";
+            case FALLEN -> "run through by a fallen god's blade";
         };
     }
 

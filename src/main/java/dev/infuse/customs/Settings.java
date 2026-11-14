@@ -140,7 +140,7 @@ public final class Settings {
     }
 
     /** Bump when the item layout (lore, attributes) changes so old items refresh. */
-    private static final int ITEM_FORMAT = 15;
+    private static final int ITEM_FORMAT = 16;
 
     private static Recipe readRecipe(ConfigurationSection r, String label, Logger log) {
         if (r == null) {

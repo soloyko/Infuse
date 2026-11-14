@@ -88,7 +88,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
             line(sender, "/" + label + " arc start|next|set <1-5>|end", "Run the server's arcs");
             line(sender, "/" + label + " session start [minutes]|end", "Start or end a session (twists run in sessions)");
-            line(sender, "/" + label + " faction set <player> <blade|hammer|spear|none> [leader]", "Arc II: move a player between factions");
+            line(sender, "/" + label + " faction set <player> <blade|forge|fallen|none> [leader]", "Arc II: move a player between factions");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -220,7 +220,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                 boolean none = args.length > 3 && args[3].equalsIgnoreCase("none");
                 dev.infuse.customs.arc.Factions.Faction f = args.length > 3 ? dev.infuse.customs.arc.Factions.Faction.parse(args[3]) : null;
                 if (target == null || (f == null && !none)) {
-                    Text.send(sender, "<red>Usage: <white>/" + label + " faction set <player> <blade|hammer|spear|none> [leader]");
+                    Text.send(sender, "<red>Usage: <white>/" + label + " faction set <player> <blade|forge|fallen|none> [leader]");
                     return;
                 }
                 boolean leader = args.length > 4 && args[4].equalsIgnoreCase("leader");
@@ -594,7 +594,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 3 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
             Bukkit.getOnlinePlayers().forEach(p -> options.add(p.getName()));
         } else if (args.length == 4 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
-            options.addAll(List.of("blade", "hammer", "spear", "none"));
+            options.addAll(List.of("blade", "forge", "fallen", "none"));
         } else if (args.length == 5 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
             options.add("leader");
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("session") && args[1].equalsIgnoreCase("start") && admin) {

@@ -59,7 +59,7 @@ import java.util.UUID;
 
 /**
  * Arc II's faction war. When an admin starts a session, three random players become the leaders of
- * the Order of the Blade, the House of the Hammer and the Covenant of the Spear, each carrying their
+ * the Order of the Blade, the House of the Forge and the Covenant of the Fallen, each carrying their
  * faction's weapon, and two more random players join each of them. Factions can't hurt their own,
  * each has a blessing, every kill scores, and an unsworn player slain by a faction's weapon is
  * sworn into that faction. When the session ends the faction with the most points wins.
@@ -69,9 +69,9 @@ public final class Factions implements Listener {
     public enum Faction {
         BLADE("blade", "Order of the Blade", "Blade", "⚔", 0x4DA3FF, NamedTextColor.BLUE, SwordType.HEROSWORD, Material.BLUE_BANNER,
                 "Sharpened", "Haste I, and your melee hits on anyone outside the Order deal 10% more damage."),
-        HAMMER("hammer", "House of the Hammer", "Hammer", "⚒", 0xE0A030, NamedTextColor.GOLD, SwordType.MJOLNIR, Material.ORANGE_BANNER,
+        FORGE("forge", "House of the Forge", "Forge", "⚒", 0xE0A030, NamedTextColor.GOLD, SwordType.MOLTEN, Material.ORANGE_BANNER,
                 "Ironclad", "Two extra hearts and 30% knockback resistance."),
-        SPEAR("spear", "Covenant of the Spear", "Spear", "♆", 0xD83A3A, NamedTextColor.RED, SwordType.GODSPEAR, Material.RED_BANNER,
+        FALLEN("fallen", "Covenant of the Fallen", "Fallen", "✝", 0xD83A3A, NamedTextColor.RED, SwordType.FALLEN, Material.RED_BANNER,
                 "Swiftstep", "Speed I and half a block more reach.");
 
         public final String id;
@@ -122,6 +122,12 @@ public final class Factions implements Listener {
                 return null;
             }
             String in = input.toLowerCase(Locale.ROOT);
+            // the factions' names before their weapons became swords (2.8)
+            in = switch (in) {
+                case "hammer" -> "forge";
+                case "spear" -> "fallen";
+                default -> in;
+            };
             for (Faction f : values()) {
                 if (f.id.equals(in) || f.name().equalsIgnoreCase(in) || f.title.equalsIgnoreCase(input)
                         || f.title.toLowerCase(Locale.ROOT).contains(in) || f.weapon.id().equals(in)) {
@@ -791,11 +797,11 @@ public final class Factions implements Listener {
             }
             switch (f) {
                 case BLADE -> quiet(p, PotionEffectType.HASTE, 50, 0);
-                case HAMMER -> {
+                case FORGE -> {
                     ensure(p, Attribute.MAX_HEALTH, healthKey, 4);
                     ensure(p, Attribute.KNOCKBACK_RESISTANCE, knockbackKey, 0.3);
                 }
-                case SPEAR -> {
+                case FALLEN -> {
                     quiet(p, PotionEffectType.SPEED, 50, 0);
                     ensure(p, Attribute.ENTITY_INTERACTION_RANGE, reachKey, 0.5);
                 }

@@ -179,13 +179,13 @@ public final class Aura {
                 }
             }
             case HEROSWORD -> show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0x4DA3FF : 0xF2C94C, 0.7f));
-            case MJOLNIR -> {
-                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(0xE0A030, 0.7f));
-                if (tick % 3 == 0) {
-                    show(player, Particle.ELECTRIC_SPARK, at, 1, 0.12, 0.3, 0.12, 0.02);
+            case MOLTEN -> {
+                show(player, Particle.DUST, at, 1, 0.12, 0.3, 0.12, 0, Fx.dust(tick % 2 == 0 ? 0xFF8A2A : 0xFFD27A, 0.7f));
+                if (tick % 4 == 0) {
+                    show(player, Particle.SMALL_FLAME, at, 1, 0.1, 0.3, 0.1, 0.003);
                 }
             }
-            case GODSPEAR -> {
+            case FALLEN -> {
                 show(player, Particle.DUST, at, 1, 0.1, 0.35, 0.1, 0, Fx.dust(tick % 3 == 0 ? 0x2A0E0E : 0xD83A3A, 0.7f));
                 if (tick % 4 == 0) {
                     show(player, Particle.CRIT, at, 1, 0.1, 0.3, 0.1, 0.05);

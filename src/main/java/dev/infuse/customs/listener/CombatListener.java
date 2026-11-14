@@ -185,11 +185,12 @@ public final class CombatListener implements Listener {
                 Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xF2C94C, 1.3f));
                 fx.flash(at, 0x4DA3FF, 2f);
             }
-            case MJOLNIR -> {
-                Fx.particle(at, Particle.ELECTRIC_SPARK, 40, 0.4, 0.3);
-                fx.beam(at.clone().add(0, 8, 0), feet, 0xCFE8FF, 0.5f, 5);
+            case MOLTEN -> {
+                Fx.particle(at, Particle.LAVA, 8, 0.3, 0);
+                Fx.particle(at, Particle.FLAME, 30, 0.4, 0.08);
+                fx.flash(at, 0xFF8A2A, 2f);
             }
-            case GODSPEAR -> {
+            case FALLEN -> {
                 Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xD83A3A, 1.3f));
                 Fx.particle(at, Particle.CRIT, 25, 0.4, 0.3);
             }
@@ -220,7 +221,7 @@ public final class CombatListener implements Listener {
                 }
             }
             case LIGHTNING -> {
-                if (holding(player, SwordType.STORM) || holding(player, SwordType.MJOLNIR)) {
+                if (holding(player, SwordType.STORM)) {
                     event.setCancelled(true);
                 }
             }
