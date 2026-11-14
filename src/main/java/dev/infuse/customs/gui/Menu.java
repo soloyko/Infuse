@@ -71,20 +71,21 @@ public abstract class Menu implements InventoryHolder {
         }
     }
 
-    /** The tabs of the overview menus: one per arc. */
+    /** The tabs of the overview menus: one per arc, and the factions' weapons. */
     public enum Page {
-        I, II, III, IV, V;
+        I, II, III, IV, V, FACTIONS;
 
-        public dev.infuse.customs.sword.Arc arc() {
-            return dev.infuse.customs.sword.Arc.values()[ordinal()];
+        /** The arc this tab shows, or null for the factions' tab. */
+        public dev.infuse.customs.sword.@org.jetbrains.annotations.Nullable Arc arc() {
+            return this == FACTIONS ? null : dev.infuse.customs.sword.Arc.values()[ordinal()];
         }
 
         public static Page of(SwordType type) {
-            return values()[type.arc().ordinal()];
+            return type.arc() == null ? FACTIONS : values()[type.arc().ordinal()];
         }
 
         List<SwordType> types() {
-            return arc().members();
+            return this == FACTIONS ? List.of(SwordType.HEROSWORD, SwordType.MJOLNIR, SwordType.GODSPEAR) : arc().members();
         }
     }
 
@@ -131,27 +132,36 @@ public abstract class Menu implements InventoryHolder {
             boolean active = page == current;
             dev.infuse.customs.sword.Arc arc = page.arc();
             List<Component> lore = new java.util.ArrayList<>();
-            lore.add(Text.caps(arc.title(), arc.color()));
-            lore.add(Text.plain("Twist: " + arc.twist(), NamedTextColor.GRAY));
-            dev.infuse.customs.sword.Arc running = arcState == null ? null : arcState.get();
-            if (running != null) {
-                lore.add(running == arc ? Text.plain("◆ The current arc", NamedTextColor.GREEN)
-                        : arc.ordinal() < running.ordinal() ? Text.plain("✔ Completed: its weapons can be forged", NamedTextColor.DARK_GREEN)
-                        : Text.plain("🔒 Locked until it begins", NamedTextColor.RED));
+            Component name;
+            SwordType icon;
+            if (arc == null) {
+                lore.add(Text.caps("arc ii · faction war", net.kyori.adventure.text.format.TextColor.color(0xF2C94C)));
+                lore.add(Text.plain("Carried by the faction leaders", NamedTextColor.GRAY));
+                lore.add(Text.plain("during sessions; never forged.", NamedTextColor.GRAY));
+                name = Text.plain("Factions", active ? net.kyori.adventure.text.format.TextColor.color(0xF2C94C) : NamedTextColor.GRAY);
+                icon = SwordType.HEROSWORD;
+            } else {
+                lore.add(Text.caps(arc.title(), arc.color()));
+                lore.add(Text.plain(arc.hasTwist() ? "Twist: " + arc.twist() + " (in sessions)" : "No twist", NamedTextColor.GRAY));
+                dev.infuse.customs.sword.Arc running = arcState == null ? null : arcState.get();
+                if (running != null) {
+                    lore.add(running == arc ? Text.plain("◆ The current arc", NamedTextColor.GREEN)
+                            : arc.ordinal() < running.ordinal() ? Text.plain("✔ Completed: its weapons can be forged", NamedTextColor.DARK_GREEN)
+                            : Text.plain("🔒 Locked until it begins", NamedTextColor.RED));
+                }
+                name = Text.plain(arc.label(), active ? arc.color() : NamedTextColor.GRAY)
+                        .append(Text.plain(" · " + arc.title(), active ? NamedTextColor.WHITE : NamedTextColor.DARK_GRAY));
+                icon = arc.members().get(0);
             }
             lore.add(Component.empty());
-            for (SwordType type : arc.members()) {
+            for (SwordType type : page.types()) {
                 lore.add(Text.plain(type.emoji() + " " + type.swordName(), type.color()));
             }
             lore.add(Component.empty());
             lore.add(active ? Text.plain("Showing", NamedTextColor.GREEN) : Text.plain("Click to show", NamedTextColor.YELLOW));
             ItemStack tab = button(Material.PAPER,
-                    (active ? Text.plain("▶ ", NamedTextColor.GOLD) : Component.empty())
-                            .append(Text.plain(arc.label(), active ? arc.color() : NamedTextColor.GRAY))
-                            .append(Text.plain(" · " + arc.title(), active ? NamedTextColor.WHITE : NamedTextColor.DARK_GRAY))
-                            .decoration(TextDecoration.BOLD, active),
+                    (active ? Text.plain("▶ ", NamedTextColor.GOLD) : Component.empty()).append(name).decoration(TextDecoration.BOLD, active),
                     lore);
-            SwordType icon = arc.members().get(0);
             tab.editMeta(meta -> {
                 meta.setItemModel(icon.itemModel());
                 meta.setEnchantmentGlintOverride(active);

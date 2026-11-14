@@ -100,33 +100,31 @@ altars:
 arcs:
   # The server's arcs. An admin starts Arc I with /customs arc start and moves on with
   # /customs arc next, up to Arc V. Each arc unlocks its nine weapons for forging (earlier arcs
-  # stay unlocked; later ones are locked) and brings a PvP twist for the whole server:
+  # stay unlocked; later ones are locked). Arcs I and II also bring a PvP twist, which only runs
+  # during a session (an admin starts one with /customs session start [minutes]):
   #   I   Awakening  - Bounty Hunt: a rotating bounty everyone is pointed at; kills heal fully
-  #   II  Ascension  - War of the Three Orders: Solar, Lunar and Astral orders with their own
-  #                    blessings and relics; no friendly fire; kills score for your order
-  #   III Dominion   - Spoils of War: weapon carriers glow; killers take their victims' weapons
-  #   IV  Cataclysm  - Collapse: the world border closes in on spawn while meteors fall
-  #   V   Eternity   - Eternal Hearts: endless night; kills steal a heart (up to +10 / -5)
+  #   II  Ascension  - Faction War: when the session starts, three random players lead the Order
+  #                    of the Blade, the House of the Hammer and the Covenant of the Spear (with
+  #                    the Hero Sword, Mjolnir and the Fallen God's Spear), and two random players
+  #                    join each. No friendly fire; kills score; an unsworn player slain by a
+  #                    faction's weapon joins that faction. The top faction wins at session end.
+  #   III, IV, V     - no twist: they unlock their weapons.
   # While no arc is running, every weapon can be forged and there are no twists.
-  # Show the current arc and its twist in a bar at the top of the screen.
+  # Show the current arc, the session timer and the twist in a bar at the top of the screen.
   boss-bar: true
   # Turn single twists off (the arc still unlocks its weapons).
   twists:
     awakening: true
     ascension: true
-    dominion: true
-    cataclysm: true
-    eternity: true
-  # Awakening: minutes between bounties (each bounty lasts five minutes).
+  # Minutes a session lasts when /customs session start is given no length (0 = until an admin
+  # ends it with /customs session end).
+  session-minutes: 0
+  # Bounty Hunt: minutes between bounties, and how long each bounty has to survive.
   bounty-interval-minutes: 10
-  # Cataclysm: how the border closes (sizes in blocks, centred on world spawn), and minutes
-  # between meteor storms. The original border comes back when the arc ends.
-  collapse:
-    start-size: 3000
-    end-size: 300
-    hours: 4
-  meteor-interval-minutes: 4
-  meteors-hit-creative: false
+  bounty-minutes: 5
+  # Faction War: points for killing another faction's leader (any other kill is worth 1).
+  factions:
+    leader-kill-points: 3
 
 # Per-weapon settings. Keys are the weapon ids (see /customs list).
 #   attack-damage / attack-speed : melee stats (netherite sword is 8 / 1.6)
@@ -486,6 +484,34 @@ swords:
       enabled: true
       shape: ["OCO", "ESE", "OCO"]
       ingredients: {O: CRYING_OBSIDIAN, C: END_CRYSTAL, E: ECHO_SHARD, S: NETHERITE_SWORD}
+  # The faction weapons of Arc II: handed to faction members, never forged (no recipe).
+  herosword:     # Hero Sword (Order of the Blade)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.6
+    cooldowns: {primary: 10, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SWORD}
+  mjolnir:       # Mjolnir (House of the Hammer)
+    enabled: true
+    attack-damage: 13
+    attack-speed: 1.0
+    cooldowns: {primary: 12, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: MACE}
+  godspear:      # Fallen God's Spear (Covenant of the Spear)
+    enabled: true
+    attack-damage: 12
+    attack-speed: 1.4
+    cooldowns: {primary: 10, secondary: 45}
+    recipe:
+      enabled: false
+      shape: ["   ", " S ", "   "]
+      ingredients: {S: NETHERITE_SPEAR}
   claws:         # Soul Claws
     enabled: true
     attack-damage: 10

@@ -156,7 +156,8 @@ public final class SettingsMenu extends Menu {
                 Text.send(p, "<green>Reloaded config.yml.");
             }
         });
-        arcButton(40);
+        arcButton(39);
+        sessionButton(41);
         set(BACK, button(Material.ARROW, Text.plain("← Armory", NamedTextColor.GRAY), List.of()), p -> new SwordMenu(plugin).open(p));
         closeButton();
     }
@@ -171,7 +172,7 @@ public final class SettingsMenu extends Menu {
             lore.add(Text.plain("can be forged, no twists.", NamedTextColor.GRAY));
         } else {
             lore.add(Text.plain("Now: " + current.label() + " · " + current.title(), current.color()));
-            lore.add(Text.plain("Twist: " + current.twist(), NamedTextColor.GRAY));
+            lore.add(Text.plain(current.hasTwist() ? "Twist: " + current.twist() + " (in sessions)" : "No twist", NamedTextColor.GRAY));
         }
         lore.add(Component.empty());
         if (next != null) {
@@ -195,6 +196,38 @@ public final class SettingsMenu extends Menu {
                 }
             } else if (next != null) {
                 plugin.arcs().begin(next);
+            }
+            render();
+        });
+    }
+
+    /** The session: click to start one (until ended), shift + right-click to end it. */
+    private void sessionButton(int slot) {
+        var arcs = plugin.arcs();
+        boolean running = arcs.sessionActive();
+        List<Component> lore = new java.util.ArrayList<>();
+        lore.add(arcs.sessionLine());
+        dev.infuse.customs.sword.Arc current = arcs.current();
+        if (current != null && current.hasTwist()) {
+            lore.add(Text.plain(current.twist() + " runs during sessions.", NamedTextColor.GRAY));
+        }
+        lore.add(Component.empty());
+        if (running) {
+            lore.add(Text.plain("Shift + right-click to end the session", NamedTextColor.RED));
+        } else {
+            lore.add(Text.plain("Click to start a session", NamedTextColor.YELLOW));
+            lore.add(Text.plain("(/customs session start <minutes> for a timed one)", NamedTextColor.DARK_GRAY));
+        }
+        ItemStack item = button(running ? Material.LIME_CANDLE : Material.CANDLE, title("Session"), lore);
+        item.editMeta(meta -> meta.setEnchantmentGlintOverride(running));
+        setClick(slot, item, (p, click) -> {
+            if (!allowed(p)) {
+                return;
+            }
+            if (running && click == org.bukkit.event.inventory.ClickType.SHIFT_RIGHT) {
+                arcs.endSession();
+            } else if (!running) {
+                arcs.startSession(plugin.getConfig().getInt("arcs.session-minutes", 0));
             }
             render();
         });

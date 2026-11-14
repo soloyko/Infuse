@@ -290,6 +290,28 @@ public enum SwordType {
             new AbilityInfo("Sunder", "Cut a 12-block rift along your aim: enemies are thrown out to either side, and anyone on the line takes heavy damage."),
             new AbilityInfo("Banish", "Erase the enemy under your crosshair from the world for 3 seconds, then drop it back out of a rift above where it stood.")),
 
+    // ---- the faction weapons of Arc II (not forged: each member is given their faction's) ----
+    HEROSWORD("herosword", "Hero Sword", "Blade of the Order", "⚔", 0x4DA3FF, 0xF2C94C,
+            "Carried at the head of every charge the Order of the Blade has ever made. It has never been carried at the back of one.",
+            new AbilityInfo("Vanguard", "Resistance I while held."),
+            new AbilityInfo("Shieldbreaker", "25% chance to break the target's guard: Weakness and Slowness for 3 seconds."),
+            new AbilityInfo("Heroic Charge", "Charge forward; the first enemy you hit is knocked flat and stunned."),
+            new AbilityInfo("Rally", "Raise the blade: you and your faction around you gain Strength, Speed and a quick heal.")),
+
+    MJOLNIR("mjolnir", "Mjolnir", "Hammer of the House", "⚒", 0xE0A030, 0x6B4A2B, Material.MACE,
+            "The House of the Hammer's oldest heirloom. Storms gather wherever it is raised in anger.",
+            new AbilityInfo("Stormborn", "Immune to lightning while held."),
+            new AbilityInfo("Thunderclap", "20% chance for lightning to strike the target for +4 damage."),
+            new AbilityInfo("Stormcall", "Call lightning down on the enemy under your crosshair; it arcs to other enemies nearby."),
+            new AbilityInfo("Bulwark Roar", "You and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back.")),
+
+    GODSPEAR("godspear", "Fallen God's Spear", "Spear of the Covenant", "♆", 0xD83A3A, 0x2A0E0E, Material.NETHERITE_SPEAR,
+            "The Covenant of the Spear says a god threw it at the world and missed. They have never let anyone else miss since.",
+            new AbilityInfo("Longreach", "+1.5 blocks of reach while held."),
+            new AbilityInfo("Skewer", "20% chance to pin the target in place for a second."),
+            new AbilityInfo("Godspear Lunge", "Lunge a long way forward, skewering the first enemy and carrying it along."),
+            new AbilityInfo("War Banner", "Plant a banner for 15 seconds: your faction near it regenerates and hits harder, enemies near it are weakened.")),
+
     // ---- other weapons added in 2.3 ----
     CLAWS("claws", "Soul Claws", "Spectral Claws", "Ж", 0x2EE6D6, 0x0B3B4A, Material.NETHERITE_SWORD,
             "Torn from the ghost of a beast that hunted the same forest for a thousand years. It is still hungry.",
@@ -389,12 +411,12 @@ public enum SwordType {
         return switch (this) {
             case DRAGON, PHOENIX, SOLAR, CANDLE, CLAYMORE -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
             case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
-            case STORM, SAWBLADE, MAUL, MANTIS -> dev.infuse.customs.ability.Fx3D.Element.STORM;
+            case STORM, SAWBLADE, MAUL, MANTIS, MJOLNIR -> dev.infuse.customs.ability.Fx3D.Element.STORM;
             case TIDE, TRIDENT, CUTLASS -> dev.infuse.customs.ability.Fx3D.Element.WATER;
             case VERDANT, PLAGUE, GLAIVE, NEEDLE, RIBBON -> dev.infuse.customs.ability.Fx3D.Element.NATURE;
             case VOID, COSMIC, CHRONO, STAFF, WARGLAIVE, KHOPESH, MIRROR, MACE, STARS, SPLITTER -> dev.infuse.customs.ability.Fx3D.Element.ARCANE;
             case SHADOW, SOUL, ECHO, SCYTHE, CLAWS, DEATHKNIGHT -> dev.infuse.customs.ability.Fx3D.Element.SHADOW;
-            case CRIMSON, AXE, DAGGERS, ASHURA -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
+            case CRIMSON, AXE, DAGGERS, ASHURA, GODSPEAR -> dev.infuse.customs.ability.Fx3D.Element.BLOOD;
             default -> dev.infuse.customs.ability.Fx3D.Element.MARTIAL;
         };
     }
@@ -403,16 +425,21 @@ public enum SwordType {
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {
             case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
-            case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
-            case HAMMER, MACE, MAUL -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
+            case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE, GODSPEAR -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
+            case HAMMER, MACE, MAUL, MJOLNIR -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
             case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SPIN;
             default -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SLASH;
         };
     }
 
-    /** The arc this weapon belongs to. */
-    public Arc arc() {
-        return Arc.of(this);
+    /** The arc this weapon belongs to, or null for the faction weapons (which are never forged). */
+    public @Nullable Arc arc() {
+        return isFactionWeapon() ? null : Arc.of(this);
+    }
+
+    /** The three faction weapons of Arc II: given to faction members, never forged. */
+    public boolean isFactionWeapon() {
+        return this == HEROSWORD || this == MJOLNIR || this == GODSPEAR;
     }
 
     /** True for the swords, false for the other weapons. */
@@ -514,6 +541,9 @@ public enum SwordType {
             case ASHURA -> "torn apart by six arms";
             case DEATHKNIGHT -> "raised as a thrall";
             case SPLITTER -> "split from reality";
+            case HEROSWORD -> "struck down in single combat";
+            case MJOLNIR -> "thunderstruck";
+            case GODSPEAR -> "skewered on a god's spear";
         };
     }
 

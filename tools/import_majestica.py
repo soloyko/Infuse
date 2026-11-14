@@ -69,6 +69,10 @@ SWORDS = {
     'ashura': 'ashura_blade',
     'deathknight': 'death_knight_sword',
     'splitter': 'creationsplitter',
+    # the faction weapons of Arc II
+    'herosword': 'herosword',
+    'mjolnir': 'mjolnir',
+    'godspear': 'fallengodspear',
 }
 
 # Blockbench-only fields Minecraft ignores

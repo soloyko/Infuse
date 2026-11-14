@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** /customs give | menu | list | info | recipes | pack | resetcooldowns | unforge | reload */
+/** /customs give | menu | list | info | recipes | pack | arc | session | faction | resetcooldowns | unforge | reload */
 public final class CustomsCommand implements CommandExecutor, TabCompleter {
 
     private static final String ADMIN = "customs.admin";
@@ -48,7 +48,8 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             case "altar", "altars" -> altar(sender, label, args);
             case "list" -> list(sender);
             case "arc", "arcs" -> arc(sender, label, args);
-            case "order", "orders", "faction" -> order(sender, label, args);
+            case "faction", "factions", "order", "orders" -> faction(sender, label, args);
+            case "session", "sessions" -> session(sender, label, args);
             case "info" -> info(sender, args);
             case "pack" -> pack(sender, args);
             case "resetcooldowns", "resetcd" -> resetCooldowns(sender, args);
@@ -66,7 +67,8 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         line(sender, "/" + label + " info [weapon]", "Show what a weapon does");
         line(sender, "/" + label + " pack", "Re-download the resource pack");
         line(sender, "/" + label + " arc", "Which arc the server is in, and its twist");
-        line(sender, "/" + label + " order", "Arc II: choose your order");
+        line(sender, "/" + label + " session", "Whether a session is running, and the top killers");
+        line(sender, "/" + label + " faction", "Arc II: the factions, their leaders and points");
         if (sender.hasPermission(ADMIN)) {
             line(sender, "/" + label + " give <player> <weapon|all>", "Give weapons");
             line(sender, "/" + label + " menu", "Take weapons and altars from a menu");
@@ -76,7 +78,8 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
             line(sender, "/" + label + " altar give [player] [amount]", "Give weapon altars");
             line(sender, "/" + label + " altar set <weapon>", "Make the altar you look at forge a weapon (or place one)");
             line(sender, "/" + label + " arc start|next|set <1-5>|end", "Run the server's arcs");
-            line(sender, "/" + label + " order set <player> <solar|lunar|astral>", "Arc II: put a player in an order");
+            line(sender, "/" + label + " session start [minutes]|end", "Start or end a session (twists run in sessions)");
+            line(sender, "/" + label + " faction set <player> <blade|hammer|spear|none> [leader]", "Arc II: move a player between factions");
             line(sender, "/" + label + " reload", "Reload config.yml");
         }
     }
@@ -110,7 +113,8 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         }
         List<SwordType> types = new ArrayList<>();
         if (args[2].equalsIgnoreCase("all")) {
-            types.addAll(Arrays.asList(SwordType.values()));
+            // faction weapons belong to the factions' leaders; give them by name
+            Arrays.stream(SwordType.values()).filter(t -> !t.isFactionWeapon()).forEach(types::add);
         } else {
             SwordType type = SwordType.byId(args[2]);
             if (type == null) {
@@ -183,46 +187,83 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    /** /customs order [list|set <player> <order>]: Arc II's orders. */
-    private void order(CommandSender sender, String label, String[] args) {
-        dev.infuse.customs.arc.Orders orders = plugin.arcs().orders();
-        String action = args.length < 2 ? "choose" : args[1].toLowerCase(Locale.ROOT);
-        if (!orders.active()) {
-            Text.send(sender, "<gray>The orders only exist during Arc II.");
+    /** /customs faction [set <player> <faction|none> [leader]]: Arc II's factions. */
+    private void faction(CommandSender sender, String label, String[] args) {
+        dev.infuse.customs.arc.Factions factions = plugin.arcs().factions();
+        String action = args.length < 2 ? "list" : args[1].toLowerCase(Locale.ROOT);
+        if (!factions.active()) {
+            Text.send(sender, "<gray>The factions only exist during a session in Arc II.");
             return;
         }
         switch (action) {
-            case "list" -> {
-                sender.sendMessage(Text.plain("War of the Three Orders  ", NamedTextColor.GOLD).append(orders.scoreLine()));
-                for (dev.infuse.customs.arc.Orders.Order o : dev.infuse.customs.arc.Orders.Order.values()) {
-                    sender.sendMessage(o.label().append(Text.plain("  " + orders.count(o) + " sworn, " + orders.score(o) + (orders.score(o) == 1 ? " kill" : " kills"),
-                            NamedTextColor.GRAY)));
-                }
-            }
             case "set" -> {
                 if (denied(sender)) {
                     return;
                 }
                 Player target = args.length > 2 ? Bukkit.getPlayerExact(args[2]) : null;
-                dev.infuse.customs.arc.Orders.Order o = args.length > 3 ? dev.infuse.customs.arc.Orders.Order.parse(args[3]) : null;
-                if (target == null || o == null) {
-                    Text.send(sender, "<red>Usage: <white>/" + label + " order set <player> <solar|lunar|astral>");
+                boolean none = args.length > 3 && args[3].equalsIgnoreCase("none");
+                dev.infuse.customs.arc.Factions.Faction f = args.length > 3 ? dev.infuse.customs.arc.Factions.Faction.parse(args[3]) : null;
+                if (target == null || (f == null && !none)) {
+                    Text.send(sender, "<red>Usage: <white>/" + label + " faction set <player> <blade|hammer|spear|none> [leader]");
                     return;
                 }
-                orders.join(target, o, true);
+                boolean leader = args.length > 4 && args[4].equalsIgnoreCase("leader");
+                factions.assign(target, f, leader);
+                Text.send(sender, Text.plain(target.getName() + " is now ", NamedTextColor.GRAY)
+                        .append(f == null ? Text.plain("unsworn", NamedTextColor.WHITE)
+                                : (leader ? Text.plain("the leader of the ", NamedTextColor.GRAY) : Text.plain("in the ", NamedTextColor.GRAY)).append(f.label()))
+                        .append(Text.plain(".", NamedTextColor.GRAY)));
             }
             default -> {
-                if (!(sender instanceof Player player)) {
-                    Text.send(sender, "<red>Only players can choose an order.");
+                if (!factions.formed()) {
+                    Text.send(sender, "<gray>The factions form when at least " + dev.infuse.customs.arc.Factions.MIN_PLAYERS
+                            + " players in survival are online.");
                     return;
                 }
-                if (orders.of(player) != null) {
-                    Text.send(player, Text.plain("You are sworn to the ", NamedTextColor.GRAY).append(orders.of(player).label())
-                            .append(Text.plain(".", NamedTextColor.GRAY)));
-                    return;
+                factions.status().forEach(sender::sendMessage);
+                if (sender instanceof Player player) {
+                    dev.infuse.customs.arc.Factions.Faction mine = factions.of(player);
+                    sender.sendMessage(mine == null
+                            ? Text.plain("You are unsworn. Fall to a faction's weapon and you join that faction.", NamedTextColor.GRAY)
+                            : Text.plain(factions.isLeader(player) ? "You lead the " : "You are sworn to the ", NamedTextColor.GRAY)
+                                    .append(mine.label()).append(Text.plain(".", NamedTextColor.GRAY)));
                 }
-                new dev.infuse.customs.gui.OrderMenu(plugin).open(player);
             }
+        }
+    }
+
+    /** /customs session [start [minutes]|end]: sessions, which admins start and end. */
+    private void session(CommandSender sender, String label, String[] args) {
+        var arcs = plugin.arcs();
+        String action = args.length < 2 ? "status" : args[1].toLowerCase(Locale.ROOT);
+        if (action.equals("status") || action.equals("info")) {
+            arcs.sessionStatus().forEach(sender::sendMessage);
+            return;
+        }
+        if (denied(sender)) {
+            return;
+        }
+        switch (action) {
+            case "start", "begin" -> {
+                int minutes = plugin.getConfig().getInt("arcs.session-minutes", 0);
+                if (args.length > 2) {
+                    try {
+                        minutes = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        Text.send(sender, "<red>Usage: <white>/" + label + " session start [minutes]");
+                        return;
+                    }
+                }
+                if (!arcs.startSession(minutes)) {
+                    Text.send(sender, "<red>A session is already running. End it with <white>/" + label + " session end</white>.");
+                }
+            }
+            case "end", "stop" -> {
+                if (!arcs.endSession()) {
+                    Text.send(sender, "<red>No session is running.");
+                }
+            }
+            default -> Text.send(sender, "<gray>Usage: <white>/" + label + " session [start [minutes]|end]");
         }
     }
 
@@ -309,6 +350,10 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                 SwordType type = args.length >= 3 ? SwordType.byId(args[2]) : null;
                 if (type == null) {
                     Text.send(sender, "<gray>Usage: <white>/" + label + " altar set <weapon></white>. Weapons: " + String.join(", ", ids()));
+                    return;
+                }
+                if (type.isFactionWeapon()) {
+                    Text.send(sender, "<red>" + type.swordName() + " belongs to a faction leader in Arc II and is never forged.");
                     return;
                 }
                 org.bukkit.block.Block looked = player.getTargetBlockExact(8);
@@ -459,6 +504,11 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         Text.send(sender, "<green>Reloaded config.yml.");
     }
 
+    private static boolean isFaction(String arg) {
+        String a = arg.toLowerCase(Locale.ROOT);
+        return a.startsWith("faction") || a.startsWith("order");
+    }
+
     private static List<String> ids() {
         return Arrays.stream(SwordType.values()).map(SwordType::id).toList();
     }
@@ -469,7 +519,7 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         boolean admin = sender.hasPermission(ADMIN);
         List<String> options = new ArrayList<>();
         if (args.length == 1) {
-            options.addAll(List.of("list", "info", "recipes", "pack", "arc", "order"));
+            options.addAll(List.of("list", "info", "recipes", "pack", "arc", "session", "faction"));
             if (admin) {
                 options.addAll(List.of("give", "menu", "settings", "resetcooldowns", "unforge", "altar", "reload"));
             }
@@ -499,10 +549,15 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
                         options.addAll(List.of("start", "next", "set", "end"));
                     }
                 }
-                case "order", "orders", "faction" -> {
+                case "faction", "factions", "order", "orders" -> {
                     options.add("list");
                     if (admin) {
                         options.add("set");
+                    }
+                }
+                case "session", "sessions" -> {
+                    if (admin) {
+                        options.addAll(List.of("start", "end"));
                     }
                 }
                 default -> {
@@ -511,10 +566,14 @@ public final class CustomsCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give") && admin) {
             options.addAll(ids());
             options.add("all");
-        } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("order") && args[1].equalsIgnoreCase("set") && admin) {
+        } else if (args.length == 3 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
             Bukkit.getOnlinePlayers().forEach(p -> options.add(p.getName()));
-        } else if (args.length == 4 && args[0].toLowerCase(Locale.ROOT).startsWith("order") && args[1].equalsIgnoreCase("set") && admin) {
-            options.addAll(List.of("solar", "lunar", "astral"));
+        } else if (args.length == 4 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
+            options.addAll(List.of("blade", "hammer", "spear", "none"));
+        } else if (args.length == 5 && isFaction(args[0]) && args[1].equalsIgnoreCase("set") && admin) {
+            options.add("leader");
+        } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("session") && args[1].equalsIgnoreCase("start") && admin) {
+            options.addAll(List.of("30", "60", "90", "120"));
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("arc") && args[1].equalsIgnoreCase("set") && admin) {
             options.addAll(List.of("1", "2", "3", "4", "5"));
         } else if (args.length == 3 && args[0].toLowerCase(Locale.ROOT).startsWith("altar") && admin) {

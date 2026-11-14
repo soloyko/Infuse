@@ -22,6 +22,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.Locale;
 
 public final class CustomsPlugin extends JavaPlugin {
@@ -88,7 +89,7 @@ public final class CustomsPlugin extends JavaPlugin {
         pm.registerEvents(displays, this);
         pm.registerEvents(altars, this);
         pm.registerEvents(arcs, this);
-        pm.registerEvents(arcs.orders(), this);
+        pm.registerEvents(arcs.factions(), this);
         abilities.registerListeners();
 
         PluginCommand command = getCommand("customs");
@@ -182,6 +183,11 @@ public final class CustomsPlugin extends JavaPlugin {
             getConfig().set("config-version", 3);
         }
         getConfig().set("altars.recipe", null); // 1.4 only: altars are now placed by admins, not crafted
+        // 2.7 only: Arcs III to V lost their twists in 2.8
+        for (String old : List.of("arcs.twists.dominion", "arcs.twists.cataclysm", "arcs.twists.eternity", "arcs.collapse",
+                "arcs.meteor-interval-minutes", "arcs.meteors-hit-creative")) {
+            getConfig().set(old, null);
+        }
         getConfig().options().copyDefaults(true);
         // keep the explanations in the file in step with this version (values are never touched)
         var defaults = getConfig().getDefaults();

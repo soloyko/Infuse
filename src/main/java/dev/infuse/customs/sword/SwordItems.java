@@ -157,6 +157,9 @@ public final class SwordItems {
         if (forger != null) {
             lore.add(Text.caps("forged by ", NamedTextColor.DARK_GRAY).append(Text.plain(forger, NamedTextColor.GRAY)));
         }
+        if (type.isFactionWeapon()) {
+            lore.add(Text.caps("faction weapon  ·  soulbound to its leader", NamedTextColor.DARK_GRAY));
+        }
         lore.add(Component.empty());
         for (String line : Text.wrap(type.bio(), LORE_WIDTH)) {
             lore.add(Text.plain(line, NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, true));

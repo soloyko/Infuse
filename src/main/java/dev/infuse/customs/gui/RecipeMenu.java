@@ -125,6 +125,9 @@ public final class RecipeMenu {
         if (!settings.sword(type).enabled()) {
             return Text.plain("Disabled on this server", NamedTextColor.RED);
         }
+        if (type.isFactionWeapon()) {
+            return Text.plain("Carried by a faction in Arc II, never forged", NamedTextColor.GRAY);
+        }
         if (!plugin.arcs().unlocked(type)) {
             return Text.plain("🔒 Unlocks when " + type.arc().label() + " begins", NamedTextColor.RED);
         }

@@ -1,10 +1,10 @@
 # Customs
 
-A Paper **1.21.11** plugin that adds 45 legendary weapons in five arcs (swords, plus a
+A Paper **1.21.11** plugin that adds 48 legendary weapons: 45 in five arcs (swords, plus a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier, a khopesh, spectral claws, cursed daggers, a holy mace, a
-glaive, a power fuse hammer and a cyber mantis blade), each named after its model in the Blades of
-Majestica pack. Each has its own name and lore, a 3D model
+glaive, a power fuse hammer and a cyber mantis blade) and three faction weapons carried by the
+leaders of Arc II's factions, each named after its model in the Blades of Majestica pack. Each has its own name and lore, a 3D model
 (bundled resource pack), a passive, an on-hit effect and two activated abilities, drawn with
 glowing 3D effects: jagged lightning, ground that cracks and glows, pillars of fire, ice and
 stone spikes, rifts, spectral heads, crescent slashes and more. Admins can place **stone
@@ -35,39 +35,60 @@ messages ("Steve was frozen solid by Alex wielding ❄ Frost Blade").
 
 ## The arcs
 
-The 45 weapons are split into five arcs of nine, in no particular order, and the arcs are the
-server's story. An admin starts **Arc I** with `/customs arc start` (or the ⚙ settings menu) and
-moves the whole server on with `/customs arc next`, up to **Arc V**:
+The 45 forgeable weapons are split into five arcs of nine, in no particular order, and the arcs
+are the server's story. An admin starts **Arc I** with `/customs arc start` (or the ⚙ settings
+menu) and moves the whole server on with `/customs arc next`, up to **Arc V**:
 
 - Each arc **unlocks its nine weapons** for forging. Weapons from earlier arcs stay unlocked;
   weapons from later arcs are locked (altars show "🔒 unlocks in Arc III", crafting tables refuse
   them and the recipe book says when they open up).
-- Each arc brings a **PvP twist** for the whole server:
+- Arcs I and II also have a **PvP twist**, and it only runs **during a session**. Arcs III to V
+  have no twist: they unlock their weapons.
 
-| Arc | Twist |
+| Arc | Twist (during sessions) |
 | --- | --- |
-| **I · Awakening** | **Bounty Hunt**: every ten minutes one player becomes the bounty. They glow and everyone else gets an arrow and the distance to them on the action bar. Kill them for a reward, or survive five minutes and the reward is theirs. Every player kill also heals the killer fully and gives Strength for 10 seconds |
-| **II · Ascension** | **War of the Three Orders**: every player joins an order (see below). Orders can't hurt their own, each has its own blessing and relic, and every kill of another order scores for yours. When the arc ends the top order is crowned and its members share the spoils |
-| **III · Dominion** | **Spoils of War**: anyone carrying a legendary weapon glows for everyone to see, and whoever kills a player takes every legendary weapon they carried |
-| **IV · Cataclysm** | **Collapse**: the world border closes in on spawn over the arc (3000 → 300 blocks over 4 hours by default) while meteors crash down around players and leave forging materials in their craters. The old border comes back when the arc ends |
-| **V · Eternity** | **Eternal Hearts**: the sun never rises again, every player kill steals one of the victim's hearts (up to ten extra) and every death costs one (down to five fewer) |
+| **I · Awakening** | **Bounty Hunt**: a minute into the session, and then every ten minutes, one player becomes the bounty. They glow and everyone else gets an arrow and the distance to them on the action bar. Kill them for a reward, or survive five minutes and the reward is theirs. Every player kill also heals the killer fully and gives Strength for 10 seconds |
+| **II · Ascension** | **Faction War**: when the session starts, three random players become faction leaders and two random players join each (see below). Factions can't hurt their own, every kill scores, and an unsworn player slain by a faction's weapon joins that faction. When the session ends the top faction is crowned and its members share the spoils |
+| **III · Dominion** | — |
+| **IV · Cataclysm** | — |
+| **V · Eternity** | — |
 
-### The three orders (Arc II)
+### Sessions
 
-When Arc II starts every player picks an order from a menu (`/customs order` opens it again);
-anyone who doesn't choose within a minute is put in the smallest order, and no order can get two
-members ahead of the smallest. Members get a coloured name and tag, can't hurt each other (with
-weapons or abilities), and carry their order's relic, which can't be dropped or crafted with and
-goes away when the arc ends.
+A session is a stretch of play an admin starts and ends: `/customs session start [minutes]`
+(no length: until `/customs session end`), or the candle in the ⚙ settings menu. Starting one
+puts the current arc's twist in play; ending it (by hand or when the time runs out) announces
+the results and the top three killers, and the twist stops until the next session. The bar at
+the top of the screen shows the arc, the session clock and, in Arc II, the faction scores.
+`/customs session` shows how long it has run and who leads. Sessions survive restarts.
 
-| Order | Blessing | Relic (right-click) |
+### The three factions (Arc II)
+
+| Faction | Leader carries | Blessing (every member) |
 | --- | --- | --- |
-| ☀ **Solar Order** | **Radiance**: Fire Resistance, and your hits set enemies alight | **Sunstone · Solar Flare** (60s): blinds and burns every enemy within 8 blocks while your order nearby regenerates |
-| ☾ **Lunar Covenant** | **Moonlit**: Night Vision; at night, Speed I and 15% more damage | **Moonstone · Eclipse Veil** (75s): you and your order nearby vanish from enemy eyes (armour too) and run faster for 6s |
-| ✦ **Astral Syndicate** | **Starborn**: no fall damage, and every fifth hit on an enemy deals 4 extra damage | **Starstone · Starfall Gate** (60s): teleport to the nearest member of your order, or blink 10 blocks ahead |
+| ⚔ **Order of the Blade** | **Hero Sword** | **Sharpened**: Haste I, and melee hits on anyone outside the Order deal 10% more |
+| ⚒ **House of the Hammer** | **Mjolnir** | **Ironclad**: two extra hearts and 30% knockback resistance |
+| ♆ **Covenant of the Spear** | **Fallen God's Spear** | **Swiftstep**: Speed I and half a block more reach |
 
-The boss bar keeps the score; `/customs order list` shows it too, and admins can move a player
-with `/customs order set <player> <order>`.
+When a session starts in Arc II, three random players in survival become the leaders, one per
+faction, and two more random players join each. Everyone else is **unsworn**: they fight for
+themselves, and if a faction's leader kills one with the faction's weapon, they are sworn into
+that faction. Members get a coloured name and tag and can't hurt each other (with weapons or
+abilities). Leaders glow in their faction's colour, and killing one scores 3 points
+(`arcs.factions.leader-kill-points`); any other kill scores 1.
+
+The faction weapons are never forged. Each one is soulbound to its leader: it can't be
+dropped, put in a chest or frame, or lost on death (it comes back on respawn), and it is taken
+back when the session ends. Their abilities help the whole faction:
+
+| Weapon | Passive (while held) | On hit | F | Sneak + F |
+| --- | --- | --- | --- | --- |
+| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge forward; the first enemy in the way is bowled over and stunned | **Rally** (45s): you and your faction within 12 blocks gain Strength, Speed and a quick heal; enemies close by are pushed back |
+| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): lightning strikes the enemy you aim at, then arcs to three more | **Bulwark Roar** (45s): you and your faction nearby gain Resistance II and Absorption II; enemies close by are thrown back |
+| ♆ **Fallen God's Spear** · Spear of the Covenant | **Longreach**: +1.5 reach | 20%: **Skewer** pins the target | **Godspear Lunge** (10s): a long lunge that skewers the first enemy and carries it to the end | **War Banner** (45s): plant a banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
+
+`/customs faction` shows the factions, their leaders and points; admins can move a player with
+`/customs faction set <player> <blade|hammer|spear|none> [leader]`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, the
 twist and the newly forgeable weapons in chat, and a bar at the top of the screen that stays for
@@ -77,7 +98,7 @@ running the plugin behaves as before: every weapon can be forged and there are n
 twist can be turned off in `config.yml` (`arcs.twists`), and the current arc survives restarts.
 
 The armory, the recipe book, the settings menu and `/customs list` show the weapons arc by arc,
-one tab each.
+one tab each, plus a tab for the faction weapons.
 
 ![The first fifteen swords](docs/swords.png)
 
@@ -360,8 +381,10 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs list` | — | All weapons (hover for details, click for lore) |
 | `/customs arc` | — | Which arc the server is in and its twist |
 | `/customs arc start` / `next` / `set <1-5>` / `end` | `customs.admin` | Run the server's arcs |
-| `/customs order` / `order list` | — | Arc II: choose your order / see the score |
-| `/customs order set <player> <order>` | `customs.admin` | Arc II: put a player in an order |
+| `/customs session` | — | Whether a session is running, for how long, and the top killers |
+| `/customs session start [minutes]` / `end` | `customs.admin` | Start or end a session (twists only run in sessions) |
+| `/customs faction` | — | Arc II: the factions, their leaders and points |
+| `/customs faction set <player> <blade\|hammer\|spear\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |
@@ -424,7 +447,7 @@ GitHub Actions; the jar and pack are attached to each run as the `Customs` artif
 
 ### The resource pack
 
-The 3D models and textures come from the **Blades of Majestica** resource pack. 45 of its 119
+The 3D models and textures come from the **Blades of Majestica** resource pack. 48 of its 119
 weapons are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 
