@@ -136,7 +136,8 @@ public final class GodSpearWeapon extends SwordAbility {
     @Override
     public boolean secondary(Player player) {
         Vector facing = dev.infuse.customs.ability.Aim.flatLook(player);
-        Location ground = Combat.ground(player.getLocation().add(facing.clone().multiply(1.8)).add(0, 0.5, 0));
+        // ahead and a little to the right, so it doesn't stand in the middle of your view
+        Location ground = Combat.ground(player.getLocation().add(facing.clone().multiply(1.8)).add(Fx.right(facing).multiply(1.3)).add(0, 0.5, 0));
         Location at = ground.clone().add(0, 2.1, 0);
         at.setYaw(0);
         at.setPitch(0);

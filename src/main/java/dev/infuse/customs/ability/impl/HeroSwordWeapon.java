@@ -130,7 +130,8 @@ public final class HeroSwordWeapon extends SwordAbility {
     public boolean secondary(Player player) {
         Location at = player.getLocation();
         Vector facing = dev.infuse.customs.ability.Aim.flatLook(player);
-        Location plant = Combat.ground(at.clone().add(facing.clone().multiply(2.6)).add(0, 0.5, 0));
+        // ahead and a little to the right, so it doesn't stand in the middle of your view
+        Location plant = Combat.ground(at.clone().add(facing.clone().multiply(2.4)).add(Fx.right(facing).multiply(1.3)).add(0, 0.5, 0));
         Location sky = plant.clone().add(0, 9, 0);
         sky.setYaw(0);
         sky.setPitch(0);

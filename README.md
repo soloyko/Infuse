@@ -59,9 +59,22 @@ menu) and moves the whole server on with `/customs arc next`, up to **Arc V**:
 A session is a stretch of play an admin starts and ends: `/customs session start [minutes]`
 (no length: until `/customs session end`), or the candle in the ⚙ settings menu. Starting one
 puts the current arc's twist in play; ending it (by hand or when the time runs out) announces
-the results and the top three killers, and the twist stops until the next session. The bar at
-the top of the screen shows the arc, the session clock and, in Arc II, the faction scores.
+the results and the top three killers (the top one is crowned MVP), and the twist stops until
+the next session. The last ten seconds of a timed session count down on screen.
 `/customs session` shows how long it has run and who leads. Sessions survive restarts.
+
+While a session runs everyone sees it:
+
+- the **bar** at the top of the screen: the arc and twist, the session clock and, in Arc II, the
+  faction points (`arcs.boss-bar`);
+- a **sidebar**: the clock, each faction's members and points (or the bounty and its timer in
+  Arc I) and the top three killers (`arcs.sidebar`; it stays hidden if another plugin already
+  uses the sidebar);
+- the **tab list**: the arc above the names and the session and faction points below them
+  (`arcs.tab-list`).
+
+All three can be turned off in the ⚙ settings menu or `config.yml`. In Arc I the bounty carries a
+floating "☠ BOUNTY ☠" with their time left over their name.
 
 ### The three factions (Arc II)
 
@@ -74,9 +87,12 @@ the top of the screen shows the arc, the session clock and, in Arc II, the facti
 When a session starts in Arc II, three random players in survival become the leaders, one per
 faction, and two more random players join each. Everyone else is **unsworn**: they fight for
 themselves, and if a faction's leader kills one with the faction's weapon, they are sworn into
-that faction. Members get a coloured name and tag and can't hurt each other (with weapons or
-abilities). Leaders glow in their faction's colour, and killing one scores 3 points
-(`arcs.factions.leader-kill-points`); any other kill scores 1.
+that faction (they come back with the faction's title and a pillar of its light). Members get
+a coloured name and tag and can't hurt each other (with weapons or abilities). Leaders glow in
+their faction's colour and carry a "LEADER" emblem over their name; killing one scores 3 points
+(`arcs.factions.leader-kill-points`), any other kill scores 1, and the points rise from where the
+victim fell. A leader who stays offline for two minutes hands the faction weapon to a random
+online member.
 
 The faction weapons are never forged. Each one is soulbound to its leader: it can't be
 dropped, put in a chest or frame, or lost on death (it comes back on respawn), and it is taken
@@ -84,22 +100,25 @@ back when the session ends. Their abilities help the whole faction:
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
-| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge forward; the first enemy in the way is bowled over and stunned | **Rally** (45s): you and your faction within 12 blocks gain Strength, Speed and a quick heal; enemies close by are pushed back |
-| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): a storm gathers where you aim; lightning strikes there and keeps striking enemies under the cloud for 4s | **Bulwark Roar** (45s): you and your faction nearby gain Resistance II and Absorption II; enemies close by are thrown back |
-| ♆ **Fallen God's Spear** · Spear of the Covenant | **Longreach**: +1.5 reach | 20%: **Skewer** pins the target | **Godspear Lunge** (10s): a long lunge that skewers the first enemy and carries it to the end | **War Banner** (45s): plant a banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
+| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge behind a shield of light; the first enemy in the way is bowled over and stunned | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your faction within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
+| ⚒ **Mjolnir** · Hammer of the House | **Stormborn**: lightning can't hurt you | 20%: **Thunderclap**, a bolt for +4 | **Stormcall** (12s): a storm gathers where you aim; lightning strikes there and keeps striking enemies under the cloud for 4s | **Bulwark Roar** (45s): a hammer slam; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back |
+| ♆ **Fallen God's Spear** · Spear of the Covenant | **Longreach**: +1.5 reach | 20%: **Skewer** pins the target | **Godspear Lunge** (10s): a long lunge that skewers the first enemy, carries it to the end and pins it with crimson spikes | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
 
-`/customs faction` shows the factions, their leaders and points; admins can move a player with
+`/customs faction` opens a menu of the factions (banners, points, the leaders' and members'
+heads); `/customs faction list` shows the same in chat. Admins can move a player with
 `/customs faction set <player> <blade|hammer|spear|none> [leader]`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, the
 twist and the newly forgeable weapons in chat, and a bar at the top of the screen that stays for
-the whole arc. `/customs arc` shows where the server is; `/customs arc set <1-5>` jumps to an arc
+the whole arc. `/customs arc` opens a menu of the five arcs (done, current, ahead; their twists and
+weapons, click for recipes) and `/customs arc info` shows it in chat; `/customs arc set <1-5>` jumps to an arc
 and `/customs arc end` finishes them (everything unlocks, the twists stop). While no arc is
 running the plugin behaves as before: every weapon can be forged and there are no twists. Each
 twist can be turned off in `config.yml` (`arcs.twists`), and the current arc survives restarts.
 
 The armory, the recipe book, the settings menu and `/customs list` show the weapons arc by arc,
-one tab each, plus a tab for the faction weapons.
+one tab each, plus a tab for the faction weapons. Every arc weapon's tooltip says which arc it
+belongs to, and an altar whose weapon is still locked goes cold (grey runes, a red-edged weapon).
 
 ![The first fifteen swords](docs/swords.png)
 
@@ -380,11 +399,11 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | Command | Permission | |
 | --- | --- | --- |
 | `/customs list` | — | All weapons (hover for details, click for lore) |
-| `/customs arc` | — | Which arc the server is in and its twist |
+| `/customs arc` / `arc info` | — | The arcs menu (which arc the server is in, the twists and weapons) / the same in chat |
 | `/customs arc start` / `next` / `set <1-5>` / `end` | `customs.admin` | Run the server's arcs |
 | `/customs session` | — | Whether a session is running, for how long, and the top killers |
 | `/customs session start [minutes]` / `end` | `customs.admin` | Start or end a session (twists only run in sessions) |
-| `/customs faction` | — | Arc II: the factions, their leaders and points |
+| `/customs faction` / `faction list` | — | Arc II: the faction menu (leaders, members, points) / the same in chat |
 | `/customs faction set <player> <blade\|hammer\|spear\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
@@ -409,7 +428,9 @@ Other permissions: `customs.use` (abilities and passives, default everyone),
 `/customs settings` (or the ⚙ button in `/customs menu`) changes the config in game, for
 admins: whether abilities hit players, ability damage multipliers, the ability key, unbreakable
 weapons, dropped-weapon protection, death messages, every visual effect, crafting, crafting
-table recipes, announcements, legendary mode and altars. The **Weapons** page turns each weapon
+table recipes, announcements, legendary mode and altars, plus the server's arc (click to move
+on), sessions (click to start one, shift + right-click to end it) and the arc bar, session sidebar
+and tab list header. The **Weapons** page turns each weapon
 on or off (left-click) or opens it (right-click) to change its damage, attack speed, both
 cooldowns and recipe, or to let a legendary weapon be forged again. Changes are saved to
 `config.yml` and apply at once.
@@ -425,6 +446,10 @@ cooldowns and recipe, or to let a legendary weapon be forged again. Changes are 
   ability), `kill-effects` (a burst of light on kills) and `damage-numbers` (hits show the damage
   dealt above the target: gold for critical swings, the weapon's colour for abilities; rapid hits
   add up on one number).
+- Arcs and sessions: `arcs.twists` (turn Bounty Hunt or the Faction War off), `arcs.session-minutes`
+  (default length; 0 runs until ended), `arcs.bounty-interval-minutes`, `arcs.bounty-minutes`,
+  `arcs.factions.leader-kill-points`, and the `arcs.boss-bar`, `arcs.sidebar` and `arcs.tab-list`
+  displays.
 - `controls.trigger` (`offhand`, `right-click` or `both`), `crafting.unique-swords`,
   `crafting.crafting-table` (turn off to make altars the only way to forge) and `altars.enabled`.
 - Changes apply on `/customs reload`; swords players already own update the next time they're held.
