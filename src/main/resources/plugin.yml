@@ -1,0 +1,13 @@
+name: Bloodbound
+version: '${version}'
+main: dev.bloodbound.BloodboundPlugin
+api-version: '1.21.11'
+description: Altar-crafted weapons that grow from PvP during admin-run sessions.
+authors: [Bloodbound]
+permissions:
+  bloodbound.use:
+    description: Use player commands (stats, top).
+    default: true
+  bloodbound.admin:
+    description: Manage sessions, events, altars and blood.
+    default: op
