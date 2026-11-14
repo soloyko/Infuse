@@ -1,6 +1,6 @@
 # Customs
 
-A Paper **1.21.11** plugin that adds 48 legendary weapons: 45 in five arcs (swords, plus a
+A Paper **1.21.11** plugin that adds 53 legendary weapons: 50 in five arcs (swords, plus a
 hammer, a scythe, a spear, a chakram, an axe, a staff, a trident, throwing stars, a halberd, a
 warglaive, a cyber sawblade, a rapier, a khopesh, spectral claws, cursed daggers, a holy mace, a
 glaive, a power fuse hammer and a cyber mantis blade), plus three faction swords carried by the
@@ -35,11 +35,11 @@ messages ("Steve was frozen solid by Alex wielding ❄ Frost Blade").
 
 ## The arcs
 
-The 45 forgeable weapons are split into five arcs of nine, in no particular order, and the arcs
+The 50 forgeable weapons are split into five arcs of ten, in no particular order, and the arcs
 are the server's story. An admin starts **Arc I** with `/customs arc start` (or the ⚙ settings
 menu) and moves the whole server on with `/customs arc next`, up to **Arc V**:
 
-- Each arc **unlocks its nine weapons** for forging. Weapons from earlier arcs stay unlocked;
+- Each arc **unlocks its ten weapons** for forging. Weapons from earlier arcs stay unlocked;
   weapons from later arcs are locked (altars show "🔒 unlocks in Arc III", crafting tables refuse
   them and the recipe book says when they open up).
 - Arcs I and II also have a **PvP twist**, and it only runs **during a session**. Arcs III to V
@@ -79,9 +79,9 @@ floating "☠ BOUNTY ☠" with their time left over their name.
 
 | Faction | Leader carries | Blessing (every member) |
 | --- | --- | --- |
-| ⚔ **Order of the Blade** | **Hero Sword** | **Sharpened**: Haste I, and melee hits on anyone outside the Order deal 10% more |
-| ✹ **House of the Soulflame** | **True Excalibur** | **Soulward**: two extra hearts and 30% knockback resistance |
-| ✝ **Covenant of the Fallen** | **Fallen God's Sword** | **Swiftstep**: Speed I and half a block more reach |
+| ☾ **Order of the Moonlight** | **Holy Moonlight Sword** | **Moonstep**: Speed I and Night Vision |
+| ♦ **Court of Blood** | **Rivers of Blood** | **Bloodlust**: melee hits on anyone outside the Court deal 10% more and heal you 1 |
+| ✺ **Abominable Host** | **Abominable Great Saber** | **Abominable Flesh**: two extra hearts and 30% knockback resistance |
 
 When a session starts in Arc II, three random players in survival become the leaders, one per
 faction, and two more random players join each (players who join later fill any open member
@@ -96,20 +96,20 @@ online member.
 
 The faction weapons are never forged. Each one is soulbound to its leader: it can't be
 dropped, put in a chest or frame, or lost on death (it comes back on respawn), and it is taken
-back when the session ends. Their abilities help the whole faction:
+back when the session ends. Their abilities are built for leading a faction:
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
-| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Aegis** (10s): a shield of light on the ally you aim at (or you) soaks up the next 8 damage for 10s, then bursts, blinding enemies nearby | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your faction within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
-| ✹ **True Excalibur** · Blade of the Soulflame | **Soulfire Ward**: Fire Resistance | 20%: **Soulbrand**, +4 and the target burns | **Soulfall** (12s): a mass of soulfire gathers where you aim; it crashes down there and keeps raining on enemies beneath it for 4s | **Excalibur's Oath** (45s): drive the blade into the ground; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back and set alight |
-| ✝ **Fallen God's Sword** · Blade of the Covenant | **Longreach**: +1.5 reach | 20%: **Pinning Strike** pins the target | **Excommunicate** (18s): a crimson blade falls on the enemy you aim at; for 5s it can't use weapon abilities or heal, and a crown of thorns marks it | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
+| ☾ **Holy Moonlight Sword** · Blade of the Moonlight | **Moonblessed**: Night Vision; Regeneration I at night | 20%: **Moonlit Arc**, a crescent sweeps out behind the target and cuts the enemies there | **Gather the Order** (30s): channel the moon, then every member of your faction within 40 blocks is drawn to your side in a pillar of moonlight and healed (alone: Absorption II) | **Full Moon** (45s): a full moon rises over you for 8s; your faction nearby regenerates and runs faster, enemies nearby are revealed, lose invisibility and are slowed |
+| ♦ **Rivers of Blood** · Blade of the Court | **Bloodborne**: heal 10% of your melee damage | 25%: **Hemorrhage**, the target bleeds | **Corpse Piler** (10s): a flurry of four blood slashes in front of you over a second; each cuts every enemy in the arc and makes it bleed | **Sanguine Tithe** (35s): blood is torn from every enemy within 8 blocks and streams to you and your faction nearby, healing you for what was taken |
+| ✺ **Abominable Great Saber** · Blade of the Host | **Abominable Hide**: +4 armor, 50% knockback resistance | 20%: **Rend**, Wither II | **Spawn the Brood** (30s): three violet broodlings burst from the ground and hunt your faction's enemies for 12s | **Writhing Mass** (35s): violet tendrils seize every enemy within 7 blocks, drag them in and hold them for 2s; your faction nearby gains Strength |
 
 `/customs faction` opens a menu of the factions (banners, points, the leaders' and members'
 heads); `/customs faction list` shows the same in chat. Admins can move a player with
-`/customs faction set <player> <blade|flame|fallen|none> [leader]`.
+`/customs faction set <player> <moon|blood|host|none> [leader]`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, its
-nine newly forgeable weapons rising in a ring of light around you, the twist and the weapons in chat, and a bar at the top of the screen that stays for
+ten newly forgeable weapons fanning out in front of you, the twist and the weapons in chat, and a bar at the top of the screen that stays for
 the whole arc. `/customs arc` opens a menu of the five arcs (done, current, ahead; their twists and
 weapons, click for recipes) and `/customs arc info` shows it in chat; `/customs arc set <1-5>` jumps to an arc
 and `/customs arc end` finishes them (everything unlocks, the twists stop). While no arc is
@@ -140,7 +140,8 @@ disables shields and the trident can still be thrown.
 | ✠ **Divine Punisher** · Holy Mace | +50% vs undead, 20% less damage from undead | 20%: **Smite**, a pillar of light for +4 | **Sanctuary** (30s): a dome of light for 6s that keeps enemies and projectiles out and heals allies inside | **Martyr's Vow** (40s): 8s where you can't drop below half a heart, then heal half of what you took |
 | 🔊 **Sculk Sword** · Echo | Darkness immunity; sculk sensors ignore you | 20%: Darkness / slow | **Sonic Boom** (12s): charged warden blast through a line of enemies | **Shriek** (30s): darken and reveal all enemies, quicken yourself |
 | ✵ **Waxweaver** · Waxen Blade | Night Vision, Fire Resistance | 30%: hot wax, Slowness up to III | **Wickfire** (10s): a lit fuse races along the ground after the enemy you aim at and explodes when it catches up | **Melt** (30s): wax every enemy within 8 blocks; your next hit on one sets them all alight |
-| ❄ **Frost Blade** · Frost | +4 armor, +2 toughness, freeze immunity | Slowness II + freeze | **Glacial Spike** (10s): ice projectile that impales | **Blizzard** (30s): 6s storm that freezes & damages |
+| ❄ **Frost Blade** · Frost | +4 armor, +2 toughness, freeze immunity | Slowness II + freeze | **Cold Snap** (10s): a ring of frost closes in around the enemy you aim at; still inside when it closes, it freezes solid and the ice shatters around it | **Blizzard** (30s): 6s storm that freezes & damages |
+| ❀ **Terra Blade** · Blade of the Living Earth | **Verdance**: Regeneration I on grass, moss or leaves | 20%: **Lifebloom** heals you 2 | **Equilibrium** (25s): you and the enemy you aim at share your health; both end with the average (it can't kill) | **Overgrowth** (30s): a thorny hedge grows out to 7 blocks, rooting and poisoning enemies it passes and healing you and your allies inside |
 
 ### Arc II · Ascension
 
@@ -155,6 +156,7 @@ disables shields and the trident can still be thrown.
 | ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Moon Snare** (8s): set a crescent of moonlight where you aim (two at a time, 20s); the first enemy to step on it is lifted and spun helplessly for 2s, then dropped | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
 | Ω **Power Fuse Hammer** · Fusion Maul | **Polarity**: hits magnetize the target | 25%: **Static** arcs to every magnetized enemy | **Repulsor Field** (25s): 5s field that throws enemies back and turns projectiles around | **Overcharge** (20s): charge for 2s; your next hit deals +14 and chains to magnetized enemies |
 | ✧ **Star's Edge** · Constellation Blade | +20% damage at night | Every hit sets a **star** over the target | **Constellation** (12s): link every starred enemy with starlight and crush them together; more stars, more damage | **Astral Projection** (30s): leave your body and fly as an untouchable spirit for 5s, starring what you pass |
+| ♆ **Demonic Blade** · Blade of the Pact | **Infernal Heart**: fire immunity; +20% damage below half health | 20%: **Hellscorch**, +3 and burning | **Devil's Bargain** (20s): a demon skull spins and picks one of five fates: Feast (full heal), Fury (Strength II), Hellfire (a burning nova), Tithe (6 health from the enemy you aim at) or the Price (lose 3 hearts; your next hit deals +12) | **Abyssal Maw** (25s): a giant jaw of jagged teeth bursts from the ground under the enemy you aim at and bites shut (10 damage, held); enemies beside it are bitten too |
 
 ### Arc III · Dominion
 
@@ -166,9 +168,10 @@ disables shields and the trident can still be thrown.
 | Ψ **Ocean's Rage** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Abyssal Bubble** (10s): trap an enemy in a floating bubble of seawater for 3s, drowning it, then slam it down | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
 | ⚚ **Arcanethyst** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Sentinel** (25s): a floating crystal that shoots enemies and mends you and your teammates for 8s |
 | ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Three Touches** (6s): three weak points light up on the enemy you aim at for 5s; each hit on it strikes one for +4, and all three finish with a flourish that staggers it | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
-| ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
+| ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Landslide** (12s): the ground under the enemy you aim at gives way; a slide of rubble carries it away and buries it to the waist for 2s | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
 | ☥ **Pharaoh's Treasure** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado that drifts wherever your crosshair points, lifting, blinding and grinding enemies | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
 | Ж **Soul Claws** · Spectral Claws | Speed I; wounded enemies near you glow | **Frenzy**: up to 5 stacks of Haste and +1 damage | **Pounce** (8s): leap onto the enemy you aim at, pin it and rake it three times | **The Hunt** (30s): mark your prey for 12s: a trail to it, speed towards it, +5 damage; kill it to heal fully |
+| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Aegis** (10s): a shield of light on the ally you aim at (or you) soaks up the next 8 damage for 10s, then bursts, blinding enemies nearby | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your allies within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
 
 ### Arc IV · Cataclysm
 
@@ -183,13 +186,14 @@ disables shields and the trident can still be thrown.
 | ⚡ **Thunder Bringer** · Storm | +25% speed, lightning immunity | 12%: lightning, +5 damage, stun | **Thunder Strike** (10s): lightning where you aim (40 blocks) | **Chain Lightning** (28s): arcs through up to 6 enemies |
 | ☣ **Plague Longsword** · Plague | Immune to poison, wither, hunger, nausea | Plague stack; infected targets wither for +2 | **Miasma** (12s): plague cloud that stacks infection | **Pandemic** (30s): every infected enemy erupts (3 + 2.5 per stack) |
 | ❦ **Forest Guardian's Glaive** · Guardian's Glaive | Regeneration I on grass, moss or leaves | 20%: a thorn wisp bites for 4s | **Leaf Glide** (12s): glide on wings of leaves for 4s, steering with your crosshair; dive into enemies to strike | **Turning Seasons** (35s): spring heals, summer burns, autumn blinds, winter freezes around you |
+| ✝ **Fallen God's Sword** · Blade of the Covenant | **Longreach**: +1.5 reach | 20%: **Pinning Strike** pins the target | **Excommunicate** (18s): a crimson blade falls on the enemy you aim at; for 5s it can't use weapon abilities or heal, and a crown of thorns marks it | **War Banner** (45s): plant a banner for 15s; you and your allies near it regenerate and hit harder, enemies are weakened |
 
 ### Arc V · Eternity
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
 | ◈ **Silverine Blade** · Silver Mirror Blade | **Glass Skin**: 15% of attacks miss you | 20%: shards cut enemies around the target | **Mirror Images** (25s): two copies of you that hunt and fight your enemies for 8s and draw them away, then burst into glass | **Reflection** (30s): for 3s every hit you take goes back to whoever dealt it |
-| 🌊 **Aquatic Sacred Blade** · Tide | Conduit Power, Dolphin's Grace | 20%: drag the target to you, slow it | **Riptide Surge** (8s): riptide dash through enemies | **Ride the Tide** (28s): surf a wave you steer with your crosshair for 3.5s, carrying enemies until it breaks |
+| 🌊 **Aquatic Sacred Blade** · Tide | Conduit Power, Dolphin's Grace | 20%: drag the target to you, slow it | **Undertow** (8s): the tide takes hold of the enemy you aim at for 5s; it can't sprint and every block it moves costs it health | **Ride the Tide** (28s): surf a wave you steer with your crosshair for 3.5s, carrying enemies until it breaks |
 | ✢ **Hornet's Needle** · Hive Needle | Sneak in mid-air to drift down | **Venom** stacks (up to 6) | **Swarm Form** (14s): become a swarm of hornets for 3s, fly where you look, untouchable, stinging what you pass | **Hive Mind** (30s): enemies carrying your venom turn on each other for 6s |
 | 🐉 **Dragon Slaying Blade** · Dragon | Resistance I, +50% knockback resistance | 25%: +4 bonus damage | **Dragon Breath** (12s): 8-pulse cone of dragonfire | **Wyrm Dive** (30s): launch up, crash down in a shockwave, no fall damage |
 | † **Thousand Demon Daggers** · Cursed Daggers | **Twin Fangs**: every third hit strikes twice | **Hex**: +6% damage from you per stack | **Blood Pact** (20s): pay 3 hearts for 6s of +5 damage and lifesteal | **Soul Swap** (14s): trade places with the enemy you aim at; it's left weakened and blinded |
@@ -197,6 +201,7 @@ disables shields and the trident can still be thrown.
 | ☀ **Righteous Relic** · Solar | Haste II; nearby enemies glow | Ignites; +50% vs undead | **Solar Beam** (9s): a 1.5s beam that follows your aim, burning what it sweeps across | **Supernova** (35s): charge, then radius-10 solar blast |
 | 🔥 **Phoenix Grace** · Phoenix | Fire Resistance; **Rebirth**: a killing blow revives you at half health (every 5 min) | Ignites; 15%: combustion splash | **Ember Volley** (6s): 3 exploding fireballs that leave burning ground behind them (no real fire) | **Wall of Fire** (25s): a wall of fire across your aim for 6s; anything crossing it burns and is thrown back, arrows burn up |
 | ⌛ **Chrono Blade** · Chrono | +25% attack speed | 15%: freeze the target in time | **Stasis Field** (14s): enemies crawl, projectiles freeze mid-air | **Rewind** (30s): back to where you were 4s ago, with that health |
+| ✹ **True Excalibur** · Blade of the Soulflame | **Soulfire Ward**: Fire Resistance | 20%: **Soulbrand**, +4 and the target burns | **Soulfall** (12s): a mass of soulfire gathers where you aim; it crashes down there and keeps raining on enemies beneath it for 4s | **Excalibur's Oath** (45s): drive the blade into the ground; gold ward runes circle you and your allies (Resistance II, Absorption II) and enemies close by are thrown back and set alight |
 
 ## Effects
 
@@ -280,6 +285,14 @@ saved with the world.
 - **Ashura's Blade** — Wielded by a war god with six arms and no mercy. Hold it and you will feel the other five.
 - **Death Knight's Sword** — Sworn to a king long dead, and still keeping its oath. The fallen get back up when it asks them to.
 - **Creation Splitter** — The blade that cut the first day from the first night. The world has never quite healed where it passes.
+- **Terra Blade** — Grown, not forged: a seed planted in a battlefield, which drank the battle and came up as a blade.
+- **Demonic Blade** — Every edge on it was a promise somebody broke. It still collects.
+- **Hero Sword** — Carried at the head of every charge the Order of the Blade ever made. The Order is gone; the sword is still looking for a charge to lead.
+- **Fallen God's Sword** — They say a god dropped it when it fell, and that it is still looking for a hand worth the weight.
+- **True Excalibur** — Drawn from the stone a second time, and it came out burning the colour of a soul.
+- **Holy Moonlight Sword** (faction) — Kept sheathed in daylight by the Order of the Moonlight. Drawn under the moon, it shows its true length.
+- **Rivers of Blood** (faction) — The Court of Blood pays its debts in what runs through this blade, and it is always owed.
+- **Abominable Great Saber** (faction) — Carved from something that was not yet dead when the carving began.
 
 </details>
 
@@ -385,6 +398,11 @@ bringing the ingredients to a weapon altar, set per sword in `config.yml`
 | Ashura's Blade | `GBG / RSR / GBG` | G gold block, B blaze powder, R redstone block |
 | Death Knight's Sword | `BWB / ISI / BWB` | B bone block, W wither skeleton skull, I blue ice |
 | Creation Splitter | `OCO / ESE / OCO` | O crying obsidian, C end crystal, E echo shard |
+| Terra Blade | `AEA / MSM / AEA` | A flowering azalea, E emerald block, M moss block |
+| Demonic Blade | `CWC / BSB / CBC` | C crying obsidian, W wither skeleton skull, B blaze rod |
+| Hero Sword | `GDG / LSL / GDG` | G gold block, D diamond block, L lapis block |
+| Fallen God's Sword | `RNR / OSO / RNR` | R redstone block, N netherite ingot, O crying obsidian |
+| True Excalibur | `LDL / GSG / LDL` | L soul lantern, D diamond block, G gold block |
 
 (`S` = netherite sword unless noted.) A Customs weapon can never be used up as an ingredient.
 
@@ -404,7 +422,7 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs session` | — | Whether a session is running, for how long, and the top killers |
 | `/customs session start [minutes]` / `end` | `customs.admin` | Start or end a session (twists only run in sessions) |
 | `/customs faction` / `faction list` | — | Arc II: the faction menu (leaders, members, points) / the same in chat |
-| `/customs faction set <player> <blade\|flame\|fallen\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
+| `/customs faction set <player> <moon\|blood\|host\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |
@@ -473,7 +491,7 @@ GitHub Actions; the jar and pack are attached to each run as the `Customs` artif
 
 ### The resource pack
 
-The 3D models and textures come from the **Blades of Majestica** resource pack. 48 of its 119
+The 3D models and textures come from the **Blades of Majestica** resource pack. 53 of its 119
 weapons are imported into the `customs` namespace, so they're applied by the plugin with the
 `item_model` component instead of the original pack's rename-in-an-anvil trick.
 

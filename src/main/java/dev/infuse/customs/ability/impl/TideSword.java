@@ -23,7 +23,7 @@ import java.util.UUID;
 
 /**
  * Aquatic Sacred Blade, the Tide Sword: water mobility and crowd control.
- * Passive Ocean's Blessing, on-hit Undertow, F Riptide Surge, Sneak+F Ride the Tide.
+ * Passive Ocean's Blessing, on-hit Undertow, F Undertow, Sneak+F Ride the Tide.
  */
 public final class TideSword extends SwordAbility {
 
@@ -60,46 +60,70 @@ public final class TideSword extends SwordAbility {
         Fx.sound(at, Sound.ENTITY_PLAYER_SPLASH, 0.6f, 1.2f);
     }
 
-    /** Riptide Surge: launch forward with the riptide spin, hitting everything along the way. */
+    private static final int UNDERTOW_TICKS = 100;
+
+    /**
+     * Undertow: the tide takes hold of the enemy you aim at for five seconds. It can't sprint,
+     * and every block it moves costs it health as the water drags at it; standing still is safe.
+     */
     @Override
     public boolean primary(Player player) {
-        Vector dir = player.getLocation().getDirection();
-        dir.setY(Math.max(-0.2, Math.min(0.45, dir.getY())));
-        dir.normalize();
-        Combat.setVelocity(player, dir.clone().multiply(2.2).add(new Vector(0, 0.3, 0)));
-        player.startRiptideAttack(14, 0f, player.getInventory().getItemInMainHand());
-        status().protectFromFall(player, 60);
-        Fx.sound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_3, 1.2f, 1f);
-        Fx.sound(player.getLocation(), Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1f, 1f);
-        fx().shockwave(player.getLocation(), 0x3FA9F5, 2.4f, 6);
-        Set<UUID> hit = new HashSet<>();
+        LivingEntity target = combat().lookTarget(player, 24, 0.8);
+        if (target == null) {
+            tell(player, "Look at an enemy to set the undertow on.");
+            return false;
+        }
+        Location at = target.getLocation();
+        fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), Combat.center(target), TEAL, 0.25f, 8);
+        fx().wave(Combat.center(target), new Vector(0, 1, 0), TEAL, 2.2f, 8);
+        Fx.particle(Combat.center(target), Particle.SPLASH, 40, 0.5, 0.2);
+        Fx.sound(at, Sound.AMBIENT_UNDERWATER_ENTER, 1.2f, 0.8f);
+        Fx.sound(at, Sound.ENTITY_DROWNED_AMBIENT_WATER, 1.2f, 0.6f);
+        org.bukkit.entity.ItemDisplay ring = fx().sigil(at.clone().add(0, 0.1, 0), new Vector(0, 1, 0), TEAL, 1.6f, UNDERTOW_TICKS + 10);
+        ring.setTeleportDuration(1);
 
         new BukkitRunnable() {
-            int ticks;
+            int t;
+            Location last = target.getLocation();
+            double owed;
 
             @Override
             public void run() {
-                if (!alive(player) || ticks++ >= 14) {
+                t++;
+                if (t > UNDERTOW_TICKS || !target.isValid() || target.isDead() || !alive(player) || target.getWorld() != player.getWorld()) {
+                    displays().remove(ring);
+                    Fx.particle(target.getLocation().add(0, 0.5, 0), Particle.BUBBLE_POP, 20, 0.5, 0.1);
                     cancel();
                     return;
                 }
-                Location at = player.getLocation().add(0, 0.8, 0);
-                // a spiralling wake of water left behind the surge
-                if (ticks % 2 == 0) {
-                    fx().wave(at.clone().subtract(dir.clone().multiply(0.8)), dir, ticks % 4 == 0 ? 0x3FA9F5 : 0x9FE0FF, 1.6f, 6);
+                if (target instanceof Player p && p.isSprinting()) {
+                    p.setSprinting(false);
                 }
-                Fx.particle(at, Particle.SPLASH, 12, 0.4, 0.1);
-                Fx.particle(at, Particle.FALLING_WATER, 6, 0.4, 0);
-                Fx.particle(at, Particle.DUST, 4, 0.35, 0, Fx.dust(TEAL, 1.5f));
-                for (LivingEntity target : combat().nearby(player, at, 2.2)) {
-                    if (hit.add(target.getUniqueId())) {
-                        combat().damage(player, target, 6);
-                        applyEffect(target, PotionEffectType.SLOWNESS, 30, 1);
-                        Vector side = Fx.right(dir).multiply(sideOf(at, dir, target) * 0.9).setY(0.35);
-                        Combat.setVelocity(target, side.add(dir.clone().multiply(0.4)));
-                        Fx.particle(Combat.center(target), Particle.SPLASH, 20, 0.3, 0.2);
-                        Fx.sound(target.getLocation(), Sound.ENTITY_GENERIC_SPLASH, 0.8f, 1.3f);
-                    }
+                Location now = target.getLocation();
+                double moved = Math.hypot(now.getX() - last.getX(), now.getZ() - last.getZ())
+                        + Math.max(0, now.getY() - last.getY()) * 0.5;
+                last = now;
+                owed += moved * 1.2;
+                Location feet = now.clone().add(0, 0.1, 0);
+                feet.setYaw(0);
+                feet.setPitch(0);
+                if (ring.isValid()) {
+                    ring.teleport(feet);
+                }
+                if (moved > 0.05) {
+                    // the water tugs at every step
+                    Fx.particle(feet, Particle.SPLASH, 6, 0.3, 0.05);
+                    Fx.particle(feet, Particle.BUBBLE_POP, 3, 0.3, 0.02);
+                }
+                if (owed >= 1) {
+                    double hurt = Math.floor(owed);
+                    owed -= hurt;
+                    combat().damage(player, target, hurt, true);
+                    Fx.particle(Combat.center(target), Particle.DUST, 4, 0.3, 0, Fx.dust(DEEP, 1.1f));
+                    Fx.sound(now, Sound.ENTITY_PLAYER_HURT_DROWN, 0.6f, 1.2f);
+                }
+                if (t % 6 == 0) {
+                    Fx.particle(Combat.center(target), Particle.DRIPPING_WATER, 4, 0.3, 0);
                 }
             }
         }.runTaskTimer(plugin, 1L, 1L);

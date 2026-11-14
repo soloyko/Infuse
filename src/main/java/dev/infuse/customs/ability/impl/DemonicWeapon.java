@@ -308,10 +308,12 @@ public final class DemonicWeapon extends SwordAbility {
             Displays.animateBlock(gum, new Vector3f(2.6f, 0.35f, 0.5f), hinge, hinge.transform(new Vector3f(0, 0.2f, side * 0.95f)), ticks);
             for (int i = 0; i < teeth; i++) {
                 float x = -1.1f + i * (2.2f / (teeth - 1));
-                float h = 0.9f + (i % 2 == 0 ? 0.35f : 0f) - Math.abs(x) * 0.2f;
+                // fangs: long and short in turn, longest in the middle, each leaning in toward the bite
+                float h = 1.0f + (i % 2 == 0 ? 0.45f : 0f) - Math.abs(x) * 0.3f;
+                float w = i % 2 == 0 ? 0.14f : 0.1f;
+                Quaternionf point = new Quaternionf(hinge).rotateX(-side * 0.35f).rotateY((float) Math.PI / 4);
                 Vector3f offset = hinge.transform(new Vector3f(x, 0.35f + h / 2, side * 0.95f - side * 0.18f));
-                Quaternionf point = new Quaternionf(hinge).rotateY((float) Math.PI / 4);
-                Displays.animateBlock(jaw.get(k++), new Vector3f(0.16f, h, 0.16f), point, offset, ticks);
+                Displays.animateBlock(jaw.get(k++), new Vector3f(w, h, w), point, offset, ticks);
             }
         }
     }

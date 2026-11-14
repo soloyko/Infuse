@@ -26,6 +26,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -39,7 +40,7 @@ import java.util.UUID;
 
 /**
  * Hearthflame, the Titan Hammer (mace): the earth itself as a weapon.
- * Passive Unshakable, on-hit Quake, F Seismic Slam, Sneak+F Earthen Bulwark.
+ * Passive Unshakable, on-hit Quake, F Landslide, Sneak+F Earthen Bulwark.
  */
 public final class HammerWeapon extends SwordAbility implements Listener {
 
@@ -80,66 +81,90 @@ public final class HammerWeapon extends SwordAbility implements Listener {
         fx().crack(Combat.ground(target.getLocation()), 0xFF8A2A, 3f, 30);
     }
 
-    /** Seismic Slam: a ring of erupting earth rolls out to 8 blocks. */
+    /**
+     * Landslide: you slam the hammer down and the ground under the enemy you aim at gives way: a
+     * slide of rubble carries it six blocks away from you and buries it to the waist, held fast
+     * for two seconds.
+     */
     @Override
     public boolean primary(Player player) {
-        Location center = player.getLocation();
-        if (Displays.groundBelow(center.clone().subtract(0, 0.3, 0)) == null) {
-            tell(player, "You need solid ground to slam.");
+        LivingEntity target = combat().lookTarget(player, 20, 0.8);
+        if (target == null) {
+            tell(player, "Look at an enemy to bring the ground down under.");
             return false;
         }
-        Fx.sound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.2f, 0.6f);
-        Fx.sound(center, Sound.BLOCK_ANVIL_LAND, 1f, 0.5f);
-        fx().shockwave(center, 0xE8822A, 8.5f, 12);
-        fx().shockwave(center, 0xFFC27A, 5f, 8);
-        fx().impact(center.clone().add(0, 0.6, 0), 0xFF9A3C, 2.4f);
-        fx().crack(center, 0xFF8A2A, 7f, 50);
-        for (int ring = 0; ring < 2; ring++) {
-            int count = ring == 0 ? 6 : 11;
-            double radius = ring == 0 ? 2.8 : 5.4;
-            int delay = 2 + ring * 4;
-            for (int i = 0; i < count; i++) {
-                double a = i * Math.PI * 2 / count + ring * 0.3;
-                Location spot = Combat.ground(center.clone().add(Math.cos(a) * radius, 1.5, Math.sin(a) * radius));
-                org.bukkit.block.data.BlockData rock = (i % 2 == 0 ? Material.COBBLED_DEEPSLATE : Material.STONE).createBlockData();
-                displays().later(delay, () -> fx().spike(spot, rock, 1.5f - 0.2f * delay / 6f, 0.75f, 0.35, 28));
-            }
-        }
-        Fx.particle(center.clone().add(0, 0.3, 0), Particle.EXPLOSION, 2, 0.4, 0);
-        Set<UUID> hit = new HashSet<>();
+        Location slam = player.getLocation();
+        fx().crack(slam, 0xFF8A2A, 2f, 30);
+        displays().eruptGround(slam, 0.6f, 0.5f);
+        Fx.sound(slam, org.bukkit.Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1f, 0.7f);
+        Vector away = target.getLocation().toVector().subtract(slam.toVector()).setY(0);
+        away = away.lengthSquared() < 1.0E-4 ? new Vector(0, 0, 1) : away.normalize();
+        Vector push = away;
+        org.bukkit.block.data.BlockData[] rubble = {org.bukkit.Material.GRAVEL.createBlockData(),
+                org.bukkit.Material.COBBLESTONE.createBlockData(), org.bukkit.Material.COARSE_DIRT.createBlockData()};
+        java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
+        Fx.sound(target.getLocation(), org.bukkit.Sound.BLOCK_GRAVEL_BREAK, 1.5f, 0.6f);
+        Fx.sound(target.getLocation(), org.bukkit.Sound.ENTITY_RAVAGER_STEP, 1.2f, 0.5f);
 
         new BukkitRunnable() {
-            double radius = 1.2;
+            int t;
 
             @Override
             public void run() {
-                if (radius > 8 || player.getWorld() != center.getWorld()) {
+                t++;
+                if (!target.isValid() || target.isDead() || !alive(player) || target.getWorld() != player.getWorld()) {
                     cancel();
                     return;
                 }
-                int points = (int) (radius * 2.6);
-                double offset = radius * 0.7; // stagger rings so they don't line up in spokes
-                for (int i = 0; i < points; i++) {
-                    double a = offset + i * 2 * Math.PI / points;
-                    Location p = center.clone().add(Math.cos(a) * radius, 0, Math.sin(a) * radius);
-                    displays().eruptGround(p, 0.75f, 0.9f);
-                    Block ground = Displays.groundBelow(p);
-                    if (ground != null) {
-                        Fx.particle(ground.getLocation().add(0.5, 1.1, 0.5), Particle.BLOCK, 4, 0.3, 0.05, ground.getBlockData());
+                Location feet = target.getLocation();
+                if (t <= 12) {
+                    // carried along on the slide
+                    Combat.setVelocity(target, push.clone().multiply(0.55).setY(Math.min(0.05, target.getVelocity().getY())));
+                    for (int i = 0; i < 3; i++) {
+                        Location chunk = feet.clone().add(r.nextDouble(-0.8, 0.8), 0.1, r.nextDouble(-0.8, 0.8));
+                        chunk.setYaw(0);
+                        chunk.setPitch(0);
+                        float size = (float) r.nextDouble(0.25, 0.45);
+                        org.bukkit.entity.BlockDisplay rock = displays().block(chunk, rubble[r.nextInt(rubble.length)], new Vector3f(size),
+                                new Quaternionf().rotateXYZ(r.nextFloat(), r.nextFloat(), r.nextFloat()), 14);
+                        Displays.animateBlock(rock, new Vector3f(0.05f), new Quaternionf(), new Vector3f(0, -0.3f, 0), 12);
                     }
-                }
-                for (LivingEntity target : combat().nearby(player, center, radius + 0.5)) {
-                    if (hit.add(target.getUniqueId())) {
-                        combat().damage(player, target, 8);
-                        Combat.knockback(target, center, 0.6, 0.9);
+                    Fx.particle(feet.clone().add(0, 0.2, 0), Particle.BLOCK, 10, 0.5, 0.1, rubble[0]);
+                    if (t % 3 == 0) {
+                        Fx.sound(feet, org.bukkit.Sound.BLOCK_GRAVEL_STEP, 1.2f, 0.6f);
                     }
+                    return;
                 }
-                if (((int) (radius * 10)) % 3 == 0) {
-                    Fx.sound(center, Sound.BLOCK_DEEPSLATE_BREAK, 1.2f, 0.6f);
+                // buried to the waist
+                cancel();
+                Location ground = Combat.ground(feet.clone().add(0, 0.5, 0));
+                ground.setYaw(0);
+                ground.setPitch(0);
+                combat().damage(player, target, 6, true);
+                hold(target, 40);
+                fx().crack(ground, 0xC08A4A, 2f, 40);
+                Fx.sound(ground, org.bukkit.Sound.BLOCK_ROOTED_DIRT_PLACE, 1.5f, 0.6f);
+                Fx.sound(ground, org.bukkit.Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.8f, 0.6f);
+                java.util.List<org.bukkit.entity.BlockDisplay> mound = new java.util.ArrayList<>();
+                for (int i = 0; i < 8; i++) {
+                    double a = i * Math.PI / 4;
+                    Location piece = ground.clone().add(Math.cos(a) * 0.55, 0.35, Math.sin(a) * 0.55);
+                    org.bukkit.entity.BlockDisplay b = displays().block(piece, rubble[i % rubble.length], new Vector3f(0.05f),
+                            new Quaternionf().rotateY((float) a).rotateX(0.25f), 50);
+                    Displays.animateBlock(b, new Vector3f(0.55f, 0.75f, 0.55f), new Quaternionf().rotateY((float) a).rotateX(0.25f),
+                            new Vector3f(), 3);
+                    mound.add(b);
                 }
-                radius += 0.85;
+                displays().later(40, () -> {
+                    for (org.bukkit.entity.BlockDisplay b : mound) {
+                        if (b.isValid()) {
+                            Displays.animateBlock(b, new Vector3f(0.05f), new Quaternionf(), new Vector3f(0, -0.4f, 0), 6);
+                        }
+                    }
+                    Fx.particle(ground.clone().add(0, 0.5, 0), Particle.BLOCK, 20, 0.5, 0.1, rubble[2]);
+                });
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        }.runTaskTimer(plugin, 1L, 1L);
         return true;
     }
 

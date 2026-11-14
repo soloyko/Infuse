@@ -31,7 +31,7 @@ public enum SwordType {
             "Carved from ice that has not melted since the world was young. The wounds it leaves never quite stop freezing.",
             new AbilityInfo("Frostguard", "+4 armor, +2 toughness and immunity to freezing while held."),
             new AbilityInfo("Frostbite", "Slows and freezes the target."),
-            new AbilityInfo("Glacial Spike", "Fire an ice spike that impales and encases the first enemy hit."),
+            new AbilityInfo("Cold Snap", "A ring of frost closes in around the enemy you aim at. If it is still inside when the ring closes, it freezes solid and the ice shatters around it."),
             new AbilityInfo("Blizzard", "Summon a 6 second blizzard around you that freezes and batters enemies.")),
 
     STORM("storm", "Thunder Bringer", "Storm Sword", "⚡", 0x4DB2FF, 0xF5C842,
@@ -45,7 +45,7 @@ public enum SwordType {
             "Lost with a drowned kingdom and given back by the sea. It still carries the weight of the deep, and the deep still follows it.",
             new AbilityInfo("Ocean's Blessing", "Conduit Power and Dolphin's Grace while held."),
             new AbilityInfo("Undertow", "20% chance to drag the target towards you and slow it."),
-            new AbilityInfo("Riptide Surge", "Surge forward like a riptide, slamming through every enemy in your path."),
+            new AbilityInfo("Undertow", "The tide takes hold of the enemy you aim at for 5 seconds: it can't sprint, and every block it moves costs it health."),
             new AbilityInfo("Ride the Tide", "Surf a wall of water for 3.5 seconds, steering with your crosshair. Enemies in your path are swept up and carried until it breaks.")),
 
     VERDANT("verdant", "Enigma", "Verdant Sword", "🌿", 0x2FBF71, 0xE8C64A,
@@ -124,7 +124,7 @@ public enum SwordType {
             "Forged in a dead volcano by giants who wanted mountains to kneel. Strike the ground with it, and the ground remembers.",
             new AbilityInfo("Unshakable", "Immune to knockback and +3 armor while held. Keeps the mace's smash attack."),
             new AbilityInfo("Quake", "20% chance to send out a shockwave that stuns everything around the target."),
-            new AbilityInfo("Seismic Slam", "Slam the ground: a ring of erupting earth launches everything around you."),
+            new AbilityInfo("Landslide", "The ground under the enemy you aim at gives way: a slide of rubble carries it away from you and buries it to the waist for 2 seconds."),
             new AbilityInfo("Earthen Bulwark", "Raise stone pillars around you. Resistance II, and attackers are hurt and thrown back.")),
 
     SCYTHE("scythe", "Requiem of the Ninth Abyss", "Reaper's Scythe", "⚰", 0x2BD9A8, 0x0E3B33, Material.NETHERITE_SWORD,

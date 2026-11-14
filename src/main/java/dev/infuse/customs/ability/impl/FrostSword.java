@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Frost Sword: crowd control and defence.
- * Passive Frostguard (freeze immunity in CombatListener), on-hit Frostbite, RC Glacial Spike, Sneak+RC Blizzard.
+ * Passive Frostguard (freeze immunity in CombatListener), on-hit Frostbite, RC Cold Snap, Sneak+RC Blizzard.
  */
 public final class FrostSword extends SwordAbility {
 
@@ -68,110 +68,97 @@ public final class FrostSword extends SwordAbility {
         target.setFreezeTicks(Math.min(max, target.getFreezeTicks() + ticks));
     }
 
-    /** Glacial Spike: a fast ice projectile that impales the first enemy it hits. */
+    private static final int SNAP_TICKS = 30;
+    private static final double SNAP_RADIUS = 3.2;
+
+    /**
+     * Cold Snap: a ring of frost forms around the enemy you aim at and closes in over a second and
+     * a half. If it is still inside when the ring closes, it freezes solid for two seconds and
+     * the ice shatters around it; step out in time and it only chills you.
+     */
     @Override
     public boolean primary(Player player) {
-        Location start = player.getEyeLocation().subtract(0, 0.2, 0);
-        Vector dir = start.getDirection();
-        Fx.sound(start, Sound.ITEM_TRIDENT_THROW, 1f, 1.6f);
-        Fx.sound(start, Sound.BLOCK_GLASS_PLACE, 1f, 1.4f);
-
-        // the spike itself: a sliver of ice pointing where it flies
-        Quaternionf aim = Displays.pointing(dir);
-        BlockDisplay shard = displays().block(start, Material.PACKED_ICE.createBlockData(),
-                new Vector3f(0.24f, 1.4f, 0.24f), aim, 30);
-        shard.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
-        org.bukkit.entity.ItemDisplay glow = fx().orb(start, 0x9FE6FF, 1.1f, 30);
-
-        new BukkitRunnable() {
-            final Location pos = start.clone();
-            int steps;
-
-            @Override
-            public void run() {
-                if (!alive(player) || pos.getWorld() != player.getWorld() || steps++ >= 20) {
-                    displays().remove(shard);
-                    displays().remove(glow);
-                    cancel();
-                    return;
-                }
-                RayTraceResult hit = pos.getWorld().rayTrace(pos, dir, 1.5, FluidCollisionMode.NEVER, true, 0.4,
-                        e -> combat().canHit(player, e));
-                if (hit != null && hit.getHitEntity() instanceof LivingEntity target) {
-                    displays().remove(shard);
-                    displays().remove(glow);
-                    impale(player, target);
-                    cancel();
-                    return;
-                }
-                if (hit != null && hit.getHitBlock() != null) {
-                    Location at = hit.getHitPosition().toLocation(pos.getWorld());
-                    Fx.particle(at, Particle.BLOCK, 25, 0.2, 0.1, Material.ICE.createBlockData());
-                    Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 0.8f, 1.4f);
-                    fx().burst(at, 0xBDF3FF, 1.4f);
-                    displays().remove(shard);
-                    displays().remove(glow);
-                    cancel();
-                    return;
-                }
-                pos.add(dir.clone().multiply(1.5));
-                shard.teleport(pos);
-                glow.teleport(pos);
-                Fx.particle(pos, Particle.SNOWFLAKE, 4, 0.08, 0.01);
-                Fx.particle(pos, Particle.DUST, 3, 0.1, 0, Fx.dust(ICE, 1.4f));
-                Fx.particle(pos, Particle.ITEM_SNOWBALL, 1, 0.05, 0);
-            }
-        }.runTaskTimer(plugin, 0L, 1L);
-        return true;
-    }
-
-    private void impale(Player player, LivingEntity target) {
-        Location at = Combat.center(target);
-        encase(target);
-        combat().damage(player, target, 8);
-        applyEffect(target, PotionEffectType.SLOWNESS, 60, 3);
-        freeze(target, 200);
-        Fx.particle(at, Particle.BLOCK, 50, 0.4, 0.1, Material.PACKED_ICE.createBlockData());
-        Fx.particle(at, Particle.SNOWFLAKE, 30, 0.5, 0.05);
-        Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 1f, 0.8f);
-        fx().burst(at, 0xBDF3FF, 2.0f);
-        // a spike of ice bursts out of the ground under the target
-        fx().spike(target.getLocation(), Material.BLUE_ICE.createBlockData(), 2.4f, 0.8f, 0.15, 30);
-        fx().shockwave(target.getLocation(), 0x8FD8FF, 2.6f, 6);
-        Fx.sound(at, Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.8f);
-        for (LivingEntity nearby : combat().nearby(player, at, 2.5)) {
-            if (nearby != target) {
-                combat().damage(player, nearby, 3);
-                applyEffect(nearby, PotionEffectType.SLOWNESS, 40, 1);
-                freeze(nearby, 80);
-            }
+        LivingEntity target = combat().lookTarget(player, 24, 0.8);
+        if (target == null) {
+            tell(player, "Look at an enemy to bring the cold down on.");
+            return false;
         }
-    }
+        Location center = Combat.ground(target.getLocation().add(0, 0.5, 0)).add(0, 0.08, 0);
+        center.setYaw(0);
+        center.setPitch(0);
+        org.bukkit.entity.ItemDisplay ring = fx().sigil(center, new Vector(0, 1, 0), ICE, (float) SNAP_RADIUS * 1.25f, SNAP_TICKS + 6);
+        ring.setInterpolationDelay(0);
+        Fx.sound(center, Sound.BLOCK_POWDER_SNOW_STEP, 1.5f, 0.6f);
+        Fx.sound(center, Sound.ENTITY_PLAYER_HURT_FREEZE, 1f, 0.6f);
+        fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), Combat.center(target), 0x9FE6FF, 0.18f, 6);
 
-    /** Briefly locks the target inside a block of ice that follows it. */
-    private void encase(LivingEntity target) {
-        Vector3f size = new Vector3f((float) target.getWidth() + 0.35f, (float) target.getHeight() + 0.3f,
-                (float) target.getWidth() + 0.35f);
-        BlockDisplay ice = displays().block(Combat.center(target), Material.ICE.createBlockData(),
-                new Vector3f(0.05f), new Quaternionf(), 40);
-        displays().later(1, () -> Displays.animateBlock(ice, size, new Quaternionf(), new Vector3f(), 3));
         new BukkitRunnable() {
-            int ticks;
+            int t;
 
             @Override
             public void run() {
-                if (!target.isValid() || !ice.isValid() || ticks++ >= 34) {
-                    if (ice.isValid()) {
-                        Fx.particle(ice.getLocation(), Particle.BLOCK, 30, 0.4, 0.1, Material.ICE.createBlockData());
-                        Fx.sound(ice.getLocation(), Sound.BLOCK_GLASS_BREAK, 1f, 1.2f);
-                    }
-                    displays().remove(ice);
-                    cancel();
+                t++;
+                double radius = SNAP_RADIUS * (1 - (double) t / SNAP_TICKS);
+                // the ring of frost closing in, frost creeping over the ground behind it
+                if (ring.isValid() && t % 2 == 0) {
+                    ring.setInterpolationDelay(0);
+                    ring.setInterpolationDuration(2);
+                    ring.setTransformation(new org.bukkit.util.Transformation(new Vector3f(), new Quaternionf().rotateY(t * 0.08f),
+                            new Vector3f((float) Math.max(0.3, radius * 1.25)), new Quaternionf()));
+                }
+                for (int i = 0; i < 10; i++) {
+                    double a = i * Math.PI / 5 + t * 0.1;
+                    Fx.particle(center.clone().add(Math.cos(a) * radius, 0.15, Math.sin(a) * radius), Particle.SNOWFLAKE, 1, 0.02, 0);
+                }
+                if (t % 6 == 0) {
+                    Fx.sound(center, Sound.BLOCK_GLASS_STEP, 0.8f, 1.6f + t * 0.01f);
+                }
+                if (t < SNAP_TICKS) {
                     return;
                 }
-                ice.teleport(Combat.center(target));
+                cancel();
+                displays().remove(ring);
+                fx().burst(center.clone().add(0, 1, 0), 0xBDF3FF, 2.4f);
+                Fx.sound(center, Sound.BLOCK_GLASS_BREAK, 1.2f, 0.8f);
+                if (!target.isValid() || target.isDead() || !alive(player)) {
+                    return;
+                }
+                double dx = target.getLocation().getX() - center.getX();
+                double dz = target.getLocation().getZ() - center.getZ();
+                if (dx * dx + dz * dz > 1.3 * 1.3) {
+                    freeze(target, 60);
+                    applyEffect(target, PotionEffectType.SLOWNESS, 40, 1);
+                    return; // it got out: only a chill
+                }
+                // caught: frozen solid, then shattered
+                freeze(target, 200);
+                hold(target, 40);
+                combat().damage(player, target, 5, true);
+                Location base = target.getLocation();
+                base.setYaw(0);
+                base.setPitch(0);
+                float w = (float) Math.max(1.0, target.getWidth() + 0.5);
+                float h = (float) target.getHeight() + 0.3f;
+                BlockDisplay ice = displays().block(base.clone().add(0, h / 2, 0), Material.PACKED_ICE.createBlockData(),
+                        new Vector3f(w, h, w), new Quaternionf(), 42);
+                ice.setBrightness(new org.bukkit.entity.Display.Brightness(13, 15));
+                Fx.sound(base, Sound.BLOCK_GLASS_PLACE, 1.5f, 0.6f);
+                displays().later(40, () -> {
+                    Location at = base.clone().add(0, 1, 0);
+                    Fx.particle(at, Particle.BLOCK, 40, 0.6, 0.15, Material.PACKED_ICE.createBlockData());
+                    Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 1.4f, 1f);
+                    fx().burst(at, 0xBDF3FF, 2.2f);
+                    if (!alive(player)) {
+                        return;
+                    }
+                    for (LivingEntity e : combat().nearby(player, base, 2.8)) {
+                        combat().damage(player, e, e == target ? 4 : 3, true);
+                        freeze(e, 60);
+                    }
+                });
             }
         }.runTaskTimer(plugin, 1L, 1L);
+        return true;
     }
 
     /** Blizzard: 6 seconds of storm centred on the caster. */
