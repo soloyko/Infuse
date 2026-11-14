@@ -71,7 +71,7 @@ SWORDS = {
     'splitter': 'creationsplitter',
     # the faction weapons of Arc II
     'herosword': 'herosword',
-    'molten': 'moltensword',
+    'excalibur': 'excalibur',
     'fallen': 'fallengodsword',
 }
 

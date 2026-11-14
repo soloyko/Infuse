@@ -22,18 +22,17 @@ import org.joml.Vector3f;
 import java.util.List;
 
 /**
- * Molten Sword, the Blade of the Forge (Arc II faction weapon of the House of the Forge).
- * Passive Forgeborn, on-hit Searing Strike, F Forgefall, Sneak+F Bulwark Roar.
+ * True Excalibur, the Blade of the Soulflame (Arc II faction weapon of the House of the Soulflame).
+ * Passive Soulfire Ward, on-hit Soulbrand, F Soulfall, Sneak+F Excalibur's Oath.
  */
-public final class MoltenWeapon extends SwordAbility {
+public final class ExcaliburWeapon extends SwordAbility {
 
-    private static final int GOLD = 0xE0A030;
-    private static final int MOLTEN = 0xFF8A2A;
-    private static final int HOT = 0xFFD27A;
-    private static final int SLAG = 0x3A2418;
+    private static final int GOLD = 0xF2C94C;
+    private static final int SOULFIRE = 0x2EE6C8;
+    private static final int HOT = 0xB8FFF2;
 
-    public MoltenWeapon(CustomsPlugin plugin) {
-        super(plugin, SwordType.MOLTEN);
+    public ExcaliburWeapon(CustomsPlugin plugin) {
+        super(plugin, SwordType.EXCALIBUR);
     }
 
     @Override
@@ -49,17 +48,17 @@ public final class MoltenWeapon extends SwordAbility {
         Location at = Combat.center(target);
         event.setDamage(event.getDamage() + 4);
         target.setFireTicks(Math.max(target.getFireTicks(), 80));
-        fx().burst(at, MOLTEN, 1.8f);
+        fx().burst(at, SOULFIRE, 1.8f);
         fx().flash(at, HOT, 1.4f);
-        Fx.particle(at, Particle.LAVA, 6, 0.3, 0.1);
-        Fx.particle(at, Particle.FLAME, 15, 0.3, 0.05);
+        Fx.particle(at, Particle.SOUL, 6, 0.3, 0.05);
+        Fx.particle(at, Particle.SOUL_FIRE_FLAME, 15, 0.3, 0.05);
         Fx.sound(at, Sound.BLOCK_ANVIL_LAND, 0.6f, 1.6f);
         Fx.sound(at, Sound.ITEM_FIRECHARGE_USE, 0.8f, 1.2f);
     }
 
     /**
-     * Forgefall: molten slag gathers in a glowing mass where you aim (an enemy or the ground). It
-     * crashes down there at once, and for four seconds keeps raining on enemies beneath it.
+     * Soulfall: a mass of soulfire gathers where you aim (an enemy or the ground). It crashes down
+     * there at once, and for four seconds keeps raining on enemies beneath it.
      */
     @Override
     public boolean primary(Player player) {
@@ -70,7 +69,7 @@ public final class MoltenWeapon extends SwordAbility {
         } else {
             Location aim = combat().aimPoint(player, 32);
             if (aim == null) {
-                tell(player, "Aim at an enemy or the ground to bring the forge down.");
+                tell(player, "Aim at an enemy or the ground to call the soulfire.");
                 return false;
             }
             ground = Combat.ground(aim.clone().add(0, 0.5, 0));
@@ -79,20 +78,20 @@ public final class MoltenWeapon extends SwordAbility {
         sky.setYaw(0);
         sky.setPitch(0);
         java.util.concurrent.ThreadLocalRandom r = java.util.concurrent.ThreadLocalRandom.current();
-        // the forge's heart overhead: a churning mass of magma and smoke
-        BlockDisplay heart = displays().block(sky, Material.MAGMA_BLOCK.createBlockData(), new Vector3f(1.8f),
+        // the soulfire overhead: a churning mass of blue flame
+        BlockDisplay heart = displays().block(sky, Material.SOUL_FIRE.createBlockData(), new Vector3f(1.8f),
                 new Quaternionf().rotateXYZ(0.4f, 0.6f, 0.2f), ZONE_TICKS + 15);
         heart.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
-        fx().haze(sky, 0xFF6A1A, 3.4f, ZONE_TICKS + 10);
+        fx().haze(sky, 0x1FB8A8, 3.4f, ZONE_TICKS + 10);
         for (int i = 0; i < 6; i++) {
             double a = i * Math.PI / 3;
-            fx().haze(sky.clone().add(Math.cos(a) * 2.2, r.nextDouble(-0.3, 0.3), Math.sin(a) * 2.2), 0x2A1A14, 2.6f, ZONE_TICKS + 10);
+            fx().haze(sky.clone().add(Math.cos(a) * 2.2, r.nextDouble(-0.3, 0.3), Math.sin(a) * 2.2), 0x10302E, 2.6f, ZONE_TICKS + 10);
         }
-        fx().castCircle(ground, MOLTEN, (float) ZONE_RADIUS);
+        fx().castCircle(ground, SOULFIRE, (float) ZONE_RADIUS);
         Fx.particle(sky, Particle.LARGE_SMOKE, 30, 2.2, 0.01);
-        Fx.sound(sky, Sound.BLOCK_LAVA_AMBIENT, 2f, 0.6f);
+        Fx.sound(sky, Sound.PARTICLE_SOUL_ESCAPE, 2f, 0.6f);
         Fx.sound(sky, Sound.ENTITY_BLAZE_SHOOT, 1.2f, 0.5f);
-        fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), sky, MOLTEN, 0.2f, 6);
+        fx().beam(dev.infuse.customs.ability.Fx3D.handOrigin(player), sky, SOULFIRE, 0.2f, 6);
         displays().later(4, () -> fall(player, sky, ground, target, 8));
 
         new org.bukkit.scheduler.BukkitRunnable() {
@@ -112,10 +111,10 @@ public final class MoltenWeapon extends SwordAbility {
                             new Quaternionf().rotateXYZ(0.4f + ticks * 0.05f, 0.6f + ticks * 0.08f, 0.2f), new Vector3f(), 2);
                 }
                 if (ticks % 3 == 0) {
-                    // embers and drips of slag falling from it
-                    Fx.particle(sky.clone().add(r.nextDouble(-1.5, 1.5), -0.8, r.nextDouble(-1.5, 1.5)), Particle.DRIPPING_LAVA, 2, 0.3, 0);
+                    // soul embers falling from it
+                    Fx.particle(sky.clone().add(r.nextDouble(-1.5, 1.5), -0.8, r.nextDouble(-1.5, 1.5)), Particle.SOUL_FIRE_FLAME, 2, 0.3, 0.01);
                     double a = r.nextDouble(Math.PI * 2);
-                    Fx.particle(ground.clone().add(Math.cos(a) * ZONE_RADIUS, 0.2, Math.sin(a) * ZONE_RADIUS), Particle.FLAME, 2, 0.1, 0.01);
+                    Fx.particle(ground.clone().add(Math.cos(a) * ZONE_RADIUS, 0.2, Math.sin(a) * ZONE_RADIUS), Particle.SOUL_FIRE_FLAME, 2, 0.1, 0.01);
                 }
                 if (ticks % 15 != 0) {
                     return;
@@ -137,12 +136,12 @@ public final class MoltenWeapon extends SwordAbility {
     private static final int ZONE_TICKS = 80;
     private static final double ZONE_RADIUS = 5;
 
-    /** A glob of molten slag dropping from the forge onto {@code spot}, burning {@code victim} if there is one. */
+    /** A ball of soulfire dropping onto {@code spot}, burning {@code victim} if there is one. */
     private void fall(Player player, Location sky, Location spot, LivingEntity victim, double damage) {
         Location from = sky.clone().add((Math.random() - 0.5) * 2, -0.6, (Math.random() - 0.5) * 2);
         from.setYaw(0);
         from.setPitch(0);
-        BlockDisplay glob = displays().block(from, Material.MAGMA_BLOCK.createBlockData(), new Vector3f(0.6f), new Quaternionf(), 12);
+        BlockDisplay glob = displays().block(from, Material.SOUL_FIRE.createBlockData(), new Vector3f(0.9f), new Quaternionf(), 12);
         glob.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
         glob.setTeleportDuration(5);
         Location land = spot.clone().add(0, 0.3, 0);
@@ -153,16 +152,17 @@ public final class MoltenWeapon extends SwordAbility {
                 glob.teleport(land);
             }
         });
-        fx().beam(from, land, MOLTEN, 0.35f, 5);
+        fx().beam(from, land, SOULFIRE, 0.35f, 5);
         displays().later(6, () -> {
             displays().remove(glob);
-            fx().impact(spot.clone().add(0, 0.8, 0), MOLTEN, 2.4f);
-            fx().crack(spot, 0xFF5A1A, 2.2f, 40);
+            fx().impact(spot.clone().add(0, 0.8, 0), SOULFIRE, 2.4f);
+            fx().crack(spot, SOULFIRE, 2.2f, 40);
+            fx().flamePillar(spot, 0.8f, 2.2f, 14, true);
             displays().eruptGround(spot, 0.5f, 0.5f);
-            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.LAVA, 10, 0.5, 0.1);
-            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.FLAME, 25, 0.6, 0.05);
+            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SOUL, 10, 0.5, 0.05);
+            Fx.particle(spot.clone().add(0, 0.5, 0), Particle.SOUL_FIRE_FLAME, 25, 0.6, 0.05);
             Fx.sound(spot, Sound.ENTITY_GENERIC_EXPLODE, 0.7f, 1.4f);
-            Fx.sound(spot, Sound.BLOCK_LAVA_POP, 1.5f, 0.8f);
+            Fx.sound(spot, Sound.BLOCK_SOUL_SAND_BREAK, 1.5f, 0.8f);
             if (victim != null && victim.isValid() && !victim.isDead() && alive(player)) {
                 combat().damage(player, victim, damage, true);
                 victim.setFireTicks(Math.max(victim.getFireTicks(), 60));
@@ -172,7 +172,7 @@ public final class MoltenWeapon extends SwordAbility {
     }
 
     /**
-     * Bulwark Roar: you slam the blade into the ground and roar; runes of warding circle you and your
+     * Excalibur's Oath: you drive the blade into the ground and swear the oath; runes of warding circle you and your
      * faction nearby (Resistance II, Absorption II) and enemies close by are thrown back.
      */
     @Override
@@ -180,7 +180,7 @@ public final class MoltenWeapon extends SwordAbility {
         Location at = player.getLocation();
         fx().flash(at.clone().add(0, 1.2, 0), GOLD, 3.2f);
         fx().shockwave(at, GOLD, 6.5f, 8);
-        fx().shockwave(at, MOLTEN, 4f, 6);
+        fx().shockwave(at, SOULFIRE, 4f, 6);
         fx().crack(at, GOLD, 3f, 40);
         displays().eruptGround(at, 0.9f, 0.8f);
         Fx.sound(at, Sound.ENTITY_RAVAGER_ROAR, 1.2f, 0.9f);
@@ -198,7 +198,7 @@ public final class MoltenWeapon extends SwordAbility {
             Combat.knockback(enemy, at, 1.5, 0.5);
             applyEffect(enemy, PotionEffectType.SLOWNESS, 60, 1);
             combat().damage(player, enemy, 3, true);
-            fx().burst(Combat.center(enemy), MOLTEN, 1.4f);
+            fx().burst(Combat.center(enemy), SOULFIRE, 1.4f);
             enemy.setFireTicks(Math.max(enemy.getFireTicks(), 40));
         }
         return true;

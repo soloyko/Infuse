@@ -187,7 +187,7 @@ public enum SwordType {
             "Forged on the one night the moon swallowed the sun. It has been hungry for light ever since.",
             new AbilityInfo("Moonlit", "Night Vision while held. Melee hits deal +25% damage at night or in the dark."),
             new AbilityInfo("Crescent Echo", "20% chance for a spectral crescent to hit the target again a moment later."),
-            new AbilityInfo("Lunar Dash", "Dash forward through your enemies, leaving a trail of silver crescents."),
+            new AbilityInfo("Moon Snare", "Set a crescent of moonlight on the ground where you aim. The first enemy to step on it is caught, lifted and spun helplessly for 2 seconds. Up to two at a time."),
             new AbilityInfo("Moongate", "Open two moon gates for 8 seconds, one beside you and one where you aim. Anything that goes into one comes out of the other: you, enemies, even arrows.")),
 
     SAWBLADE("sawblade", "Cybernetic Chainsaw Blade", "Cyber Sawblade", "⚙", 0xFF7A1A, 0x29E0FF, Material.NETHERITE_SWORD,
@@ -201,7 +201,7 @@ public enum SwordType {
             "The queen's own blade, which never lost a duel. It asks only that you strike first, and strike true.",
             new AbilityInfo("Finesse", "+25% attack speed and +10% movement speed while held."),
             new AbilityInfo("Precision", "+50% damage against enemies at full health."),
-            new AbilityInfo("Flèche", "Lunge forward and run the first enemy in your path through."),
+            new AbilityInfo("Three Touches", "Three weak points light up on the enemy you aim at for 5 seconds. Each hit on it strikes one for +4; land all three for a finishing flourish."),
             new AbilityInfo("Riposte", "Take a parry stance: the next attack against you is blocked and answered with a flurry of thrusts.")),
 
     KHOPESH("khopesh", "Pharaoh's Treasure", "Pharaoh's Khopesh", "☥", 0xE3B341, 0x1FA3A3, Material.NETHERITE_SWORD,
@@ -280,8 +280,8 @@ public enum SwordType {
             "Sworn to a king long dead, and still keeping its oath. The fallen get back up when it asks them to.",
             new AbilityInfo("Frost Presence", "Enemies that strike you are slowed."),
             new AbilityInfo("Death Coil", "20% chance to drain 2 health from the target into you."),
-            new AbilityInfo("Raise Dead", "Raise up to three skeleton warriors from creatures slain near you (or from the ground). They fight for you for 20 seconds."),
-            new AbilityInfo("Deathcharger", "Summon a spectral skeleton horse and ride it for 12 seconds, trampling every enemy in your path.")),
+            new AbilityInfo("Death Grip", "A hand of bone bursts out of the ground under the enemy you aim at, drags it to your feet and holds it there, frozen."),
+            new AbilityInfo("Runeforge", "Three runes circle you for 10 seconds; your next three hits spend them: Frost encases the target in ice, Blood drinks half the blow back as health, Unholy tears its soul out in a burst.")),
 
     SPLITTER("splitter", "Creation Splitter", "Worldsplitter", "☍", 0xC2183A, 0x1A0A0A,
             "The blade that cut the first day from the first night. The world has never quite healed where it passes.",
@@ -295,21 +295,21 @@ public enum SwordType {
             "Carried at the head of every charge the Order of the Blade has ever made. It has never been carried at the back of one.",
             new AbilityInfo("Vanguard", "Resistance I while held."),
             new AbilityInfo("Shieldbreaker", "25% chance to break the target's guard: Weakness and Slowness for 3 seconds."),
-            new AbilityInfo("Heroic Charge", "Charge forward; the first enemy you hit is knocked flat and stunned."),
+            new AbilityInfo("Aegis", "Cast a shield of light on the ally you aim at (or yourself): it absorbs the next 8 damage for 10 seconds, then bursts, blinding enemies nearby."),
             new AbilityInfo("Rally", "Raise the blade: you and your faction around you gain Strength, Speed and a quick heal.")),
 
-    MOLTEN("molten", "Molten Sword", "Blade of the Forge", "⚒", 0xFF8A2A, 0xFFD27A,
-            "Drawn white-hot from the House of the Forge's first fire, and it has never cooled. Steel that meets it softens; so do the men holding it.",
-            new AbilityInfo("Forgeborn", "Immune to fire and lava while held."),
-            new AbilityInfo("Searing Strike", "20% chance to brand the target with molten steel: +4 damage and it burns."),
-            new AbilityInfo("Forgefall", "Molten slag gathers where you aim: it crashes down there, and for four seconds keeps raining on enemies beneath it."),
-            new AbilityInfo("Bulwark Roar", "Slam the blade down: you and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back.")),
+    EXCALIBUR("excalibur", "True Excalibur", "Blade of the Soulflame", "✹", 0x2EE6C8, 0xF2C94C,
+            "Drawn from the stone a second time, by the House that swore to keep its flame. It burns the colour of a soul and never goes out.",
+            new AbilityInfo("Soulfire Ward", "Immune to fire and lava while held."),
+            new AbilityInfo("Soulbrand", "20% chance to brand the target with soulfire: +4 damage and it burns."),
+            new AbilityInfo("Soulfall", "A mass of soulfire gathers where you aim: it crashes down there, and for four seconds keeps raining on enemies beneath it."),
+            new AbilityInfo("Excalibur's Oath", "Drive the blade into the ground: you and your faction around you gain Resistance and Absorption, and nearby enemies are thrown back, burning.")),
 
     FALLEN("fallen", "Fallen God's Sword", "Blade of the Covenant", "✝", 0xD83A3A, 0x2A0E0E,
             "The Covenant of the Fallen says a god dropped it when it fell, and that it is still looking for a hand worth the weight.",
             new AbilityInfo("Longreach", "+1.5 blocks of reach while held."),
             new AbilityInfo("Pinning Strike", "20% chance to pin the target in place for a second."),
-            new AbilityInfo("Godfall Lunge", "Lunge a long way forward, running the first enemy through and carrying it along."),
+            new AbilityInfo("Excommunicate", "Cast out the enemy you aim at for 5 seconds: it can't use weapon abilities and can't heal, and a crown of thorns marks it for everyone."),
             new AbilityInfo("War Banner", "Plant a banner for 15 seconds: your faction near it regenerates and hits harder, enemies near it are weakened.")),
 
     // ---- other weapons added in 2.3 ----
@@ -363,7 +363,7 @@ public enum SwordType {
     /** Names from before 2.3 (weapons now carry their model's name), so old commands still work. */
     private static final Map<String, SwordType> OLD_NAMES = Map.ofEntries(Map.entry("wyrmsbane", DRAGON), Map.entry("cinderwing", PHOENIX), Map.entry("everwinter", FROST), Map.entry("stormcaller", STORM), Map.entry("tidebreaker", TIDE), Map.entry("elderbloom", VERDANT), Map.entry("pestilence", PLAGUE), Map.entry("sanguine", CRIMSON), Map.entry("solaris", SOLAR), Map.entry("voidreaver", VOID), Map.entry("starfall", COSMIC), Map.entry("aeon", CHRONO), Map.entry("umbra", SHADOW), Map.entry("gravecaller", SOUL), Map.entry("deepwhisper", ECHO), Map.entry("earthshaker", HAMMER), Map.entry("requiem", SCYTHE), Map.entry("skypiercer", SPEAR), Map.entry("zephyr", CHAKRAM), Map.entry("ragnarok", AXE), Map.entry("arcanum", STAFF), Map.entry("leviathan", TRIDENT), Map.entry("nightbloom", SHURIKEN), Map.entry("jadewarden", HALBERD), Map.entry("eclipse", WARGLAIVE), Map.entry("ripsaw", SAWBLADE), Map.entry("valiance", RAPIER), Map.entry("sandreaver", KHOPESH), Map.entry("hollowmoon", KATANA), Map.entry("swarmsting", NEEDLE), Map.entry("vigil", CANDLE), Map.entry("cinderpeak", CLAYMORE), Map.entry("mirrorwake", MIRROR), Map.entry("saltfang", CUTLASS), Map.entry("ferox", CLAWS), Map.entry("malice", DAGGERS), Map.entry("verdict", MACE), Map.entry("wildheart", GLAIVE), Map.entry("magnetar", MAUL), Map.entry("raptorial", MANTIS),
             // the faction weapons before they became swords
-            Map.entry("mjolnir", MOLTEN), Map.entry("godspear", FALLEN));
+            Map.entry("mjolnir", EXCALIBUR), Map.entry("molten", EXCALIBUR), Map.entry("godspear", FALLEN));
 
     private final String id;
     private final Material base;
@@ -411,7 +411,7 @@ public enum SwordType {
     /** The element of this weapon's magic: decides how casting its abilities looks. */
     public dev.infuse.customs.ability.Fx3D.Element element() {
         return switch (this) {
-            case DRAGON, PHOENIX, SOLAR, CANDLE, CLAYMORE, MOLTEN -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
+            case DRAGON, PHOENIX, SOLAR, CANDLE, CLAYMORE, EXCALIBUR -> dev.infuse.customs.ability.Fx3D.Element.FIRE;
             case FROST -> dev.infuse.customs.ability.Fx3D.Element.FROST;
             case STORM, SAWBLADE, MAUL, MANTIS -> dev.infuse.customs.ability.Fx3D.Element.STORM;
             case TIDE, TRIDENT, CUTLASS -> dev.infuse.customs.ability.Fx3D.Element.WATER;
@@ -426,7 +426,7 @@ public enum SwordType {
     /** How melee hits with this weapon are drawn. */
     public dev.infuse.customs.ability.Fx3D.MeleeStyle meleeStyle() {
         return switch (this) {
-            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON, MOLTEN, FALLEN -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
+            case SCYTHE, AXE, WARGLAIVE, KHOPESH, CLAYMORE, GLAIVE, DEATHKNIGHT, SPLITTER, RIBBON, EXCALIBUR, FALLEN -> dev.infuse.customs.ability.Fx3D.MeleeStyle.HEAVY;
             case SPEAR, RAPIER, HALBERD, TRIDENT, NEEDLE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.THRUST;
             case HAMMER, MACE, MAUL -> dev.infuse.customs.ability.Fx3D.MeleeStyle.IMPACT;
             case CHAKRAM, SHURIKEN, SAWBLADE -> dev.infuse.customs.ability.Fx3D.MeleeStyle.SPIN;
@@ -441,7 +441,7 @@ public enum SwordType {
 
     /** The three faction weapons of Arc II: given to faction members, never forged. */
     public boolean isFactionWeapon() {
-        return this == HEROSWORD || this == MOLTEN || this == FALLEN;
+        return this == HEROSWORD || this == EXCALIBUR || this == FALLEN;
     }
 
     /** True for the swords, false for the other weapons. */
@@ -544,7 +544,7 @@ public enum SwordType {
             case DEATHKNIGHT -> "raised as a thrall";
             case SPLITTER -> "split from reality";
             case HEROSWORD -> "struck down in single combat";
-            case MOLTEN -> "melted down";
+            case EXCALIBUR -> "burned to the soul";
             case FALLEN -> "run through by a fallen god's blade";
         };
     }

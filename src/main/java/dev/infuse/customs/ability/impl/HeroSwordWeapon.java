@@ -20,9 +20,9 @@ import java.util.List;
 
 /**
  * Hero Sword, the Blade of the Order (Arc II faction weapon of the Order of the Blade).
- * Passive Vanguard, on-hit Shieldbreaker, F Heroic Charge, Sneak+F Rally.
+ * Passive Vanguard, on-hit Shieldbreaker, F Aegis, Sneak+F Rally.
  */
-public final class HeroSwordWeapon extends SwordAbility {
+public final class HeroSwordWeapon extends SwordAbility implements org.bukkit.event.Listener {
 
     private static final int BLUE = 0x4DA3FF;
     private static final int GOLD = 0xF2C94C;
@@ -48,78 +48,160 @@ public final class HeroSwordWeapon extends SwordAbility {
         Fx.sound(at, Sound.ITEM_SHIELD_BREAK, 1f, 1f);
     }
 
-    /** Heroic Charge: a short charge behind a shield of light; the first enemy in the way is bowled over and stunned. */
+    private static final double AEGIS_ABSORB = 8;
+    private static final int AEGIS_TICKS = 200;
+
+    /** A shield of light on a player: how much it still soaks up, and until when. */
+    private static final class Aegis {
+        final Player caster;
+        double left = AEGIS_ABSORB;
+        final int until;
+        final List<org.bukkit.entity.ItemDisplay> plates = new java.util.ArrayList<>();
+
+        Aegis(Player caster, int until) {
+            this.caster = caster;
+            this.until = until;
+        }
+    }
+
+    private final java.util.Map<java.util.UUID, Aegis> shields = new java.util.HashMap<>();
+
+    /**
+     * Aegis: a shield of light settles on the ally you aim at (or on you). It soaks up the next 8
+     * damage for ten seconds; when it breaks it bursts, blinding the enemies around them.
+     */
     @Override
     public boolean primary(Player player) {
-        Vector dir = dev.infuse.customs.ability.Aim.flatLook(player);
-        status().protectFromFall(player, 40);
-        Fx.sound(player.getLocation(), Sound.ENTITY_HORSE_GALLOP, 1.2f, 0.8f);
-        Fx.sound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_NETHERITE, 1f, 1.2f);
-        Fx.sound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_1, 0.8f, 1.4f);
-        // a shield sigil leads the charge
-        org.bukkit.entity.ItemDisplay shield = fx().sigil(player.getLocation().add(0, 1.1, 0).add(dir.clone().multiply(1.1)), dir, GOLD, 1.5f, 14);
+        Player ally = allyInSight(player);
+        Player warded = ally == null ? player : ally;
+        Aegis old = shields.remove(warded.getUniqueId());
+        if (old != null) {
+            old.plates.forEach(displays()::remove);
+        }
+        Aegis aegis = new Aegis(player, org.bukkit.Bukkit.getCurrentTick() + AEGIS_TICKS);
+        shields.put(warded.getUniqueId(), aegis);
+        Location at = warded.getLocation().add(0, 1, 0);
+        for (int i = 0; i < 3; i++) {
+            aegis.plates.add(fx().sigil(at, new Vector(0, 0, 1), i == 1 ? BLUE : GOLD, 0.85f, AEGIS_TICKS + 10));
+        }
+        if (ally != null) {
+            fx().beam(player.getEyeLocation().subtract(0, 0.3, 0), at, GOLD, 0.25f, 8);
+        }
+        fx().flash(at, 0xFFF3C4, 2.6f);
+        fx().castCircle(warded.getLocation(), GOLD, 1.6f);
+        Fx.sound(at, Sound.ITEM_ARMOR_EQUIP_GOLD, 1.2f, 0.8f);
+        Fx.sound(at, Sound.BLOCK_BEACON_POWER_SELECT, 0.8f, 1.6f);
+        if (ally != null) {
+            tell(ally, net.kyori.adventure.text.Component.text(player.getName() + " shields you with Aegis.",
+                    net.kyori.adventure.text.format.TextColor.color(GOLD)));
+        }
 
         new BukkitRunnable() {
-            int ticks;
+            int t;
 
             @Override
             public void run() {
-                ticks++;
-                if (!alive(player) || ticks > 10) {
-                    displays().remove(shield);
-                    cancel();
-                    return;
-                }
-                Combat.setVelocity(player, dir.clone().multiply(1.25).setY(Math.min(0.1, player.getVelocity().getY())));
-                Location chest = player.getLocation().add(0, 1, 0);
-                if (shield.isValid()) {
-                    Location front = chest.clone().add(0, 0.1, 0).add(dir.clone().multiply(1.1));
-                    front.setYaw(0);
-                    front.setPitch(0);
-                    shield.teleport(front);
-                }
-                Fx.particle(chest, Particle.DUST, 4, 0.3, 0, Fx.dust(ticks % 2 == 0 ? BLUE : GOLD, 1.3f));
-                Location feet = player.getLocation();
-                org.bukkit.block.Block below = feet.clone().subtract(0, 0.2, 0).getBlock();
-                if (below.getType().isSolid()) {
-                    Fx.particle(feet.clone().add(0, 0.1, 0), Particle.BLOCK, 6, 0.3, 0.05, below.getBlockData());
-                }
-                if (ticks % 2 == 0) {
-                    fx().afterimage(chest, plugin.items().create(type), dir, BLUE, 1.0f, 6);
-                }
-                for (LivingEntity target : combat().nearby(player, chest.clone().add(dir.clone().multiply(0.8)), 1.6)) {
-                    combat().damage(player, target, 6, true);
-                    Combat.setVelocity(target, dir.clone().multiply(1.4).setY(0.5));
-                    hold(target, 30);
-                    applyEffect(target, PotionEffectType.SLOWNESS, 40, 4);
-                    Location at = Combat.center(target);
-                    fx().impact(at, GOLD, 2.2f);
-                    fx().wave(at, dir, BLUE, 2.6f, 6);
-                    fx().cut(at, dir, Math.PI / 2, 0.4, BLUE, 1.8f, 2);
-                    fx().crack(Combat.ground(target.getLocation().add(0, 0.5, 0)), GOLD, 1.8f, 30);
-                    // stunned: little stars over the head
-                    for (int i = 0; i < 3; i++) {
-                        int k = i;
-                        displays().later(4 + i * 6, () -> {
-                            if (target.isValid()) {
-                                Fx.particle(target.getEyeLocation().add(0, 0.6, 0), Particle.WAX_OFF, 4, 0.3, 0.02);
-                                if (k == 0) {
-                                    Fx.sound(target.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.8f);
-                                }
-                            }
-                        });
+                t++;
+                if (shields.get(warded.getUniqueId()) != aegis || !warded.isOnline() || warded.isDead()
+                        || aegis.until < org.bukkit.Bukkit.getCurrentTick()) {
+                    if (shields.get(warded.getUniqueId()) == aegis) {
+                        shields.remove(warded.getUniqueId());
+                        fade(warded, aegis);
                     }
-                    Fx.sound(at, Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1.2f, 0.7f);
-                    Fx.sound(at, Sound.ITEM_SHIELD_BLOCK, 1f, 0.6f);
-                    Fx.sound(at, Sound.BLOCK_ANVIL_LAND, 0.5f, 1.4f);
-                    Combat.setVelocity(player, new Vector());
-                    displays().remove(shield);
                     cancel();
                     return;
+                }
+                // three plates of light circle them, closing in as the shield wears down
+                double radius = 0.75 + 0.35 * (aegis.left / AEGIS_ABSORB);
+                for (int i = 0; i < aegis.plates.size(); i++) {
+                    org.bukkit.entity.ItemDisplay plate = aegis.plates.get(i);
+                    double a = t * 0.14 + i * Math.PI * 2 / 3;
+                    Vector out = new Vector(Math.cos(a), 0, Math.sin(a));
+                    Location spot = warded.getLocation().add(out.clone().multiply(radius)).add(0, 1.0, 0);
+                    spot.setDirection(out);
+                    if (plate.isValid()) {
+                        plate.teleport(spot);
+                    }
+                }
+                if (t % 8 == 0) {
+                    Fx.particle(warded.getLocation().add(0, 1, 0), Particle.DUST, 3, 0.4, 0, Fx.dust(GOLD, 0.8f));
                 }
             }
         }.runTaskTimer(plugin, 1L, 1L);
         return true;
+    }
+
+    /** The faction ally (or any player while there are no factions) under the crosshair, if close. */
+    private Player allyInSight(Player player) {
+        org.bukkit.util.RayTraceResult hit = player.getWorld().rayTraceEntities(player.getEyeLocation(),
+                player.getEyeLocation().getDirection(), 20, 0.6, e -> e instanceof Player p && p != player
+                        && p.getGameMode() != org.bukkit.GameMode.SPECTATOR);
+        if (hit != null && hit.getHitEntity() instanceof Player other) {
+            boolean warring = plugin.arcs().factions().active();
+            if (!warring || plugin.arcs().allies(player, other)) {
+                return other;
+            }
+        }
+        return null;
+    }
+
+    /** The shield soaks up damage; when it runs out it bursts. */
+    @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.HIGH, ignoreCancelled = true)
+    public void onHurt(org.bukkit.event.entity.EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player warded)) {
+            return;
+        }
+        Aegis aegis = shields.get(warded.getUniqueId());
+        if (aegis == null || aegis.until < org.bukkit.Bukkit.getCurrentTick()) {
+            return;
+        }
+        double damage = event.getDamage();
+        double soaked = Math.min(damage, aegis.left);
+        aegis.left -= soaked;
+        event.setDamage(damage - soaked);
+        Location at = warded.getLocation().add(0, 1, 0);
+        fx().burst(at, GOLD, 1.4f);
+        Fx.sound(at, Sound.ITEM_SHIELD_BLOCK, 1f, 1.4f);
+        if (aegis.left <= 0.01) {
+            shields.remove(warded.getUniqueId());
+            shatter(warded, aegis);
+        }
+    }
+
+    /** Broken: a blinding burst of light around the warded player. */
+    private void shatter(Player warded, Aegis aegis) {
+        Location at = warded.getLocation().add(0, 1, 0);
+        aegis.plates.forEach(displays()::remove);
+        fx().flash(at, 0xFFF3C4, 4.5f);
+        fx().shockwave(warded.getLocation().add(0, 0.05, 0), GOLD, 4.5f, 8);
+        fx().wave(at, new Vector(0, 1, 0), BLUE, 3.5f, 6);
+        Fx.particle(at, Particle.END_ROD, 30, 0.5, 0.15);
+        Fx.sound(at, Sound.BLOCK_GLASS_BREAK, 1.2f, 1.4f);
+        Fx.sound(at, Sound.ITEM_TOTEM_USE, 0.4f, 1.8f);
+        for (LivingEntity enemy : combat().nearby(aegis.caster, warded.getLocation(), 4.5)) {
+            if (enemy == warded) {
+                continue;
+            }
+            applyEffect(enemy, PotionEffectType.BLINDNESS, 60, 0);
+            applyEffect(enemy, PotionEffectType.SLOWNESS, 40, 1);
+            Combat.knockback(enemy, warded.getLocation(), 0.6, 0.25);
+        }
+    }
+
+    /** Ran out of time unbroken: the plates just fade. */
+    private void fade(Player warded, Aegis aegis) {
+        for (org.bukkit.entity.ItemDisplay plate : aegis.plates) {
+            Fx.particle(plate.getLocation(), Particle.DUST, 5, 0.1, 0, Fx.dust(GOLD, 0.8f));
+            displays().remove(plate);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        for (Aegis a : shields.values()) {
+            a.plates.forEach(displays()::remove);
+        }
+        shields.clear();
     }
 
     /**

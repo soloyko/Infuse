@@ -104,8 +104,8 @@ arcs:
   # during a session (an admin starts one with /customs session start [minutes]):
   #   I   Awakening  - Bounty Hunt: a rotating bounty everyone is pointed at; kills heal fully
   #   II  Ascension  - Faction War: when the session starts, three random players lead the Order
-  #                    of the Blade, the House of the Forge and the Covenant of the Fallen (with
-  #                    the Hero Sword, the Molten Sword and the Fallen God's Sword), two random players
+  #                    of the Blade, the House of the Soulflame and the Covenant of the Fallen (with
+  #                    the Hero Sword, True Excalibur and the Fallen God's Sword), two random players
   #                    join each. No friendly fire; kills score; an unsworn player slain by a
   #                    faction's weapon joins that faction. The top faction wins at session end.
   #   III, IV, V     - no twist: they unlock their weapons.
@@ -499,7 +499,7 @@ swords:
       enabled: false
       shape: ["   ", " S ", "   "]
       ingredients: {S: NETHERITE_SWORD}
-  molten:        # Molten Sword (House of the Forge)
+  excalibur:     # True Excalibur (House of the Soulflame)
     enabled: true
     attack-damage: 13
     attack-speed: 1.4
@@ -512,7 +512,7 @@ swords:
     enabled: true
     attack-damage: 12
     attack-speed: 1.5
-    cooldowns: {primary: 10, secondary: 45}
+    cooldowns: {primary: 18, secondary: 45}
     recipe:
       enabled: false
       shape: ["   ", " S ", "   "]

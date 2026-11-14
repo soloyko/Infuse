@@ -185,10 +185,10 @@ public final class CombatListener implements Listener {
                 Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xF2C94C, 1.3f));
                 fx.flash(at, 0x4DA3FF, 2f);
             }
-            case MOLTEN -> {
-                Fx.particle(at, Particle.LAVA, 8, 0.3, 0);
-                Fx.particle(at, Particle.FLAME, 30, 0.4, 0.08);
-                fx.flash(at, 0xFF8A2A, 2f);
+            case EXCALIBUR -> {
+                Fx.particle(at, Particle.SOUL, 10, 0.3, 0.05);
+                Fx.particle(at, Particle.SOUL_FIRE_FLAME, 30, 0.4, 0.08);
+                fx.flash(at, 0x2EE6C8, 2f);
             }
             case FALLEN -> {
                 Fx.particle(at, Particle.DUST, 40, 0.5, 0, Fx.dust(0xD83A3A, 1.3f));

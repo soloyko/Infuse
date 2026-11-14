@@ -80,7 +80,7 @@ floating "☠ BOUNTY ☠" with their time left over their name.
 | Faction | Leader carries | Blessing (every member) |
 | --- | --- | --- |
 | ⚔ **Order of the Blade** | **Hero Sword** | **Sharpened**: Haste I, and melee hits on anyone outside the Order deal 10% more |
-| ⚒ **House of the Forge** | **Molten Sword** | **Ironclad**: two extra hearts and 30% knockback resistance |
+| ✹ **House of the Soulflame** | **True Excalibur** | **Soulward**: two extra hearts and 30% knockback resistance |
 | ✝ **Covenant of the Fallen** | **Fallen God's Sword** | **Swiftstep**: Speed I and half a block more reach |
 
 When a session starts in Arc II, three random players in survival become the leaders, one per
@@ -100,13 +100,13 @@ back when the session ends. Their abilities help the whole faction:
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
-| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Heroic Charge** (10s): charge behind a shield of light; the first enemy in the way is bowled over and stunned | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your faction within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
-| ⚒ **Molten Sword** · Blade of the Forge | **Forgeborn**: Fire Resistance | 20%: **Searing Strike**, +4 and the target burns | **Forgefall** (12s): a mass of molten slag gathers where you aim; it crashes down there and keeps raining on enemies beneath it for 4s | **Bulwark Roar** (45s): slam the blade down; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back and set alight |
-| ✝ **Fallen God's Sword** · Blade of the Covenant | **Longreach**: +1.5 reach | 20%: **Pinning Strike** pins the target | **Godfall Lunge** (10s): a long lunge that runs the first enemy through, carries it to the end and pins it with crimson spikes | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
+| ⚔ **Hero Sword** · Blade of the Order | **Vanguard**: Resistance I | 25%: **Shieldbreaker**, Weakness and Slowness | **Aegis** (10s): a shield of light on the ally you aim at (or you) soaks up the next 8 damage for 10s, then bursts, blinding enemies nearby | **Rally** (45s): a giant spectral Hero Sword plunges into the ground; you and your faction within 12 blocks gain Strength, Speed and a quick heal, and enemies close by are pushed back |
+| ✹ **True Excalibur** · Blade of the Soulflame | **Soulfire Ward**: Fire Resistance | 20%: **Soulbrand**, +4 and the target burns | **Soulfall** (12s): a mass of soulfire gathers where you aim; it crashes down there and keeps raining on enemies beneath it for 4s | **Excalibur's Oath** (45s): drive the blade into the ground; gold ward runes circle you and your faction nearby (Resistance II, Absorption II) and enemies close by are thrown back and set alight |
+| ✝ **Fallen God's Sword** · Blade of the Covenant | **Longreach**: +1.5 reach | 20%: **Pinning Strike** pins the target | **Excommunicate** (18s): a crimson blade falls on the enemy you aim at; for 5s it can't use weapon abilities or heal, and a crown of thorns marks it | **War Banner** (45s): plant the Covenant's banner for 15s; your faction near it regenerates and hits harder, enemies are weakened |
 
 `/customs faction` opens a menu of the factions (banners, points, the leaders' and members'
 heads); `/customs faction list` shows the same in chat. Admins can move a player with
-`/customs faction set <player> <blade|forge|fallen|none> [leader]`.
+`/customs faction set <player> <blade|flame|fallen|none> [leader]`.
 
 Starting an arc puts on a show for everyone online: a big title, a pillar of the arc's light, its
 nine newly forgeable weapons rising in a ring of light around you, the twist and the weapons in chat, and a bar at the top of the screen that stays for
@@ -146,13 +146,13 @@ disables shields and the trident can still be thrown.
 
 | Weapon | Passive (while held) | On hit | F | Sneak + F |
 | --- | --- | --- | --- | --- |
-| ♞ **Death Knight's Sword** · Runed Greatsword | **Frost Presence**: attackers are slowed | 20%: **Death Coil** drains 2 health | **Raise Dead** (30s): up to three skeleton warriors rise from creatures slain nearby and fight for you for 20s | **Deathcharger** (40s): ride a spectral skeleton horse for 12s, trampling enemies in your path |
+| ♞ **Death Knight's Sword** · Runed Greatsword | **Frost Presence**: attackers are slowed | 20%: **Death Coil** drains 2 health | **Death Grip** (30s): a hand of bone bursts out of the ground under the enemy you aim at, drags it to your feet and holds it there, frozen | **Runeforge** (40s): three runes circle you for 10s; your next three hits spend them: Frost encases the target in ice, Blood drinks half the blow back as health, Unholy tears its soul out in a burst that hurts everything around it |
 | ✨ **Edge Of The Astral Plane** · Cosmic | Low gravity, no fall damage | 20%: Levitation | **Telekinesis** (12s): seize the enemy under your crosshair, drag it with your aim into others and walls, then hurl it | **Orbit** (40s): up to five nearby enemies orbit you for 5s, smashing into anyone in the way, then fly off |
 | 🌿 **Enigma** · Verdant | Regeneration I; mobs drop double XP | 25%: Poison II | **Nature's Grasp** (14s): roots + damages enemies in 7 blocks | **Verdant Bloom** (40s): heal, Absorption II, cleanse (shared with scoreboard teammates) |
 | ☙ **Ribbon Cleaver** · Puppeteer's Cleaver | Speed I while sprinting | 20%: **Entangle**, Slowness III | **Marionette** (16s): tie an enemy to you for 5s; every step you take, it takes too | **Tangle** (30s): tie up to five enemies together for 6s; they can't pull apart and share half of all damage |
 | 🌑 **Watcher Claymore** · Shadow | Invisible while sneaking, faster movement | +60% from behind; 20%: blind | **Shadow Strike** (10s): teleport behind your target | **Shadow Veil** (35s): 6s full invisibility (armor too); next hit +8 |
 | ☸ **Royal Chakram** · Wind Chakram | Double jump, no fall damage after it | 20%: **Gust** blasts the target away | **Halo Throw** (5s): the chakram cuts through enemies out and back | **Cyclone** (28s): three chakrams orbit you for 6s, shredding enemies and deflecting arrows |
-| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Lunar Dash** (8s): dash through enemies, leaving silver crescents | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
+| ☾ **Watching Warglaive** · Lunar Warglaive | Night Vision; +25% damage at night or in the dark | 20%: **Crescent Echo** hits the target again | **Moon Snare** (8s): set a crescent of moonlight where you aim (two at a time, 20s); the first enemy to step on it is lifted and spun helplessly for 2s, then dropped | **Moongate** (35s): two moon gates for 8s, beside you and where you aim; anything through one comes out the other |
 | Ω **Power Fuse Hammer** · Fusion Maul | **Polarity**: hits magnetize the target | 25%: **Static** arcs to every magnetized enemy | **Repulsor Field** (25s): 5s field that throws enemies back and turns projectiles around | **Overcharge** (20s): charge for 2s; your next hit deals +14 and chains to magnetized enemies |
 | ✧ **Star's Edge** · Constellation Blade | +20% damage at night | Every hit sets a **star** over the target | **Constellation** (12s): link every starred enemy with starlight and crush them together; more stars, more damage | **Astral Projection** (30s): leave your body and fly as an untouchable spirit for 5s, starring what you pass |
 
@@ -165,7 +165,7 @@ disables shields and the trident can still be thrown.
 | ✹ **Ashura's Blade** · Six-Armed Blade | **Wrath**: +1 damage per enemy within 5 blocks (up to +5) | 25%: **Echo Arm** strikes again for half | **Thousand Hands** (25s): four spectral arms for 8s; each of your hits sends every arm at a nearby enemy | **Wrathful Form** (40s): grow to twice your size for 8s: more reach, +5 damage, no knockback, ground-shaking steps |
 | Ψ **Ocean's Rage** · Abyssal Trident | Always returns when thrown (Loyalty) and calls lightning where it hits, in any weather; Water Breathing | 20%: **Undertow** drags the target under, +3 damage, Slowness III | **Abyssal Bubble** (10s): trap an enemy in a floating bubble of seawater for 3s, drowning it, then slam it down | **Maelstrom** (30s): a whirlpool drags enemies in for 4s, then erupts as a geyser |
 | ⚚ **Arcanethyst** · Arcane Staff | A 2-heart ward that recharges 12s after it breaks | 25%: **Arcane Spark** leaps to another enemy | **Arcane Missiles** (6s): five homing amethyst missiles | **Crystal Sentinel** (25s): a floating crystal that shoots enemies and mends you and your teammates for 8s |
-| ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Flèche** (6s): lunge and run the first enemy through | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
+| ♛ **Royal Rapier** · Duelist's Rapier | +25% attack speed, +10% speed | **Precision**: +50% against enemies at full health | **Three Touches** (6s): three weak points light up on the enemy you aim at for 5s; each hit on it strikes one for +4, and all three finish with a flourish that staggers it | **Riposte** (20s): a parry stance; the next attack is blocked and answered with five thrusts |
 | ⚒ **Hearthflame** · Titan Hammer | No knockback, +3 armor | 20%: **Quake** stuns everything around the target | **Seismic Slam** (12s): a ring of erupting earth launches everything around you | **Earthen Bulwark** (35s): stone pillars orbit you; Resistance II, attackers are hurt and thrown back |
 | ☥ **Pharaoh's Treasure** · Pharaoh's Khopesh | Regeneration I in daylight | 20%: **Pharaoh's Curse**: Weakness, Slowness, +20% damage from you | **Sandstorm** (12s): a sand tornado that drifts wherever your crosshair points, lifting, blinding and grinding enemies | **Tomb of Sands** (30s): seal nearby enemies in sandstone tombs, then collapse them |
 | Ж **Soul Claws** · Spectral Claws | Speed I; wounded enemies near you glow | **Frenzy**: up to 5 stacks of Haste and +1 damage | **Pounce** (8s): leap onto the enemy you aim at, pin it and rake it three times | **The Hunt** (30s): mark your prey for 12s: a trail to it, speed towards it, +5 damage; kill it to heal fully |
@@ -404,7 +404,7 @@ once per server, at a crafting table or an altar, so there is only ever one of e
 | `/customs session` | — | Whether a session is running, for how long, and the top killers |
 | `/customs session start [minutes]` / `end` | `customs.admin` | Start or end a session (twists only run in sessions) |
 | `/customs faction` / `faction list` | — | Arc II: the faction menu (leaders, members, points) / the same in chat |
-| `/customs faction set <player> <blade\|forge\|fallen\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
+| `/customs faction set <player> <blade\|flame\|fallen\|none> [leader]` | `customs.admin` | Arc II: move a player between factions |
 | `/customs info [weapon]` | — | Lore and abilities of a weapon |
 | `/customs recipes [weapon]` | — | Recipe book GUI (weapons and the altar) |
 | `/customs pack` | `customs.pack` | Re-send the resource pack |

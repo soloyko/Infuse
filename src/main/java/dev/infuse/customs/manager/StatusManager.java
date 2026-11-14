@@ -28,6 +28,8 @@ public final class StatusManager {
     private final Map<UUID, Integer> noFallUntil = new HashMap<>();
     private final Map<UUID, Bleed> bleeding = new HashMap<>();
     private final Map<UUID, Location> lastSafe = new HashMap<>();
+    /** Players who can't use weapon abilities until this tick (Excommunicate). */
+    private final Map<UUID, Integer> silencedUntil = new HashMap<>();
     private BukkitTask bleedTask;
 
     public StatusManager(CustomsPlugin plugin) {
@@ -107,6 +109,25 @@ public final class StatusManager {
     }
 
     // ---- void rescue ----
+
+    /** Stops a player from using weapon abilities for {@code ticks}. */
+    public void silence(Player player, int ticks) {
+        silencedUntil.merge(player.getUniqueId(), org.bukkit.Bukkit.getCurrentTick() + ticks, Math::max);
+    }
+
+    /** Ticks left before a player can use abilities again (0 if they can). */
+    public int silencedFor(Player player) {
+        Integer until = silencedUntil.get(player.getUniqueId());
+        if (until == null) {
+            return 0;
+        }
+        int left = until - org.bukkit.Bukkit.getCurrentTick();
+        if (left <= 0) {
+            silencedUntil.remove(player.getUniqueId());
+            return 0;
+        }
+        return left;
+    }
 
     public void recordSafeSpot(Player player) {
         lastSafe.put(player.getUniqueId(), player.getLocation());

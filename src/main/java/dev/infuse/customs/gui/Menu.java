@@ -85,7 +85,7 @@ public abstract class Menu implements InventoryHolder {
         }
 
         List<SwordType> types() {
-            return this == FACTIONS ? List.of(SwordType.HEROSWORD, SwordType.MOLTEN, SwordType.FALLEN) : arc().members();
+            return this == FACTIONS ? List.of(SwordType.HEROSWORD, SwordType.EXCALIBUR, SwordType.FALLEN) : arc().members();
         }
     }
 

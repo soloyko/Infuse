@@ -23,9 +23,9 @@ import org.bukkit.util.Vector;
 
 /**
  * Fallen God's Sword, the Blade of the Covenant (Arc II faction weapon of the Covenant of the Fallen).
- * Passive Longreach, on-hit Pinning Strike, F Godfall Lunge, Sneak+F War Banner.
+ * Passive Longreach, on-hit Pinning Strike, F Excommunicate, Sneak+F War Banner.
  */
-public final class FallenWeapon extends SwordAbility {
+public final class FallenWeapon extends SwordAbility implements org.bukkit.event.Listener {
 
     private static final int RED = 0xD83A3A;
     private static final int DARK = 0x2A0E0E;
@@ -50,70 +50,103 @@ public final class FallenWeapon extends SwordAbility {
         }
     }
 
-    /** Godfall Lunge: a long lunge; the first enemy is run through, carried to the end of it and pinned by crimson spikes. */
+    private static final int EXCOMMUNICATE_TICKS = 100;
+
+    /** Excommunicated -> the tick it ends (they can't heal until then). */
+    private final java.util.Map<java.util.UUID, Integer> outcasts = new java.util.HashMap<>();
+
+    /**
+     * Excommunicate: a crimson sword falls from above onto the enemy you aim at and casts it out
+     * for five seconds. It can't use weapon abilities, it can't heal, and a crown of thorns burns
+     * over its head for everyone to see.
+     */
     @Override
     public boolean primary(Player player) {
-        Vector dir = dev.infuse.customs.ability.Aim.flatLook(player);
-        status().protectFromFall(player, 40);
-        Fx.sound(player.getLocation(), Sound.ITEM_TRIDENT_RIPTIDE_2, 1.2f, 0.8f);
-        Fx.sound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 0.6f, 0.7f);
-        fx().wave(player.getLocation().add(0, 1, 0), dir, RED, 1.8f, 5);
+        LivingEntity target = combat().lookTarget(player, 24, 0.7);
+        if (target == null) {
+            tell(player, "Look at an enemy to cast out.");
+            return false;
+        }
+        Location head = target.getEyeLocation().add(0, 0.6, 0);
+        // the judgement: a crimson copy of the blade drops point-first onto the target
+        Location sky = head.clone().add(0, 6, 0);
+        sky.setYaw(0);
+        sky.setPitch(0);
+        org.bukkit.entity.ItemDisplay blade = displays().item(sky, plugin.items().create(type), 1.8f,
+                new org.joml.Quaternionf().rotateZ((float) Math.PI), org.bukkit.entity.ItemDisplay.ItemDisplayTransform.NONE, 16);
+        blade.setGlowing(true);
+        blade.setGlowColorOverride(org.bukkit.Color.fromRGB(RED));
+        blade.setBrightness(new org.bukkit.entity.Display.Brightness(15, 15));
+        blade.setTeleportDuration(4);
+        displays().later(1, () -> {
+            if (blade.isValid()) {
+                Location down = head.clone().add(0, 0.6, 0);
+                down.setYaw(0);
+                down.setPitch(0);
+                blade.teleport(down);
+            }
+        });
+        Fx.sound(head, Sound.ITEM_TRIDENT_THUNDER, 0.5f, 1.8f);
+        displays().later(5, () -> {
+            displays().remove(blade);
+            if (!target.isValid() || target.isDead() || !alive(player)) {
+                return;
+            }
+            Location at = Combat.center(target);
+            fx().impact(at, RED, 2.2f);
+            fx().crack(Combat.ground(target.getLocation().add(0, 0.5, 0)), RED, 2f, 40);
+            fx().castCircle(target.getLocation(), DARK, 1.6f);
+            combat().damage(player, target, 3, true);
+            Fx.sound(at, Sound.BLOCK_BELL_RESONATE, 1.2f, 0.5f);
+            Fx.sound(at, Sound.ENTITY_WITHER_SPAWN, 0.35f, 1.6f);
+            if (target instanceof Player victim) {
+                status().silence(victim, EXCOMMUNICATE_TICKS);
+                victim.showTitle(net.kyori.adventure.title.Title.title(
+                        net.kyori.adventure.text.Component.text("✝ EXCOMMUNICATED", net.kyori.adventure.text.format.TextColor.color(RED))
+                                .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD),
+                        net.kyori.adventure.text.Component.text("no abilities, no healing", net.kyori.adventure.text.format.NamedTextColor.GRAY),
+                        net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofMillis(500))));
+            }
+            outcasts.put(target.getUniqueId(), org.bukkit.Bukkit.getCurrentTick() + EXCOMMUNICATE_TICKS);
+            crown(target);
+        });
+        return true;
+    }
 
+    /** A ring of crimson thorns over an outcast's head for as long as the sentence lasts. */
+    private void crown(LivingEntity target) {
         new BukkitRunnable() {
-            int ticks;
-            LivingEntity skewered;
+            int t;
 
             @Override
             public void run() {
-                ticks++;
-                if (!alive(player) || ticks > 9) {
-                    finish();
+                t++;
+                Integer until = outcasts.get(target.getUniqueId());
+                if (!target.isValid() || target.isDead() || until == null || until < org.bukkit.Bukkit.getCurrentTick()) {
+                    outcasts.remove(target.getUniqueId());
+                    cancel();
                     return;
                 }
-                Combat.setVelocity(player, dir.clone().multiply(1.35).setY(Math.min(0.1, player.getVelocity().getY())));
-                Location chest = player.getLocation().add(0, 1, 0);
-                Fx.particle(chest, Particle.DUST, 4, 0.3, 0, Fx.dust(ticks % 2 == 0 ? RED : DARK, 1.3f));
-                fx().beam(chest, chest.clone().add(dir.clone().multiply(2.5)), RED, 0.2f, 2);
-                if (ticks % 3 == 0) {
-                    fx().afterimage(chest, plugin.items().create(type), dir, RED, 1.0f, 5);
+                Location top = target.getEyeLocation().add(0, 0.55, 0);
+                for (int i = 0; i < 8; i++) {
+                    double a = t * 0.15 + i * Math.PI / 4;
+                    Location p = top.clone().add(Math.cos(a) * 0.38, (i % 2 == 0 ? 0.08 : -0.02), Math.sin(a) * 0.38);
+                    Fx.particle(p, Particle.DUST, 1, 0, 0, Fx.dust(i % 2 == 0 ? RED : DARK, 0.8f));
                 }
-                if (skewered == null) {
-                    for (LivingEntity target : combat().nearby(player, chest.clone().add(dir.clone().multiply(1.8)), 1.4)) {
-                        skewered = target;
-                        combat().damage(player, target, 4, true);
-                        fx().burst(Combat.center(target), RED, 1.6f);
-                        Fx.particle(Combat.center(target), Particle.DAMAGE_INDICATOR, 6, 0.3, 0.1);
-                        Fx.sound(target.getLocation(), Sound.ITEM_TRIDENT_HIT, 1.2f, 0.7f);
-                        break;
-                    }
-                } else if (skewered.isValid()) {
-                    // carried along on the blade's point
-                    Location tip = player.getLocation().add(dir.clone().multiply(1.8));
-                    Combat.setVelocity(skewered, tip.toVector().subtract(skewered.getLocation().toVector()).multiply(0.8).setY(0.1));
-                    Fx.particle(Combat.center(skewered), Particle.DUST, 3, 0.2, 0, Fx.dust(RED, 1.1f));
+                if (t % 10 == 0) {
+                    Fx.particle(Combat.center(target), Particle.DUST, 4, 0.3, 0, Fx.dust(DARK, 1.0f));
                 }
             }
+        }.runTaskTimer(plugin, 1L, 2L);
+    }
 
-            private void finish() {
-                cancel();
-                if (skewered != null && skewered.isValid() && !skewered.isDead() && alive(player)) {
-                    combat().damage(player, skewered, 7, true);
-                    Combat.setVelocity(skewered, dir.clone().multiply(0.6).setY(0.6));
-                    Location ground = Combat.ground(skewered.getLocation().add(0, 0.5, 0));
-                    fx().impact(Combat.center(skewered), RED, 2.2f);
-                    fx().crack(ground, RED, 2.2f, 30);
-                    // crimson spikes erupt around the victim
-                    org.bukkit.block.data.BlockData blood = Material.RED_STAINED_GLASS.createBlockData();
-                    for (int i = 0; i < 4; i++) {
-                        double a = i * Math.PI / 2 + Math.PI / 4;
-                        fx().spike(ground.clone().add(Math.cos(a) * 0.9, 0, Math.sin(a) * 0.9), blood, 1.6f, 0.45f, 0.35, 18);
-                    }
-                    Fx.sound(skewered.getLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1.2f, 0.6f);
-                    Fx.sound(skewered.getLocation(), Sound.BLOCK_POINTED_DRIPSTONE_LAND, 1f, 0.6f);
-                }
-            }
-        }.runTaskTimer(plugin, 1L, 1L);
-        return true;
+    /** Outcasts don't heal. */
+    @org.bukkit.event.EventHandler(ignoreCancelled = true)
+    public void onHeal(org.bukkit.event.entity.EntityRegainHealthEvent event) {
+        Integer until = outcasts.get(event.getEntity().getUniqueId());
+        if (until != null && until >= org.bukkit.Bukkit.getCurrentTick()) {
+            event.setCancelled(true);
+        }
     }
 
     /** The Covenant's war banner: red, a black border and a gold sword down the middle. */

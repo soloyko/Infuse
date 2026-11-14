@@ -47,7 +47,7 @@ import dev.infuse.customs.ability.impl.AshuraWeapon;
 import dev.infuse.customs.ability.impl.DeathKnightWeapon;
 import dev.infuse.customs.ability.impl.SplitterWeapon;
 import dev.infuse.customs.ability.impl.HeroSwordWeapon;
-import dev.infuse.customs.ability.impl.MoltenWeapon;
+import dev.infuse.customs.ability.impl.ExcaliburWeapon;
 import dev.infuse.customs.ability.impl.FallenWeapon;
 import dev.infuse.customs.api.SwordAbilityEvent;
 import dev.infuse.customs.sword.AbilitySlot;
@@ -117,7 +117,7 @@ public final class AbilityRegistry {
         register(new DeathKnightWeapon(plugin));
         register(new SplitterWeapon(plugin));
         register(new HeroSwordWeapon(plugin));
-        register(new MoltenWeapon(plugin));
+        register(new ExcaliburWeapon(plugin));
         register(new FallenWeapon(plugin));
         for (SwordType type : SwordType.values()) {
             if (!abilities.containsKey(type)) {
@@ -150,12 +150,19 @@ public final class AbilityRegistry {
     public void activate(Player player, SwordType type, AbilitySlot slot) {
         if (!plugin.canUse(player, type)) {
             if (!player.hasPermission("customs.use")) {
-                plugin.passives().actionBar(player, Text.plain("You can't use OP Sword abilities.", NamedTextColor.RED));
+                plugin.passives().actionBar(player, Text.plain("You can't use weapon abilities.", NamedTextColor.RED));
             } else if (!plugin.settings().sword(type).enabled()) {
                 plugin.passives().actionBar(player, Text.plain(type.swordName() + " is disabled on this server.", NamedTextColor.RED));
             } else {
                 plugin.passives().actionBar(player, Text.plain("Abilities are disabled in this world.", NamedTextColor.RED));
             }
+            return;
+        }
+        int silenced = plugin.status().silencedFor(player);
+        if (silenced > 0) {
+            plugin.passives().actionBar(player, Text.plain("✝ You are excommunicated: no abilities for " + ((silenced + 19) / 20) + "s",
+                    net.kyori.adventure.text.format.TextColor.color(0xD83A3A)));
+            player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.5f);
             return;
         }
         String name = type.ability(slot).name();
