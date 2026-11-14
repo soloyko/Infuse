@@ -67,15 +67,16 @@ import java.util.UUID;
 public final class Factions implements Listener {
 
     public enum Faction {
-        BLADE("blade", "Order of the Blade", "⚔", 0x4DA3FF, NamedTextColor.BLUE, SwordType.HEROSWORD, Material.BLUE_BANNER,
+        BLADE("blade", "Order of the Blade", "Blade", "⚔", 0x4DA3FF, NamedTextColor.BLUE, SwordType.HEROSWORD, Material.BLUE_BANNER,
                 "Sharpened", "Haste I, and your melee hits on anyone outside the Order deal 10% more damage."),
-        HAMMER("hammer", "House of the Hammer", "⚒", 0xE0A030, NamedTextColor.GOLD, SwordType.MJOLNIR, Material.ORANGE_BANNER,
+        HAMMER("hammer", "House of the Hammer", "Hammer", "⚒", 0xE0A030, NamedTextColor.GOLD, SwordType.MJOLNIR, Material.ORANGE_BANNER,
                 "Ironclad", "Two extra hearts and 30% knockback resistance."),
-        SPEAR("spear", "Covenant of the Spear", "♆", 0xD83A3A, NamedTextColor.RED, SwordType.GODSPEAR, Material.RED_BANNER,
+        SPEAR("spear", "Covenant of the Spear", "Spear", "♆", 0xD83A3A, NamedTextColor.RED, SwordType.GODSPEAR, Material.RED_BANNER,
                 "Swiftstep", "Speed I and half a block more reach.");
 
         public final String id;
         public final String title;
+        public final String shortName;
         public final String symbol;
         public final TextColor color;
         public final NamedTextColor teamColor;
@@ -84,10 +85,11 @@ public final class Factions implements Listener {
         public final String blessing;
         public final String blessingText;
 
-        Faction(String id, String title, String symbol, int color, NamedTextColor teamColor, SwordType weapon, Material banner,
+        Faction(String id, String title, String shortName, String symbol, int color, NamedTextColor teamColor, SwordType weapon, Material banner,
                 String blessing, String blessingText) {
             this.id = id;
             this.title = title;
+            this.shortName = shortName;
             this.symbol = symbol;
             this.color = TextColor.color(color);
             this.teamColor = teamColor;
@@ -141,6 +143,10 @@ public final class Factions implements Listener {
     private final EnumMap<Faction, UUID> leaders = new EnumMap<>(Faction.class);
     private final EnumMap<Faction, Integer> scores = new EnumMap<>(Faction.class);
     private final List<BukkitTask> tasks = new ArrayList<>();
+    /** The emblem floating over each leader's name. */
+    private final Map<UUID, org.bukkit.entity.TextDisplay> crowns = new java.util.HashMap<>();
+    /** Players sworn in by a faction's weapon, waiting to respawn and be told. */
+    private final java.util.Set<UUID> justSworn = new java.util.HashSet<>();
     private boolean active;
 
     Factions(CustomsPlugin plugin, ArcService arcs) {
@@ -358,6 +364,11 @@ public final class Factions implements Listener {
                 Location at = p.getLocation();
                 plugin.fx().flash(at.clone().add(0, 1, 0), f.color.value(), 2.4f);
                 plugin.fx().castCircle(at, f.color.value(), 1.8f);
+                if (p.getUniqueId().equals(leaders.get(f))) {
+                    plugin.fx().beam(at.clone().add(0, 30, 0), at, f.color.value(), 1.4f, 40);
+                    plugin.fx().shockwave(at.clone().add(0, 0.05, 0), f.color.value(), 6f, 12);
+                    p.playSound(at, Sound.ITEM_TOTEM_USE, 0.6f, 1.2f);
+                }
             }
         }
     }
@@ -408,6 +419,10 @@ public final class Factions implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) {
             unequip(p);
         }
+        for (UUID id : new ArrayList<>(crowns.keySet())) {
+            uncrown(id);
+        }
+        justSworn.clear();
     }
 
     /** Clears the factions for the next session. */
@@ -511,6 +526,7 @@ public final class Factions implements Listener {
     /** An unsworn player slain by a faction's weapon is sworn into that faction. */
     private void convert(Player victim, Faction faction, Player killer) {
         members.put(victim.getUniqueId(), faction);
+        justSworn.add(victim.getUniqueId());
         arcs.save();
         Bukkit.broadcast(Text.plain(victim.getName(), NamedTextColor.WHITE)
                 .append(Text.plain(" fell to " + killer.getName() + "'s ", NamedTextColor.GRAY))
@@ -545,6 +561,44 @@ public final class Factions implements Listener {
         }
         player.setGlowing(leader);
         clearAttributes(player);
+        if (leader) {
+            crown(player, f);
+        } else {
+            uncrown(player.getUniqueId());
+        }
+    }
+
+    /** "⚔ LEADER ⚔" floating over a leader's name, for everyone but the leader. */
+    private void crown(Player player, Faction faction) {
+        org.bukkit.entity.TextDisplay d = crowns.get(player.getUniqueId());
+        if (d != null && d.isValid() && player.getPassengers().contains(d)) {
+            return;
+        }
+        if (d != null) {
+            d.remove();
+        }
+        Component text = Text.plain(faction.symbol + " ", faction.color)
+                .append(Text.caps("leader", faction.color).decorate(TextDecoration.BOLD))
+                .append(Text.plain(" " + faction.symbol, faction.color));
+        org.bukkit.entity.TextDisplay emblem = player.getWorld().spawn(player.getLocation().add(0, 2, 0), org.bukkit.entity.TextDisplay.class, t -> {
+            t.text(text);
+            t.setPersistent(false);
+            t.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+            t.setShadowed(true);
+            t.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
+            t.setTransformation(new org.bukkit.util.Transformation(new org.joml.Vector3f(0, 0.55f, 0), new org.joml.Quaternionf(),
+                    new org.joml.Vector3f(0.85f), new org.joml.Quaternionf()));
+        });
+        player.addPassenger(emblem);
+        player.hideEntity(plugin, emblem);
+        crowns.put(player.getUniqueId(), emblem);
+    }
+
+    private void uncrown(UUID id) {
+        org.bukkit.entity.TextDisplay d = crowns.remove(id);
+        if (d != null) {
+            d.remove();
+        }
     }
 
     private void unequip(Player player) {
@@ -559,6 +613,7 @@ public final class Factions implements Listener {
             player.setGlowing(false);
         }
         clearAttributes(player);
+        uncrown(player.getUniqueId());
     }
 
     // ---------------------------------------------------------------- faction weapons
@@ -663,6 +718,9 @@ public final class Factions implements Listener {
             if (leader && !p.isGlowing()) {
                 p.setGlowing(true);
             }
+            if (leader && !p.isDead()) {
+                crown(p, f);
+            }
             switch (f) {
                 case BLADE -> quiet(p, PotionEffectType.HASTE, 50, 0);
                 case HAMMER -> {
@@ -763,6 +821,18 @@ public final class Factions implements Listener {
                 .append(Text.plain((v == null ? "" : v.symbol + " ") + victim.getName(), v == null ? NamedTextColor.WHITE : v.color))
                 .append(Text.plain("  +" + points + "   ", NamedTextColor.GRAY)).append(scoreLine());
         Bukkit.broadcast(line);
+        // the points rise from where the victim fell, in the killer's colours
+        Location at = victim.getLocation().add(0, 1.6, 0);
+        org.bukkit.entity.TextDisplay pop = plugin.displays().text(at,
+                Text.plain("+" + points + " " + a.symbol, a.color).decorate(TextDecoration.BOLD), leaderSlain ? 2.2f : 1.5f, 34);
+        pop.setTeleportDuration(30);
+        plugin.displays().later(2, () -> {
+            if (pop.isValid()) {
+                pop.teleport(at.clone().add(0, 1.4, 0));
+            }
+        });
+        plugin.fx().burst(at.clone().subtract(0, 0.6, 0), a.color.value(), leaderSlain ? 3f : 2f);
+        killer.playSound(killer.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, leaderSlain ? 0.7f : 1.2f);
         if (v == null && killedByWeapon(killer, a)) {
             convert(victim, a, killer);
         }
@@ -787,7 +857,32 @@ public final class Factions implements Listener {
                     equip(p);
                 }
             });
+            if (justSworn.remove(p.getUniqueId())) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> sworn(p), 10L);
+            }
         }
+    }
+
+    /** The moment a converted player comes back: their new faction's title, light and bell. */
+    private void sworn(Player p) {
+        Faction f = of(p);
+        if (f == null || !p.isOnline()) {
+            return;
+        }
+        p.showTitle(Title.title(Text.plain(f.symbol + " " + f.title.toUpperCase(Locale.ROOT), f.color).decorate(TextDecoration.BOLD),
+                Text.caps("you fell to its weapon · now you fight for it", NamedTextColor.WHITE),
+                Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(700))));
+        Location at = p.getLocation();
+        plugin.fx().beam(at.clone().add(0, 20, 0), at, f.color.value(), 1.0f, 24);
+        plugin.fx().castCircle(at, f.color.value(), 1.8f);
+        plugin.fx().flash(at.clone().add(0, 1, 0), f.color.value(), 2.6f);
+        p.playSound(at, Sound.BLOCK_BELL_USE, 1f, 0.7f);
+        p.playSound(at, Sound.BLOCK_BEACON_POWER_SELECT, 0.8f, 1.2f);
+    }
+
+    @EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        uncrown(event.getPlayer().getUniqueId());
     }
 
     @EventHandler

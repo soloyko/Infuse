@@ -112,6 +112,9 @@ arcs:
   # While no arc is running, every weapon can be forged and there are no twists.
   # Show the current arc, the session timer and the twist in a bar at the top of the screen.
   boss-bar: true
+  # During a session, show the clock, faction points or the bounty, and the top killers on the
+  # right of the screen (stays hidden if another plugin already uses the sidebar).
+  sidebar: true
   # Turn single twists off (the arc still unlocks its weapons).
   twists:
     awakening: true

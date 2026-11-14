@@ -68,6 +68,7 @@ public final class ArcService implements Listener {
     private final CustomsPlugin plugin;
     private final File file;
     private final Factions factions;
+    private final SessionBoard board = new SessionBoard();
 
     private @Nullable Arc current;
     private long startedAt;
@@ -250,6 +251,7 @@ public final class ArcService implements Listener {
     public void shutdown() {
         pauseTwist();
         hideBar();
+        board.clear();
         if (ticker != null) {
             ticker.cancel();
             ticker = null;
@@ -288,6 +290,9 @@ public final class ArcService implements Listener {
             p.showTitle(title);
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 0.6f);
             p.playSound(p.getLocation(), Sound.EVENT_RAID_HORN, 0.7f, 1.1f);
+            Location at = p.getLocation();
+            plugin.fx().beam(at.clone().add(0, 24, 0), at, 0x5CF27A, 0.9f, 24);
+            plugin.fx().shockwave(at.clone().add(0, 0.05, 0), 0x5CF27A, 4f, 10);
         }
         // let the session title have the screen before the factions' own titles
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -329,10 +334,19 @@ public final class ArcService implements Listener {
             Bukkit.broadcast(Text.plain("  No one was slain.", NamedTextColor.GRAY));
         }
         Bukkit.broadcast(Component.empty());
+        Title over = Title.title(Text.plain("SESSION OVER", NamedTextColor.RED).decorate(TextDecoration.BOLD),
+                Text.caps("lasted " + clock(length), NamedTextColor.WHITE),
+                Title.Times.times(Duration.ofMillis(400), Duration.ofSeconds(3), Duration.ofMillis(800)));
+        boolean crowned = current == Arc.II;
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 0.5f);
             p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 0.8f);
+            if (!crowned) {
+                p.showTitle(over); // in Arc II the winner's title has the screen
+            }
+            plugin.fx().shockwave(p.getLocation().add(0, 0.05, 0), 0xE5482C, 4f, 10);
         }
+        board.clear();
         sessionKills.clear();
         save();
         return true;
@@ -356,9 +370,70 @@ public final class ArcService implements Listener {
             }
             if (left <= 60_000 && left > 59_000) {
                 Bukkit.broadcast(Text.plain("The session ends in one minute.", NamedTextColor.RED));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 0.6f);
+                }
+            }
+            if (left <= 10_000 && left > 0) {
+                // the last ten seconds count down on screen
+                long secs = (left + 999) / 1000;
+                Title.Times quick = Title.Times.times(Duration.ZERO, Duration.ofMillis(900), Duration.ofMillis(200));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.showTitle(Title.title(Component.empty(), Text.plain(String.valueOf(secs), NamedTextColor.RED).decorate(TextDecoration.BOLD), quick));
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1f, secs <= 3 ? 1.6f : 1.0f);
+                }
             }
         }
         refreshBar();
+        updateBoard();
+    }
+
+    /** The sidebar while a session runs (arcs.sidebar). */
+    private void updateBoard() {
+        if (!session || !plugin.getConfig().getBoolean("arcs.sidebar", true)) {
+            board.clear();
+            return;
+        }
+        List<SessionBoard.Line> lines = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        if (current != null) {
+            String what = twist(current) ? current.twist() : current.title();
+            lines.add(new SessionBoard.Line(Text.plain(current.label() + " · " + what, current.color()), null));
+        }
+        lines.add(new SessionBoard.Line(Text.caps("time", NamedTextColor.GRAY),
+                Text.plain(sessionEnds > 0 ? clock(sessionEnds - now) + " left" : clock(now - sessionStarted), NamedTextColor.GREEN)));
+        if (factions.active()) {
+            lines.add(SessionBoard.Line.blank());
+            if (factions.formed()) {
+                for (Factions.Faction f : Factions.Faction.values()) {
+                    lines.add(new SessionBoard.Line(Text.plain(f.symbol + " " + f.shortName, f.color)
+                            .append(Text.plain("  " + factions.roster(f).size() + "♟", NamedTextColor.DARK_GRAY)),
+                            Text.plain(String.valueOf(factions.score(f)), f.color).decorate(TextDecoration.BOLD)));
+                }
+            } else {
+                lines.add(new SessionBoard.Line(Text.plain("Factions form at " + Factions.MIN_PLAYERS + " players", NamedTextColor.GRAY), null));
+            }
+        }
+        if (twist(Arc.I)) {
+            lines.add(SessionBoard.Line.blank());
+            Player target = bounty == null ? null : Bukkit.getPlayer(bounty);
+            lines.add(new SessionBoard.Line(Text.plain("☠ Bounty", Arc.I.color()),
+                    target == null ? Text.plain("soon", NamedTextColor.DARK_GRAY)
+                            : Text.plain(target.getName() + " " + clock(bountyUntil - now), NamedTextColor.WHITE)));
+        }
+        List<Map.Entry<UUID, Integer>> top = new ArrayList<>(sessionKills.entrySet());
+        top.sort((a, b) -> b.getValue() - a.getValue());
+        if (!top.isEmpty()) {
+            lines.add(SessionBoard.Line.blank());
+            lines.add(new SessionBoard.Line(Text.caps("top killers", NamedTextColor.GRAY), null));
+            for (int i = 0; i < Math.min(3, top.size()); i++) {
+                OfflinePlayer p = Bukkit.getOfflinePlayer(top.get(i).getKey());
+                lines.add(new SessionBoard.Line(Text.plain((i + 1) + ". " + (p.getName() == null ? "someone" : p.getName()), NamedTextColor.WHITE),
+                        Text.plain(String.valueOf(top.get(i).getValue()), NamedTextColor.RED)));
+            }
+        }
+        board.update(Text.gradient("⚔ Session", net.kyori.adventure.text.format.TextColor.color(0xECBA44),
+                net.kyori.adventure.text.format.TextColor.color(0xC4415B)).decorate(TextDecoration.BOLD), lines);
     }
 
     // ---------------------------------------------------------------- twists
