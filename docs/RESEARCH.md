@@ -58,6 +58,41 @@ Use these to pull transcripts from popular Minecraft SMP videos and study how th
 ### Curated lists
 - [Bytekron/Awesome-Minecraft](https://github.com/Bytekron/Awesome-Minecraft): server software, proxies, plugins, tools.
 
+## 2b. More plugin development resources (second pass)
+
+### Tooling and testing
+| Repo | ★ | Why it matters |
+|---|---|---|
+| [minecraft-dev/MinecraftDev](https://github.com/minecraft-dev/MinecraftDev) | 1.8k | IntelliJ plugin that generates Paper projects and highlights event and listener mistakes. |
+| [PaperMC/paperweight-test-plugin](https://github.com/PaperMC/paperweight-test-plugin) | 132 | Official example of `paperweight-userdev`, for when you need server internals (NMS). Most plugins don't. |
+| [MockBukkit/MockBukkit](https://github.com/MockBukkit/MockBukkit) | 758 | Unit tests for plugins without a running server. The main thing separating "clean" plugins from the rest. |
+
+### Libraries
+| Repo | ★ | Use |
+|---|---|---|
+| [retrooper/packetevents](https://github.com/retrooper/packetevents) | 932 | Packet-level protocol library (fake entities, client-side effects). |
+| [Tofaa2/EntityLib](https://github.com/Tofaa2/EntityLib) | 153 | Packet-only entities built on PacketEvents. |
+| [HologramLib/HologramLib](https://github.com/HologramLib/HologramLib) | 62 | Text, item and block display holograms and leaderboards. |
+| [vytskalt/scoreboard-library](https://github.com/vytskalt/scoreboard-library) | 236 | Flicker-free packet scoreboards and sidebars. |
+| [CatCoderr/ProtocolSidebar](https://github.com/CatCoderr/ProtocolSidebar) | 202 | Alternative sidebar library. |
+| [CryptoMorin/XSeries](https://github.com/CryptoMorin/XSeries) | 535 | Cross-version materials, sounds and particles. Only needed if you support many versions. |
+| [kangarko/Foundation](https://github.com/kangarko/Foundation) | 403 | All-in-one framework for commands, menus and config. Convenient, but heavy. |
+| [Combimagnetron/Sunscreen](https://github.com/Combimagnetron/Sunscreen) | 248 | Fullscreen UIs drawn with a resource pack. |
+
+### Well-built plugins to read for structure
+- [LuckPerms/LuckPerms](https://github.com/LuckPerms/LuckPerms) (2.3k★): the reference for clean multi-platform architecture, storage abstraction, and an API module.
+- [DiscordSRV/DiscordSRV](https://github.com/DiscordSRV/DiscordSRV) (1.2k★): integration plugin. Shows async work and config migration.
+- [SkriptLang/Skript](https://github.com/SkriptLang/Skript) (1.4k★): many SMPs prototype mechanics in Skript before writing Java.
+- [MineInAbyss/MineInAbyss](https://github.com/MineInAbyss/MineInAbyss) (125★): a server built around one unique world mechanic (a "curse" for climbing back up). A good example of a single strong idea.
+- [No-Not-Jaden/NotBounties](https://github.com/No-Not-Jaden/NotBounties): an actively maintained bounty system, a common social mechanic on SMPs.
+
+### What "clean" looks like across these repos
+- One class per feature or listener. A small main class that only wires things together.
+- Player state stored in the **PersistentDataContainer** (on players and items) or a storage layer, not in static maps.
+- Every number in `config.yml`, and every message in MiniMessage format so admins can restyle it.
+- Brigadier commands with tab-completion and permission nodes in `paper-plugin.yml` or `plugin.yml`.
+- Scheduled tasks cancelled on disable, no blocking I/O on the main thread, and MockBukkit tests for the core logic.
+
 ---
 
 ## 3. What makes an SMP plugin *fun*
