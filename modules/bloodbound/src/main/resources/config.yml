@@ -1,0 +1,93 @@
+# Bloodbound configuration. Every balance number lives here.
+# Durations use the format 30s, 10m, 1h30m.
+
+blood:
+  kill-reward: 100            # blood for killing a player
+  mob-reward: 2               # blood for killing a hostile mob
+  catch-up-per-tier: 0.25     # +25% kill reward per tier the victim is above the killer
+  shatter-fraction: 0.30      # victim loses 30% of their blood when killed by a player...
+  killer-share: 0.50          # ...and the killer gains 50% of what was lost
+  environmental-loss: 0.10    # dying to mobs/environment loses 10%, nobody gains it
+  repeat-kill-cooldown: 10m   # no reward or shatter for killing the same victim again within this time
+  tiers: [0, 150, 400, 800, 1400]
+
+abilities:
+  active-tier: 2              # tier that unlocks the active ability (F)
+  ultimate-tier: 5            # tier that unlocks the ultimate (Sneak + F)
+
+events:
+  default-duration: 10m
+  blood-moon:
+    multiplier: 2.0
+  bounty:
+    kill-bonus: 300
+    survive-bonus-per-minute: 50
+    broadcast-interval: 60s
+  frenzy:
+    cooldown-multiplier: 0.5
+  last-stand: {}
+  altar-surge:
+    radius: 8.0
+    blood: 5
+    interval: 5s
+
+altars:
+  announce-forges: true
+
+# Recipes are paid from the player's inventory at an altar.
+weapons:
+  crimson-blade:
+    damage-per-tier: 1.0
+    active-cooldown: 12s
+    ultimate-cooldown: 90s
+    recipe: {DIAMOND_SWORD: 1, NETHERITE_INGOT: 1, REDSTONE_BLOCK: 16, DIAMOND: 4}
+    lifesteal-per-tier: 0.04      # heal 4% of damage dealt per tier
+    dash-power: 1.8
+    dash-damage: 6.0
+    hemorrhage-duration: 6s
+    bleed-damage: 1.5
+    bleed-ticks: 4
+  ravager-axe:
+    damage-per-tier: 1.0
+    active-cooldown: 15s
+    ultimate-cooldown: 100s
+    recipe: {DIAMOND_AXE: 1, NETHERITE_INGOT: 1, REDSTONE_BLOCK: 16, IRON_BLOCK: 4}
+    sunder-per-armor-per-tier: 0.04
+    shield-stun: 5s
+    slam-radius: 5.0
+    slam-damage: 7.0
+    berserk-duration: 8s
+    berserk-damage-taken: 0.25
+  tempest-trident:
+    damage-per-tier: 1.0
+    active-cooldown: 12s
+    ultimate-cooldown: 90s
+    recipe: {TRIDENT: 1, HEART_OF_THE_SEA: 1, PRISMARINE_SHARD: 32, DIAMOND: 4}
+    storm-every: 4
+    storm-damage: 2.0
+    storm-damage-per-tier: 0.75
+    gale-range: 10.0
+    gale-angle: 35.0
+    gale-damage: 2.0
+    maelstrom-radius: 6.0
+    maelstrom-damage: 8.0
+  earthshaker-mace:
+    damage-per-tier: 1.0
+    active-cooldown: 14s
+    ultimate-cooldown: 100s
+    recipe: {MACE: 1, BREEZE_ROD: 4, OBSIDIAN: 16, DIAMOND: 4}
+    tremor-seconds-per-tier: 0.5
+    skyward-power: 1.6
+    meteor-duration: 8s
+    meteor-radius: 6.0
+    meteor-damage: 10.0
+  phantom-bow:
+    damage-per-tier: 0.75
+    active-cooldown: 12s
+    ultimate-cooldown: 80s
+    recipe: {BOW: 1, ENDER_PEARL: 8, PHANTOM_MEMBRANE: 8, DIAMOND: 4}
+    seeker-strength-per-tier: 0.03
+    seeker-range: 14.0
+    volley-arrows: 5
+    volley-spread: 8.0
+    shadowstep-duration: 8s

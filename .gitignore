@@ -1,0 +1,9 @@
+# Gradle / build outputs
+.gradle/
+build/
+*/build/
+**/build/
+modules/*/build/
+infusecore/build/
+.idea/
+*.iml

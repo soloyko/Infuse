@@ -1,0 +1,22 @@
+name: InfuseCore
+version: '${version}'
+main: dev.infuse.ultimate.InfuseCorePlugin
+api-version: '1.21'
+description: The hub of the Infuse Ultimate suite - one menu for Customs, Bloodbound, Infuse and Limitless, plus the shared resource pack.
+authors: [Infuse]
+softdepend: [Customs, Bloodbound, Infuse, LimitlessEnchantments]
+commands:
+  iu:
+    description: Open the Infuse Ultimate hub and manage the suite.
+    usage: /iu [status|modules|pack|reload]
+    aliases: [infusehub, infuseultimate]
+permissions:
+  infusecore.use:
+    description: Open the hub and view module status.
+    default: true
+  infusecore.pack:
+    description: Request the Infuse Ultimate resource pack with /iu pack.
+    default: true
+  infusecore.admin:
+    description: Reload InfuseCore config.
+    default: op

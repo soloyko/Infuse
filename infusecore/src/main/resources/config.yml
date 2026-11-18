@@ -1,0 +1,24 @@
+# ===========================================================================
+#  InfuseCore - the hub of the Infuse Ultimate suite
+# ===========================================================================
+
+# A short welcome shown once per login, listing the modules that are installed.
+welcome:
+  enabled: true
+
+# The shared Infuse Ultimate resource pack (Customs 3D weapon models + Infuse HUD).
+# InfuseCore does not host the pack for you - upload Infuse-Ultimate-Pack-x.zip to a
+# host that gives a DIRECT download link (e.g. a GitHub release asset) and paste it below.
+#
+#   url    : direct download link to the .zip
+#   sha1   : the pack's SHA-1 (run `sha1sum` on the zip). Leave blank to skip the check.
+#   prompt : the message players see in the pack dialog.
+#   required: true = players must accept to stay on the server.
+#   on-join : send the pack automatically when a player joins.
+resource-pack:
+  enabled: false
+  url: ""
+  sha1: ""
+  prompt: "Install the Infuse Ultimate pack for 3D weapons and the effect HUD."
+  required: false
+  on-join: true
