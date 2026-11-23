@@ -6,9 +6,9 @@ There are 15 unique grimoires, one of each, scattered in hidden libraries. You l
 other players. Grimoires drop when their wielder dies. And there's the **Demon Possessed**, a person the
 admins choose, whom the whole server hunts for the Five-Leaf Grimoire.
 
-It comes with its own **resource pack**: 3D grimoires that hover open beside you, 3D spell models, and
-long library halls to find them in. The plugin serves the pack itself. Players who decline it still see
-normal books and items, so nothing breaks.
+It comes with its own **resource pack**: 3D grimoires that float open beside you, 3D spell models, and
+tall wizard towers to find them in. Players get the pack automatically when they join, and players who
+decline it still see normal books and items, so nothing breaks.
 
 ---
 
@@ -18,43 +18,50 @@ normal books and items, so nothing breaks.
    ```bash
    mvn package
    ```
-   This produces `target/BlackCloverSMP-1.1.0.jar` (or grab it from `downloads/`).
-2. Put the jar in your server's `plugins/` folder and restart.
-   Open port **8163** on your host so players can download the resource pack (see below).
+   This produces `target/BlackCloverSMP-1.2.0.jar` (or grab it from `downloads/`).
+2. Put the jar in your server's `plugins/` folder and restart. No extra ports are needed: the resource
+   pack downloads from GitHub (see below).
 3. As an op (or from the console), start the game:
    ```
    /start 6000 30m
    ```
    This sets a 6000-block world border, gives everyone 30 minutes without PvP, and builds the 13
-   libraries.
+   library towers.
 
-> **Run `/start` on a fresh world.** Each library is a 15×39 hall and clears that area where it lands,
-> so on an existing world it could cut into someone's build.
+> **Run `/start` on a fresh world.** Each tower is 15×15 and 57 blocks tall and clears that space where
+> it lands, so on an existing world it could cut into someone's build.
 
 ---
 
 ## The resource pack
 
 The pack is built into the plugin jar. On startup the plugin zips it to
-`plugins/BlackCloverSMP/BlackCloverSMP-pack.zip`. It also serves the zip on port `8163` and offers it
-to every player who joins.
+`plugins/BlackCloverSMP/BlackCloverSMP-pack.zip` and offers it to every player who joins.
+
+By default (`host: auto`) players download it from this repository's `downloads/` folder on GitHub, so
+you don't need to open a port. The plugin first downloads that file itself and checks it's exactly the
+same pack. If it isn't (or GitHub can't be reached), the plugin serves the pack itself on port `8163`
+instead and logs a warning.
 
 What players get with it:
 - **15 3D grimoires,** each with its own leather colour, gold corners and clasp, its magic's rune, and
   the clover on the cover. Anti-Magic's is tattered and black. The Five-Leaf is black with a red five-leaf
   clover.
-- **Hovering grimoires:** while you hold your grimoire it **floats open beside you**, pages glowing with
-  your magic's script. Other players see it hovering at your shoulder, and it pulses when you cast.
+- **Floating grimoires:** while you hold your grimoire (main hand or off hand) it **floats open at your
+  right shoulder**, pages turned towards you and glowing with your magic's script. You see it in first
+  person, and everyone else sees it too. It bobs as you move, pulses when you cast, and your spells
+  launch from its pages.
 - **A floating grimoire spinning above every altar** that still holds its grimoire.
-- **3D spells:** glowing Light Swords, real rocks for Rock Throw, a dark orb, and Anti-Magic's
+- **3D spells:** glowing Light Swords, real rocks for Stone Bullet, a dark orb, and Anti-Magic's
   demon-slayer greatsword sweeping out with every slash.
 
 Settings in `config.yml` under `resource-pack`:
 
 | Setting | What it does |
 |---|---|
-| `host: self` | The plugin serves the pack on `port` (default 8163). Open that port. |
-| `host: url` | You upload `BlackCloverSMP-pack.zip` somewhere and put its direct link in `url`. Use this if your host only gives you one port. |
+| `host: auto` | Default. Uses `url` (GitHub) if it holds this exact pack, otherwise serves it on `port`. |
+| `host: url` | Always use `url`. Upload `BlackCloverSMP-pack.zip` somewhere and put its direct link there. |
+| `host: self` | Always serve the pack on `port` (default 8163). Open that port. |
 | `public-address` | The address players download from. Leave it empty to use the address each player joined with. |
 | `required` | `true` makes players accept the pack to stay on the server. |
 
@@ -69,11 +76,14 @@ download link. `/bcadmin pack resend` offers it to everyone online again.
 `/start <border size> <grace period>` builds **13 libraries** at random spots **at least 1,000 blocks
 from 0,0**, inside the border and spread apart. Their locations are secret.
 
-Each library is a long timber-framed hall:
-- **Outside:** a deepslate roof, a bell tower, a covered entrance porch, and clover stained-glass windows.
-- **Inside:** bookshelf bays down both sides, chandeliers, a red carpet, and a raised dais at the far end.
+Each library is a **round wizard tower, 57 blocks tall**, that you can see from far away:
+- **Outside:** weathered stone with dark bands, buttresses, green clover windows, a balcony ring with
+  lanterns, and a deepslate spire with a gold tip.
+- **Inside:** four library floors of bookshelf rings, climbed by a spiral staircase that winds round a
+  glowing central pillar.
+- **At the top:** the altar room, lit by candles and soul lanterns.
 
-The altar (a lectern) on the dais makes **one specific grimoire, once**.
+The altar (a lectern) at the top of the tower makes **one specific grimoire, once**.
 
 Bring **1 Book, 16 Lapis Lazuli and 1 Diamond** to an altar and right-click it. The grimoire chooses you,
 and the server is told who got it. After that the altar goes dormant.
@@ -115,11 +125,14 @@ Every grimoire is unique, so Light and Time are as rare as anything can be.
 
 ### 5. Casting
 - **Right-click** with the grimoire to cast the selected spell.
-- **Shift + right-click** switches spell.
+- **Shift + right-click** switches to the next spell.
+- **Shift + left-click** (or `/magic`) opens your **spellbook**: your level, XP and mana, and the four
+  spells with what each does, its cost, cooldown and power. Click a spell to select it.
 - Spells use **mana**, which regenerates 4 per second, and have cooldowns. The action bar shows your
-  spell, mana and cooldown while you hold the grimoire.
+  spell, mana bar and cooldown while you hold the grimoire.
+- **Spell damage is magic:** armour points don't block it, but Protection enchantments still do.
 - Spells hit players and mobs, never break blocks, and respect protection plugins (WorldGuard, spawn
-  protection and so on).
+  protection and so on). Ultimates are announced to everyone nearby.
 
 ### 6. The Demon Possessed
 An admin opens `/bcadmin` → **Players** → picks someone → **Possess**. It can be a staff member, a guest or
@@ -135,28 +148,32 @@ Whoever grabs it gets the grimoire, but isn't possessed.
 
 ## Spells
 
-| Grimoire | Lv 1 | Lv 5 | Lv 10 | Lv 20 |
+Every grimoire has four spells, each with a clear job: an **attack**, a **mobility, defence or support**
+spell, a **control** spell, and an **ultimate**.
+
+| Grimoire | Lv 1 · Attack | Lv 5 | Lv 10 · Control | Lv 20 · Ultimate |
 |---|---|---|---|---|
-| Fire | Fireball | Flame Wall | Blazing Dash | Inferno |
-| Water | Water Bullet | Bubble Shield | Tidal Wave | Sea Dragon |
-| Wind | Wind Blade | Gust Jump | Tornado | Storm of Blades |
-| Lightning | Spark Bolt | Thunder Step | Chain Lightning | Thunder God |
-| Earth | Rock Throw | Stone Wall | Earthquake | Earth Titan |
-| Plant | Thorn Shot | Healing Bloom | Binding Vines | Thorn Forest |
-| Light | Light Arrow | Light Speed | Light Swords | Judgment Ray |
-| Dark | Dark Orb | Shadow Cloak | Black Hole | Dimension Slash |
-| Spatial | Space Cut | Recall Gate | Swap | Banish |
-| Gravity | Gravity Bullet | Float | Crush | Singularity |
-| Blood | Blood Needle | Blood Pact | Crimson Lash | Blood Moon |
-| Poison | Toxic Spit | Venom Blade | Toxic Cloud | Plague |
-| Time | Time Bolt | Accelerate | Rewind | Time Stop |
-| Anti-Magic* | Anti-Magic Slash | Deflect | Demon Leap | Black Form |
-| Five-Leaf | Devil's Claw | Demon Wings | Curse Chains | Devil Union |
+| Fire | Flame Bolt | Blaze Dash *(mobility)* | Inferno Pillar | Salamander Nova |
+| Water | Water Bullets | Bubble Barrier *(defence)* | Tidal Wave | Sea Dragon's Roar |
+| Wind | Wind Blade | Gale Step *(mobility)* | Tornado | Gale Annihilation |
+| Lightning | Thunder Bolt | Thunder Step *(mobility)* | Chain Lightning | Thunder God's Descent |
+| Earth | Stone Bullet | Rampart *(defence)* | Rising Spikes | Titan Quake |
+| Plant | Thorn Volley | Verdant Bloom *(support)* | Binding Vines | Thorn Garden |
+| Light | Light Arrow | Light Speed *(mobility)* | Light Swords of Judgment | Judgment Ray |
+| Dark | Dark Orb | Shadow Veil *(defence)* | Black Hole | Dimension Slash |
+| Spatial | Space Cut | Portal Gate *(mobility)* | Space Swap | Spatial Exile |
+| Gravity | Gravity Orb | Weightless *(mobility)* | Gravity Crush | Singularity |
+| Blood | Blood Needles | Blood Pact *(support)* | Crimson Lash | Blood Moon |
+| Poison | Toxic Spit | Venom Coat *(support)* | Miasma | Plague |
+| Time | Time Bolt | Accelerate *(support)* | Rewind | Time Stop |
+| Anti-Magic* | Demon-Slayer Slash | Black Dash *(mobility)* | Anti-Magic Leap | Black Form |
+| Five-Leaf | Devil's Claw | Demon Wings *(mobility)* | Curse Chains | Devil Union |
 
 \* Anti-Magic uses no mana, takes 30% less damage from spells, and its slash strips enemy spell buffs.
-Five-Leaf has +50% mana and regen. Devil Union halves your cooldowns.
+Five-Leaf has +50% mana and regen. Devil Union and Accelerate halve your cooldowns.
 
-`/magic` in game lists your spells with their costs and cooldowns.
+The spellbook (`/magic` or shift + left-click) describes every spell. `/magic info` prints the same in
+chat.
 
 ---
 
@@ -165,7 +182,8 @@ Five-Leaf has +50% mana and regen. Devil Union halves your cooldowns.
 | Command | Who | What |
 |---|---|---|
 | `/start <border> <grace>` | admin | Start the game, e.g. `/start 6000 30m` (grace accepts `s`, `m`, `h`) |
-| `/magic` | everyone | Your grimoire, level, XP, mana, spells, and stored levels on other grimoires |
+| `/magic` | everyone | Open your spellbook: level, XP, mana, the four spells (click to select), stored levels |
+| `/magic info` | everyone | The same information in chat |
 | `/magic top` | everyone | Top 10 mages by level |
 | `/bcadmin` | admin | Opens the admin menu |
 | `/bcadmin possess <player>` / `unpossess` | admin | Start / end a demon possession |
@@ -202,12 +220,12 @@ Game state lives in `plugins/BlackCloverSMP/data.yml` and is saved automatically
 ## Development
 
 ```bash
-mvn test                        # unit tests: game rules, saving, library blueprint, resource pack linter
+mvn test                        # unit tests: game rules, saving, tower blueprint, spells, resource pack linter
 mvn package                     # builds the plugin jar
 python3 tools/pack/generate.py  # regenerates the resource pack art (textures + 3D models)
 ```
 
 The pack art is generated by `tools/pack/generate.py` into `src/main/resources/resourcepack/`. The
-library hall is described block by block in `LibraryBlueprint.java`.
+library tower is described block by block in `TowerBlueprint.java`.
 
 The design and implementation plan are in `docs/superpowers/`.
