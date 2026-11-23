@@ -95,4 +95,15 @@ class DataStoreRoundTripTest {
         assertNull(demon.get());
         assertEquals(GrimoireStatus.LIBRARY, registry.get(GrimoireType.FIRE).status());
     }
+
+    @Test
+    void olderSnapshotNeverOverwritesNewer() throws Exception {
+        File f = new File(dir, "data.yml");
+        DataStore store = new DataStore(f);
+        store.write("version: 2\n", 2);
+        store.write("version: 1\n", 1);
+        assertEquals("version: 2\n", java.nio.file.Files.readString(f.toPath()));
+        store.write("version: 3\n", 3);
+        assertEquals("version: 3\n", java.nio.file.Files.readString(f.toPath()));
+    }
 }

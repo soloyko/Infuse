@@ -27,6 +27,7 @@ public final class DataStore {
 
     private static final Logger LOG = Logger.getLogger("BlackCloverSMP");
     private final File file;
+    private long lastVersion = Long.MIN_VALUE;
 
     public DataStore(File file) {
         this.file = file;
@@ -74,6 +75,18 @@ public final class DataStore {
         }
         y.set("demon", demon == null ? null : demon.toString());
         return y.saveToString();
+    }
+
+    /**
+     * Writes a snapshot unless a newer one was already written. Async saves can finish out of
+     * order; without this an old snapshot could overwrite a newer one.
+     */
+    public synchronized void write(String content, long version) {
+        if (version <= lastVersion) {
+            return;
+        }
+        lastVersion = version;
+        writeSync(content);
     }
 
     /** Writes atomically (temp file then move). Safe to call from an async thread. */

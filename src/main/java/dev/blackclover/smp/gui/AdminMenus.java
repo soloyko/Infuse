@@ -175,8 +175,11 @@ public final class AdminMenus {
                 }
             }
             case GROUND -> {
+                org.bukkit.entity.Entity item = s.itemEntity() == null ? null : plugin.getServer().getEntity(s.itemEntity());
                 World w = s.ground() == null ? null : plugin.getServer().getWorld(s.ground().world());
-                if (w != null) {
+                if (item != null) {
+                    dest = item.getLocation().add(0, 0.5, 0);
+                } else if (w != null) {
                     dest = new Location(w, s.ground().x(), s.ground().y() + 0.5, s.ground().z());
                 }
             }

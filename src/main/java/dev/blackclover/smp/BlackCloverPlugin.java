@@ -46,6 +46,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private final Map<UUID, PlayerData> players = new HashMap<>();
     private final AtomicReference<UUID> demon = new AtomicReference<>();
     private DataStore store;
+    private final java.util.concurrent.atomic.AtomicLong saveVersion = new java.util.concurrent.atomic.AtomicLong();
     private GrimoireService grimoires;
     private AltarService altars;
     private GameService gameService;
@@ -140,7 +141,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
             tempBlocks.restoreAll();
         }
         if (store != null) {
-            store.writeSync(snapshot());
+            store.write(snapshot(), saveVersion.incrementAndGet());
         }
     }
 
@@ -150,7 +151,8 @@ public final class BlackCloverPlugin extends JavaPlugin {
 
     public void saveAsync() {
         String content = snapshot();
-        getServer().getScheduler().runTaskAsynchronously(this, () -> store.writeSync(content));
+        long version = saveVersion.incrementAndGet();
+        getServer().getScheduler().runTaskAsynchronously(this, () -> store.write(content, version));
     }
 
     public void reloadSettings() {
