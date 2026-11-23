@@ -108,7 +108,7 @@ public final class GameService implements Listener {
             building = false;
             plugin.saveAsync();
             Msg.send(sender, "<green>All libraries are built.");
-            Msg.titleAll("<dark_green><b>The libraries have appeared</b>", "<gray>13 grimoires wait somewhere past 1,000 blocks…");
+            Msg.titleAll("<#4caf63><b>ᴛʜᴇ ʟɪʙʀᴀʀɪᴇꜱ ʜᴀᴠᴇ ᴀᴘᴘᴇᴀʀᴇᴅ</b>", "<gray>13 ɢʀɪᴍᴏɪʀᴇꜱ ᴡᴀɪᴛ ʙᴇʏᴏɴᴅ 1,000 ʙʟᴏᴄᴋꜱ");
             Msg.broadcast("<gray>Thirteen grimoire libraries have appeared across the world. Find one, bring the ingredients, and claim your magic.");
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 1.4f);
@@ -153,7 +153,7 @@ public final class GameService implements Listener {
         long now = System.currentTimeMillis();
         if (game().isGrace(now)) {
             long remaining = game().graceEndMillis() - now;
-            graceBar.name(Msg.mm("<green>Grace period</green> <gray>— PvP is off for <white><t></white>", Msg.arg("t", format(remaining))));
+            graceBar.name(Msg.mm("<green>ɢʀᴀᴄᴇ ᴘᴇʀɪᴏᴅ</green>  <gray>ᴘᴠᴘ ᴏꜰꜰ</gray>  <white><t></white>", Msg.arg("t", format(remaining))));
             graceBar.progress((float) Math.max(0, Math.min(1, remaining / (double) graceTotalMillis)));
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 p.showBossBar(graceBar);
@@ -165,7 +165,7 @@ public final class GameService implements Listener {
         }
         if (game().isStarted() && !graceAnnounced) {
             graceAnnounced = true;
-            Msg.titleAll("<red><b>PvP is now enabled</b>", "<gray>The grace period is over");
+            Msg.titleAll("<red><b>ᴘᴠᴘ ᴇɴᴀʙʟᴇᴅ</b>", "<gray>ᴛʜᴇ ɢʀᴀᴄᴇ ᴘᴇʀɪᴏᴅ ɪꜱ ᴏᴠᴇʀ");
             Msg.broadcast("<red>The grace period is over. PvP is now enabled.");
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 0.6f, 1f);

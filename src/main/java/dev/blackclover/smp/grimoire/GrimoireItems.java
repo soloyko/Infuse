@@ -1,5 +1,6 @@
 package dev.blackclover.smp.grimoire;
 
+import dev.blackclover.smp.util.SmallCaps;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -45,27 +46,35 @@ public final class GrimoireItems {
     /** Rewrites name and lore, keeping identity tags. */
     public void decorate(ItemStack item, GrimoireType type, int holderLevel, String selectedSpell) {
         ItemMeta meta = item.getItemMeta();
+        TextColor color = TextColor.color(type.rgb());
         String title = type == GrimoireType.FIVE_LEAF ? "✤ Five-Leaf Grimoire" : type.displayName() + " Grimoire";
-        meta.displayName(Component.text(title, TextColor.color(type.rgb()))
-                .decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
+        meta.displayName(Component.text(title, color).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
         List<Component> lore = new ArrayList<>();
-        lore.add(line("Magic: ", NamedTextColor.GRAY).append(Component.text(type.displayName(), TextColor.color(type.rgb()))));
+        lore.add(Component.text(type.bio(), NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, true));
+        lore.add(Component.empty());
         if (holderLevel > 0) {
-            lore.add(line("Your level: ", NamedTextColor.GRAY).append(Component.text(holderLevel, NamedTextColor.WHITE)));
+            lore.add(label("ʟᴇᴠᴇʟ").append(Component.text(holderLevel, NamedTextColor.WHITE)));
         }
         if (selectedSpell != null) {
-            lore.add(line("Selected: ", NamedTextColor.GRAY).append(Component.text(selectedSpell, NamedTextColor.AQUA)));
+            lore.add(label("ꜱᴘᴇʟʟ").append(Component.text(SmallCaps.of(selectedSpell), color)));
         }
-        lore.add(Component.empty());
-        lore.add(line("Right-click: cast spell", NamedTextColor.DARK_GRAY));
-        lore.add(line("Shift + right-click: switch spell", NamedTextColor.DARK_GRAY));
-        lore.add(line("Unique. Dropped when you die.", NamedTextColor.DARK_RED));
+        if (holderLevel > 0 || selectedSpell != null) {
+            lore.add(Component.empty());
+        }
+        lore.add(hint("ʀɪɢʜᴛ-ᴄʟɪᴄᴋ", "ᴄᴀꜱᴛ"));
+        lore.add(hint("ꜱʜɪꜰᴛ + ʀɪɢʜᴛ-ᴄʟɪᴄᴋ", "ꜱᴡɪᴛᴄʜ ꜱᴘᴇʟʟ"));
+        lore.add(Component.text("☘ ᴜɴɪǫᴜᴇ · ᴅʀᴏᴘꜱ ᴡʜᴇɴ ʏᴏᴜ ᴅɪᴇ", NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false));
         meta.lore(lore);
         item.setItemMeta(meta);
     }
 
-    private static Component line(String text, NamedTextColor color) {
-        return Component.text(text, color).decoration(TextDecoration.ITALIC, false);
+    private static Component label(String text) {
+        return Component.text(text + "  ", NamedTextColor.DARK_GRAY).decoration(TextDecoration.ITALIC, false);
+    }
+
+    private static Component hint(String key, String action) {
+        return Component.text(key + " ", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(action, NamedTextColor.DARK_GRAY));
     }
 
     public boolean isGrimoire(ItemStack item) {

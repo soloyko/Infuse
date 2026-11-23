@@ -15,9 +15,14 @@ import java.time.Duration;
 public final class Msg {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final String PREFIX = "<dark_gray>[<gradient:#3a3a3a:#1f8f3a>Black Clover</gradient>]</dark_gray> ";
+    private static final String PREFIX = "<#4caf63>☘</#4caf63> <dark_gray>»</dark_gray> <gray>";
 
     private Msg() {
+    }
+
+    /** Small capitals for labels and headings (tags are preserved). */
+    public static String sc(String text) {
+        return SmallCaps.of(text);
     }
 
     public static TagResolver arg(String key, Object value) {

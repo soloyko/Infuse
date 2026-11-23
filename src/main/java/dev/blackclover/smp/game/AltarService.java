@@ -100,11 +100,12 @@ public final class AltarService implements Listener {
 
     private Component displayText(GrimoireType type) {
         if (active(type)) {
-            return Msg.mm("<c><b><name> Grimoire</b></c>\n<gray>Right-click the altar carrying:\n<white><recipe>",
-                    Msg.color("c", type.rgb()), Msg.arg("name", type.displayName()), Msg.arg("recipe", recipeText()));
+            return Msg.mm("<c><b><name></b></c>\n<gray><i><bio></i></gray>\n\n<dark_gray>ᴏꜰꜰᴇʀ ᴀᴛ ᴛʜᴇ ᴀʟᴛᴀʀ</dark_gray>\n<white><recipe>",
+                    Msg.color("c", type.rgb()), Msg.arg("name", Msg.sc(type.displayName() + " Grimoire")),
+                    Msg.arg("bio", type.bio()), Msg.arg("recipe", Msg.sc(recipeText())));
         }
-        return Msg.mm("<c><name> Grimoire</c>\n<dark_gray>This grimoire has already chosen its master",
-                Msg.color("c", type.rgb()), Msg.arg("name", type.displayName()));
+        return Msg.mm("<c><name></c>\n<dark_gray>ᴛʜɪꜱ ɢʀɪᴍᴏɪʀᴇ ʜᴀꜱ ᴄʜᴏꜱᴇɴ ɪᴛꜱ ᴍᴀꜱᴛᴇʀ",
+                Msg.color("c", type.rgb()), Msg.arg("name", Msg.sc(type.displayName() + " Grimoire")));
     }
 
     private void spawnDisplay(Library lib) {
@@ -303,8 +304,8 @@ public final class AltarService implements Listener {
     }
 
     private void ceremony(Player player, GrimoireType type) {
-        Msg.title(player, "<gray>A grimoire has chosen you…", "<c><b><name> Grimoire</b></c>",
-                Msg.color("c", type.rgb()), Msg.arg("name", type.displayName()));
+        Msg.title(player, "<c><b><name></b></c>", "<gray>ᴀ ɢʀɪᴍᴏɪʀᴇ ʜᴀꜱ ᴄʜᴏꜱᴇɴ ʏᴏᴜ",
+                Msg.color("c", type.rgb()), Msg.arg("name", Msg.sc(type.displayName() + " Grimoire")));
         Location at = player.getLocation().add(0, 1, 0);
         World w = player.getWorld();
         w.playSound(at, Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 0.8f);

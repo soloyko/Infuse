@@ -159,7 +159,7 @@ public final class CastingService implements Listener {
             return;
         }
         int next = selection.next(p.getUniqueId(), type, list.size());
-        notice(p, "<gray>Selected: <c><b><spell></b></c>", Msg.color("c", type.rgb()), Msg.arg("spell", list.get(next).name()));
+        notice(p, "<dark_gray>ꜱᴇʟᴇᴄᴛᴇᴅ</dark_gray>  <c><spell></c>", Msg.color("c", type.rgb()), Msg.arg("spell", Msg.sc(list.get(next).name())));
         p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
         grimoires.refreshLore(p);
     }
@@ -182,15 +182,15 @@ public final class CastingService implements Listener {
     private void cast(Player p, GrimoireType type) {
         UUID id = p.getUniqueId();
         if (plugin.settings().disabledWorlds().contains(p.getWorld().getName())) {
-            fail(p, "<red>Magic doesn't work in this world.");
+            fail(p, "<red>ᴍᴀɢɪᴄ ᴅᴏᴇꜱɴ'ᴛ ᴡᴏʀᴋ ʜᴇʀᴇ");
             return;
         }
         if (status.isFrozen(id)) {
-            fail(p, "<aqua>You are frozen in time!");
+            fail(p, "<aqua>ꜰʀᴏᴢᴇɴ ɪɴ ᴛɪᴍᴇ");
             return;
         }
         if (status.isSilenced(id)) {
-            fail(p, "<dark_gray>You are silenced and can't cast!");
+            fail(p, "<dark_gray>ꜱɪʟᴇɴᴄᴇᴅ</dark_gray> <gray>ʏᴏᴜ ᴄᴀɴ'ᴛ ᴄᴀꜱᴛ");
             return;
         }
         Optional<Spell> chosen = selectedSpell(p, type);
@@ -201,12 +201,12 @@ public final class CastingService implements Listener {
         long now = System.currentTimeMillis();
         long readyAt = cooldowns.getOrDefault(id, Map.of()).getOrDefault(spell.id(), 0L);
         if (now < readyAt) {
-            fail(p, "<white><spell></white> <gray>is ready in <yellow><t>s", Msg.arg("spell", spell.name()),
+            fail(p, "<white><spell></white> <gray>ʀᴇᴀᴅʏ ɪɴ</gray> <yellow><t>ꜱ", Msg.arg("spell", Msg.sc(spell.name())),
                     Msg.arg("t", String.format("%.1f", (readyAt - now) / 1000.0)));
             return;
         }
         if (type.usesMana() && mana(id) < spell.cost()) {
-            fail(p, "<blue>Not enough mana <gray>(<have>/<need>)", Msg.arg("have", (int) mana(id)),
+            fail(p, "<aqua>ɴᴏᴛ ᴇɴᴏᴜɢʜ ᴍᴀɴᴀ</aqua> <gray>(<have>/<need>)", Msg.arg("have", (int) mana(id)),
                     Msg.arg("need", (int) spell.cost()));
             return;
         }
@@ -248,28 +248,34 @@ public final class CastingService implements Listener {
                 continue;
             }
             long readyAt = cooldowns.getOrDefault(p.getUniqueId(), Map.of()).getOrDefault(spell.get().id(), 0L);
-            String cd = readyAt > now ? String.format("<yellow>%.1fs", (readyAt - now) / 1000.0) : "<green>ready";
-            String manaText = type.usesMana()
-                    ? "<aqua>Mana " + (int) mana(p.getUniqueId()) + "/" + (int) maxMana(p)
-                    : "<gray>No mana needed";
-            Msg.actionBar(p, "<c><b><type></b></c> <gray>Lv <white><lv></white> <dark_gray>|</dark_gray> <white><spell> "
-                            + "<dark_gray>|</dark_gray> " + manaText + " <dark_gray>|</dark_gray> " + cd,
-                    Msg.color("c", type.rgb()), Msg.arg("type", type.displayName()),
-                    Msg.arg("lv", mage.level(p.getUniqueId(), type)), Msg.arg("spell", spell.get().name()));
+            String cd = readyAt > now ? String.format("<yellow>%.1fꜱ</yellow>", (readyAt - now) / 1000.0) : "<green>✔</green>";
+            String manaText;
+            if (type.usesMana()) {
+                double max = maxMana(p);
+                int filled = (int) Math.round(10 * mana(p.getUniqueId()) / max);
+                manaText = "<aqua>" + "▮".repeat(filled) + "</aqua><dark_gray>" + "▮".repeat(10 - filled) + "</dark_gray> <gray>"
+                        + (int) mana(p.getUniqueId()) + "</gray>";
+            } else {
+                manaText = "<gray>ɴᴏ ᴍᴀɴᴀ</gray>";
+            }
+            Msg.actionBar(p, "<c><type></c> <dark_gray>ʟᴠ</dark_gray> <white><lv></white>   <c><spell></c>   " + manaText + "   " + cd,
+                    Msg.color("c", type.rgb()), Msg.arg("type", Msg.sc(type.displayName())),
+                    Msg.arg("lv", mage.level(p.getUniqueId(), type)), Msg.arg("spell", Msg.sc(spell.get().name())));
         }
     }
 
     /** Extra /magic lines: mana and the spell list. */
     public void describe(Player p, GrimoireType type, int level, CommandSender to) {
         if (type.usesMana()) {
-            Msg.send(to, "<aqua>Mana: <white><m>/<max>", Msg.arg("m", (int) mana(p.getUniqueId())), Msg.arg("max", (int) maxMana(p)));
+            Msg.send(to, "<dark_gray>ᴍᴀɴᴀ</dark_gray>  <aqua><m></aqua><dark_gray>/</dark_gray><gray><max>", Msg.arg("m", (int) mana(p.getUniqueId())), Msg.arg("max", (int) maxMana(p)));
         }
         List<Spell> list = spells.spells(type);
         for (int i = 0; i < list.size(); i++) {
             Spell s = list.get(i);
             boolean open = level >= SpellUnlocks.levelForSlot(i);
-            Msg.send(to, (open ? "<green>✔ " : "<dark_gray>🔒 ") + "<white><name></white> <gray>(Lv <lv>, <cost> mana, <cd>s)",
-                    Msg.arg("name", s.name()), Msg.arg("lv", s.unlockLevel()), Msg.arg("cost", (int) s.cost()),
+            Msg.send(to, (open ? "<green>✔</green> <white><name></white>" : "<dark_gray>✖ <name></dark_gray>")
+                            + "  <dark_gray>ʟᴠ <lv> · <cost> ᴍᴀɴᴀ · <cd>ꜱ</dark_gray>",
+                    Msg.arg("name", Msg.sc(s.name())), Msg.arg("lv", s.unlockLevel()), Msg.arg("cost", (int) s.cost()),
                     Msg.arg("cd", s.cooldownSeconds()));
         }
     }

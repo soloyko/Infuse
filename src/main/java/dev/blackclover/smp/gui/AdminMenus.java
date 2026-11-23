@@ -35,13 +35,19 @@ public final class AdminMenus {
         this.actions = actions;
     }
 
+    /** Menu icon; text is set in small caps. Put player names in {@code <name>} via {@code args} to keep their case. */
     static ItemStack icon(Material material, String name, String... lore) {
+        return icon(material, new net.kyori.adventure.text.minimessage.tag.resolver.TagResolver[0], name, lore);
+    }
+
+    static ItemStack icon(Material material, net.kyori.adventure.text.minimessage.tag.resolver.TagResolver[] args,
+                          String name, String... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Msg.mm(name).decoration(TextDecoration.ITALIC, false));
+        meta.displayName(Msg.mm(Msg.sc(name), args).decoration(TextDecoration.ITALIC, false));
         List<Component> lines = new ArrayList<>();
         for (String l : lore) {
-            lines.add(Msg.mm(l).decoration(TextDecoration.ITALIC, false));
+            lines.add(Msg.mm(Msg.sc(l), args).decoration(TextDecoration.ITALIC, false));
         }
         meta.lore(lines);
         item.setItemMeta(meta);
@@ -53,7 +59,7 @@ public final class AdminMenus {
     }
 
     private static Component title(String text) {
-        return Msg.mm(text);
+        return Msg.mm(Msg.sc(text));
     }
 
     private ItemStack back() {
@@ -91,7 +97,8 @@ public final class AdminMenus {
         String grimoire = carried.map(t -> "<gray>Grimoire: <white>" + t.displayName() + " <gray>Lv <white>"
                 + plugin.mage().level(target.getUniqueId(), t)).orElse("<dark_gray>No grimoire");
         boolean demon = target.getUniqueId().equals(plugin.demonRef().get());
-        ItemStack item = icon(Material.PLAYER_HEAD, (demon ? "<dark_red>☠ " : "<yellow>") + esc(target.getName()),
+        ItemStack item = icon(Material.PLAYER_HEAD, new net.kyori.adventure.text.minimessage.tag.resolver.TagResolver[]{Msg.arg("name", target.getName())},
+                (demon ? "<dark_red>☠ " : "<yellow>") + "<name>",
                 grimoire, demon ? "<dark_red>Demon Possessed" : "", "<dark_gray>Click to manage");
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         meta.setOwningPlayer(target);
@@ -107,7 +114,7 @@ public final class AdminMenus {
             return;
         }
         GrimoireState anti = plugin.registry().get(GrimoireType.ANTI_MAGIC);
-        Menu menu = new Menu(3, title("<dark_gray>Manage " + esc(target.getName())));
+        Menu menu = new Menu(3, Msg.mm(Msg.sc("<dark_gray>Manage ") + "<name>", Msg.arg("name", target.getName())));
         menu.set(4, head(target), null)
                 .set(10, icon(Material.WITHER_SKELETON_SKULL, "<dark_red><b>Possess", "<gray>Make them the Demon Possessed.",
                         "<gray>They get the Five-Leaf Grimoire at level 20."), e -> {
@@ -115,7 +122,7 @@ public final class AdminMenus {
                     openPlayer(admin, targetId);
                 })
                 .set(11, icon(Material.NETHER_STAR, "<white><b>Give Anti-Magic",
-                        anti.status() == GrimoireStatus.ADMIN_POOL ? "<green>Available" : "<red>" + esc(actions.describe(anti)),
+                        anti.status() == GrimoireStatus.ADMIN_POOL ? "<green>Available" : "<red>" + esc(actions.describe(anti)).replace(" by ", " by "),
                         "<gray>Their current grimoire returns home."), e -> {
                     actions.giveAntiMagic(admin, target);
                     openPlayer(admin, targetId);
@@ -148,9 +155,14 @@ public final class AdminMenus {
         for (int i = 0; i < types.length; i++) {
             GrimoireType type = types[i];
             GrimoireState s = plugin.registry().get(type);
-            menu.set(i, icon(s.status() == GrimoireStatus.HELD ? Material.ENCHANTED_BOOK : Material.BOOK,
-                            "<" + Msg.hex(type.rgb()) + "><b>" + type.displayName() + " Grimoire",
-                            "<gray>" + esc(actions.describe(s)), "", "<dark_gray>Click: teleport to it", "<dark_gray>Shift-click: return it home"),
+            ItemStack bookIcon = icon(s.status() == GrimoireStatus.HELD ? Material.ENCHANTED_BOOK : Material.BOOK,
+                    new net.kyori.adventure.text.minimessage.tag.resolver.TagResolver[]{Msg.arg("where", actions.describe(s))},
+                    "<" + Msg.hex(type.rgb()) + "><b>" + type.displayName() + " Grimoire",
+                    "<gray><where>", "", "<dark_gray>Click: teleport to it", "<dark_gray>Shift-click: return it home");
+            ItemMeta bookMeta = bookIcon.getItemMeta();
+            dev.blackclover.smp.pack.PackItems.tag(bookMeta, dev.blackclover.smp.pack.PackModels.grimoireKey(type));
+            bookIcon.setItemMeta(bookMeta);
+            menu.set(i, bookIcon,
                     e -> {
                         if (e.isShiftClick()) {
                             plugin.grimoires().returnHome(type, "returned by admin " + admin.getName());
@@ -207,12 +219,13 @@ public final class AdminMenus {
         String demon = plugin.demon().demon().map(id -> plugin.mage().data(id).name()).orElse("none");
         long grace = plugin.gameService().graceRemainingMillis() / 1000;
         new Menu(3, title("<dark_gray>Game"))
-                .set(4, icon(Material.PAPER, "<white><b>Status",
+                .set(4, icon(Material.PAPER, new net.kyori.adventure.text.minimessage.tag.resolver.TagResolver[]{Msg.arg("demon", demon)},
+                        "<white><b>Status",
                         "<gray>Started: <white>" + plugin.game().isStarted(),
                         "<gray>Border: <white>" + plugin.game().borderSize(),
                         "<gray>Libraries: <white>" + plugin.game().libraries().size() + "/13",
                         "<gray>Grace left: <white>" + (grace > 0 ? grace + "s" : "none"),
-                        "<gray>Demon Possessed: <white>" + esc(demon)), null)
+                        "<gray>Demon Possessed: <white><demon>"), null)
                 .set(11, icon(Material.CLOCK, "<green><b>End grace now"), e -> {
                     actions.endGrace(admin);
                     openGame(admin);

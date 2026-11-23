@@ -40,13 +40,13 @@ public final class MagicCommand implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length >= 1 && args[0].equalsIgnoreCase("top")) {
             List<Map.Entry<String, Integer>> rows = mage.top(10);
-            Msg.send(sender, "<gold><b>Strongest mages</b>");
+            Msg.send(sender, "<gold>ꜱᴛʀᴏɴɢᴇꜱᴛ ᴍᴀɢᴇꜱ");
             if (rows.isEmpty()) {
                 Msg.send(sender, "<gray>Nobody carries a grimoire yet.");
             }
             int rank = 1;
             for (Map.Entry<String, Integer> row : rows) {
-                Msg.send(sender, "<yellow>#<rank></yellow> <white><name></white> <gray>— Lv <lv>",
+                Msg.send(sender, "<yellow>#<rank></yellow>  <white><name></white>  <dark_gray>ʟᴠ</dark_gray> <gray><lv>",
                         Msg.arg("rank", rank++), Msg.arg("name", row.getKey()), Msg.arg("lv", row.getValue()));
             }
             return true;
@@ -64,9 +64,9 @@ public final class MagicCommand implements TabExecutor {
             GrimoireType type = carried.get();
             int xp = pd.xp(type);
             int level = curve.levelForXp(xp);
-            String progress = level >= curve.cap() ? "max level"
-                    : (xp - curve.totalXpForLevel(level)) + "/" + curve.xpToNext(level) + " XP to next level";
-            Msg.send(player, "<c><b><name> Grimoire</b></c> <gray>— Level <white><lv></white> <dark_gray>(<progress>)",
+            String progress = level >= curve.cap() ? "ᴍᴀx ʟᴇᴠᴇʟ"
+                    : (xp - curve.totalXpForLevel(level)) + "/" + curve.xpToNext(level) + " xᴘ";
+            Msg.send(player, "<c><b><name> Grimoire</b></c>  <dark_gray>ʟᴠ</dark_gray> <white><lv></white>  <dark_gray><progress>",
                     Msg.color("c", type.rgb()), Msg.arg("name", type.displayName()), Msg.arg("lv", level), Msg.arg("progress", progress));
             details.describe(player, type, level, player);
         }
@@ -81,7 +81,7 @@ public final class MagicCommand implements TabExecutor {
             others.append(e.getKey().displayName()).append(" Lv ").append(curve.levelForXp(e.getValue()));
         }
         if (!others.isEmpty()) {
-            Msg.send(player, "<gray>Stored levels: <white><list>", Msg.arg("list", others));
+            Msg.send(player, "<dark_gray>ꜱᴛᴏʀᴇᴅ ʟᴇᴠᴇʟꜱ</dark_gray>  <gray><list>", Msg.arg("list", others));
         }
         return true;
     }

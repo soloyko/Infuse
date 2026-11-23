@@ -82,10 +82,10 @@ public final class MageService {
         if (afterLevel > beforeLevel) {
             int slot = SpellUnlocks.unlockedCount(afterLevel) - 1;
             boolean newSpell = SpellUnlocks.unlockedCount(afterLevel) > SpellUnlocks.unlockedCount(beforeLevel);
-            Msg.title(player, "<c><b>Level <level></b></c>",
-                    newSpell ? "<gray>New spell unlocked: <white><spell>" : "<gray><type> Grimoire",
+            Msg.title(player, "<c><b>ʟᴇᴠᴇʟ <level></b></c>",
+                    newSpell ? "<gray>ɴᴇᴡ ꜱᴘᴇʟʟ</gray>  <white><spell>" : "<gray><type>",
                     Msg.color("c", type.rgb()), Msg.arg("level", afterLevel),
-                    Msg.arg("spell", spellName.apply(type, slot)), Msg.arg("type", type.displayName()));
+                    Msg.arg("spell", Msg.sc(spellName.apply(type, slot))), Msg.arg("type", Msg.sc(type.displayName() + " Grimoire")));
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.2f);
         } else if (afterLevel < beforeLevel) {
             if (SpellUnlocks.unlockedCount(afterLevel) < SpellUnlocks.unlockedCount(beforeLevel)) {

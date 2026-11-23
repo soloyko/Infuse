@@ -82,7 +82,7 @@ public final class DemonService implements Listener {
         plugin.demonRef().set(target.getUniqueId());
         apply(target);
         target.setHealth(target.getAttribute(Attribute.MAX_HEALTH).getValue());
-        Msg.titleAll("<dark_red><b>A DEMON HAS AWAKENED</b>", "<white><name></white> <gray>has been possessed. The Five-Leaf Grimoire is born.",
+        Msg.titleAll("<dark_red><b>ᴀ ᴅᴇᴍᴏɴ ʜᴀꜱ ᴀᴡᴀᴋᴇɴᴇᴅ</b>", "<white><name></white> <gray>ʜᴀꜱ ʙᴇᴇɴ ᴘᴏꜱꜱᴇꜱꜱᴇᴅ",
                 Msg.arg("name", target.getName()));
         Msg.broadcast("<dark_red><b><name></b></dark_red> <red>has been taken over by a demon! Slay them to claim the Five-Leaf Grimoire.",
                 Msg.arg("name", target.getName()));
@@ -117,7 +117,7 @@ public final class DemonService implements Listener {
         end(false);
         GrimoireState five = plugin.registry().get(GrimoireType.FIVE_LEAF);
         if (five.status() == GrimoireStatus.GROUND && five.ground() != null) {
-            Msg.titleAll("<dark_red><b>The demon has fallen</b>", "<gray>The Five-Leaf Grimoire lies at <white><x> <y> <z>",
+            Msg.titleAll("<dark_red><b>ᴛʜᴇ ᴅᴇᴍᴏɴ ʜᴀꜱ ꜰᴀʟʟᴇɴ</b>", "<gray>ᴛʜᴇ ꜰɪᴠᴇ-ʟᴇᴀꜰ ɢʀɪᴍᴏɪʀᴇ ʟɪᴇꜱ ᴀᴛ <white><x> <y> <z>",
                     Msg.arg("x", (int) five.ground().x()), Msg.arg("y", (int) five.ground().y()), Msg.arg("z", (int) five.ground().z()));
             Msg.broadcast("<red><name> has fallen! The Five-Leaf Grimoire dropped at <white><x> <y> <z></white>.",
                     Msg.arg("name", victim.getName()), Msg.arg("x", (int) five.ground().x()),
