@@ -25,6 +25,9 @@ Players need nothing extra: no mods and no resource pack.
    This sets a 6000-block world border, gives everyone 30 minutes without PvP, and builds the 13
    libraries.
 
+> **Run `/start` on a fresh world.** Each library clears an 11×11 area where it lands, so on an
+> existing world it could cut into someone's build.
+
 ---
 
 ## How it plays
