@@ -32,4 +32,21 @@ class AllSpellsTest {
             assertTrue(spells.get(3).cost() >= 80, type + " final spell should be expensive");
         }
     }
+
+    @Test
+    void allFifteenGrimoiresRegistered() {
+        SpellRegistry r = new SpellRegistry();
+        AllSpells.register(r);
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        for (GrimoireType type : GrimoireType.values()) {
+            List<Spell> spells = r.spells(type);
+            assertEquals(4, spells.size(), type + " spell count");
+            int[] levels = {1, 5, 10, 20};
+            for (int i = 0; i < 4; i++) {
+                assertEquals(levels[i], spells.get(i).unlockLevel());
+                assertTrue(ids.add(spells.get(i).id()), "duplicate id " + spells.get(i).id());
+            }
+        }
+        assertEquals(60, ids.size());
+    }
 }

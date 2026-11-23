@@ -16,5 +16,13 @@ public final class AllSpells {
         EarthSpells.register(r);
         PlantSpells.register(r);
         LightSpells.register(r);
+        DarkSpells.register(r);
+        SpatialSpells.register(r);
+        GravitySpells.register(r);
+        BloodSpells.register(r);
+        PoisonSpells.register(r);
+        TimeSpells.register(r);
+        AntiMagicSpells.register(r);
+        FiveLeafSpells.register(r);
     }
 }
