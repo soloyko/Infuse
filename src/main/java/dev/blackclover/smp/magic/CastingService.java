@@ -175,6 +175,11 @@ public final class CastingService implements Listener {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.6f, 0.6f);
     }
 
+    /** Short action-bar message from a spell (e.g. "No target"). */
+    public void tell(Player p, String miniMessage) {
+        fail(p, miniMessage);
+    }
+
     private void notice(Player p, String text, net.kyori.adventure.text.minimessage.tag.resolver.TagResolver... args) {
         Msg.actionBar(p, text, args);
         hudPausedUntil.put(p.getUniqueId(), System.currentTimeMillis() + 1500);

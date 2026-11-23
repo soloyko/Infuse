@@ -244,6 +244,14 @@ public final class StatusService implements Listener {
         }
     }
 
+    /** Gust Jump and similar: buff key {@code no_fall} cancels fall damage. */
+    @EventHandler(ignoreCancelled = true)
+    public void onFall(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL && hasBuff(event.getEntity().getUniqueId(), "no_fall")) {
+            event.setCancelled(true);
+        }
+    }
+
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         clear(event.getPlayer().getUniqueId());
