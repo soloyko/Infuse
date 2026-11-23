@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-/** Builds a {@link LibraryBlueprint} hall in the world. The hall is one chunk wide and spans three chunks long. */
+/** Builds a {@link TowerBlueprint} wizard tower in the world. A tower fits inside a single chunk. */
 public final class LibraryBuilder {
 
     private static final int MAX_FOUNDATION = 12;
@@ -32,8 +32,8 @@ public final class LibraryBuilder {
         int x = Math.floorDiv(point.x(), 16) * 16 + 8;
         int z = Math.floorDiv(point.z(), 16) * 16 + 8;
         List<CompletableFuture<Chunk>> loads = new ArrayList<>();
-        for (int cx = Math.floorDiv(x - LibraryBlueprint.HALF_WIDTH, 16); cx <= Math.floorDiv(x + LibraryBlueprint.HALF_WIDTH, 16); cx++) {
-            for (int cz = Math.floorDiv(z - LibraryBlueprint.HALF_LENGTH, 16); cz <= Math.floorDiv(z + LibraryBlueprint.HALF_LENGTH, 16); cz++) {
+        for (int cx = Math.floorDiv(x - TowerBlueprint.HALF_WIDTH, 16); cx <= Math.floorDiv(x + TowerBlueprint.HALF_WIDTH, 16); cx++) {
+            for (int cz = Math.floorDiv(z - TowerBlueprint.HALF_WIDTH, 16); cz <= Math.floorDiv(z + TowerBlueprint.HALF_WIDTH, 16); cz++) {
                 loads.add(world.getChunkAtAsync(cx, cz, true));
             }
         }
@@ -50,11 +50,11 @@ public final class LibraryBuilder {
         if (!force && !suitable(world, x, z, floorY)) {
             return Optional.empty();
         }
-        int top = LibraryBlueprint.ROOF_TOP + 2;
+        int top = TowerBlueprint.ROOF_TOP + 2;
         floorY = Math.max(floorY, world.getMinHeight() + 1);
         floorY = Math.min(floorY, world.getMaxHeight() - top - 1);
-        int hw = LibraryBlueprint.HALF_WIDTH;
-        int hl = LibraryBlueprint.HALF_LENGTH;
+        int hw = TowerBlueprint.HALF_WIDTH;
+        int hl = TowerBlueprint.HALF_WIDTH;
 
         // clear the site
         for (int dx = -hw; dx <= hw; dx++) {
@@ -65,7 +65,7 @@ public final class LibraryBuilder {
             }
         }
         // foundations under every floor block, down to solid ground
-        for (LibraryBlueprint.Block b : LibraryBlueprint.blocks()) {
+        for (TowerBlueprint.Block b : TowerBlueprint.blocks()) {
             if (b.dy() != 0) {
                 continue;
             }
@@ -77,23 +77,23 @@ public final class LibraryBuilder {
                 below.setType(dy == 1 ? Material.STONE_BRICKS : Material.COBBLESTONE, false);
             }
         }
-        // the hall itself
-        for (LibraryBlueprint.Block b : LibraryBlueprint.blocks()) {
+        // the tower itself
+        for (TowerBlueprint.Block b : TowerBlueprint.blocks()) {
             world.getBlockAt(x + b.dx(), floorY + b.dy(), z + b.dz()).setBlockData(data(b.state()), false);
         }
 
-        int[] a = LibraryBlueprint.altar();
+        int[] a = TowerBlueprint.altar();
         return Optional.of(new Library(type, world.getName(), x + a[0], floorY + a[1], z + a[2],
                 x - hw, floorY - MAX_FOUNDATION, z - hl, x + hw, floorY + top, z + hl));
     }
 
     /** Flat-ish dry land across the whole footprint. */
     private static boolean suitable(World world, int x, int z, int floorY) {
-        if (floorY < world.getMinHeight() + 2 || floorY > world.getMaxHeight() - LibraryBlueprint.ROOF_TOP - 4) {
+        if (floorY < world.getMinHeight() + 2 || floorY > world.getMaxHeight() - TowerBlueprint.ROOF_TOP - 4) {
             return false;
         }
-        for (int dx = -LibraryBlueprint.HALF_WIDTH; dx <= LibraryBlueprint.HALF_WIDTH; dx += 7) {
-            for (int dz = -LibraryBlueprint.HALF_LENGTH; dz <= LibraryBlueprint.HALF_LENGTH; dz += 5) {
+        for (int dx = -TowerBlueprint.HALF_WIDTH; dx <= TowerBlueprint.HALF_WIDTH; dx += 7) {
+            for (int dz = -TowerBlueprint.HALF_WIDTH; dz <= TowerBlueprint.HALF_WIDTH; dz += 5) {
                 int y = world.getHighestBlockYAt(x + dx, z + dz, HeightMap.MOTION_BLOCKING_NO_LEAVES);
                 Block topBlock = world.getBlockAt(x + dx, y, z + dz);
                 if (topBlock.isLiquid() || topBlock.getType() == Material.ICE || topBlock.getType() == Material.PACKED_ICE
