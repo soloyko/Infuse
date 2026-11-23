@@ -1,340 +1,344 @@
 # Black Clover SMP Plugin — Design
 
 Date: 2026-11-23
-Status: awaiting approval
+Status: awaiting approval (revision 2)
 
 ## Intent
 
-A Paper plugin for a PvP-focused SMP, themed on the anime *Black Clover*. Each player
-gets one grimoire that picks their magic for them, as in the anime. The only way to get
-stronger is to kill other players, and dying sets you back. The rarest powers
-(Anti-Magic and the Five-Leaf Grimoire) can't be rolled. They are won only in server
-events, so getting one is a big shared moment.
+A Paper plugin for a PvP-focused SMP, themed on the anime *Black Clover*. When an
+admin starts the game, a fixed set of **unique grimoires** is placed in libraries
+scattered across the world. Each grimoire can be crafted once. After that it changes
+hands only when its wielder dies and drops it. Players level up by killing other
+players, and each player's level is tied to the specific grimoire they earned it on.
+The rarest power, the Five-Leaf Grimoire, is held by the **Demon Possessed**: a real
+person the admins choose, whom the whole server hunts.
 
-Success: players fight each other because levelling depends on it, rare magic feels
-special, and no single player can farm their way to dominance.
+Success: a race for the libraries at the start, then a server where every grimoire has
+a story, fights matter, and no single player can stay on top for long.
 
 ## Goals
 
-- Every player gets one grimoire on first join. It has a randomly rolled magic type
-  that is theirs permanently.
-- Spells are cast from the grimoire item, use mana and have cooldowns.
-- Magic XP comes **only from killing players**. It has farming protection and pays a
+- `/start <border size> <grace period>` sets the world border, starts a PvP-free grace
+  period and builds one library per craftable grimoire.
+- **Every grimoire is unique.** One exists of each kind, and each craftable one has
+  exactly one library where it can be crafted once.
+- Grimoires **drop on death** and can be picked up by anyone.
+- Levels are **per player per grimoire**. A new wielder starts at level 1; a previous
+  wielder who gets it back resumes their old level.
+- Magic XP comes **only from killing players**. There's repeat-kill protection and a
   bonus for killing higher-level players.
-- Death penalty: lose 15% of total magic XP on **any** death, which can drop your
-  level. Quitting during combat counts as a death.
-- 13 magic types can be rolled (Light and Time are rare). Anti-Magic is event-only.
-- The Five-Leaf Grimoire is an event-only upgrade that works on top of any magic type.
-- Admin commands to give prizes, plus one built-in Devil Boss event that admins start
-  with a command. Whoever lands the final hit wins the prize.
+- Death penalty: lose 15% of your XP on your current grimoire on any death.
+  Quitting during combat counts as a death.
+- Spells are cast from the grimoire, use mana and have cooldowns.
+- Admin **GUI** to pick the Demon Possessed, give Anti-Magic, manage players and track
+  every grimoire.
 
 ## Non-goals
 
-- Magic Knight squads, Wizard King, teams or factions (not requested; could come later).
-- XP from mobs. Player kills are the only XP source.
-- A resource pack or custom textures. Everything uses vanilla items and particles, so
-  players need nothing extra to join.
-- MySQL or other databases. A YAML file is enough for an SMP.
-- Bedrock/Geyser-specific support.
+- Grimoires given automatically on join.
+- Random magic rolls and a reroll item (dropped in revision 2: the library you reach
+  decides your magic).
+- XP from mobs.
+- Squads, Wizard King, teams or factions.
+- A computer-controlled boss. The Demon Possessed is played by a real person.
+- A resource pack or custom textures. Everything uses vanilla items and particles.
+- MySQL or other databases, and Bedrock/Geyser support.
 
 ## Anti-goals (would be a failure even if it works)
 
-- **Feeling like Infuse SMP.** Grimoires are never stolen, traded or dropped, and
-  death never takes your magic type away.
-- **One player snowballing.** Countered by repeat-kill protection, low XP for killing
-  weaker players, and the death penalty.
+- **One player snowballing.** Countered by levels resetting for a new wielder, only one
+  grimoire per player, repeat-kill protection, low XP for killing weaker players, and
+  the death penalty.
+- **Grimoires disappearing from the game.** A grimoire must never be lost for good:
+  not in lava, not in the void, not to despawning, not to an inactive player.
+- **Hoarding.** One player sitting on several grimoires would take them out of play.
 - **Spam-cast fights.** Every spell has a mana cost and a cooldown.
 - **Griefing via magic.** Spells never break or permanently place blocks.
 
 ## Constraints
 
-- Paper plugin, Java 21, built with Maven. Compiled against `paper-api 1.21.4`,
-  `api-version: 1.21`. It must load on Paper 1.21.4 and every newer 1.21.x. It should
-  also load on 26.x servers, but that can't be verified here because 26.x needs a newer
-  Java than the build machine has.
+- Paper plugin, Java 21, Maven. The server runs **Paper 1.21.11**, so the plugin is
+  compiled against `paper-api 1.21.11`, `api-version: 1.21`.
 - Vanilla clients only.
-- Spell damage must go through Bukkit's normal damage events, so protection plugins
-  (WorldGuard, spawn protection, no-PvP regions) can block it.
+- Spell damage goes through Bukkit's normal damage events, so protection plugins can
+  block it.
 
 ## Approaches considered
 
 **How it's built.** Only one approach makes sense: a Paper plugin in Java.
-Skript needs an extra plugin and gets slow and fragile with ~60 spells and saved data.
-A datapack can't cleanly detect right-clicks or show a mana HUD. A Fabric or Forge mod
-would make every player install a mod.
+Skript gets slow and fragile at this size. A datapack can't do right-click casting, a
+mana HUD or GUIs cleanly. A Fabric or Forge mod would make every player install a mod.
 
-**How players get magic** (chosen by the user):
-1. *The grimoire picks you* (random roll, permanent, level up for more spells). **Picked.**
-2. Stealable grimoires (Infuse-like). Rejected: snowballing and drama. The user
-   explicitly does not want an Infuse-like plugin.
-3. Choose your own. Rejected: no surprise, and everyone converges on the best type.
-
-**Death penalty** (chosen by the user):
-1. Lose 25% of current-level progress and never drop a level. Too soft for PvP stakes.
-2. *Lose 15% of total XP; you can drop levels.* **Picked.**
-3. The killer takes your lost XP. Rejected: feeds the top player.
-
-**Events** (chosen by the user):
-1. Admin give-commands only.
-2. A built-in automatic boss only.
-3. *Both: give-commands plus one Devil Boss event that admins start.* **Picked.**
+**Decisions the user made in conversation:**
+- *How players get magic:* first a random roll on join (rev 1), then replaced by
+  **unique grimoires crafted once at libraries**, which drop on death (rev 2).
+- *Death penalty:* chosen over "keep level" and "killer takes XP": **lose 15% of
+  XP, can drop levels.**
+- *Levels when a grimoire changes hands:* chosen over "level stays with the player"
+  and "level lives in the grimoire": **per player per grimoire.**
+- *Five-Leaf source:* first a Devil Boss event (rev 1), then replaced by **the Demon
+  Possessed, a real person the admins choose through a GUI** (rev 2).
+- *Anti-Magic source:* **admins only** (given through the GUI at events they run).
 
 ## The design
 
-### Grimoire item
+### Game start: `/start <border size> <grace period>`
 
-- A `BOOK` with enchant glint, a coloured name (`Fire Grimoire`) and lore showing the
-  magic type, level, XP progress and selected spell. It is tagged in its
-  PersistentDataContainer with the owner's UUID.
-- It **cannot be dropped, stored in containers, or lost on death**: it is removed from
-  death drops and given back on respawn. If a non-owner somehow holds one, it does
-  nothing.
-- `/grimoire` re-summons the grimoire if it's missing from the player's inventory
-  (my call). If the inventory is full, the player is told to free a slot; the
-  grimoire is never dropped on the ground.
-- The Five-Leaf version has a dark name with a `✤ Five-Leaf` prefix.
+- Admin only. Example: `/start 6000 30m` (grace accepts `s`, `m` and `h`). It works on
+  the overworld, centred on 0,0.
+- Sets the world border diameter to `<border size>`.
+- **Grace period:** PvP is off, deaths cost no XP and grimoires don't drop. A boss bar
+  counts down, and at the end everyone gets a title: "PvP is now enabled".
+- Builds the **13 libraries** (one per craftable grimoire) at random surface spots
+  **at least 1,000 blocks from 0,0** and at least 50 blocks inside the border. Each
+  library is at least 400 blocks from every other one, and that spacing is relaxed
+  automatically if the border is too small to fit them. If the border radius isn't big
+  enough to fit any spot 1,000+ blocks out, the command refuses and says why.
+- Library locations are **not announced**. Players have to explore to find them (my
+  call).
+- `/start` runs once per world. To start over, an admin uses **Reset game** in the
+  admin GUI (see below).
 
-### First join: the grimoire ceremony
+### Libraries and altars
 
-When a player first joins, a title reads "A grimoire has chosen you…" and then reveals
-the magic type with particles and a sound. The grimoire goes into their inventory.
-Players who were already on the server go through it the next time they join.
+- **Library:** a small stone and wood building (about 9×9) lined with bookshelves,
+  built on cleared, levelled ground. The whole library is protected: no breaking,
+  placing or explosions inside it (my call: stops players from walling it off or
+  griefing it).
+- **Altar:** a lectern in the centre with floating text above it naming the grimoire
+  and its recipe, e.g. "Fire Grimoire — 1 Book, 16 Lapis Lazuli, 1 Diamond". The text
+  is only visible up close, so you find out which grimoire it is by reaching it.
+- **Crafting:** right-click the altar while carrying the ingredients and no other
+  grimoire. The ingredients are used up, the "A grimoire has chosen you…" title,
+  particles and sound play, and the grimoire goes into your inventory. The recipe is
+  in config (default: 1 book, 16 lapis, 1 diamond).
+- After crafting, the altar goes **dormant** (text: "This grimoire has already chosen
+  its master"). If that grimoire ever returns to its library (see below), the altar
+  wakes up and can be crafted again.
 
-### Magic types and rolling
+### The 15 grimoires
 
-Roll weights live in `config.yml`. Defaults:
+| Grimoire | How it's obtained |
+|----------|-------------------|
+| Fire, Water, Wind, Lightning, Earth, Plant, Dark, Light | library (one each) |
+| Spatial, Gravity, Blood, Poison, Time | library (one each; the 5 new types, my call) |
+| **Anti-Magic** | admins give it (GUI) at events |
+| **Five-Leaf** | held by the Demon Possessed; dropped when they die |
 
-| Type | Roll chance | Theme |
-|------|-------------|-------|
-| Fire, Water, Wind, Lightning, Earth, Plant, Dark | ~8.2% each | classic attributes |
-| Spatial, Gravity, Blood, Poison | ~8.2% each | the 5 new types (my call) |
-| **Light** | **5%** | rare, as requested |
-| **Time** | **5%** | rare (my call: Wizard King's magic) |
-| **Anti-Magic** | **never rolled** | events only |
+Since there's only one of each, Light and Time are automatically as rare as anything
+can be.
+
+### Grimoire item rules
+
+- A `BOOK` with enchant glint, a coloured name and lore showing the grimoire, the
+  holder's level on it, XP progress and the selected spell. A PersistentDataContainer
+  tag marks which grimoire it is.
+- **Anyone carrying it can use it.** There's no binding to one player.
+- **One grimoire per player.** You can't pick up a second while carrying one. You can
+  throw yours (Q) to drop it, for example to hand it to a friend.
+- **No hoarding:** grimoires can't go into chests, ender chests, shulker boxes,
+  bundles, hoppers, item frames or any other container.
+- **Drops on any death** (except during grace) at the death spot.
+- **Dropped grimoires can't be destroyed.** The item entity is invulnerable (lava,
+  fire, cactus, explosions), never despawns and glows so it's easy to spot.
+- **Return to library:** a grimoire goes back to its library, and its altar wakes up,
+  if its item falls into the void or is somehow removed, if its holder stays offline
+  for **7 days** (my call, in config), or if an admin returns it. Anti-Magic and
+  Five-Leaf have no library, so they return to the admin pool and can be handed out
+  again.
+- The plugin always knows where every grimoire is (held by whom, on the ground where,
+  or in its library). The admin GUI shows this.
+
+### Levels and XP (all values in config)
+
+- **Levels are per player per grimoire**, stored as `player → grimoire → XP`. Picking
+  up a grimoire you've never wielded starts you at level 1. Picking up one you wielded
+  before resumes your stored XP for it, minus any death penalties you took.
+- Level cap **20**. Going from level L to L+1 costs `100 + 25 × (L − 1)` XP (6,175 total
+  to reach 20). XP stops at the cap.
+- Spells unlock at levels **1, 5, 10 and 20**. Spell damage scales +1% per level, up
+  to +19%.
+- **Kill XP:** the killer must be carrying a grimoire, and so must the victim. Base
+  100, +10% for each level the victim is above you (up to +100%), −10% for each level
+  below you (down to 20%). "Level" here means each player's level on the grimoire
+  they're carrying.
+- **Repeat-kill protection:** no XP for killing the same player again within 10
+  minutes.
+- **Kill credit** goes to the last player who damaged the victim within 15 seconds
+  (spells, arrows, knocking someone into lava).
+- **Death penalty:** on any death, lose 15% of your XP on the grimoire you were
+  carrying, which can drop your level. It hits at most once every 5 minutes (my call:
+  stops spawn-camp draining). No penalty during grace. Rough cost: about 2 levels at
+  level 20 and about 1 at level 10.
+- **Combat logging:** quitting within 15 seconds of PvP damage kills you on quit. You
+  drop your grimoire and items, take the penalty, and the last attacker gets the kill.
+  This is a config toggle, on by default.
+- Feedback: a title and sound on level-up, a chat line on level-down naming the spell
+  that got locked, and chat lines for XP gained or lost.
 
 ### Casting
 
 - **Right-click** with the grimoire in your main hand casts the selected spell. This
-  works on air, blocks and entities, and the normal interaction is cancelled (my call).
-- **Shift + right-click** cycles through your unlocked spells (Devil Union included
-  for Five-Leaf owners). If a level-down locks your selected spell, the selection moves
-  to your highest unlocked spell.
-- While you hold the grimoire, the **action bar** shows magic type, level, selected
-  spell, mana and that spell's remaining cooldown.
-- Not enough mana, spell on cooldown, silenced or frozen: the cast fails with a short
-  message and a sound.
+  works on air, blocks and entities, and the normal interaction is cancelled.
+- **Shift + right-click** cycles through your unlocked spells. If a level-down locks
+  your selected spell, the selection moves to your highest unlocked one.
+- While you hold it, the **action bar** shows grimoire, level, selected spell, mana and
+  cooldown.
+- The cast fails (message and sound) when mana is short, the spell is on cooldown, or
+  you're silenced or frozen.
 
-### Mana (all values in config)
+### Mana (config)
 
-- Max mana = `100 + 4 × (level − 1)`, so 100 at level 1 and 176 at level 20.
-- Regenerates 4 mana per second all the time, even when the grimoire isn't held.
-- Anti-Magic uses **no mana**, only cooldowns.
-
-### Levels and XP (all values in config)
-
-- Level cap **20**. Going from level L to L+1 costs `100 + 25 × (L − 1)` XP, so
-  reaching level 20 takes 6,175 total XP. XP stops accumulating at the cap.
-- Spells unlock at levels **1, 5, 10 and 20** (the level-20 spell is the final spell).
-- Spell damage scales +1% per level, up to +19% at level 20.
-- **Kill XP:** base 100. +10% for each level the victim is above you (up to +100%),
-  −10% for each level below you (down to 20% of base).
-- **Repeat-kill protection:** killing the same player again within 10 minutes gives
-  no XP.
-- **Kill credit** goes to the last player who damaged the victim within 15 seconds.
-  This covers spells, arrows and knocking someone into lava.
-- **Death penalty:** lose 15% of total XP on any death, which can drop levels. A
-  newly locked spell becomes unusable until you level back up. The penalty can hit
-  **at most once every 5 minutes**, so spawn-camping can't drain someone (my call).
-- **Exception:** deaths to the Devil or its imps during an event cost no XP, so
-  players aren't scared off from joining events (my call). PvP deaths during an event
-  count as normal.
-- With the default curve, one death at level 20 costs about 2 levels, and around level
-  10 about 1 level (my call: the user should check this feels right).
-- **Combat logging:** quitting within 15 seconds of PvP damage kills the player
-  (items drop as in a normal death), applies the penalty and credits the last attacker.
-  This is a config toggle, on by default.
-- Feedback: a title and sound on level-up, a chat message on level-down naming the
-  spell that got locked, and chat lines for XP gained or lost.
+- Max mana = `100 + 4 × (level − 1)`. Regen 4 per second, always.
+- Five-Leaf: +50% max mana and regen. Anti-Magic: uses no mana, cooldowns only.
 
 ### Spells
 
 Spells hit any living entity except the caster, armour stands, and creative/spectator
-players. That includes mobs and the Devil Boss. Cost, cooldown and damage for every
-spell are in `config.yml`. The numbers below are starting values (damage in health
-points; 20 = full health).
+players. Cost, cooldown and damage for every spell are in `config.yml`. The values
+below are starting points (damage in health points; 20 = full health).
 
-**Fire**
-1. *Fireball* (Lv1): flaming projectile, 5 dmg, sets the target on fire for 3s.
-2. *Flame Wall* (Lv5): wall of fire for 5s, 3 dmg/s and burning to anyone in it.
-3. *Blazing Dash* (Lv10): dash forward, burning and damaging (5) anyone you pass.
-4. *Inferno* (Lv20): flame burst around you (radius 6), 12 dmg, 6s burn, knockback.
+**Fire**: *Fireball* (5 dmg, 3s burn) · *Flame Wall* (5s wall, 3 dmg/s and burn) ·
+*Blazing Dash* (dash, 5 dmg and burn to anyone passed) · *Inferno* (radius 6 burst,
+12 dmg, 6s burn, knockback)
 
-**Water**
-1. *Water Bullet*: fast projectile, 4 dmg plus knockback.
-2. *Bubble Shield*: 4 absorption hearts and Resistance I for 5s.
-3. *Tidal Wave*: cone wave, 6 dmg, strong push and Slowness.
-4. *Sea Dragon*: dragon-shaped torrent along a line, 14 dmg; heals you 6.
+**Water**: *Water Bullet* (4 dmg, knockback) · *Bubble Shield* (4 absorption hearts,
+Resistance I 5s) · *Tidal Wave* (cone, 6 dmg, big push, Slowness) · *Sea Dragon*
+(line torrent, 14 dmg, heals you 6)
 
-**Wind**
-1. *Wind Blade*: fast slicing projectile, 5 dmg.
-2. *Gust Jump*: launches you up and forward; no fall damage for 5s.
-3. *Tornado*: whirlwind at the target spot for 4s, lifting enemies, 2 dmg every 0.5s.
-4. *Storm of Blades*: blades rain in radius 8 around the target for 3s, ~16 dmg total.
+**Wind**: *Wind Blade* (fast, 5 dmg) · *Gust Jump* (launch, no fall damage 5s) ·
+*Tornado* (4s at target, lifts, 2 dmg/0.5s) · *Storm of Blades* (radius 8 for 3s,
+~16 dmg total)
 
-**Lightning**
-1. *Spark Bolt*: instant bolt (range 25), 4 dmg.
-2. *Thunder Step*: blink 8 blocks forward.
-3. *Chain Lightning*: hits a target, then jumps to up to 3 nearby enemies, 6 dmg each.
-4. *Thunder God*: 10s of Speed III; melee hits call cosmetic lightning for +4 dmg.
+**Lightning**: *Spark Bolt* (instant, range 25, 4 dmg) · *Thunder Step* (8-block blink) ·
+*Chain Lightning* (target + 3 jumps, 6 dmg each) · *Thunder God* (10s Speed III,
+melee +4 dmg with cosmetic lightning)
 
-**Earth**
-1. *Rock Throw*: slower projectile, 6 dmg.
-2. *Stone Wall*: temporary 5×3 stone wall for 8s (air blocks only, always restored).
-3. *Earthquake*: ground slam (radius 6), 7 dmg, launch and Slowness.
-4. *Earth Titan*: 15s of Resistance II, Strength II and knockback immunity.
+**Earth**: *Rock Throw* (6 dmg) · *Stone Wall* (temporary 5×3 wall 8s, air only,
+always restored) · *Earthquake* (radius 6, 7 dmg, launch, Slowness) · *Earth Titan*
+(15s Resistance II, Strength II, knockback immunity)
 
-**Plant**
-1. *Thorn Shot*: vine projectile, 4 dmg plus 2s Slowness.
-2. *Healing Bloom*: heals you 6 plus Regeneration.
-3. *Binding Vines*: roots the target in place for 3s, 3 dmg.
-4. *Thorn Forest*: everyone within radius 7 is rooted 3s and takes 12 dmg over 4s;
-   you gain Regeneration.
+**Plant**: *Thorn Shot* (4 dmg, Slowness 2s) · *Healing Bloom* (heal 6, Regeneration) ·
+*Binding Vines* (root target 3s, 3 dmg) · *Thorn Forest* (radius 7: root 3s, 12 dmg
+over 4s, you regenerate)
 
-**Light** (rare)
-1. *Light Arrow*: instant beam (range 35), 6 dmg.
-2. *Light Speed*: teleport up to 15 blocks where you look.
-3. *Light Swords*: 5 swords fire at the nearest enemies, 4 dmg each.
-4. *Judgment Ray*: after a 1s charge, a huge beam (40 blocks), 18 dmg.
+**Light**: *Light Arrow* (instant, range 35, 6 dmg) · *Light Speed* (15-block teleport) ·
+*Light Swords* (5 swords at nearest enemies, 4 dmg each) · *Judgment Ray* (1s charge,
+40-block beam, 18 dmg)
 
-**Dark**
-1. *Dark Orb*: slow orb, 6 dmg plus 1s Blindness.
-2. *Shadow Cloak*: Invisibility and Speed for 5s.
-3. *Black Hole*: vortex at the target that pulls enemies in for 3s, 2 dmg every 0.5s.
-4. *Dimension Slash*: massive slash in front of you (range 20), 16 dmg.
+**Dark**: *Dark Orb* (6 dmg, Blindness 1s) · *Shadow Cloak* (Invisibility and Speed 5s) ·
+*Black Hole* (3s vortex pulls enemies in, 2 dmg/0.5s) · *Dimension Slash* (range 20,
+16 dmg)
 
-**Spatial** (new)
-1. *Space Cut*: slash along an 8-block line, 5 dmg.
-2. *Recall Gate*: first cast marks your spot; casting again within 60s returns you there.
-3. *Swap*: swap places with the entity you're looking at (range 25).
-4. *Banish*: teleports the target ~40 blocks away to a safe surface spot, plus
-   Slowness and Weakness for 5s.
+**Spatial**: *Space Cut* (8-block line, 5 dmg) · *Recall Gate* (mark, recast within
+60s to return) · *Swap* (swap places with target, range 25) · *Banish* (target sent
+~40 blocks away to a safe spot, Slowness and Weakness 5s)
 
-**Gravity** (new)
-1. *Gravity Bullet*: orb, 4 dmg, pulls the target toward you.
-2. *Float*: Slow Falling and Jump Boost for 6s.
-3. *Crush*: slams everyone within radius 4 of the target down, 7 dmg, Slowness III.
-4. *Singularity*: lifts everyone within radius 10, then slams them down, 15 dmg total.
+**Gravity**: *Gravity Bullet* (4 dmg, pulls target to you) · *Float* (Slow Falling and
+Jump Boost 6s) · *Crush* (radius 4 slam, 7 dmg, Slowness III) · *Singularity* (radius
+10 lift then slam, 15 dmg)
 
-**Blood** (new)
-1. *Blood Needle*: projectile, 5 dmg, heals you 1.
-2. *Blood Pact*: costs 4 health instead of mana; restores 40 mana.
-3. *Crimson Lash*: whip in a cone (range 6), 7 dmg, Wither 3s, heals you 3.
-4. *Blood Moon*: drains everyone within 8 blocks for 3 dmg/s over 4s; you heal half
-   the damage dealt.
+**Blood**: *Blood Needle* (5 dmg, heal 1) · *Blood Pact* (costs 4 health, restores 40
+mana) · *Crimson Lash* (cone range 6, 7 dmg, Wither 3s, heal 3) · *Blood Moon*
+(radius 8, 3 dmg/s for 4s, heal half the damage dealt)
 
-**Poison** (new)
-1. *Toxic Spit*: projectile, 3 dmg plus Poison II for 4s.
-2. *Venom Blade*: for 10s your next 3 melee hits apply Poison II and Weakness.
-3. *Toxic Cloud*: cloud at the target for 6s, Poison II and Nausea inside.
-4. *Plague*: everyone within 10 blocks gets 6 dmg, Wither II 6s, Poison and Slowness.
+**Poison**: *Toxic Spit* (3 dmg, Poison II 4s) · *Venom Blade* (next 3 melee hits in
+10s: Poison II and Weakness) · *Toxic Cloud* (6s cloud: Poison II, Nausea) ·
+*Plague* (radius 10: 6 dmg, Wither II 6s, Poison, Slowness)
 
-**Time** (new, rare)
-1. *Time Bolt*: projectile, 4 dmg plus Slowness II for 3s.
-2. *Accelerate*: Speed II and Haste II for 8s.
-3. *Rewind*: returns you to where you were 5 seconds ago, with the health you had then.
-4. *Time Stop*: freezes every enemy within 12 blocks for 3s. They can't move, jump or
-   cast.
+**Time**: *Time Bolt* (4 dmg, Slowness II 3s) · *Accelerate* (Speed II and Haste II
+8s) · *Rewind* (back to your position and health from 5s ago) · *Time Stop* (radius
+12: enemies frozen 3s, can't move or cast)
 
-**Anti-Magic** (events only, no mana)
-- *Passive:* takes 30% less damage from spells.
-1. *Anti-Magic Slash*: sweeping slash (4-block cone), 7 dmg; strips the target's
-   active spell buffs (shields, cloak, Thunder God and so on).
-2. *Deflect*: immune to spell damage and spell effects for 3s.
-3. *Demon Leap*: dash to the target (up to 12 blocks), 8 dmg, silences them for 3s.
-4. *Black Form*: 12s of Strength II, Speed II and full spell immunity; melee hits
-   silence for 2s.
+**Anti-Magic** (no mana; passive: 30% less spell damage taken): *Anti-Magic Slash*
+(4-block cone, 7 dmg, strips spell buffs) · *Deflect* (immune to spells 3s) ·
+*Demon Leap* (dash up to 12 blocks, 8 dmg, silence 3s) · *Black Form* (12s
+Strength II, Speed II, spell immunity, melee silences 2s)
+
+**Five-Leaf: devil magic** (+50% mana and regen): *Devil's Claw* (7 dmg, Wither 2s) ·
+*Demon Wings* (powerful launch plus 6s of gliding) · *Curse Chains* (target within
+20: rooted and silenced 3s, 6 dmg) · *Devil Union* (15s Strength II, Resistance I,
+half cooldowns, dark aura dealing 2 dmg/s within 4 blocks)
 
 **Shared status effects:** *silenced* (can't cast), *frozen* (can't move or cast),
-*spell-immune*, and temporary spell buffs that Anti-Magic Slash can strip.
+*spell-immune*, and temporary spell buffs that Anti-Magic Slash strips.
 
-### Five-Leaf Grimoire (events only)
+### The Demon Possessed
 
-An upgrade on top of the player's current magic type. They keep their type, level and
-XP.
-- +50% max mana, +50% mana regen, +20% spell damage.
-- Unlocks an extra spell, **Devil Union**, usable at any level: 15s of Strength I and
-  Resistance I, half mana cost and half cooldowns, with dark wing particles. Cooldown
-  2 minutes.
-- Never lost, including on death.
+- **Chosen by admins** in the GUI: pick any online player (a staff member, a guest or
+  a regular player) and click *Possess*. Only one can exist at a time.
+- On possession:
+  - The player is given the Five-Leaf Grimoire. If they're carrying another grimoire,
+    it returns to its library first.
+  - Their XP on the Five-Leaf is set to **level 20** so they start with all four devil
+    spells (my call: the hunted villain should be dangerous from the first minute).
+  - Max health is doubled (40), they get a dark-red name and a constant dark aura of
+    particles.
+  - A server-wide title announces the possession.
+  - Their coordinates are broadcast every 5 minutes (my call, in config), which turns
+    it into a manhunt.
+- When the Demon Possessed **dies** (any cause, including during grace), the
+  possession ends: their health and name go back to normal and the Five-Leaf drops at
+  the death spot. Whoever picks it up uses it under the normal rules: level 1 if new
+  to it, and they are *not* possessed.
+- Admins can end a possession from the GUI. The Five-Leaf then returns to the admin
+  pool.
+- Possession survives a relog. Combat-logging as the Demon Possessed counts as death.
 
-### Reroll item (my call)
+### Admin GUI and commands
 
-"Grimoire Reroll", a glowing nether star. Right-clicking it rerolls your magic type
-(never the same type, never Anti-Magic) and keeps your level and XP. Players get it
-only from admins or as an event prize. Anti-Magic holders can't use it, so nobody
-throws away an event prize by accident. It's a normal item, so it can be traded.
+`/bcadmin` (permission `blackclover.admin`, op by default) opens a chest-style menu:
 
-### Devil Boss event
+- **Players:** heads of online players. Clicking one opens actions: *Possess*, *Give
+  Anti-Magic* (only if it's in the admin pool), *Take grimoire* (returns it home),
+  *Level +1 / −1*, *Clear XP*.
+- **Grimoires:** all 15 with their status (in library / held by X / on ground at
+  x,y,z / in admin pool). Clicking one teleports the admin to it; shift-click returns
+  it home.
+- **Game:** border size, grace time left, *End grace now*, *End possession*,
+  *Reset game*. Reset game asks for confirmation. It removes all grimoire items from
+  online players, the ground and offline players as they next join, removes library
+  protection, and clears game state so `/start` can run again. Old library buildings
+  are left as ruins.
 
-- `/bcadmin event start <antimagic|fiveleaf|reroll> [here|random]` spawns the Devil at
-  the admin's location, or at a random surface spot within a configurable radius of
-  world spawn.
-- Everyone gets a title and a chat message with the coordinates and the prize, and a
-  server-wide boss bar shows the Devil's health.
-- **The Devil:** an enlarged Wither Skeleton (scale attribute) named "Devil" with
-  600 HP. It doesn't despawn, ignores fire, fall and suffocation damage, and drops no
-  vanilla loot. Attacks:
-  - *Dark Wave* every 8s: radius 8, 6 dmg plus knockback.
-  - *Summon Imps* every 20s: 3 Vexes.
-  - *Shadow Step*: teleports next to its target when that player is far away.
-  - *Enrage* below 50% HP: faster attacks and more damage.
-- **Prize:** the player who lands the final hit wins. Melee, arrows and spells all
-  count. If the Devil dies some other way, the last player who damaged it wins. The
-  win is broadcast with a title.
-  - Anti-Magic changes the winner's magic type to Anti-Magic (keeping level and XP).
-  - If the winner already has that prize, they get 500 bonus XP instead (my call).
-- The event ends automatically after 30 minutes if the Devil survives. Admins can end
-  it with `/bcadmin event stop`. Only one event runs at a time.
-
-### Commands
+Text commands for everything in the GUI, for console and scripting:
+`/bcadmin possess <player>`, `/bcadmin unpossess`,
+`/bcadmin give <player> antimagic`, `/bcadmin take <player>`,
+`/bcadmin setlevel <player> <level>`, `/bcadmin addxp <player> <amount>`,
+`/bcadmin grace end`, `/bcadmin reload`.
 
 Players:
-- `/grimoire`: re-summon your grimoire.
-- `/magic`: your magic type, level, XP, mana and each spell's unlock level.
-- `/magic top`: top 10 players by level (my call: fits a PvP server).
-
-Admins (`blackclover.admin`, op by default):
-- `/bcadmin give <player> <antimagic|fiveleaf|reroll>`
-- `/bcadmin settype <player> <type>`
-- `/bcadmin setlevel <player> <level>` and `/bcadmin addxp <player> <amount>`
-- `/bcadmin reset <player>`: new random roll at level 1.
-- `/bcadmin event start ...` and `/bcadmin event stop`
-- `/bcadmin reload`
+- `/magic`: your grimoire, level, XP, mana and spell unlock levels, plus your stored
+  levels on grimoires you've used before.
+- `/magic top`: top 10 by level on the grimoire currently carried (my call).
 
 ### Storage and config
 
-- Player data (magic type, total XP, Five-Leaf flag, selected spell, last-penalty
-  time) is kept in `plugins/BlackCloverSMP/players.yml`. It's loaded at startup,
-  saved asynchronously every 5 minutes, and saved on shutdown.
-- `config.yml` holds every number in this document: mana, XP curve, kill XP, penalty
-  %, timers, roll weights, per-spell cost, cooldown and damage, event settings, and a
-  list of worlds where magic is disabled.
+- `plugins/BlackCloverSMP/data.yml` holds game state (started, border, grace end),
+  library locations and altar states, each grimoire's status and location, per-player
+  per-grimoire XP, the last-penalty time, the Demon Possessed, and the queue of
+  pending removals for offline players. It's loaded at startup, saved asynchronously
+  every 5 minutes, and saved on shutdown.
+- `config.yml` holds every number above: mana, XP curve, kill XP, penalty %, timers,
+  recipe, library spacing, offline-return days, possession settings, per-spell cost,
+  cooldown and damage, and worlds where magic is disabled.
 
-### Safety rules for spells
+### Safety rules
 
 - Spell damage calls `target.damage(amount, caster)`, so protection plugins can cancel
-  it. Spells that only move players (Swap, Banish, Black Hole pull and so on) first
-  check, through the same event, that PvP is allowed against that player.
-- No spell breaks blocks. Stone Wall replaces only air blocks and always restores them,
-  including on server shutdown.
+  it. Spells that only move players (Swap, Banish, Black Hole and so on) first check
+  through the same event that PvP is allowed. No spell affects players during grace.
+- No spell breaks blocks. Stone Wall replaces only air and always restores it,
+  including on shutdown.
 - Teleport spells never put a player inside blocks or above the void.
 
 ## Left to the builder
 
-- Internal code structure (spell registry, projectile/beam/area helpers, status
-  manager).
-- Exact particles, sounds and colours per spell.
-- Final tuning numbers, within the spirit of the values above.
-- Tests: unit tests for the pure rules (XP curve, kill XP, penalty, repeat-kill window,
-  roll weights, mana). Then a smoke test on a real Paper 1.21.x server to confirm the
-  plugin loads, and if feasible a scripted bot player that joins and casts spells.
+- Internal structure (spell registry, projectile/beam/area helpers, status manager,
+  grimoire tracker).
+- Exact library layout, particles, sounds and colours.
+- Final tuning numbers within the spirit of the values above.
+- Tests: unit tests for the pure rules (XP curve, kill XP, penalty, per-grimoire level
+  storage, repeat-kill window, library placement maths). Then a real Paper 1.21.11
+  server smoke test confirming the plugin loads and `/start` builds libraries. If
+  feasible, a scripted bot player that crafts a grimoire and casts spells.
