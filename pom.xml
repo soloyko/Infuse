@@ -43,6 +43,17 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>resourcepack/**</exclude>
+                </excludes>
+            </resource>
+            <!-- binary textures must never be filtered -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>resourcepack/**</include>
+                </includes>
             </resource>
         </resources>
         <plugins>
