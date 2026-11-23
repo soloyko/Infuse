@@ -4,6 +4,7 @@ import dev.blackclover.smp.command.MagicCommand;
 import dev.blackclover.smp.command.StartCommand;
 import dev.blackclover.smp.config.Settings;
 import dev.blackclover.smp.data.DataStore;
+import dev.blackclover.smp.demon.DemonService;
 import dev.blackclover.smp.game.AltarService;
 import dev.blackclover.smp.game.GameService;
 import dev.blackclover.smp.game.LibraryBuilder;
@@ -51,6 +52,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private StatusService status;
     private TempBlocks tempBlocks;
     private CastingService casting;
+    private DemonService demonService;
 
     @Override
     public void onEnable() {
@@ -99,6 +101,11 @@ public final class BlackCloverPlugin extends JavaPlugin {
         });
         mage.onLevelChange(casting::onLevelChanged);
         magicCommand.setDetails(casting::describe);
+        demonService = new DemonService(this, grimoires, mage);
+        getServer().getPluginManager().registerEvents(demonService, this);
+        combatListener.setOnDemonDeath(demonService::onDeath);
+        demonService.startTasks();
+
         grimoires.setHolderInfo(new GrimoireService.HolderInfo() {
             @Override
             public int level(Player player, dev.blackclover.smp.grimoire.GrimoireType type) {
@@ -155,4 +162,5 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public SpellRegistry spells() { return spells; }
     public CastingService casting() { return casting; }
     public StatusService status() { return status; }
+    public DemonService demon() { return demonService; }
 }
