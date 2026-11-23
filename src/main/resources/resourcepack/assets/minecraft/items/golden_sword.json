@@ -1,0 +1,20 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "blackclover:light_sword",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/spell/light_sword"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/golden_sword"
+    }
+  }
+}

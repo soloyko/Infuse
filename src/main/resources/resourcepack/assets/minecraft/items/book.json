@@ -1,0 +1,118 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "blackclover:fire",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/fire"
+        }
+      },
+      {
+        "when": "blackclover:water",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/water"
+        }
+      },
+      {
+        "when": "blackclover:wind",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/wind"
+        }
+      },
+      {
+        "when": "blackclover:lightning",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/lightning"
+        }
+      },
+      {
+        "when": "blackclover:earth",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/earth"
+        }
+      },
+      {
+        "when": "blackclover:plant",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/plant"
+        }
+      },
+      {
+        "when": "blackclover:light",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/light"
+        }
+      },
+      {
+        "when": "blackclover:dark",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/dark"
+        }
+      },
+      {
+        "when": "blackclover:spatial",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/spatial"
+        }
+      },
+      {
+        "when": "blackclover:gravity",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/gravity"
+        }
+      },
+      {
+        "when": "blackclover:blood",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/blood"
+        }
+      },
+      {
+        "when": "blackclover:poison",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/poison"
+        }
+      },
+      {
+        "when": "blackclover:time",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/time"
+        }
+      },
+      {
+        "when": "blackclover:anti_magic",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/anti_magic"
+        }
+      },
+      {
+        "when": "blackclover:five_leaf",
+        "model": {
+          "type": "minecraft:model",
+          "model": "blackclover:item/grimoire/five_leaf"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/book"
+    }
+  }
+}

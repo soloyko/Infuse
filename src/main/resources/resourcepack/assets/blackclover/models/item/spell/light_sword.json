@@ -1,0 +1,472 @@
+{
+  "textures": {
+    "blade": "blackclover:item/spell/light_sword",
+    "particle": "blackclover:item/spell/light_sword"
+  },
+  "gui_light": "front",
+  "elements": [
+    {
+      "from": [
+        6.5,
+        4,
+        7.5
+      ],
+      "to": [
+        9.5,
+        15,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            11
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        7,
+        15,
+        7.6
+      ],
+      "to": [
+        9,
+        17,
+        8.4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        7.5,
+        17,
+        7.7
+      ],
+      "to": [
+        8.5,
+        18.5,
+        8.3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            5,
+            0,
+            11,
+            3
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        4,
+        3,
+        7.2
+      ],
+      "to": [
+        12,
+        4.2,
+        8.8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            0,
+            12,
+            16,
+            16
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        7.3,
+        3.2,
+        6.9
+      ],
+      "to": [
+        8.7,
+        4.4,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            6,
+            12,
+            10,
+            16
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        7.4,
+        0,
+        7.4
+      ],
+      "to": [
+        8.6,
+        3,
+        8.6
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "south": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "east": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "west": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "up": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        },
+        "down": {
+          "uv": [
+            2,
+            12,
+            6,
+            16
+          ],
+          "texture": "#blade"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    }
+  ],
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        0,
+        -45
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.6,
+        0.6,
+        0.6
+      ]
+    }
+  }
+}
