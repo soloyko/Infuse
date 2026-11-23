@@ -81,39 +81,77 @@ public final class ResourcePackService implements Listener {
         }
     }
 
-    /** auto: download `url` once and use it only if it is byte-for-byte our pack; otherwise self-host. */
+    private static final long RECHECK_TICKS = 20L * 60 * 5;
+    private static final int MAX_RECHECKS = 12;
+    private int rechecks;
+
+    /**
+     * auto: download `url` and use it only if it is byte-for-byte our pack; otherwise self-host, and keep
+     * checking the link every 5 minutes for an hour (a freshly uploaded file can take a few minutes to show up).
+     */
     private void verifyUrlThenChoose() {
         String url = settings().packUrl();
         if (url.isEmpty()) {
             startServer();
             return;
         }
+        checkUrl(url, (ok, detail) -> {
+            if (ok) {
+                useUrl = true;
+                plugin.getLogger().info("Players will download the resource pack from " + url);
+            } else {
+                plugin.getLogger().warning("The pack at resource-pack.url " + detail + ", so the plugin will serve it itself on port "
+                        + settings().packPort() + ". It will check the link again every 5 minutes.");
+                startServer();
+                scheduleRecheck(url);
+            }
+            resendAll();
+        });
+    }
+
+    private void scheduleRecheck(String url) {
+        if (rechecks++ >= MAX_RECHECKS) {
+            return;
+        }
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> checkUrl(url, (ok, detail) -> {
+            if (ok) {
+                useUrl = true;
+                plugin.getLogger().info("The pack at resource-pack.url is ready. Players joining from now on download it from " + url);
+            } else {
+                scheduleRecheck(url);
+            }
+        }), RECHECK_TICKS);
+    }
+
+    /** Downloads `url` off the main thread; calls back on the main thread with whether it is exactly our pack. */
+    private void checkUrl(String url, java.util.function.BiConsumer<Boolean, String> done) {
         String expected = built.sha1Hex();
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String found;
+            boolean ok;
+            String detail;
             try {
                 java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
                         .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
                         .connectTimeout(java.time.Duration.ofSeconds(10)).build();
-                byte[] body = client.send(java.net.http.HttpRequest.newBuilder(URI.create(url))
+                java.net.http.HttpResponse<byte[]> response = client.send(java.net.http.HttpRequest.newBuilder(URI.create(url))
                                 .timeout(java.time.Duration.ofSeconds(20)).GET().build(),
-                        java.net.http.HttpResponse.BodyHandlers.ofByteArray()).body();
-                found = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-1").digest(body));
-            } catch (Exception e) {
-                found = "unreachable (" + e.getClass().getSimpleName() + ")";
-            }
-            String result = found;
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                if (result.equals(expected)) {
-                    useUrl = true;
-                    plugin.getLogger().info("Players will download the resource pack from " + url);
+                        java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+                if (response.statusCode() != 200) {
+                    ok = false;
+                    detail = "isn't there yet (HTTP " + response.statusCode() + ")";
                 } else {
-                    plugin.getLogger().warning("The pack at resource-pack.url doesn't match this plugin (" + result
-                            + "), so the plugin will serve it itself on port " + settings().packPort() + ".");
-                    startServer();
+                    String found = java.util.HexFormat.of().formatHex(
+                            java.security.MessageDigest.getInstance("SHA-1").digest(response.body()));
+                    ok = found.equals(expected);
+                    detail = ok ? "matches" : "doesn't match this plugin (sha1 " + found + ")";
                 }
-                resendAll();
-            });
+            } catch (Exception e) {
+                ok = false;
+                detail = "can't be reached (" + e.getClass().getSimpleName() + ")";
+            }
+            boolean result = ok;
+            String why = detail;
+            plugin.getServer().getScheduler().runTask(plugin, () -> done.accept(result, why));
         });
     }
 

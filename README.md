@@ -42,7 +42,8 @@ The pack is built into the plugin jar. On startup the plugin zips it to
 By default (`host: auto`) players download it from this repository's `downloads/` folder on GitHub, so
 you don't need to open a port. The plugin first downloads that file itself and checks it's exactly the
 same pack. If it isn't (or GitHub can't be reached), the plugin serves the pack itself on port `8163`
-instead and logs a warning.
+instead, logs a warning, and checks the link again every 5 minutes for an hour, switching to GitHub as
+soon as the file is there.
 
 What players get with it:
 - **15 3D grimoires,** each with its own leather colour, gold corners and clasp, its magic's rune, and
