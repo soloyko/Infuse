@@ -1,5 +1,7 @@
 package dev.blackclover.smp;
 
+import dev.blackclover.smp.command.AdminActions;
+import dev.blackclover.smp.command.AdminCommand;
 import dev.blackclover.smp.command.MagicCommand;
 import dev.blackclover.smp.command.StartCommand;
 import dev.blackclover.smp.config.Settings;
@@ -9,6 +11,8 @@ import dev.blackclover.smp.game.AltarService;
 import dev.blackclover.smp.game.GameService;
 import dev.blackclover.smp.game.LibraryBuilder;
 import dev.blackclover.smp.game.GameState;
+import dev.blackclover.smp.gui.AdminMenus;
+import dev.blackclover.smp.gui.MenuListener;
 import dev.blackclover.smp.grimoire.GrimoireItems;
 import dev.blackclover.smp.grimoire.GrimoireListener;
 import dev.blackclover.smp.grimoire.GrimoireRegistry;
@@ -105,6 +109,12 @@ public final class BlackCloverPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(demonService, this);
         combatListener.setOnDemonDeath(demonService::onDeath);
         demonService.startTasks();
+
+        AdminActions adminActions = new AdminActions(this);
+        AdminCommand admin = new AdminCommand(this, adminActions, new AdminMenus(this, adminActions));
+        getServer().getPluginManager().registerEvents(new MenuListener(), this);
+        getCommand("bcadmin").setExecutor(admin);
+        getCommand("bcadmin").setTabCompleter(admin);
 
         grimoires.setHolderInfo(new GrimoireService.HolderInfo() {
             @Override
