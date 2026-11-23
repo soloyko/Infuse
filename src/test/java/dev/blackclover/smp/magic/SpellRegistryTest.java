@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpellRegistryTest {
 
     private static Spell spell(String id, int unlock) {
-        return new Spell(id, id, unlock, 10, 2, 5, ctx -> true);
+        return new Spell(id, id, unlock, Spell.Role.ATTACK, 10, 2, 5, "test spell", ctx -> true);
     }
 
     private static Spell[] four(String prefix) {

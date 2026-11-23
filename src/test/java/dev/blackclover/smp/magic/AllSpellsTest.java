@@ -49,4 +49,19 @@ class AllSpellsTest {
         }
         assertEquals(60, ids.size());
     }
+
+    @Test
+    void everySpellHasARoleAndDescriptionAndTheLastIsAnUltimate() {
+        SpellRegistry r = new SpellRegistry();
+        AllSpells.register(r);
+        for (GrimoireType type : GrimoireType.values()) {
+            List<Spell> spells = r.spells(type);
+            for (Spell s : spells) {
+                assertNotNull(s.role(), s.id());
+                assertTrue(s.description().length() >= 20 && s.description().length() <= 90, s.id() + ": " + s.description());
+            }
+            assertEquals(Spell.Role.ULTIMATE, spells.get(3).role(), type + " slot 4");
+            assertEquals(Spell.Role.ATTACK, spells.get(0).role(), type + " slot 1");
+        }
+    }
 }

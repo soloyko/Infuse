@@ -64,6 +64,19 @@ final class SpellUtil {
                 .toList();
     }
 
+    /** The ground directly under {@code at} (searching up to 12 blocks down), at block-centre x/z. */
+    static Location groundAt(Location at) {
+        Location l = at.clone();
+        for (int i = 0; i < 12 && l.getY() > l.getWorld().getMinHeight() + 1; i++) {
+            if (l.clone().subtract(0, 1, 0).getBlock().getType().isSolid()) {
+                break;
+            }
+            l.subtract(0, 1, 0);
+        }
+        l.setY(Math.floor(l.getY()) + 0.05);
+        return l;
+    }
+
     static Vector horizontalLook(Player p) {
         Vector v = p.getLocation().getDirection().setY(0);
         return v.lengthSquared() < 1e-6 ? new Vector(0, 0, 1) : v.normalize();

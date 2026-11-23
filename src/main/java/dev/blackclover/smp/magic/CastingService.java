@@ -230,7 +230,8 @@ public final class CastingService implements Listener {
             addMana(p, -spell.cost());
         }
         if (!ctx.cooldownSkipped()) {
-            double seconds = spell.cooldownSeconds() * (status.hasBuff(id, "devil_union") ? 0.5 : 1.0);
+            double seconds = spell.cooldownSeconds() * (status.hasBuff(id, "devil_union") ? 0.5 : 1.0)
+                    * (status.hasBuff(id, "accelerate") ? 0.5 : 1.0);
             cooldowns.computeIfAbsent(id, k -> new HashMap<>()).put(spell.id(), now + (long) (seconds * 1000));
         }
         onCast.accept(p, type);

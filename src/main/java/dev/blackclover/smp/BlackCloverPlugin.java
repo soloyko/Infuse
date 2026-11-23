@@ -194,4 +194,5 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public StatusService status() { return status; }
     public DemonService demon() { return demonService; }
     public ResourcePackService pack() { return pack; }
+    public dev.blackclover.smp.magic.GrimoireHover hover() { return hover; }
 }

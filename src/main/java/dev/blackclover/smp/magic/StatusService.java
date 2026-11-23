@@ -192,6 +192,12 @@ public final class StatusService implements Listener {
         marks.put(id, new Mark(loc.clone(), until(ticks)));
     }
 
+    /** True while the caster's gate at {@code at} is still open. */
+    public boolean hasMark(UUID id, Location at) {
+        Mark m = marks.get(id);
+        return m != null && m.until() > now() && m.location().equals(at);
+    }
+
     public Optional<Location> takeMark(UUID id) {
         Mark m = marks.remove(id);
         return m == null || m.until() <= now() ? Optional.empty() : Optional.of(m.location());
@@ -241,6 +247,13 @@ public final class StatusService implements Listener {
         }
         if (hasBuff(id, "black_form")) {
             silence(victim, 40);
+        }
+        if (hasBuff(id, "shadow_strike")) {
+            Map<String, Buff> m = buffs.get(id);
+            m.remove("shadow_strike");
+            event.setDamage(event.getDamage() + 5);
+            victim.getWorld().spawnParticle(org.bukkit.Particle.SQUID_INK, victim.getLocation().add(0, 1, 0), 20, 0.3, 0.4, 0.3, 0.05);
+            attacker.getWorld().playSound(victim.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 0.6f);
         }
     }
 

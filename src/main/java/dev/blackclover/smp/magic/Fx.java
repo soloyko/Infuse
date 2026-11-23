@@ -14,6 +14,7 @@ import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -156,11 +157,26 @@ public final class Fx {
         target.setNoDamageTicks(0);
         spellDamage = true;
         try {
-            target.damage(amount, caster);
+            // magic damage ignores armour points (Protection enchantments still reduce it)
+            target.damage(amount, DamageSource.builder(DamageType.INDIRECT_MAGIC)
+                    .withCausingEntity(caster).withDirectEntity(caster).build());
         } finally {
             spellDamage = false;
         }
+        Location at = target.getLocation().add(0, target.getHeight() * 0.6, 0);
+        particle(target.getWorld(), Particle.DAMAGE_INDICATOR, at, 3, 0.25, null);
+        particle(target.getWorld(), Particle.CRIT, at, 6, 0.3, null);
+        if (target instanceof Player) {
+            caster.playSound(caster.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1.4f);
+        }
         return true;
+    }
+
+    /** Heals the caster for a share of damage dealt. */
+    public static void lifesteal(Player caster, double amount) {
+        org.bukkit.attribute.AttributeInstance max = caster.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+        double cap = max == null ? 20 : max.getValue();
+        caster.setHealth(Math.min(cap, caster.getHealth() + amount));
     }
 
     public boolean effect(Player caster, LivingEntity target, PotionEffectType type, int ticks, int amplifier) {
@@ -276,6 +292,122 @@ public final class Fx {
     public static void removeModel(Entity display) {
         if (display != null && display.isValid()) {
             display.remove();
+        }
+    }
+
+    /** Where spells come from: the caster's floating grimoire, or just in front of their eyes. */
+    public Location origin(Player caster) {
+        return plugin.hover() == null ? eyeFront(caster)
+                : plugin.hover().bookLocation(caster).orElseGet(() -> eyeFront(caster));
+    }
+
+    private static Location eyeFront(Player caster) {
+        Location eye = caster.getEyeLocation();
+        return eye.add(eye.getDirection().multiply(0.6));
+    }
+
+    /** What the caster's crosshair points at (blocks and entities), or the point at {@code range}. */
+    public Location aimPoint(Player caster, double range) {
+        Location eye = caster.getEyeLocation();
+        RayTraceResult r = caster.getWorld().rayTrace(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true, 0.4,
+                e -> e instanceof LivingEntity && !e.equals(caster));
+        return r == null ? eye.clone().add(eye.getDirection().multiply(range)) : r.getHitPosition().toLocation(caster.getWorld());
+    }
+
+    /** Fires a projectile from the caster's grimoire towards their crosshair. */
+    public void shootFromBook(Player caster, ProjectileSpec spec, Consumer<LivingEntity> onHit, Consumer<Location> onEnd) {
+        Location from = origin(caster);
+        Vector dir = aimPoint(caster, spec.range()).toVector().subtract(from.toVector());
+        if (dir.lengthSquared() < 1e-4) {
+            dir = caster.getEyeLocation().getDirection();
+        }
+        projectile(caster, from, dir, spec, onHit, onEnd);
+    }
+
+    /** A jagged lightning bolt between two points. */
+    public static void zigzag(Location from, Location to, Particle particle, Object data) {
+        World w = from.getWorld();
+        Vector step = to.toVector().subtract(from.toVector());
+        int segments = Math.max(3, (int) (step.length() / 1.5));
+        step.multiply(1.0 / segments);
+        Location a = from.clone();
+        java.util.concurrent.ThreadLocalRandom rnd = java.util.concurrent.ThreadLocalRandom.current();
+        for (int i = 0; i < segments; i++) {
+            Location b = from.clone().add(step.clone().multiply(i + 1));
+            if (i < segments - 1) {
+                b.add(rnd.nextDouble(-0.45, 0.45), rnd.nextDouble(-0.45, 0.45), rnd.nextDouble(-0.45, 0.45));
+            }
+            line(w, a, b, particle, data, 0.18);
+            a = b;
+        }
+    }
+
+    /** A spiral of particles along a line (dragons, tornadoes, beams). */
+    public static void helix(Location from, Vector dir, double length, double radius, double turns, Particle particle, Object data) {
+        Vector d = dir.clone().normalize();
+        Vector side = d.clone().crossProduct(new Vector(0, 1, 0));
+        if (side.lengthSquared() < 1e-4) {
+            side = new Vector(1, 0, 0);
+        }
+        side.normalize();
+        Vector up = side.clone().crossProduct(d).normalize();
+        World w = from.getWorld();
+        for (double t = 0; t <= length; t += 0.25) {
+            double a = t / length * turns * Math.PI * 2;
+            Location p = from.clone().add(d.clone().multiply(t))
+                    .add(side.clone().multiply(Math.cos(a) * radius)).add(up.clone().multiply(Math.sin(a) * radius));
+            particle(w, particle, p, 1, 0, data);
+        }
+    }
+
+    /** An expanding ring along the ground. */
+    public void shockwave(Location centre, double maxRadius, int ticks, Particle particle, Object data) {
+        repeat(1, ticks, i -> {
+            double r = maxRadius * (i + 1) / ticks;
+            ring(centre, r, particle, data, (int) (12 + r * 10));
+        });
+    }
+
+    /** A temporary block shape (spikes, walls, pillars) that animates and removes itself. */
+    public BlockDisplay blockDisplay(Location at, org.bukkit.block.data.BlockData data, float sx, float sy, float sz, int lifeTicks) {
+        BlockDisplay d = at.getWorld().spawn(at, BlockDisplay.class, b -> {
+            b.setPersistent(false);
+            b.setBlock(data);
+            b.setTransformation(new Transformation(new Vector3f(-sx / 2, -sy, -sz / 2), new Quaternionf(),
+                    new Vector3f(sx, sy, sz), new Quaternionf()));
+        });
+        later(lifeTicks, () -> removeModel(d));
+        return d;
+    }
+
+    /** Smoothly moves/scales a display to a new transform over {@code ticks}. */
+    public void animate(Display d, Transformation to, int ticks, int delay) {
+        later(Math.max(1, delay), () -> {
+            if (d.isValid()) {
+                d.setInterpolationDelay(0);
+                d.setInterpolationDuration(ticks);
+                d.setTransformation(to);
+            }
+        });
+    }
+
+    /** Ultimate callout: a title for the caster and an action-bar line for everyone nearby. */
+    public void announce(Player caster, Spell spell, int rgb) {
+        String name = dev.blackclover.smp.util.SmallCaps.of(spell.name());
+        dev.blackclover.smp.util.Msg.title(caster, "<c><b><n></b></c>", "", dev.blackclover.smp.util.Msg.color("c", rgb),
+                dev.blackclover.smp.util.Msg.arg("n", name));
+        for (Player p : caster.getWorld().getPlayers()) {
+            if (!p.equals(caster) && p.getLocation().distanceSquared(caster.getLocation()) < 48 * 48) {
+                dev.blackclover.smp.util.Msg.actionBar(p, "<c>☘ <who> ‣ <n>", dev.blackclover.smp.util.Msg.color("c", rgb),
+                        dev.blackclover.smp.util.Msg.arg("who", caster.getName()), dev.blackclover.smp.util.Msg.arg("n", name));
+            }
+        }
+    }
+
+    public static void sounds(Location at, Object... soundVolumePitch) {
+        for (int i = 0; i + 2 < soundVolumePitch.length; i += 3) {
+            sound(at, (Sound) soundVolumePitch[i], ((Number) soundVolumePitch[i + 1]).floatValue(),
+                    ((Number) soundVolumePitch[i + 2]).floatValue());
         }
     }
 
