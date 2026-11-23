@@ -112,9 +112,24 @@ public final class CombatListener implements Listener {
             }
         }
 
+        if (!grace) {
+            mage.data(id).recordDeath();
+        }
         Player killer = mage.combat().lastAttacker(id, now).map(plugin.getServer()::getPlayer).orElse(victim.getKiller());
         if (killer != null && !killer.equals(victim) && !grace) {
-            mage.onKill(killer, victim, carried.orElse(null), victimLevel);
+            event.deathMessage(killFeed(killer, victim, carried.orElse(null), victimLevel));
+            boolean allies = plugin.squads().allies(killer, victim);
+            if (!allies && mage.onKill(killer, victim, carried.orElse(null), victimLevel)) {
+                mage.data(killer.getUniqueId()).recordKill();
+                plugin.squads().onKill(killer, victim);
+                if (isDemon) {
+                    plugin.squads().onDemonSlain(killer);
+                }
+            }
+            if (id.equals(plugin.game().wizardKing())) {
+                Msg.broadcast("<gold>♛</gold> <gray>The Wizard King <white><v></white> was slain by <white><k></white>!",
+                        Msg.arg("k", killer.getName()), Msg.arg("v", victim.getName()));
+            }
         }
         carried.ifPresent(type -> mage.applyDeathPenalty(victim, type, grace));
         if (isDemon) {
@@ -122,6 +137,23 @@ public final class CombatListener implements Listener {
         }
         mage.combat().clear(id);
         plugin.saveAsync();
+    }
+
+    /** "☠ Victim [Fire 7] was slain by Killer [Water 9]" */
+    private net.kyori.adventure.text.Component killFeed(Player killer, Player victim, GrimoireType victimType, int victimLevel) {
+        Optional<GrimoireType> killerType = grimoires.carried(killer);
+        return Msg.mm("<dark_red>☠</dark_red> <white><v></white>" + badge(victimType, victimLevel)
+                        + " <gray>was slain by</gray> <white><k></white>"
+                        + badge(killerType.orElse(null), killerType.map(t -> mage.level(killer.getUniqueId(), t)).orElse(0)),
+                Msg.arg("v", victim.getName()), Msg.arg("k", killer.getName()));
+    }
+
+    private static String badge(GrimoireType type, int level) {
+        if (type == null) {
+            return "";
+        }
+        String c = Msg.hex(type.rgb());
+        return " <dark_gray>[<" + c + ">" + type.displayName() + " " + level + "</" + c + ">]</dark_gray>";
     }
 
     @EventHandler(priority = EventPriority.LOW)

@@ -8,6 +8,8 @@ import dev.blackclover.smp.grimoire.GrimoireState;
 import dev.blackclover.smp.grimoire.GrimoireStatus;
 import dev.blackclover.smp.grimoire.GrimoireType;
 import dev.blackclover.smp.mage.PlayerData;
+import dev.blackclover.smp.squad.Squad;
+import dev.blackclover.smp.squad.SquadRoster;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -34,12 +36,14 @@ public final class DataStore {
     }
 
     /** Builds the YAML text. Call on the main thread; it only reads in-memory state. */
-    public String serialize(GameState game, GrimoireRegistry registry, Map<UUID, PlayerData> players, UUID demon) {
+    public String serialize(GameState game, GrimoireRegistry registry, Map<UUID, PlayerData> players, UUID demon,
+                            SquadRoster squads) {
         YamlConfiguration y = new YamlConfiguration();
         y.set("game.started", game.isStarted());
         y.set("game.world", game.world());
         y.set("game.border", game.borderSize());
         y.set("game.grace-end", game.graceEndMillis());
+        y.set("game.wizard-king", game.wizardKing() == null ? null : game.wizardKing().toString());
         for (Library lib : game.libraries().values()) {
             String p = "libraries." + lib.type().name() + ".";
             y.set(p + "world", lib.world());
@@ -69,11 +73,24 @@ public final class DataStore {
             y.set(p + "name", pd.name());
             y.set(p + "last-penalty", pd.lastPenaltyMillis());
             y.set(p + "last-seen", pd.lastSeenMillis());
+            y.set(p + "stats", java.util.List.of(pd.kills(), pd.deaths()));
+            if (pd.hudHidden()) {
+                y.set(p + "hud-hidden", true);
+            }
             for (Map.Entry<GrimoireType, Integer> e : pd.xpView().entrySet()) {
                 y.set(p + "xp." + e.getKey().name(), e.getValue());
             }
         }
         y.set("demon", demon == null ? null : demon.toString());
+        for (Squad sq : squads.all()) {
+            String p = "squads." + sq.id() + ".";
+            y.set(p + "name", sq.name());
+            y.set(p + "color", sq.color());
+            y.set(p + "captain", sq.captain().toString());
+            y.set(p + "members", sq.members().stream().map(UUID::toString).toList());
+            y.set(p + "stars", sq.stars());
+            y.set(p + "created", sq.createdMillis());
+        }
         return y.saveToString();
     }
 
@@ -104,7 +121,8 @@ public final class DataStore {
         }
     }
 
-    public void load(GameState game, GrimoireRegistry registry, Map<UUID, PlayerData> players, AtomicReference<UUID> demon) {
+    public void load(GameState game, GrimoireRegistry registry, Map<UUID, PlayerData> players, AtomicReference<UUID> demon,
+                     SquadRoster squads) {
         if (!file.exists()) {
             return;
         }
@@ -113,6 +131,7 @@ public final class DataStore {
         game.setWorld(y.getString("game.world"));
         game.setBorderSize(y.getInt("game.border"));
         game.setGraceEndMillis(y.getLong("game.grace-end"));
+        game.setWizardKing(uuid(y.getString("game.wizard-king")));
 
         ConfigurationSection libs = y.getConfigurationSection("libraries");
         if (libs != null) {
@@ -149,6 +168,11 @@ public final class DataStore {
                 PlayerData pd = new PlayerData(UUID.fromString(key), p.getString("name", "?"));
                 pd.setLastPenaltyMillis(p.getLong("last-penalty", pd.lastPenaltyMillis()));
                 pd.setLastSeenMillis(p.getLong("last-seen"));
+                java.util.List<Integer> stats = p.getIntegerList("stats");
+                if (stats.size() >= 2) {
+                    pd.setStats(stats.get(0), stats.get(1));
+                }
+                pd.setHudHidden(p.getBoolean("hud-hidden"));
                 ConfigurationSection xp = p.getConfigurationSection("xp");
                 if (xp != null) {
                     for (String t : xp.getKeys(false)) {
@@ -159,6 +183,19 @@ public final class DataStore {
             }
         }
         demon.set(uuid(y.getString("demon")));
+
+        ConfigurationSection sqs = y.getConfigurationSection("squads");
+        if (sqs != null) {
+            for (String key : sqs.getKeys(false)) {
+                ConfigurationSection q = sqs.getConfigurationSection(key);
+                UUID captain = uuid(q.getString("captain"));
+                if (captain == null) {
+                    continue;
+                }
+                squads.restore(UUID.fromString(key), q.getString("name", "Squad"), q.getString("color", "white"), captain,
+                        q.getStringList("members").stream().map(UUID::fromString).toList(), q.getInt("stars"), q.getLong("created"));
+            }
+        }
     }
 
     private static UUID uuid(String s) {

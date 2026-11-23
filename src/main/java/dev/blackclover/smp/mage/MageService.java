@@ -10,6 +10,7 @@ import dev.blackclover.smp.grimoire.GrimoireState;
 import dev.blackclover.smp.grimoire.GrimoireStatus;
 import dev.blackclover.smp.grimoire.GrimoireType;
 import dev.blackclover.smp.util.Msg;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -87,6 +88,10 @@ public final class MageService {
                     Msg.color("c", type.rgb()), Msg.arg("level", afterLevel),
                     Msg.arg("spell", Msg.sc(spellName.apply(type, slot))), Msg.arg("type", Msg.sc(type.displayName() + " Grimoire")));
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1.2f);
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.1f);
+            player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, player.getLocation().add(0, 1, 0), 60, 0.4, 0.8, 0.4, 0.35);
+            player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1, 0), 40, 0.6, 0.9, 0.6, 0,
+                    new Particle.DustOptions(org.bukkit.Color.fromRGB(type.rgb() & 0xFFFFFF), 1.4f));
         } else if (afterLevel < beforeLevel) {
             if (SpellUnlocks.unlockedCount(afterLevel) < SpellUnlocks.unlockedCount(beforeLevel)) {
                 int lostSlot = SpellUnlocks.unlockedCount(afterLevel);
@@ -125,24 +130,29 @@ public final class MageService {
         setXp(player, type, after);
     }
 
-    /** Awards kill XP to the killer's carried grimoire. */
-    public void onKill(Player killer, Player victim, GrimoireType victimType, int victimLevel) {
-        if (victimType == null || killer.getUniqueId().equals(victim.getUniqueId())) {
-            return;
-        }
-        GrimoireType killerType = grimoires.carried(killer).orElse(null);
-        if (killerType == null) {
-            return;
+    /**
+     * A PvP kill. Awards magic XP when both carried a grimoire.
+     *
+     * @return false for a repeat kill (no XP, no stars)
+     */
+    public boolean onKill(Player killer, Player victim, GrimoireType victimType, int victimLevel) {
+        if (killer.getUniqueId().equals(victim.getUniqueId())) {
+            return false;
         }
         if (!repeats.tryRecord(killer.getUniqueId(), victim.getUniqueId(), System.currentTimeMillis())) {
-            Msg.send(killer, "<gray>No magic XP: you already defeated <white><name></white> in the last <m> minutes.",
+            Msg.send(killer, "<gray>No magic XP or stars: you already defeated <white><name></white> in the last <m> minutes.",
                     Msg.arg("name", victim.getName()), Msg.arg("m", settings().repeatKillMillis() / 60000));
-            return;
+            return false;
+        }
+        GrimoireType killerType = grimoires.carried(killer).orElse(null);
+        if (victimType == null || killerType == null) {
+            return true;
         }
         int xp = settings().killRewards().killXp(level(killer.getUniqueId(), killerType), victimLevel);
         Msg.send(killer, "<green>+<n> magic XP</green> <gray>for defeating <white><name></white> (Lv <lv>).",
                 Msg.arg("n", xp), Msg.arg("name", victim.getName()), Msg.arg("lv", victimLevel));
         addXp(killer, killerType, xp);
+        return true;
     }
 
     /** Top players by level on the grimoire they currently carry. */

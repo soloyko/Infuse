@@ -60,6 +60,10 @@ public final class MagicCommand implements TabExecutor {
             Msg.send(sender, "<gray>Usage: /magic top");
             return true;
         }
+        if (args.length >= 1 && args[0].equalsIgnoreCase("hud")) {
+            plugin.hud().toggleSidebar(player);
+            return true;
+        }
         if (args.length == 0 && plugin.grimoires().carried(player).isPresent()) {
             openBook.accept(player);
             return true;
@@ -97,6 +101,7 @@ public final class MagicCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return args.length == 1 ? List.of("top", "info") : List.of();
+        return args.length == 1 ? List.of("top", "info", "hud").stream()
+                .filter(s -> s.startsWith(args[0].toLowerCase(java.util.Locale.ROOT))).toList() : List.of();
     }
 }

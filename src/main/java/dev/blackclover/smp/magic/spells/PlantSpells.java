@@ -48,7 +48,7 @@ final class PlantSpells {
                 new Spell("plant_thorn_volley", "Thorn Volley", 1, Role.ATTACK, 11, 1.2, 3,
                         "A fan of three thorns that slow whatever they pierce.", PlantSpells::thornVolley),
                 new Spell("plant_verdant_bloom", "Verdant Bloom", 5, Role.SUPPORT, 28, 16, 0,
-                        "Bloom with life: strong regeneration and all bad effects cleansed.", PlantSpells::bloom),
+                        "Regenerate and cleanse bad effects, for you and squadmates within 10 blocks.", PlantSpells::bloom),
                 new Spell("plant_binding_vines", "Binding Vines", 10, Role.CONTROL, 34, 12, 4,
                         "Vines burst up and root your target in place for 3 seconds.", PlantSpells::bindingVines),
                 new Spell("plant_thorn_garden", "Thorn Garden", 20, Role.ULTIMATE, 80, 50, 14,
@@ -73,8 +73,7 @@ final class PlantSpells {
         return true;
     }
 
-    private static boolean bloom(SpellContext ctx) {
-        Player p = ctx.caster();
+    private static void cleanseAndRegen(SpellContext ctx, Player p) {
         for (PotionEffect e : List.copyOf(p.getActivePotionEffects())) {
             PotionEffectType t = e.getType();
             if (t == PotionEffectType.POISON || t == PotionEffectType.WITHER || t == PotionEffectType.SLOWNESS
@@ -86,6 +85,17 @@ final class PlantSpells {
         p.setFireTicks(0);
         ctx.status().addBuff(p, "bloom", 100, Fx.pe(PotionEffectType.REGENERATION, 100, 2));
         SpellUtil.heal(p, 4);
+    }
+
+    private static boolean bloom(SpellContext ctx) {
+        Player p = ctx.caster();
+        cleanseAndRegen(ctx, p);
+        for (Player ally : SpellUtil.allies(ctx, 10)) {
+            cleanseAndRegen(ctx, ally);
+            Fx.line(p.getWorld(), p.getEyeLocation(), ally.getEyeLocation(), Particle.HAPPY_VILLAGER, null, 0.6);
+            Fx.particle(ally.getWorld(), Particle.CHERRY_LEAVES, ally.getLocation().add(0, 2, 0), 12, 0.6, null);
+            Fx.sound(ally.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1.6f);
+        }
         Fx.sounds(p.getLocation(), Sound.BLOCK_FLOWERING_AZALEA_PLACE, 1.2f, 1.2f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1f, 1.4f);
         ctx.fx().repeat(4, 25, i -> {
             Location c = p.getLocation();

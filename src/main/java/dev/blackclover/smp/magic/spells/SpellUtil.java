@@ -26,6 +26,16 @@ final class SpellUtil {
         e.setHealth(Math.max(0, Math.min(cap, e.getHealth() + amount)));
     }
 
+    /** Squadmates of the caster within {@code radius} blocks (same world, alive, not spectating). */
+    static List<Player> allies(SpellContext ctx, double radius) {
+        Player p = ctx.caster();
+        return p.getWorld().getPlayers().stream()
+                .filter(o -> !o.equals(p) && !o.isDead() && o.getGameMode() != org.bukkit.GameMode.SPECTATOR
+                        && o.getLocation().distanceSquared(p.getLocation()) <= radius * radius
+                        && ctx.fx().plugin().squads().allies(p, o))
+                .toList();
+    }
+
     /** Teleports the caster up to {@code range} blocks where they look, to a safe spot. */
     static boolean blink(SpellContext ctx, double range, org.bukkit.Particle trail, Object data) {
         Player p = ctx.caster();

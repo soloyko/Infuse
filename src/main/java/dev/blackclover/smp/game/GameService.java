@@ -208,12 +208,16 @@ public final class GameService implements Listener {
         }
         game().clear();
         plugin.players().values().forEach(dev.blackclover.smp.mage.PlayerData::clearXp);
+        plugin.players().values().forEach(dev.blackclover.smp.mage.PlayerData::clearStats);
+        for (dev.blackclover.smp.squad.Squad s : List.copyOf(plugin.squads().roster().all())) {
+            plugin.squads().roster().addStars(s, -s.stars());
+        }
         building = false;
         graceAnnounced = true;
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             p.hideBossBar(graceBar);
         }
         plugin.saveAsync();
-        Msg.send(sender, "<yellow>The game was reset. Run <white>/start</white> to begin a new one.");
+        Msg.send(sender, "<yellow>The game was reset (grimoires, levels, kill stats and squad stars). Run <white>/start</white> to begin a new one.");
     }
 }

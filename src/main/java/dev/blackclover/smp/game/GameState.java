@@ -12,6 +12,7 @@ public final class GameState {
     private String world;
     private int borderSize;
     private long graceEndMillis;
+    private java.util.UUID wizardKing;
     private final Map<GrimoireType, Library> libraries = new EnumMap<>(GrimoireType.class);
 
     public boolean isStarted() { return started; }
@@ -23,6 +24,8 @@ public final class GameState {
     public long graceEndMillis() { return graceEndMillis; }
     public void setGraceEndMillis(long graceEndMillis) { this.graceEndMillis = graceEndMillis; }
     public Map<GrimoireType, Library> libraries() { return libraries; }
+    public java.util.UUID wizardKing() { return wizardKing; }
+    public void setWizardKing(java.util.UUID wizardKing) { this.wizardKing = wizardKing; }
 
     public boolean isGrace(long now) {
         return started && now < graceEndMillis;
@@ -33,6 +36,7 @@ public final class GameState {
         world = null;
         borderSize = 0;
         graceEndMillis = 0;
+        wizardKing = null;
         libraries.clear();
     }
 }

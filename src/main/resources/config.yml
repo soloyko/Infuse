@@ -53,6 +53,39 @@ demon:
   # How often the Demon Possessed's coordinates are announced
   broadcast-minutes: 5
 
+# Magic Knight squads (/squad)
+squads:
+  max-members: 6
+  # How long a squad invite stays open
+  invite-minutes: 5
+  # false: squadmates can't hurt each other with weapons or spells
+  friendly-fire: false
+  # Stars a squad earns
+  stars:
+    # a member kills a player from outside the squad (not a repeat kill)
+    kill: 1
+    # a member is chosen by a grimoire at a library
+    grimoire: 3
+    # a member kills the Demon Possessed
+    demon: 5
+
+# On-screen info. Turn parts off if another plugin already manages them.
+hud:
+  # Sidebar with grimoire, level, mana, kills, squad and stars. Players can hide it with /magic hud.
+  sidebar: true
+  # Tab list header/footer and names with level, squad colour and crown
+  tab-list: true
+  # Squad name above players' heads
+  nametags: true
+  # Squad tag, level and crown in chat
+  chat-format: true
+  # Last line of the sidebar (MiniMessage)
+  footer: "<dark_gray>/magic  ·  /squad"
+
+# The highest-level grimoire holder is crowned Wizard King (the Demon Possessed can't be)
+wizard-king:
+  min-level: 5
+
 # Worlds where magic cannot be cast
 disabled-worlds: []
 

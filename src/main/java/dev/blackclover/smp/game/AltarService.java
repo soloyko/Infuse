@@ -298,6 +298,7 @@ public final class AltarService implements Listener {
         grimoires.give(player, type);
         refresh(type);
         ceremony(player, type);
+        plugin.squads().onGrimoireChosen(player);
         Msg.broadcast("<white><player></white> <gray>has been chosen by the <c><name> Grimoire</c>!",
                 Msg.arg("player", player.getName()), Msg.arg("name", type.displayName()), Msg.color("c", type.rgb()));
         plugin.saveAsync();

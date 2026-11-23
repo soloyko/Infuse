@@ -11,10 +11,17 @@ commands:
     permission: blackclover.admin
   magic:
     description: Open your spellbook. /magic info for text, /magic top for the strongest mages.
-    usage: /magic [info|top]
+    usage: /magic [info|top|hud]
+  squad:
+    description: Magic Knight squads - found one, recruit, squad chat, stars and ranking.
+    usage: /squad [create|invite|join|leave|kick|captain|color|chat|info|top|disband]
+    aliases: [sq]
+  sc:
+    description: Squad chat. /sc toggles it, /sc <message> sends one message.
+    usage: /sc [message]
   bcadmin:
     description: Black Clover admin menu and commands.
-    usage: /bcadmin [possess|unpossess|give|take|setlevel|addxp|grace|reset|reload|pack]
+    usage: /bcadmin [possess|unpossess|give|take|setlevel|addxp|grace|reset|reload|pack|squad]
     permission: blackclover.admin
 permissions:
   blackclover.admin:

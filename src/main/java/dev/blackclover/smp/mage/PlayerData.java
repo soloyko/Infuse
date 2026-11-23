@@ -15,6 +15,9 @@ public final class PlayerData {
     private final Map<GrimoireType, Integer> xp = new EnumMap<>(GrimoireType.class);
     private long lastPenaltyMillis = Long.MIN_VALUE / 2;
     private long lastSeenMillis;
+    private int kills;
+    private int deaths;
+    private boolean hudHidden;
 
     public PlayerData(UUID id, String name) {
         this.id = id;
@@ -67,5 +70,29 @@ public final class PlayerData {
 
     public boolean canBePenalized(long now, long cooldownMillis) {
         return now - lastPenaltyMillis >= cooldownMillis;
+    }
+
+    public int kills() { return kills; }
+    public int deaths() { return deaths; }
+    public boolean hudHidden() { return hudHidden; }
+    public void setHudHidden(boolean hudHidden) { this.hudHidden = hudHidden; }
+
+    /** Restores saved stats. */
+    public void setStats(int kills, int deaths) {
+        this.kills = Math.max(0, kills);
+        this.deaths = Math.max(0, deaths);
+    }
+
+    public void recordKill() {
+        kills++;
+    }
+
+    public void recordDeath() {
+        deaths++;
+    }
+
+    public void clearStats() {
+        kills = 0;
+        deaths = 0;
     }
 }

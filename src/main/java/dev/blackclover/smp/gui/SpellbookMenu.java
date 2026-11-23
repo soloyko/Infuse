@@ -206,6 +206,16 @@ public final class SpellbookMenu {
         }
         menu.set(50, AdminMenus.icon(Material.CHISELED_BOOKSHELF, "<aqua><b>Other grimoires",
                 storedLines.toArray(String[]::new)), null);
+        menu.set(46, AdminMenus.icon(Material.IRON_SWORD, "<red><b>Your record",
+                "<gray>Kills <white>" + pd.kills(), "<gray>Deaths <white>" + pd.deaths()), null);
+        Optional<dev.blackclover.smp.squad.Squad> squad = plugin.squads().squadOf(p);
+        menu.set(52, AdminMenus.icon(squad.map(s -> SquadMenu.banner(s.color())).orElse(Material.WHITE_BANNER),
+                squad.map(s -> "<" + s.color() + "><b>" + s.name()).orElse("<white><b>Squads"),
+                squad.map(s -> "<gold>★ " + s.stars() + "</gold> <gray>rank #" + plugin.squads().roster().rank(s)).orElse("<gray>Not in a squad"),
+                "", "<gray>Click to open"), e -> {
+            p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.6f, 1.2f);
+            plugin.squadMenu().open(p);
+        });
         menu.open(p);
     }
 

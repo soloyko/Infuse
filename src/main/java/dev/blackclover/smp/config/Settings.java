@@ -40,6 +40,18 @@ public final class Settings {
     private final String packUrl;
     private final boolean packRequired;
     private final String packPrompt;
+    private final int squadMaxMembers;
+    private final long squadInviteMillis;
+    private final boolean friendlyFire;
+    private final int starsPerKill;
+    private final int starsPerGrimoire;
+    private final int starsPerDemon;
+    private final boolean hudSidebar;
+    private final boolean hudTabList;
+    private final boolean hudNametags;
+    private final boolean chatFormat;
+    private final String hudFooter;
+    private final int kingMinLevel;
 
     private Settings(FileConfiguration c) {
         levelCurve = new LevelCurve(
@@ -76,6 +88,18 @@ public final class Settings {
         packUrl = c.getString("resource-pack.url", "").trim();
         packRequired = c.getBoolean("resource-pack.required", false);
         packPrompt = c.getString("resource-pack.prompt", "<green>Black Clover <gray>3D grimoires and magic");
+        squadMaxMembers = Math.max(1, c.getInt("squads.max-members", 6));
+        squadInviteMillis = (long) (c.getDouble("squads.invite-minutes", 5) * MINUTE);
+        friendlyFire = c.getBoolean("squads.friendly-fire", false);
+        starsPerKill = c.getInt("squads.stars.kill", 1);
+        starsPerGrimoire = c.getInt("squads.stars.grimoire", 3);
+        starsPerDemon = c.getInt("squads.stars.demon", 5);
+        hudSidebar = c.getBoolean("hud.sidebar", true);
+        hudTabList = c.getBoolean("hud.tab-list", true);
+        hudNametags = c.getBoolean("hud.nametags", true);
+        chatFormat = c.getBoolean("hud.chat-format", true);
+        hudFooter = c.getString("hud.footer", "<dark_gray>/magic  ·  /squad");
+        kingMinLevel = c.getInt("wizard-king.min-level", 5);
     }
 
     private static Map<Material, Integer> readRecipe(ConfigurationSection section) {
@@ -123,4 +147,16 @@ public final class Settings {
     public String packUrl() { return packUrl; }
     public boolean packRequired() { return packRequired; }
     public String packPrompt() { return packPrompt; }
+    public int squadMaxMembers() { return squadMaxMembers; }
+    public long squadInviteMillis() { return squadInviteMillis; }
+    public boolean friendlyFire() { return friendlyFire; }
+    public int starsPerKill() { return starsPerKill; }
+    public int starsPerGrimoire() { return starsPerGrimoire; }
+    public int starsPerDemon() { return starsPerDemon; }
+    public boolean hudSidebar() { return hudSidebar; }
+    public boolean hudTabList() { return hudTabList; }
+    public boolean hudNametags() { return hudNametags; }
+    public boolean chatFormat() { return chatFormat; }
+    public String hudFooter() { return hudFooter; }
+    public int kingMinLevel() { return kingMinLevel; }
 }

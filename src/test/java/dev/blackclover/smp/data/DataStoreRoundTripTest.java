@@ -8,6 +8,7 @@ import dev.blackclover.smp.grimoire.GrimoireState;
 import dev.blackclover.smp.grimoire.GrimoireStatus;
 import dev.blackclover.smp.grimoire.GrimoireType;
 import dev.blackclover.smp.mage.PlayerData;
+import dev.blackclover.smp.squad.SquadRoster;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,6 +34,7 @@ class DataStoreRoundTripTest {
         game.setWorld("world");
         game.setBorderSize(6000);
         game.setGraceEndMillis(123456789L);
+        game.setWizardKing(a);
         Library lib = new Library(GrimoireType.FIRE, "world", 1500, 70, -1200, 1495, 69, -1205, 1505, 79, -1195);
         game.libraries().put(GrimoireType.FIRE, lib);
 
@@ -48,16 +50,41 @@ class DataStoreRoundTripTest {
         pd.setXp(GrimoireType.FIRE, 640);
         pd.setLastPenaltyMillis(123);
         pd.setLastSeenMillis(456);
+        pd.recordKill();
+        pd.recordKill();
+        pd.recordDeath();
+        pd.recordKill();
+        pd.setHudHidden(true);
         players.put(a, pd);
+        UUID b = UUID.randomUUID();
+        SquadRoster squads = new SquadRoster(6, 60_000);
+        squads.create(a, "Black Bulls", 99);
+        squads.invite(a, b, 0);
+        squads.join(b, "Black Bulls", 0);
+        squads.addStars(a, 7);
+        squads.setColor(a, "dark_purple");
 
         DataStore store = new DataStore(new File(dir, "data.yml"));
-        store.writeSync(store.serialize(game, registry, players, a));
+        store.writeSync(store.serialize(game, registry, players, a, squads));
 
         GameState game2 = new GameState();
         GrimoireRegistry registry2 = new GrimoireRegistry();
         Map<UUID, PlayerData> players2 = new HashMap<>();
         AtomicReference<UUID> demon = new AtomicReference<>();
-        store.load(game2, registry2, players2, demon);
+        SquadRoster squads2 = new SquadRoster(6, 60_000);
+        store.load(game2, registry2, players2, demon, squads2);
+        var bulls = squads2.byName("black bulls").orElseThrow();
+        assertEquals(a, bulls.captain());
+        assertEquals(java.util.List.of(a, b), bulls.members());
+        assertEquals(7, bulls.stars());
+        assertEquals("dark_purple", bulls.color());
+        assertEquals(99, bulls.createdMillis());
+        assertTrue(squads2.allies(a, b));
+        assertEquals(a, game2.wizardKing());
+        PlayerData stats = players2.get(a);
+        assertEquals(3, stats.kills());
+        assertEquals(1, stats.deaths());
+        assertTrue(stats.hudHidden());
 
         assertTrue(game2.isStarted());
         assertEquals("world", game2.world());
@@ -90,7 +117,7 @@ class DataStoreRoundTripTest {
         GameState game = new GameState();
         GrimoireRegistry registry = new GrimoireRegistry();
         AtomicReference<UUID> demon = new AtomicReference<>();
-        store.load(game, registry, new HashMap<>(), demon);
+        store.load(game, registry, new HashMap<>(), demon, new SquadRoster(6, 60_000));
         assertFalse(game.isStarted());
         assertNull(demon.get());
         assertEquals(GrimoireStatus.LIBRARY, registry.get(GrimoireType.FIRE).status());

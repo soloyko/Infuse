@@ -28,6 +28,8 @@ import dev.blackclover.smp.magic.StatusService;
 import dev.blackclover.smp.magic.TempBlocks;
 import dev.blackclover.smp.magic.spells.AllSpells;
 import dev.blackclover.smp.pack.ResourcePackService;
+import dev.blackclover.smp.squad.SquadRoster;
+import dev.blackclover.smp.squad.SquadService;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -61,13 +63,26 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private DemonService demonService;
     private ResourcePackService pack;
     private dev.blackclover.smp.magic.GrimoireHover hover;
+    private SquadRoster roster;
+    private SquadService squads;
+    private dev.blackclover.smp.hud.HudService hud;
+    private dev.blackclover.smp.gui.SquadMenu squadMenu;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         settings = Settings.load(getConfig());
         store = new DataStore(new File(getDataFolder(), "data.yml"));
-        store.load(game, registry, players, demon);
+        roster = new SquadRoster(settings.squadMaxMembers(), settings.squadInviteMillis());
+        store.load(game, registry, players, demon, roster);
+        squads = new SquadService(this, roster);
+        getServer().getPluginManager().registerEvents(squads, this);
+        squadMenu = new dev.blackclover.smp.gui.SquadMenu(this, squads);
+        dev.blackclover.smp.command.SquadCommand squadCommand = new dev.blackclover.smp.command.SquadCommand(squads, squadMenu);
+        for (String cmd : new String[]{"squad", "sc"}) {
+            getCommand(cmd).setExecutor(squadCommand);
+            getCommand(cmd).setTabCompleter(squadCommand);
+        }
 
         grimoires = new GrimoireService(this, registry, new GrimoireItems(this));
         GrimoireListener grimoireListener = new GrimoireListener(this, grimoires);
@@ -123,6 +138,10 @@ public final class BlackCloverPlugin extends JavaPlugin {
         hover.startTasks();
         casting.setOnCast(hover::onCast);
 
+        hud = new dev.blackclover.smp.hud.HudService(this);
+        getServer().getPluginManager().registerEvents(hud, this);
+        hud.startTasks();
+
         pack = new ResourcePackService(this);
         pack.enable();
         getServer().getPluginManager().registerEvents(pack, this);
@@ -156,6 +175,9 @@ public final class BlackCloverPlugin extends JavaPlugin {
         if (hover != null) {
             hover.removeAll();
         }
+        if (hud != null) {
+            hud.removeAll();
+        }
         if (altars != null) {
             altars.removeAllDisplays();
         }
@@ -168,7 +190,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     }
 
     private String snapshot() {
-        return store.serialize(game, registry, players, demon.get());
+        return store.serialize(game, registry, players, demon.get(), roster);
     }
 
     public void saveAsync() {
@@ -199,4 +221,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public DemonService demon() { return demonService; }
     public ResourcePackService pack() { return pack; }
     public dev.blackclover.smp.magic.GrimoireHover hover() { return hover; }
+    public SquadService squads() { return squads; }
+    public dev.blackclover.smp.hud.HudService hud() { return hud; }
+    public dev.blackclover.smp.gui.SquadMenu squadMenu() { return squadMenu; }
 }
