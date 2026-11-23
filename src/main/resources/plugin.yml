@@ -1,0 +1,5 @@
+name: BlackCloverSMP
+version: '${project.version}'
+main: dev.blackclover.smp.BlackCloverPlugin
+api-version: '1.21'
+description: Black Clover themed PvP SMP - unique grimoires, magic and the Demon Possessed.
