@@ -15,6 +15,14 @@ import dev.blackclover.smp.grimoire.GrimoireService;
 import dev.blackclover.smp.mage.CombatListener;
 import dev.blackclover.smp.mage.MageService;
 import dev.blackclover.smp.mage.PlayerData;
+import dev.blackclover.smp.magic.CastingService;
+import dev.blackclover.smp.magic.Fx;
+import dev.blackclover.smp.magic.Spell;
+import dev.blackclover.smp.magic.SpellRegistry;
+import dev.blackclover.smp.magic.StatusService;
+import dev.blackclover.smp.magic.TempBlocks;
+import dev.blackclover.smp.magic.spells.AllSpells;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -39,6 +47,10 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private MageService mage;
     private CombatListener combatListener;
     private MagicCommand magicCommand;
+    private final SpellRegistry spells = new SpellRegistry();
+    private StatusService status;
+    private TempBlocks tempBlocks;
+    private CastingService casting;
 
     @Override
     public void onEnable() {
@@ -69,6 +81,36 @@ public final class BlackCloverPlugin extends JavaPlugin {
         getCommand("magic").setExecutor(magicCommand);
         getCommand("magic").setTabCompleter(magicCommand);
 
+        status = new StatusService(this);
+        tempBlocks = new TempBlocks(this, b -> altars.libraryAt(b).isPresent());
+        Fx fx = new Fx(this, status, tempBlocks);
+        AllSpells.register(spells);
+        spells.applyConfig(getConfig());
+        saveConfig();
+        casting = new CastingService(this, spells, mage, grimoires, status, fx);
+        getServer().getPluginManager().registerEvents(status, this);
+        getServer().getPluginManager().registerEvents(tempBlocks, this);
+        getServer().getPluginManager().registerEvents(casting, this);
+        status.startTasks();
+        casting.startTasks();
+        mage.setSpellNames((type, slot) -> {
+            java.util.List<Spell> list = spells.spells(type);
+            return slot < list.size() ? list.get(slot).name() : "spell " + (slot + 1);
+        });
+        mage.onLevelChange(casting::onLevelChanged);
+        magicCommand.setDetails(casting::describe);
+        grimoires.setHolderInfo(new GrimoireService.HolderInfo() {
+            @Override
+            public int level(Player player, dev.blackclover.smp.grimoire.GrimoireType type) {
+                return mage.level(player.getUniqueId(), type);
+            }
+
+            @Override
+            public String selectedSpell(Player player, dev.blackclover.smp.grimoire.GrimoireType type) {
+                return casting.selectedSpell(player, type).map(Spell::name).orElse(null);
+            }
+        });
+
         getServer().getScheduler().runTaskTimer(this, this::saveAsync, AUTOSAVE_TICKS, AUTOSAVE_TICKS);
     }
 
@@ -76,6 +118,9 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public void onDisable() {
         if (altars != null) {
             altars.removeAllDisplays();
+        }
+        if (tempBlocks != null) {
+            tempBlocks.restoreAll();
         }
         if (store != null) {
             store.writeSync(snapshot());
@@ -94,6 +139,8 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public void reloadSettings() {
         reloadConfig();
         settings = Settings.load(getConfig());
+        spells.applyConfig(getConfig());
+        saveConfig();
     }
 
     public Settings settings() { return settings; }
@@ -105,4 +152,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public GameService gameService() { return gameService; }
     public AltarService altars() { return altars; }
     public MageService mage() { return mage; }
+    public SpellRegistry spells() { return spells; }
+    public CastingService casting() { return casting; }
+    public StatusService status() { return status; }
 }
