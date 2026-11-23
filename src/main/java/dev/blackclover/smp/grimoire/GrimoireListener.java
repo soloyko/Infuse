@@ -43,6 +43,7 @@ public final class GrimoireListener implements Listener {
     private final GrimoireService service;
     private final GrimoireItems items;
     private final GrimoireRegistry registry;
+    private final java.util.Map<java.util.UUID, Long> pickupNoticeAt = new java.util.HashMap<>();
 
     public GrimoireListener(BlackCloverPlugin plugin, GrimoireService service) {
         this.plugin = plugin;
@@ -85,7 +86,11 @@ public final class GrimoireListener implements Listener {
         }
         if (registry.heldBy(player.getUniqueId()).isPresent()) {
             event.setCancelled(true);
-            Msg.actionBar(player, "<red>You can only carry one grimoire.");
+            long now = System.currentTimeMillis();
+            if (now - pickupNoticeAt.getOrDefault(player.getUniqueId(), 0L) > 3000) {
+                pickupNoticeAt.put(player.getUniqueId(), now);
+                Msg.send(player, "<red>You can only carry one grimoire. Drop yours (Q) to take this one.");
+            }
             return;
         }
         registry.markHeld(type.get(), player.getUniqueId());
