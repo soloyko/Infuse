@@ -322,32 +322,29 @@ public final class Fx {
         return r != null && r.getHitEntity() instanceof LivingEntity le ? Optional.of(le) : Optional.empty();
     }
 
-    /** A nearby spot where a player can stand: solid floor, two free blocks, inside the border, not in the void. */
+    /** A spot to land near {@code near}: at or below it (up to 8), or at most 1 block up. */
     public Optional<Location> safeSpot(Location near) {
+        return safeSpot(near, 1, 8);
+    }
+
+    /** A spot where a player can stand: solid floor, two free blocks, inside the border, not in the void. */
+    public Optional<Location> safeSpot(Location near, int maxUp, int maxDown) {
         World w = near.getWorld();
         int bx = near.getBlockX();
         int bz = near.getBlockZ();
-        int by = near.getBlockY();
-        for (int offset = 0; offset <= 8; offset++) {
-            for (int sign : new int[]{-1, 1}) {
-                int y = by + offset * sign;
-                if (y <= w.getMinHeight() || y >= w.getMaxHeight() - 2) {
-                    continue;
-                }
-                Block feet = w.getBlockAt(bx, y, bz);
-                if (feet.isPassable() && !feet.isLiquid() && feet.getRelative(0, 1, 0).isPassable()
-                        && feet.getRelative(0, -1, 0).getType().isSolid()) {
-                    Location spot = new Location(w, bx + 0.5, y, bz + 0.5, near.getYaw(), near.getPitch());
-                    if (w.getWorldBorder().isInside(spot)) {
-                        return Optional.of(spot);
-                    }
-                }
-                if (offset == 0) {
-                    break;
-                }
+        java.util.OptionalInt y = dev.blackclover.smp.core.LandingSearch.findY(near.getBlockY(), maxUp, maxDown, cy -> {
+            if (cy <= w.getMinHeight() || cy >= w.getMaxHeight() - 2) {
+                return false;
             }
+            Block feet = w.getBlockAt(bx, cy, bz);
+            return feet.isPassable() && !feet.isLiquid() && feet.getRelative(0, 1, 0).isPassable()
+                    && feet.getRelative(0, -1, 0).getType().isSolid();
+        });
+        if (y.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        Location spot = new Location(w, bx + 0.5, y.getAsInt(), bz + 0.5, near.getYaw(), near.getPitch());
+        return w.getWorldBorder().isInside(spot) ? Optional.of(spot) : Optional.empty();
     }
 
     // ---------------------------------------------------------------- scheduling
