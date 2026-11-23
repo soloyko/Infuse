@@ -44,4 +44,15 @@ class SpellSelectionTest {
         assertEquals(1, s.index(a, GrimoireType.FIRE, 2));
         assertEquals(0, s.index(a, GrimoireType.FIRE, 0));
     }
+
+    @Test
+    void selectPicksASpellDirectly() {
+        SpellSelection s = new SpellSelection();
+        s.select(a, GrimoireType.FIRE, 2, 4);
+        assertEquals(2, s.index(a, GrimoireType.FIRE, 4));
+        s.select(a, GrimoireType.FIRE, 7, 4);
+        assertEquals(3, s.index(a, GrimoireType.FIRE, 4));
+        s.select(a, GrimoireType.FIRE, -1, 4);
+        assertEquals(0, s.index(a, GrimoireType.FIRE, 4));
+    }
 }

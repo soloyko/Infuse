@@ -41,6 +41,25 @@ public final class CastingService implements Listener {
     private final SpellSelection selection = new SpellSelection();
     private final Map<UUID, Long> hudPausedUntil = new HashMap<>();
     private java.util.function.BiConsumer<Player, GrimoireType> onCast = (p, t) -> { };
+    private java.util.function.Consumer<Player> openBook = p -> { };
+
+    public void setOpenBook(java.util.function.Consumer<Player> openBook) {
+        this.openBook = openBook;
+    }
+
+    /** Shift + left-click with the grimoire opens the spellbook. */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onLeftClick(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND || !event.getPlayer().isSneaking()
+                || (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK)) {
+            return;
+        }
+        if (liveHeld(event.getPlayer(), event.getItem()).isPresent()
+                && debounce.tryAcquire(event.getPlayer().getUniqueId(), System.currentTimeMillis())) {
+            event.setCancelled(true);
+            openBook.accept(event.getPlayer());
+        }
+    }
 
     public CastingService(BlackCloverPlugin plugin, SpellRegistry spells, MageService mage, GrimoireService grimoires,
                           StatusService status, Fx fx) {
@@ -100,6 +119,22 @@ public final class CastingService implements Listener {
             return Optional.empty();
         }
         return Optional.of(list.get(selection.index(p.getUniqueId(), type, list.size())));
+    }
+
+    /** Selects spell slot {@code index} (used by the spellbook). False if it isn't unlocked yet. */
+    public boolean select(Player p, GrimoireType type, int index) {
+        List<Spell> list = unlocked(p, type);
+        if (index < 0 || index >= list.size()) {
+            return false;
+        }
+        selection.select(p.getUniqueId(), type, index, list.size());
+        grimoires.refreshLore(p);
+        return true;
+    }
+
+    public long cooldownLeftMillis(Player p, Spell spell) {
+        long readyAt = cooldowns.getOrDefault(p.getUniqueId(), Map.of()).getOrDefault(spell.id(), 0L);
+        return Math.max(0, readyAt - System.currentTimeMillis());
     }
 
     /** Clamp mana after a level change (selection clamps itself). */

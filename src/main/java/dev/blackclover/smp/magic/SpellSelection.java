@@ -22,6 +22,11 @@ public final class SpellSelection {
         return Math.min(c.index(), unlocked - 1);
     }
 
+    /** Picks a spell directly (clamped to the unlocked range). */
+    public void select(UUID player, GrimoireType type, int index, int unlocked) {
+        choices.put(player, new Choice(type, Math.max(0, Math.min(index, Math.max(0, unlocked - 1)))));
+    }
+
     public int next(UUID player, GrimoireType type, int unlocked) {
         int next = unlocked <= 0 ? 0 : (index(player, type, unlocked) + 1) % unlocked;
         choices.put(player, new Choice(type, next));

@@ -10,8 +10,8 @@ commands:
     aliases: [bcstart]
     permission: blackclover.admin
   magic:
-    description: Show your grimoire, level and spells. /magic top shows the strongest mages.
-    usage: /magic [top]
+    description: Open your spellbook. /magic info for text, /magic top for the strongest mages.
+    usage: /magic [info|top]
   bcadmin:
     description: Black Clover admin menu and commands.
     usage: /bcadmin [possess|unpossess|give|take|setlevel|addxp|grace|reset|reload|pack]

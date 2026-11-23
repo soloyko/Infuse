@@ -26,6 +26,11 @@ public final class MagicCommand implements TabExecutor {
     private final BlackCloverPlugin plugin;
     private final MageService mage;
     private Details details = (p, t, l, to) -> { };
+    private java.util.function.Consumer<Player> openBook = p -> { };
+
+    public void setOpenBook(java.util.function.Consumer<Player> openBook) {
+        this.openBook = openBook;
+    }
 
     public MagicCommand(BlackCloverPlugin plugin, MageService mage) {
         this.plugin = plugin;
@@ -53,6 +58,10 @@ public final class MagicCommand implements TabExecutor {
         }
         if (!(sender instanceof Player player)) {
             Msg.send(sender, "<gray>Usage: /magic top");
+            return true;
+        }
+        if (args.length == 0 && plugin.grimoires().carried(player).isPresent()) {
+            openBook.accept(player);
             return true;
         }
         LevelCurve curve = plugin.settings().levelCurve();
@@ -88,6 +97,6 @@ public final class MagicCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return args.length == 1 ? List.of("top") : List.of();
+        return args.length == 1 ? List.of("top", "info") : List.of();
     }
 }

@@ -114,6 +114,10 @@ public final class BlackCloverPlugin extends JavaPlugin {
         combatListener.setOnDemonDeath(demonService::onDeath);
         demonService.startTasks();
 
+        dev.blackclover.smp.gui.SpellbookMenu spellbook = new dev.blackclover.smp.gui.SpellbookMenu(this);
+        casting.setOpenBook(spellbook::open);
+        magicCommand.setOpenBook(spellbook::open);
+
         hover = new dev.blackclover.smp.magic.GrimoireHover(this);
         getServer().getPluginManager().registerEvents(hover, this);
         hover.startTasks();
