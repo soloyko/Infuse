@@ -27,6 +27,7 @@ import dev.blackclover.smp.magic.SpellRegistry;
 import dev.blackclover.smp.magic.StatusService;
 import dev.blackclover.smp.magic.TempBlocks;
 import dev.blackclover.smp.magic.spells.AllSpells;
+import dev.blackclover.smp.pack.ResourcePackService;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -58,6 +59,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private TempBlocks tempBlocks;
     private CastingService casting;
     private DemonService demonService;
+    private ResourcePackService pack;
 
     @Override
     public void onEnable() {
@@ -111,6 +113,10 @@ public final class BlackCloverPlugin extends JavaPlugin {
         combatListener.setOnDemonDeath(demonService::onDeath);
         demonService.startTasks();
 
+        pack = new ResourcePackService(this);
+        pack.enable();
+        getServer().getPluginManager().registerEvents(pack, this);
+
         AdminActions adminActions = new AdminActions(this);
         AdminCommand admin = new AdminCommand(this, adminActions, new AdminMenus(this, adminActions));
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
@@ -134,6 +140,9 @@ public final class BlackCloverPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (pack != null) {
+            pack.disable();
+        }
         if (altars != null) {
             altars.removeAllDisplays();
         }
@@ -175,4 +184,5 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public CastingService casting() { return casting; }
     public StatusService status() { return status; }
     public DemonService demon() { return demonService; }
+    public ResourcePackService pack() { return pack; }
 }

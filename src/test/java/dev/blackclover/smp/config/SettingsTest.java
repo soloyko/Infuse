@@ -31,6 +31,12 @@ class SettingsTest {
         assertEquals(40.0, s.demonHealth(), 1e-9);
         assertEquals(300_000L, s.demonBroadcastMillis());
         assertTrue(s.disabledWorlds().isEmpty());
+        assertTrue(s.packEnabled());
+        assertEquals("self", s.packHost());
+        assertEquals(8163, s.packPort());
+        assertEquals("", s.packPublicAddress());
+        assertEquals("", s.packUrl());
+        assertFalse(s.packRequired());
     }
 
     @Test

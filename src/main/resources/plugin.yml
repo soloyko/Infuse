@@ -14,7 +14,7 @@ commands:
     usage: /magic [top]
   bcadmin:
     description: Black Clover admin menu and commands.
-    usage: /bcadmin [possess|unpossess|give|take|setlevel|addxp|grace|reset|reload]
+    usage: /bcadmin [possess|unpossess|give|take|setlevel|addxp|grace|reset|reload|pack]
     permission: blackclover.admin
 permissions:
   blackclover.admin:

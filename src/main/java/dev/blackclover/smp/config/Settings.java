@@ -33,6 +33,13 @@ public final class Settings {
     private final double demonHealth;
     private final long demonBroadcastMillis;
     private final Set<String> disabledWorlds;
+    private final boolean packEnabled;
+    private final String packHost;
+    private final int packPort;
+    private final String packPublicAddress;
+    private final String packUrl;
+    private final boolean packRequired;
+    private final String packPrompt;
 
     private Settings(FileConfiguration c) {
         levelCurve = new LevelCurve(
@@ -62,6 +69,13 @@ public final class Settings {
         demonHealth = c.getDouble("demon.max-health", 40);
         demonBroadcastMillis = (long) (c.getDouble("demon.broadcast-minutes", 5) * MINUTE);
         disabledWorlds = Collections.unmodifiableSet(new HashSet<>(c.getStringList("disabled-worlds")));
+        packEnabled = c.getBoolean("resource-pack.enabled", true);
+        packHost = c.getString("resource-pack.host", "self").trim().toLowerCase(java.util.Locale.ROOT);
+        packPort = c.getInt("resource-pack.port", 8163);
+        packPublicAddress = c.getString("resource-pack.public-address", "").trim();
+        packUrl = c.getString("resource-pack.url", "").trim();
+        packRequired = c.getBoolean("resource-pack.required", false);
+        packPrompt = c.getString("resource-pack.prompt", "<green>Black Clover <gray>3D grimoires and magic");
     }
 
     private static Map<Material, Integer> readRecipe(ConfigurationSection section) {
@@ -102,4 +116,11 @@ public final class Settings {
     public double demonHealth() { return demonHealth; }
     public long demonBroadcastMillis() { return demonBroadcastMillis; }
     public Set<String> disabledWorlds() { return disabledWorlds; }
+    public boolean packEnabled() { return packEnabled; }
+    public String packHost() { return packHost; }
+    public int packPort() { return packPort; }
+    public String packPublicAddress() { return packPublicAddress; }
+    public String packUrl() { return packUrl; }
+    public boolean packRequired() { return packRequired; }
+    public String packPrompt() { return packPrompt; }
 }

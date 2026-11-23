@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 /** /bcadmin — opens the admin GUI, or runs the same actions as text commands. */
 public final class AdminCommand implements TabExecutor {
 
-    private static final List<String> SUBS = List.of("possess", "unpossess", "give", "take", "setlevel", "addxp", "grace", "reset", "reload");
+    private static final List<String> SUBS = List.of("possess", "unpossess", "give", "take", "setlevel", "addxp", "grace", "reset", "reload", "pack");
 
     private final BlackCloverPlugin plugin;
     private final AdminActions actions;
@@ -81,6 +81,14 @@ public final class AdminCommand implements TabExecutor {
                 }
             }
             case "reload" -> actions.reload(sender);
+            case "pack" -> {
+                if (args.length >= 2 && args[1].equalsIgnoreCase("resend")) {
+                    plugin.pack().resendAll();
+                    Msg.send(sender, "<green>Offered the resource pack to everyone online.");
+                } else {
+                    plugin.pack().describe(sender);
+                }
+            }
             default -> usage(sender);
         }
         return true;
@@ -89,7 +97,7 @@ public final class AdminCommand implements TabExecutor {
     private void usage(CommandSender sender) {
         Msg.send(sender, "<gray>/bcadmin <white>possess <player></white> | <white>unpossess</white> | <white>give <player> antimagic</white>"
                 + " | <white>take <player></white> | <white>setlevel <player> <level></white> | <white>addxp <player> <amount></white>"
-                + " | <white>grace end</white> | <white>reset confirm</white> | <white>reload</white>");
+                + " | <white>grace end</white> | <white>reset confirm</white> | <white>reload</white> | <white>pack [resend]</white>");
     }
 
     private void withPlayer(CommandSender sender, String[] args, int index, java.util.function.Consumer<Player> action) {
@@ -128,6 +136,7 @@ public final class AdminCommand implements TabExecutor {
                 case "possess", "give", "take", "setlevel", "addxp" -> filter(onlineNames(), args[1]);
                 case "grace" -> List.of("end");
                 case "reset" -> List.of("confirm");
+                case "pack" -> List.of("resend");
                 default -> List.of();
             };
         }

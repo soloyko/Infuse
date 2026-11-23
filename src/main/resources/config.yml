@@ -56,5 +56,19 @@ demon:
 # Worlds where magic cannot be cast
 disabled-worlds: []
 
+# Custom 3D grimoires and spell models. Players without the pack still see normal items.
+resource-pack:
+  enabled: true
+  # self = the plugin serves the pack itself on `port` (open this port on your host/firewall)
+  # url  = you upload plugins/BlackCloverSMP/BlackCloverSMP-pack.zip somewhere and put the direct link in `url`
+  host: self
+  port: 8163
+  # Address players download from when host is "self". Empty = the address each player joined with.
+  public-address: ""
+  url: ""
+  # true = players must accept the pack to stay on the server
+  required: false
+  prompt: "<green>Black Clover <gray>3D grimoires and magic"
+
 # Per-spell cost / cooldown (seconds) / damage. Filled in automatically on first start.
 spells: {}
