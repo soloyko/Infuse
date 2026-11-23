@@ -38,7 +38,7 @@ public final class CastingService implements Listener {
     private final CastDebounce debounce = new CastDebounce(150);
     private final Map<UUID, Double> mana = new HashMap<>();
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
-    private final Map<UUID, Integer> selected = new HashMap<>();
+    private final SpellSelection selection = new SpellSelection();
     private final Map<UUID, Long> hudPausedUntil = new HashMap<>();
 
     public CastingService(BlackCloverPlugin plugin, SpellRegistry spells, MageService mage, GrimoireService grimoires,
@@ -94,16 +94,11 @@ public final class CastingService implements Listener {
         if (list.isEmpty()) {
             return Optional.empty();
         }
-        int index = Math.max(0, Math.min(selected.getOrDefault(p.getUniqueId(), 0), list.size() - 1));
-        return Optional.of(list.get(index));
+        return Optional.of(list.get(selection.index(p.getUniqueId(), type, list.size())));
     }
 
-    /** Clamp selection and mana after a level change. */
+    /** Clamp mana after a level change (selection clamps itself). */
     public void onLevelChanged(Player p) {
-        grimoires.carried(p).ifPresent(type -> {
-            int size = unlocked(p, type).size();
-            selected.put(p.getUniqueId(), Math.max(0, Math.min(selected.getOrDefault(p.getUniqueId(), 0), size - 1)));
-        });
         addMana(p, 0);
     }
 
@@ -163,8 +158,7 @@ public final class CastingService implements Listener {
         if (list.isEmpty()) {
             return;
         }
-        int next = (selectedSpell(p, type).map(list::indexOf).orElse(-1) + 1) % list.size();
-        selected.put(p.getUniqueId(), next);
+        int next = selection.next(p.getUniqueId(), type, list.size());
         notice(p, "<gray>Selected: <c><b><spell></b></c>", Msg.color("c", type.rgb()), Msg.arg("spell", list.get(next).name()));
         p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1f, 1.2f);
         grimoires.refreshLore(p);
