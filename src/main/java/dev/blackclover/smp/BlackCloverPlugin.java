@@ -3,7 +3,10 @@ package dev.blackclover.smp;
 import dev.blackclover.smp.config.Settings;
 import dev.blackclover.smp.data.DataStore;
 import dev.blackclover.smp.game.GameState;
+import dev.blackclover.smp.grimoire.GrimoireItems;
+import dev.blackclover.smp.grimoire.GrimoireListener;
 import dev.blackclover.smp.grimoire.GrimoireRegistry;
+import dev.blackclover.smp.grimoire.GrimoireService;
 import dev.blackclover.smp.mage.PlayerData;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +26,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private final Map<UUID, PlayerData> players = new HashMap<>();
     private final AtomicReference<UUID> demon = new AtomicReference<>();
     private DataStore store;
+    private GrimoireService grimoires;
 
     @Override
     public void onEnable() {
@@ -30,6 +34,11 @@ public final class BlackCloverPlugin extends JavaPlugin {
         settings = Settings.load(getConfig());
         store = new DataStore(new File(getDataFolder(), "data.yml"));
         store.load(game, registry, players, demon);
+
+        grimoires = new GrimoireService(this, registry, new GrimoireItems(this));
+        GrimoireListener grimoireListener = new GrimoireListener(this, grimoires);
+        getServer().getPluginManager().registerEvents(grimoireListener, this);
+        grimoireListener.startTasks();
 
         getServer().getScheduler().runTaskTimer(this, this::saveAsync, AUTOSAVE_TICKS, AUTOSAVE_TICKS);
     }
@@ -60,4 +69,5 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public GrimoireRegistry registry() { return registry; }
     public Map<UUID, PlayerData> players() { return players; }
     public AtomicReference<UUID> demonRef() { return demon; }
+    public GrimoireService grimoires() { return grimoires; }
 }
