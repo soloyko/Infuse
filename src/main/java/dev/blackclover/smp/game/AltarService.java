@@ -50,6 +50,8 @@ public final class AltarService implements Listener {
     private final BlackCloverPlugin plugin;
     private final GrimoireService grimoires;
     private final Map<GrimoireType, UUID> displays = new EnumMap<>(GrimoireType.class);
+    private final Map<GrimoireType, UUID> floaters = new EnumMap<>(GrimoireType.class);
+    private int floatStep;
 
     public AltarService(BlackCloverPlugin plugin, GrimoireService grimoires) {
         this.plugin = plugin;
@@ -69,6 +71,7 @@ public final class AltarService implements Listener {
             }
         }
         plugin.getServer().getScheduler().runTaskTimer(plugin, this::ambientParticles, 40L, 20L);
+        plugin.getServer().getScheduler().runTaskTimer(plugin, this::animateFloaters, 40L, 30L);
     }
 
     // ---------------------------------------------------------------- displays
@@ -116,7 +119,7 @@ public final class AltarService implements Listener {
                 return;
             }
         }
-        Location at = new Location(w, lib.altarX() + 0.5, lib.altarY() + 1.9, lib.altarZ() + 0.5);
+        Location at = new Location(w, lib.altarX() + 0.5, lib.altarY() + 2.7, lib.altarZ() + 0.5);
         TextDisplay display = w.spawn(at, TextDisplay.class, d -> {
             d.setPersistent(false);
             d.setBillboard(Display.Billboard.CENTER);
@@ -125,12 +128,67 @@ public final class AltarService implements Listener {
             d.text(displayText(lib.type()));
         });
         displays.put(lib.type(), display.getUniqueId());
+        updateFloater(lib);
     }
 
     public void refresh(GrimoireType type) {
         UUID id = displays.get(type);
         if (id != null && plugin.getServer().getEntity(id) instanceof TextDisplay d) {
             d.text(displayText(type));
+        }
+        Library lib = game().libraries().get(type);
+        if (lib != null) {
+            updateFloater(lib);
+        }
+    }
+
+    /** A 3D grimoire hovers over an altar while its grimoire waits there. */
+    private void updateFloater(Library lib) {
+        UUID id = floaters.get(lib.type());
+        org.bukkit.entity.Entity existing = id == null ? null : plugin.getServer().getEntity(id);
+        boolean want = active(lib.type());
+        if (!want) {
+            if (existing != null) {
+                existing.remove();
+            }
+            floaters.remove(lib.type());
+            return;
+        }
+        if (existing != null && existing.isValid()) {
+            return;
+        }
+        World w = plugin.getServer().getWorld(lib.world());
+        if (w == null || !w.isChunkLoaded(lib.altarX() >> 4, lib.altarZ() >> 4)) {
+            return;
+        }
+        Location at = new Location(w, lib.altarX() + 0.5, lib.altarY() + 1.75, lib.altarZ() + 0.5);
+        org.bukkit.inventory.ItemStack model = dev.blackclover.smp.pack.PackItems.model(Material.BOOK,
+                dev.blackclover.smp.pack.PackModels.grimoireKey(lib.type()));
+        org.bukkit.entity.ItemDisplay floater = w.spawn(at, org.bukkit.entity.ItemDisplay.class, d -> {
+            d.setPersistent(false);
+            d.setItemStack(model);
+            d.setItemDisplayTransform(org.bukkit.entity.ItemDisplay.ItemDisplayTransform.FIXED);
+            d.setViewRange(0.5f);
+            d.setTransformation(floatTransform(0));
+        });
+        floaters.put(lib.type(), floater.getUniqueId());
+    }
+
+    private static org.bukkit.util.Transformation floatTransform(int step) {
+        float bob = step % 2 == 0 ? 0.12f : -0.12f;
+        org.joml.Quaternionf spin = new org.joml.Quaternionf().rotateY((float) (step * Math.PI * 2 / 3));
+        return new org.bukkit.util.Transformation(new org.joml.Vector3f(0, bob, 0), spin,
+                new org.joml.Vector3f(0.75f, 0.75f, 0.75f), new org.joml.Quaternionf());
+    }
+
+    private void animateFloaters() {
+        floatStep++;
+        for (UUID id : floaters.values()) {
+            if (plugin.getServer().getEntity(id) instanceof org.bukkit.entity.ItemDisplay d) {
+                d.setInterpolationDelay(0);
+                d.setInterpolationDuration(30);
+                d.setTransformation(floatTransform(floatStep));
+            }
         }
     }
 
@@ -141,7 +199,14 @@ public final class AltarService implements Listener {
                 e.remove();
             }
         }
+        for (UUID id : floaters.values()) {
+            Entity e = plugin.getServer().getEntity(id);
+            if (e != null) {
+                e.remove();
+            }
+        }
         displays.clear();
+        floaters.clear();
     }
 
     /** Spawns displays for a newly built library. */

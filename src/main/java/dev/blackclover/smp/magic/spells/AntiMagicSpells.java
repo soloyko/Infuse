@@ -5,7 +5,14 @@ import dev.blackclover.smp.magic.Fx;
 import dev.blackclover.smp.magic.Spell;
 import dev.blackclover.smp.magic.SpellContext;
 import dev.blackclover.smp.magic.SpellRegistry;
+import dev.blackclover.smp.pack.PackItems;
+import dev.blackclover.smp.pack.PackModels;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -42,12 +49,38 @@ final class AntiMagicSpells {
         }
         Fx.particle(eye.getWorld(), Particle.SWEEP_ATTACK, eye.clone().add(forward.clone().multiply(2)), 3, 0.5, null);
         Fx.sound(eye, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.5f);
+        swordSweep(ctx);
         for (LivingEntity t : ctx.fx().cone(p, 4.5, 100)) {
             if (ctx.fx().hit(p, t, ctx.dmg()) && ctx.status().stripBuffs(t)) {
                 Fx.particle(t.getWorld(), Particle.SMOKE, t.getLocation().add(0, 1, 0), 20, 0.4, null);
             }
         }
         return true;
+    }
+
+    /** The Demon-Slayer greatsword sweeps through the cone in front of the caster. */
+    private static void swordSweep(SpellContext ctx) {
+        Player p = ctx.caster();
+        float yaw = (float) Math.toRadians(p.getLocation().getYaw());
+        Location at = p.getLocation().add(0, 1.1, 0).add(SpellUtil.horizontalLook(p).multiply(0.4));
+        ItemDisplay sword = ctx.fx().spawnModel(at, PackItems.model(Material.NETHERITE_SWORD, PackModels.DEMON_SLAYER), 1.0f,
+                new Vector(0, 1, 0), false);
+        sword.setTransformation(sweepTransform(yaw, -1.1f));
+        ctx.fx().repeat(1, 7, step -> {
+            if (!sword.isValid()) {
+                return;
+            }
+            sword.setInterpolationDelay(0);
+            sword.setInterpolationDuration(1);
+            sword.setTransformation(sweepTransform(yaw, -1.1f + step * (2.2f / 6)));
+        });
+        ctx.fx().later(9, () -> Fx.removeModel(sword));
+    }
+
+    /** Blade (+Y in the model) laid flat and pointing along the caster's yaw, offset by {@code sweep} radians. */
+    private static Transformation sweepTransform(float yaw, float sweep) {
+        Quaternionf rot = new Quaternionf().rotateY(-yaw + sweep).rotateX((float) Math.PI / 2);
+        return new Transformation(new Vector3f(), rot, new Vector3f(1f, 1f, 1f), new Quaternionf());
     }
 
     private static boolean deflect(SpellContext ctx) {

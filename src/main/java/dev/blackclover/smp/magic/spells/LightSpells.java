@@ -6,7 +6,10 @@ import dev.blackclover.smp.magic.Fx.ProjectileSpec;
 import dev.blackclover.smp.magic.Spell;
 import dev.blackclover.smp.magic.SpellContext;
 import dev.blackclover.smp.magic.SpellRegistry;
+import dev.blackclover.smp.pack.PackItems;
+import dev.blackclover.smp.pack.PackModels;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -60,7 +63,8 @@ final class LightSpells {
                 }
                 Location start = p.getEyeLocation().add(Math.cos(angle) * 1.2, 1.0, Math.sin(angle) * 1.2);
                 Vector dir = t.getEyeLocation().toVector().subtract(start.toVector());
-                ctx.fx().projectile(p, start, dir, ProjectileSpec.of(Particle.END_ROD, null, 2.5, 25, 0.9).count(2),
+                ctx.fx().projectile(p, start, dir, ProjectileSpec.of(Particle.END_ROD, null, 2.5, 25, 0.9).count(2)
+                                .model(PackItems.model(Material.GOLDEN_SWORD, PackModels.LIGHT_SWORD), 1.0f, true),
                         hit -> ctx.fx().hit(p, hit, ctx.dmg()), null);
             });
         }

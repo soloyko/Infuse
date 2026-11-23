@@ -6,6 +6,8 @@ import dev.blackclover.smp.magic.Fx.ProjectileSpec;
 import dev.blackclover.smp.magic.Spell;
 import dev.blackclover.smp.magic.SpellContext;
 import dev.blackclover.smp.magic.SpellRegistry;
+import dev.blackclover.smp.pack.PackItems;
+import dev.blackclover.smp.pack.PackModels;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -46,7 +48,8 @@ final class EarthSpells {
     private static boolean rockThrow(SpellContext ctx) {
         Player p = ctx.caster();
         Fx.sound(p.getLocation(), Sound.ENTITY_SNOWBALL_THROW, 1f, 0.5f);
-        ctx.fx().shoot(p, ProjectileSpec.of(Particle.BLOCK, stone(), 1.3, 25, 1.0).gravity(0.03).count(6),
+        ctx.fx().shoot(p, ProjectileSpec.of(Particle.BLOCK, stone(), 1.3, 25, 1.0).gravity(0.03).count(3)
+                        .model(PackItems.model(Material.COBBLESTONE, PackModels.ROCK), 0.9f, false),
                 t -> ctx.fx().hit(p, t, ctx.dmg()),
                 end -> {
                     Fx.particle(end.getWorld(), Particle.BLOCK, end, 20, 0.4, stone());

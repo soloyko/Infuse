@@ -6,7 +6,10 @@ import dev.blackclover.smp.magic.Fx.ProjectileSpec;
 import dev.blackclover.smp.magic.Spell;
 import dev.blackclover.smp.magic.SpellContext;
 import dev.blackclover.smp.magic.SpellRegistry;
+import dev.blackclover.smp.pack.PackItems;
+import dev.blackclover.smp.pack.PackModels;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -33,7 +36,8 @@ final class DarkSpells {
     private static boolean orb(SpellContext ctx) {
         Player p = ctx.caster();
         Fx.sound(p.getLocation(), Sound.ENTITY_WITHER_SHOOT, 0.6f, 1.5f);
-        ctx.fx().shoot(p, ProjectileSpec.of(Particle.DUST, PURPLE, 1.0, 30, 1.0).count(5),
+        ctx.fx().shoot(p, ProjectileSpec.of(Particle.DUST, PURPLE, 1.0, 30, 1.0).count(3)
+                        .model(PackItems.model(Material.ENDER_EYE, PackModels.DARK_ORB), 0.8f, false),
                 t -> {
                     if (ctx.fx().hit(p, t, ctx.dmg())) {
                         ctx.fx().effect(p, t, PotionEffectType.BLINDNESS, 20, 0);

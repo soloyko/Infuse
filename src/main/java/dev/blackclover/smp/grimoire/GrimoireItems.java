@@ -36,6 +36,7 @@ public final class GrimoireItems {
         pdc.set(instanceKey, PersistentDataType.STRING, instance.toString());
         meta.setMaxStackSize(1);
         meta.setEnchantmentGlintOverride(true);
+        dev.blackclover.smp.pack.PackItems.tag(meta, dev.blackclover.smp.pack.PackModels.grimoireKey(type));
         item.setItemMeta(meta);
         decorate(item, type, holderLevel, selectedSpell);
         return item;

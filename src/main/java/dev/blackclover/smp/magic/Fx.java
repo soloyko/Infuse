@@ -14,6 +14,12 @@ import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -47,21 +53,27 @@ public final class Fx {
 
     /** How a travelling projectile looks and behaves. */
     public record ProjectileSpec(Particle particle, Object data, double speed, double range, double radius,
-                                 double gravity, boolean pierce, int particleCount) {
+                                 double gravity, boolean pierce, int particleCount, ItemStack model, float modelScale,
+                                 boolean alignModel) {
         public static ProjectileSpec of(Particle particle, Object data, double speed, double range, double radius) {
-            return new ProjectileSpec(particle, data, speed, range, radius, 0, false, 3);
+            return new ProjectileSpec(particle, data, speed, range, radius, 0, false, 3, null, 1f, false);
         }
 
         public ProjectileSpec gravity(double g) {
-            return new ProjectileSpec(particle, data, speed, range, radius, g, pierce, particleCount);
+            return new ProjectileSpec(particle, data, speed, range, radius, g, pierce, particleCount, model, modelScale, alignModel);
         }
 
         public ProjectileSpec piercing() {
-            return new ProjectileSpec(particle, data, speed, range, radius, gravity, true, particleCount);
+            return new ProjectileSpec(particle, data, speed, range, radius, gravity, true, particleCount, model, modelScale, alignModel);
         }
 
         public ProjectileSpec count(int n) {
-            return new ProjectileSpec(particle, data, speed, range, radius, gravity, pierce, n);
+            return new ProjectileSpec(particle, data, speed, range, radius, gravity, pierce, n, model, modelScale, alignModel);
+        }
+
+        /** Shows a 3D model flying with the projectile. {@code align}: point the model's +Y along the flight path. */
+        public ProjectileSpec model(ItemStack item, float scale, boolean align) {
+            return new ProjectileSpec(particle, data, speed, range, radius, gravity, pierce, particleCount, item, scale, align);
         }
     }
 
@@ -193,10 +205,19 @@ public final class Fx {
         Set<UUID> hit = new HashSet<>();
         double step = 0.5;
         double[] travelled = {0};
+        ItemDisplay display = spec.model() == null ? null : spawnModel(pos, spec.model(), spec.modelScale(), dir, spec.alignModel());
+        int[] age = {0};
         Bukkit.getScheduler().runTaskTimer(plugin, (BukkitTask task) -> {
             if (!caster.isOnline()) {
                 task.cancel();
+                removeModel(display);
                 return;
+            }
+            if (display != null) {
+                age[0]++;
+                display.teleport(pos);
+                display.setInterpolationDelay(0);
+                display.setTransformation(modelTransform(dir, spec.modelScale(), spec.alignModel(), age[0]));
             }
             for (double moved = 0; moved < spec.speed(); moved += step) {
                 Vector velocity = dir.clone().multiply(step);
@@ -208,6 +229,7 @@ public final class Fx {
                 Block block = pos.getBlock();
                 if (!block.isPassable() || travelled[0] >= spec.range() || pos.getY() < world.getMinHeight()) {
                     task.cancel();
+                    removeModel(display);
                     if (onEnd != null) {
                         onEnd.accept(pos.clone());
                     }
@@ -219,6 +241,7 @@ public final class Fx {
                         onHit.accept(le);
                         if (!spec.pierce()) {
                             task.cancel();
+                            removeModel(display);
                             if (onEnd != null) {
                                 onEnd.accept(pos.clone());
                             }
@@ -228,6 +251,32 @@ public final class Fx {
                 }
             }
         }, 0L, 1L);
+    }
+
+    /** A non-persistent 3D model entity (the resource pack turns the item into the model). */
+    public ItemDisplay spawnModel(Location at, ItemStack item, float scale, Vector dir, boolean align) {
+        return at.getWorld().spawn(at, ItemDisplay.class, d -> {
+            d.setPersistent(false);
+            d.setItemStack(item);
+            d.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
+            d.setBrightness(new Display.Brightness(15, 15));
+            d.setTeleportDuration(1);
+            d.setInterpolationDuration(1);
+            d.setTransformation(modelTransform(dir, scale, align, 0));
+        });
+    }
+
+    public static Transformation modelTransform(Vector dir, float scale, boolean align, int age) {
+        Quaternionf rot = align && dir.lengthSquared() > 1e-6
+                ? new Quaternionf().rotationTo(new Vector3f(0, 1, 0), new Vector3f((float) dir.getX(), (float) dir.getY(), (float) dir.getZ()).normalize())
+                : new Quaternionf().rotationXYZ(age * 0.35f, age * 0.5f, 0);
+        return new Transformation(new Vector3f(), rot, new Vector3f(scale, scale, scale), new Quaternionf());
+    }
+
+    public static void removeModel(Entity display) {
+        if (display != null && display.isValid()) {
+            display.remove();
+        }
     }
 
     /** Fires a projectile from the caster's eyes in the direction they look. */
