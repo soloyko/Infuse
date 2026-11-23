@@ -287,6 +287,20 @@ public final class AltarService implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onBucket(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
+        if (protectedBlock(event.getBlock()) && !bypass(event.getPlayer())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onIgnite(org.bukkit.event.block.BlockIgniteEvent event) {
+        if (protectedBlock(event.getBlock()) && !bypass(event.getPlayer())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         event.blockList().removeIf(this::protectedBlock);
     }
