@@ -1,7 +1,11 @@
 package dev.blackclover.smp;
 
+import dev.blackclover.smp.command.StartCommand;
 import dev.blackclover.smp.config.Settings;
 import dev.blackclover.smp.data.DataStore;
+import dev.blackclover.smp.game.AltarService;
+import dev.blackclover.smp.game.GameService;
+import dev.blackclover.smp.game.LibraryBuilder;
 import dev.blackclover.smp.game.GameState;
 import dev.blackclover.smp.grimoire.GrimoireItems;
 import dev.blackclover.smp.grimoire.GrimoireListener;
@@ -27,6 +31,8 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private final AtomicReference<UUID> demon = new AtomicReference<>();
     private DataStore store;
     private GrimoireService grimoires;
+    private AltarService altars;
+    private GameService gameService;
 
     @Override
     public void onEnable() {
@@ -40,11 +46,24 @@ public final class BlackCloverPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(grimoireListener, this);
         grimoireListener.startTasks();
 
+        altars = new AltarService(this, grimoires);
+        gameService = new GameService(this, grimoires, new LibraryBuilder(), altars);
+        getServer().getPluginManager().registerEvents(altars, this);
+        getServer().getPluginManager().registerEvents(gameService, this);
+        altars.startTasks();
+        gameService.startTasks();
+        StartCommand start = new StartCommand(this, gameService);
+        getCommand("start").setExecutor(start);
+        getCommand("start").setTabCompleter(start);
+
         getServer().getScheduler().runTaskTimer(this, this::saveAsync, AUTOSAVE_TICKS, AUTOSAVE_TICKS);
     }
 
     @Override
     public void onDisable() {
+        if (altars != null) {
+            altars.removeAllDisplays();
+        }
         if (store != null) {
             store.writeSync(snapshot());
         }
@@ -70,4 +89,6 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public Map<UUID, PlayerData> players() { return players; }
     public AtomicReference<UUID> demonRef() { return demon; }
     public GrimoireService grimoires() { return grimoires; }
+    public GameService gameService() { return gameService; }
+    public AltarService altars() { return altars; }
 }

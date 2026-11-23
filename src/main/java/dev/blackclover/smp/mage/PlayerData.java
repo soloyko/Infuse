@@ -41,6 +41,10 @@ public final class PlayerData {
         xp.put(type, Math.max(0, value));
     }
 
+    public void clearXp() {
+        xp.clear();
+    }
+
     public Map<GrimoireType, Integer> xpView() {
         return Collections.unmodifiableMap(xp);
     }
