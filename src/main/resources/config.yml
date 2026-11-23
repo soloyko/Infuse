@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------
+#  BlackCloverSMP configuration
+#  Every number in the design lives here. Use /bcadmin reload after editing.
+# ---------------------------------------------------------------
+
+progression:
+  level-cap: 20
+  # XP to go from level L to L+1 = xp-base + xp-step * (L - 1)
+  xp-base: 100
+  xp-step: 25
+
+kills:
+  base-xp: 100
+  # +10% per level the victim is above you, -10% per level below
+  bonus-per-level: 0.10
+  max-bonus: 1.0
+  min-factor: 0.20
+  # No XP for killing the same player again within this many minutes
+  repeat-kill-minutes: 10
+  # Kill credit / combat tag window
+  combat-tag-seconds: 15
+
+death:
+  # Fraction of XP on the carried grimoire lost on any death
+  penalty-fraction: 0.15
+  # The penalty can only hit once per this many minutes
+  penalty-cooldown-minutes: 5
+  # Quitting while combat-tagged kills the player
+  combat-log-kills: true
+
+mana:
+  base: 100
+  per-level: 4
+  regen-per-second: 4
+  five-leaf-multiplier: 1.5
+
+libraries:
+  min-distance-from-origin: 1000
+  border-margin: 50
+  min-spacing: 400
+  # Ingredients needed at an altar to craft its grimoire
+  recipe:
+    BOOK: 1
+    LAPIS_LAZULI: 16
+    DIAMOND: 1
+
+grimoires:
+  # A grimoire returns to its library if its holder is offline this long
+  offline-return-days: 7
+
+demon:
+  max-health: 40
+  # How often the Demon Possessed's coordinates are announced
+  broadcast-minutes: 5
+
+# Worlds where magic cannot be cast
+disabled-worlds: []
+
+# Per-spell cost / cooldown (seconds) / damage. Filled in automatically on first start.
+spells: {}
