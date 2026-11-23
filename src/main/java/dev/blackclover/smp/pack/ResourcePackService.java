@@ -84,10 +84,16 @@ public final class ResourcePackService implements Listener {
     private static final long RECHECK_TICKS = 20L * 60 * 5;
     private static final int MAX_RECHECKS = 12;
     private int rechecks;
+    private volatile long lastCheckMillis;
+    private volatile boolean watchingUrl;
+
+    private record Check(boolean ok, String detail) {
+    }
 
     /**
      * auto: download `url` and use it only if it is byte-for-byte our pack; otherwise self-host, and keep
-     * checking the link every 5 minutes for an hour (a freshly uploaded file can take a few minutes to show up).
+     * checking the link (every 5 minutes for an hour, and when someone joins) because a freshly uploaded
+     * file can take a few minutes to show up.
      */
     private void verifyUrlThenChoose() {
         String url = settings().packUrl();
@@ -95,64 +101,70 @@ public final class ResourcePackService implements Listener {
             startServer();
             return;
         }
-        checkUrl(url, (ok, detail) -> {
-            if (ok) {
-                useUrl = true;
-                plugin.getLogger().info("Players will download the resource pack from " + url);
-            } else {
-                plugin.getLogger().warning("The pack at resource-pack.url " + detail + ", so the plugin will serve it itself on port "
-                        + settings().packPort() + ". It will check the link again every 5 minutes.");
-                startServer();
-                scheduleRecheck(url);
-            }
-            resendAll();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            Check c = check(url);
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (c.ok()) {
+                    useUrl = true;
+                    plugin.getLogger().info("Players will download the resource pack from " + url);
+                } else {
+                    plugin.getLogger().warning("The pack at resource-pack.url " + c.detail() + ", so the plugin will serve it itself on port "
+                            + settings().packPort() + ". It will check the link again every 5 minutes.");
+                    startServer();
+                    watchingUrl = true;
+                    scheduleRecheck(url);
+                }
+                resendAll();
+            });
         });
     }
 
     private void scheduleRecheck(String url) {
         if (rechecks++ >= MAX_RECHECKS) {
+            watchingUrl = false;
+            plugin.getLogger().warning("Gave up checking resource-pack.url; the plugin keeps serving the pack itself.");
             return;
         }
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> checkUrl(url, (ok, detail) -> {
-            if (ok) {
-                useUrl = true;
-                plugin.getLogger().info("The pack at resource-pack.url is ready. Players joining from now on download it from " + url);
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            if (useUrl) {
+                return;
+            }
+            Check c = check(url);
+            if (c.ok()) {
+                switchToUrl(url);
             } else {
+                plugin.getLogger().info("Resource pack link " + c.detail() + "; checking again in 5 minutes.");
                 scheduleRecheck(url);
             }
-        }), RECHECK_TICKS);
+        }, RECHECK_TICKS);
     }
 
-    /** Downloads `url` off the main thread; calls back on the main thread with whether it is exactly our pack. */
-    private void checkUrl(String url, java.util.function.BiConsumer<Boolean, String> done) {
-        String expected = built.sha1Hex();
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            boolean ok;
-            String detail;
-            try {
-                java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
-                        .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
-                        .connectTimeout(java.time.Duration.ofSeconds(10)).build();
-                java.net.http.HttpResponse<byte[]> response = client.send(java.net.http.HttpRequest.newBuilder(URI.create(url))
-                                .timeout(java.time.Duration.ofSeconds(20)).GET().build(),
-                        java.net.http.HttpResponse.BodyHandlers.ofByteArray());
-                if (response.statusCode() != 200) {
-                    ok = false;
-                    detail = "isn't there yet (HTTP " + response.statusCode() + ")";
-                } else {
-                    String found = java.util.HexFormat.of().formatHex(
-                            java.security.MessageDigest.getInstance("SHA-1").digest(response.body()));
-                    ok = found.equals(expected);
-                    detail = ok ? "matches" : "doesn't match this plugin (sha1 " + found + ")";
-                }
-            } catch (Exception e) {
-                ok = false;
-                detail = "can't be reached (" + e.getClass().getSimpleName() + ")";
+    private void switchToUrl(String url) {
+        useUrl = true;
+        watchingUrl = false;
+        plugin.getLogger().info("The pack at resource-pack.url is ready. Players joining from now on download it from " + url);
+    }
+
+    /** Blocking: downloads `url` and compares it with our pack. Call off the main thread. */
+    private Check check(String url) {
+        lastCheckMillis = System.currentTimeMillis();
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+                    .connectTimeout(java.time.Duration.ofSeconds(10)).build();
+            java.net.http.HttpResponse<byte[]> response = client.send(java.net.http.HttpRequest.newBuilder(URI.create(url))
+                            .header("Cache-Control", "no-cache")
+                            .timeout(java.time.Duration.ofSeconds(20)).GET().build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+            if (response.statusCode() != 200) {
+                return new Check(false, "isn't there yet (HTTP " + response.statusCode() + ")");
             }
-            boolean result = ok;
-            String why = detail;
-            plugin.getServer().getScheduler().runTask(plugin, () -> done.accept(result, why));
-        });
+            String found = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-1").digest(response.body()));
+            return found.equals(built.sha1Hex()) ? new Check(true, "matches")
+                    : new Check(false, "doesn't match this plugin (sha1 " + found + ")");
+        } catch (Exception e) {
+            return new Check(false, "can't be reached (" + e.getClass().getSimpleName() + ")");
+        }
     }
 
     private void startServer() {
@@ -241,6 +253,14 @@ public final class ResourcePackService implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
+        String url = settings().packUrl();
+        if (watchingUrl && !useUrl && System.currentTimeMillis() - lastCheckMillis > 60_000) {
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                if (check(url).ok()) {
+                    switchToUrl(url);
+                }
+            });
+        }
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (p.isOnline()) {
                 send(p);
