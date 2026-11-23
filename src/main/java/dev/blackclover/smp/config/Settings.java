@@ -70,7 +70,7 @@ public final class Settings {
         demonBroadcastMillis = (long) (c.getDouble("demon.broadcast-minutes", 5) * MINUTE);
         disabledWorlds = Collections.unmodifiableSet(new HashSet<>(c.getStringList("disabled-worlds")));
         packEnabled = c.getBoolean("resource-pack.enabled", true);
-        packHost = c.getString("resource-pack.host", "self").trim().toLowerCase(java.util.Locale.ROOT);
+        packHost = c.getString("resource-pack.host", "auto").trim().toLowerCase(java.util.Locale.ROOT);
         packPort = c.getInt("resource-pack.port", 8163);
         packPublicAddress = c.getString("resource-pack.public-address", "").trim();
         packUrl = c.getString("resource-pack.url", "").trim();

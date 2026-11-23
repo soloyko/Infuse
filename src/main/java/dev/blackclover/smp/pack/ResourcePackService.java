@@ -40,6 +40,8 @@ public final class ResourcePackService implements Listener {
     private HttpServer server;
     private ExecutorService executor;
     private boolean warnedNoAddress;
+    /** True once we know `url` serves exactly our pack (host: url, or auto after a successful check). */
+    private volatile boolean useUrl;
 
     public ResourcePackService(BlackCloverPlugin plugin) {
         this.plugin = plugin;
@@ -66,12 +68,53 @@ public final class ResourcePackService implements Listener {
             built = null;
             return;
         }
-        if (settings().packHost().equals("self")) {
-            startServer();
-        } else if (settings().packUrl().isEmpty()) {
-            plugin.getLogger().warning("resource-pack.host is 'url' but resource-pack.url is empty: upload "
-                    + PackBuilder.FILE_NAME + " from the plugin folder and set its direct download link.");
+        switch (settings().packHost()) {
+            case "self" -> startServer();
+            case "url" -> {
+                useUrl = !settings().packUrl().isEmpty();
+                if (!useUrl) {
+                    plugin.getLogger().warning("resource-pack.host is 'url' but resource-pack.url is empty: upload "
+                            + PackBuilder.FILE_NAME + " from the plugin folder and set its direct download link.");
+                }
+            }
+            default -> verifyUrlThenChoose();
         }
+    }
+
+    /** auto: download `url` once and use it only if it is byte-for-byte our pack; otherwise self-host. */
+    private void verifyUrlThenChoose() {
+        String url = settings().packUrl();
+        if (url.isEmpty()) {
+            startServer();
+            return;
+        }
+        String expected = built.sha1Hex();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            String found;
+            try {
+                java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                        .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+                        .connectTimeout(java.time.Duration.ofSeconds(10)).build();
+                byte[] body = client.send(java.net.http.HttpRequest.newBuilder(URI.create(url))
+                                .timeout(java.time.Duration.ofSeconds(20)).GET().build(),
+                        java.net.http.HttpResponse.BodyHandlers.ofByteArray()).body();
+                found = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-1").digest(body));
+            } catch (Exception e) {
+                found = "unreachable (" + e.getClass().getSimpleName() + ")";
+            }
+            String result = found;
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                if (result.equals(expected)) {
+                    useUrl = true;
+                    plugin.getLogger().info("Players will download the resource pack from " + url);
+                } else {
+                    plugin.getLogger().warning("The pack at resource-pack.url doesn't match this plugin (" + result
+                            + "), so the plugin will serve it itself on port " + settings().packPort() + ".");
+                    startServer();
+                }
+                resendAll();
+            });
+        });
     }
 
     private void startServer() {
@@ -124,8 +167,8 @@ public final class ResourcePackService implements Listener {
         if (built == null) {
             return Optional.empty();
         }
-        if (!settings().packHost().equals("self")) {
-            return settings().packUrl().isEmpty() ? Optional.empty() : Optional.of(settings().packUrl());
+        if (useUrl) {
+            return Optional.of(settings().packUrl());
         }
         if (server == null) {
             return Optional.empty();
@@ -197,11 +240,11 @@ public final class ResourcePackService implements Listener {
         }
         Msg.send(to, "<gray>Pack: <white><file></white> <dark_gray>(sha1 <hash>)", Msg.arg("file", PackBuilder.FILE_NAME),
                 Msg.arg("hash", built.sha1Hex()));
-        if (settings().packHost().equals("self")) {
-            Msg.send(to, server != null ? "<green>Serving on port <port>." : "<red>Not serving: port <port> could not be opened.",
-                    Msg.arg("port", settings().packPort()));
+        if (useUrl) {
+            Msg.send(to, "<green>Players download it from: <white><url>", Msg.arg("url", settings().packUrl()));
         } else {
-            Msg.send(to, "<gray>External link: <white><url>", Msg.arg("url", settings().packUrl().isEmpty() ? "(not set)" : settings().packUrl()));
+            Msg.send(to, server != null ? "<green>Serving it on port <port>." : "<red>Not serving: port <port> could not be opened.",
+                    Msg.arg("port", settings().packPort()));
         }
         long withPack = plugin.getServer().getOnlinePlayers().stream().filter(this::hasPack).count();
         Msg.send(to, "<gray>Players with the pack loaded: <white><n>/<total>", Msg.arg("n", withPack),

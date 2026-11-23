@@ -401,9 +401,6 @@ def open_grimoire_model(key):
         "display": {
             # the floating ItemDisplay orients the book itself
             "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]},
-            # first person: the open book hovers off to the side, tilted toward you
-            "firstperson_righthand": {"rotation": [-55, -20, 10], "translation": [3.5, 4.5, -2], "scale": [0.6, 0.6, 0.6]},
-            "firstperson_lefthand": {"rotation": [-55, 20, -10], "translation": [3.5, 4.5, -2], "scale": [0.6, 0.6, 0.6]},
             "gui": {"rotation": [40, 0, 0], "scale": [0.9, 0.9, 0.9]},
             "ground": {"translation": [0, 2, 0], "scale": [0.45, 0.45, 0.45]},
         },
@@ -620,9 +617,10 @@ def main():
         book_cases.append({"when": f"{NS}:{key}", "model": {
             "type": "minecraft:select",
             "property": "minecraft:display_context",
+            # the floating ItemDisplay is the grimoire everyone sees; the held item itself is drawn as nothing
             "cases": [
-                {"when": ["firstperson_righthand", "firstperson_lefthand"], "model": opened},
-                {"when": ["thirdperson_righthand", "thirdperson_lefthand"], "model": {"type": "minecraft:empty"}},
+                {"when": ["firstperson_righthand", "firstperson_lefthand", "thirdperson_righthand", "thirdperson_lefthand"],
+                 "model": {"type": "minecraft:empty"}},
             ],
             "fallback": closed,
         }})

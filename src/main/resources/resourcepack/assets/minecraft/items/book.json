@@ -13,15 +13,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/fire_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -52,15 +44,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/water_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -91,15 +75,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/wind_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -130,15 +106,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/lightning_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -169,15 +137,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/earth_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -208,15 +168,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/plant_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -247,15 +199,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/light_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -286,15 +230,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/dark_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -325,15 +261,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/spatial_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -364,15 +292,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/gravity_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -403,15 +323,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/blood_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -442,15 +354,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/poison_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -481,15 +385,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/time_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -520,15 +416,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/anti_magic_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],
@@ -559,15 +447,7 @@
             {
               "when": [
                 "firstperson_righthand",
-                "firstperson_lefthand"
-              ],
-              "model": {
-                "type": "minecraft:model",
-                "model": "blackclover:item/grimoire/five_leaf_open"
-              }
-            },
-            {
-              "when": [
+                "firstperson_lefthand",
                 "thirdperson_righthand",
                 "thirdperson_lefthand"
               ],

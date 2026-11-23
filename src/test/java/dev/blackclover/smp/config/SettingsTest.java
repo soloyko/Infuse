@@ -32,10 +32,11 @@ class SettingsTest {
         assertEquals(300_000L, s.demonBroadcastMillis());
         assertTrue(s.disabledWorlds().isEmpty());
         assertTrue(s.packEnabled());
-        assertEquals("self", s.packHost());
+        assertEquals("auto", s.packHost());
         assertEquals(8163, s.packPort());
         assertEquals("", s.packPublicAddress());
-        assertEquals("", s.packUrl());
+        assertTrue(s.packUrl().startsWith("https://raw.githubusercontent.com/soloyko/Infuse/"), s.packUrl());
+        assertTrue(s.packUrl().endsWith(".zip"), s.packUrl());
         assertFalse(s.packRequired());
     }
 

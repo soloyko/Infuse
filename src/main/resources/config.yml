@@ -59,13 +59,14 @@ disabled-worlds: []
 # Custom 3D grimoires and spell models. Players without the pack still see normal items.
 resource-pack:
   enabled: true
-  # self = the plugin serves the pack itself on `port` (open this port on your host/firewall)
-  # url  = you upload plugins/BlackCloverSMP/BlackCloverSMP-pack.zip somewhere and put the direct link in `url`
-  host: self
+  # auto = use `url` if the file there matches this plugin's pack, otherwise serve it yourself on `port`
+  # url  = always send `url` (upload plugins/BlackCloverSMP/BlackCloverSMP-pack.zip and link it directly)
+  # self = always serve it yourself on `port` (that port must be open on your host)
+  host: auto
+  url: "https://raw.githubusercontent.com/soloyko/Infuse/yensake/gallant-franklin-geeef9/downloads/BlackCloverSMP-pack-${project.version}.zip"
   port: 8163
-  # Address players download from when host is "self". Empty = the address each player joined with.
+  # Address players download from when self-hosting. Empty = the address each player joined with.
   public-address: ""
-  url: ""
   # true = players must accept the pack to stay on the server
   required: false
   prompt: "<green>Black Clover <gray>3D grimoires and magic"

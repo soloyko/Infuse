@@ -15,9 +15,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -27,12 +29,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * While a mage holds their grimoire it hovers open beside them, like in the anime. Other players see a
- * floating open book; the holder sees it at their hand through the resource pack's first-person model.
+ * While a mage holds their grimoire it hovers open beside them, like in the anime. Everyone sees the same
+ * floating book, the holder included: it sits in the corner of their screen with its pages facing them.
+ * The resource pack draws the held item itself as nothing, so there is never a second book in the hand.
  */
 public final class GrimoireHover implements Listener {
 
     private record Hover(ItemDisplay display, GrimoireType type) {
+    }
+
+    private record Placement(Location at, Transformation transform) {
     }
 
     private final BlackCloverPlugin plugin;
@@ -48,16 +54,18 @@ public final class GrimoireHover implements Listener {
         plugin.getServer().getScheduler().runTaskTimer(plugin, this::update, 1L, 1L);
     }
 
+    /** The live grimoire in either hand (main hand first). */
     private Optional<GrimoireType> heldType(Player p) {
         if (p.isDead() || p.getGameMode() == GameMode.SPECTATOR || p.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
             return Optional.empty();
         }
-        var item = p.getInventory().getItemInMainHand();
-        Optional<GrimoireType> type = plugin.grimoires().items().typeOf(item);
-        if (type.isEmpty() || !plugin.grimoires().isLive(item) || plugin.grimoires().carried(p).orElse(null) != type.get()) {
-            return Optional.empty();
+        for (ItemStack item : new ItemStack[]{p.getInventory().getItemInMainHand(), p.getInventory().getItemInOffHand()}) {
+            Optional<GrimoireType> type = plugin.grimoires().items().typeOf(item);
+            if (type.isPresent() && plugin.grimoires().isLive(item) && plugin.grimoires().carried(p).orElse(null) == type.get()) {
+                return type;
+            }
         }
-        return type;
+        return Optional.empty();
     }
 
     private void update() {
@@ -76,64 +84,79 @@ public final class GrimoireHover implements Listener {
                 remove(p.getUniqueId());
                 hover = spawn(p, type.get());
             }
-            Location at = anchor(p);
-            hover.display().teleport(at);
             int beat = pulse.getOrDefault(p.getUniqueId(), 0);
             if (beat > 0) {
                 pulse.put(p.getUniqueId(), beat - 1);
             }
+            Placement place = placement(p, beat > 0 ? 1.15f : 1.0f);
+            hover.display().teleport(place.at());
             hover.display().setInterpolationDelay(0);
-            hover.display().setInterpolationDuration(2);
-            hover.display().setTransformation(transform(p, beat > 0 ? 1.18f : 1.0f));
-            if (tick % 8 == 0) {
-                Fx.particle(p.getWorld(), Particle.ENCHANT, at.clone().add(0, 0.25, 0), 2, 0.2, null);
+            hover.display().setInterpolationDuration(1);
+            hover.display().setTransformation(place.transform());
+            if (tick % 6 == 0) {
+                Fx.particle(p.getWorld(), Particle.ENCHANT, place.at(), 2, 0.15, null);
             }
         }
     }
 
-    /** Beside the player's right shoulder, slightly forward, with a gentle bob. */
-    private Location anchor(Player p) {
-        double yaw = Math.toRadians(p.getLocation().getYaw());
-        Vector right = new Vector(-Math.cos(yaw), 0, -Math.sin(yaw));
-        Vector forward = new Vector(-Math.sin(yaw), 0, Math.cos(yaw));
-        double bob = Math.sin((tick + p.getEntityId() * 7) / 9.0) * 0.06;
-        double height = p.isSneaking() ? 1.0 : 1.3;
-        return p.getLocation().add(0, height + bob, 0).add(right.multiply(0.75)).add(forward.multiply(0.3));
-    }
+    /**
+     * Just right of and below the holder's line of sight: the corner of their screen in first person, their
+     * shoulder for everyone else. The pages face the holder's eyes with the text upright.
+     */
+    private Placement placement(Player p, float scale) {
+        Location eye = p.getEyeLocation();
+        Vector f = eye.getDirection().normalize();
+        Vector r = f.clone().crossProduct(new Vector(0, 1, 0));
+        if (r.lengthSquared() < 1e-4) {
+            double yaw = Math.toRadians(eye.getYaw());
+            r = new Vector(-Math.cos(yaw), 0, -Math.sin(yaw));
+        }
+        r.normalize();
+        Vector u = r.clone().crossProduct(f).normalize();
+        double bob = Math.sin((tick + p.getEntityId() * 7) / 10.0) * 0.035;
+        Vector offset = r.clone().multiply(0.72).add(f.clone().multiply(0.95)).add(u.clone().multiply(-0.24 + bob));
+        Location at = eye.clone().add(offset);
+        at.setYaw(0);
+        at.setPitch(0);
 
-    private static Transformation transform(Player p, float scale) {
-        float yaw = (float) Math.toRadians(p.getLocation().getYaw());
-        // the model lies flat with its pages up: tilt the pages toward the player's front, then face their way
-        Quaternionf rot = new Quaternionf().rotateY(-yaw).rotateX((float) Math.toRadians(35));
-        float s = 0.55f * scale;
-        return new Transformation(new Vector3f(), rot, new Vector3f(s, s, s), new Quaternionf());
+        Vector3f n = new Vector3f((float) -offset.getX(), (float) -offset.getY(), (float) -offset.getZ()).normalize();
+        Vector3f up = new Vector3f((float) u.getX(), (float) u.getY(), (float) u.getZ());
+        Vector3f spineUp = new Vector3f(up).sub(new Vector3f(n).mul(n.dot(up))).normalize();
+        Vector3f z = new Vector3f(spineUp).negate();   // the model's -Z (top of the page text) points up
+        Vector3f x = new Vector3f(n).cross(z).normalize();
+        Quaternionf rot = new Quaternionf().setFromNormalized(new Matrix3f(x, n, z));
+        float s = 0.6f * scale;
+        return new Placement(at, new Transformation(new Vector3f(), rot, new Vector3f(s, s, s), new Quaternionf()));
     }
 
     private Hover spawn(Player p, GrimoireType type) {
-        Location at = anchor(p);
-        ItemDisplay display = p.getWorld().spawn(at, ItemDisplay.class, d -> {
+        Placement place = placement(p, 1.0f);
+        ItemDisplay display = p.getWorld().spawn(place.at(), ItemDisplay.class, d -> {
             d.setPersistent(false);
             d.setItemStack(PackItems.model(Material.BOOK, PackModels.grimoireKey(type) + "_open"));
             d.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
-            d.setTeleportDuration(2);
-            d.setInterpolationDuration(2);
-            d.setViewRange(0.6f);
-            d.setTransformation(transform(p, 1.0f));
+            d.setTeleportDuration(1);
+            d.setInterpolationDuration(1);
+            d.setViewRange(0.75f);
+            d.setTransformation(place.transform());
         });
-        // the holder sees their own open grimoire through the first-person model instead
-        p.hideEntity(plugin, display);
         Hover hover = new Hover(display, type);
         hovers.put(p.getUniqueId(), hover);
         return hover;
     }
 
+    /** Where the holder's grimoire is right now (spells can launch from it). */
+    public Optional<Location> bookLocation(Player p) {
+        Hover hover = hovers.get(p.getUniqueId());
+        return hover != null && hover.display().isValid() ? Optional.of(hover.display().getLocation()) : Optional.empty();
+    }
+
     /** Called on a successful cast: the book swells for a moment and sheds glowing glyphs. */
     public void onCast(Player p, GrimoireType type) {
         pulse.put(p.getUniqueId(), 4);
-        Hover hover = hovers.get(p.getUniqueId());
-        Location at = hover != null && hover.display().isValid() ? hover.display().getLocation() : p.getEyeLocation();
-        Fx.particle(p.getWorld(), Particle.ENCHANT, at, 14, 0.25, null);
-        Fx.particle(p.getWorld(), Particle.DUST, at, 6, 0.2, Fx.dust(type.rgb(), 1.0f));
+        Location at = bookLocation(p).orElse(p.getEyeLocation());
+        Fx.particle(p.getWorld(), Particle.ENCHANT, at, 16, 0.25, null);
+        Fx.particle(p.getWorld(), Particle.DUST, at, 8, 0.2, Fx.dust(type.rgb(), 1.0f));
     }
 
     private void remove(UUID id) {
@@ -162,7 +185,6 @@ public final class GrimoireHover implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // a fresh hover is created on the next tick if they're holding their grimoire
         remove(event.getPlayer().getUniqueId());
     }
 }
