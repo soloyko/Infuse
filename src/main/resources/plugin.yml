@@ -9,6 +9,9 @@ commands:
     usage: /start <border size> <grace period>
     aliases: [bcstart]
     permission: blackclover.admin
+  magic:
+    description: Show your grimoire, level and spells. /magic top shows the strongest mages.
+    usage: /magic [top]
 permissions:
   blackclover.admin:
     description: Run /start and /bcadmin.

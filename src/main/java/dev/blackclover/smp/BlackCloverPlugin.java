@@ -1,5 +1,6 @@
 package dev.blackclover.smp;
 
+import dev.blackclover.smp.command.MagicCommand;
 import dev.blackclover.smp.command.StartCommand;
 import dev.blackclover.smp.config.Settings;
 import dev.blackclover.smp.data.DataStore;
@@ -11,6 +12,8 @@ import dev.blackclover.smp.grimoire.GrimoireItems;
 import dev.blackclover.smp.grimoire.GrimoireListener;
 import dev.blackclover.smp.grimoire.GrimoireRegistry;
 import dev.blackclover.smp.grimoire.GrimoireService;
+import dev.blackclover.smp.mage.CombatListener;
+import dev.blackclover.smp.mage.MageService;
 import dev.blackclover.smp.mage.PlayerData;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,6 +36,9 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private GrimoireService grimoires;
     private AltarService altars;
     private GameService gameService;
+    private MageService mage;
+    private CombatListener combatListener;
+    private MagicCommand magicCommand;
 
     @Override
     public void onEnable() {
@@ -55,6 +61,13 @@ public final class BlackCloverPlugin extends JavaPlugin {
         StartCommand start = new StartCommand(this, gameService);
         getCommand("start").setExecutor(start);
         getCommand("start").setTabCompleter(start);
+
+        mage = new MageService(this, grimoires);
+        combatListener = new CombatListener(this, mage, grimoires, gameService);
+        getServer().getPluginManager().registerEvents(combatListener, this);
+        magicCommand = new MagicCommand(this, mage);
+        getCommand("magic").setExecutor(magicCommand);
+        getCommand("magic").setTabCompleter(magicCommand);
 
         getServer().getScheduler().runTaskTimer(this, this::saveAsync, AUTOSAVE_TICKS, AUTOSAVE_TICKS);
     }
@@ -91,4 +104,5 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public GrimoireService grimoires() { return grimoires; }
     public GameService gameService() { return gameService; }
     public AltarService altars() { return altars; }
+    public MageService mage() { return mage; }
 }
