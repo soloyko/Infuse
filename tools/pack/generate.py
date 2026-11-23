@@ -341,6 +341,75 @@ def grimoire_model(key, emblem_style, metal):
     }
 
 
+# ----------------------------------------------------------------------------- open grimoire (hovering)
+def open_page_texture(key, ink):
+    """Cream page with fine lines of glowing magic script in the grimoire's colour (32px for detail)."""
+    rng = random.Random("page-" + key)
+    img = Image.new("RGBA", (32, 32))
+    glow = tuple(min(255, int(c * 0.55 + 255 * 0.45)) for c in ink)
+    for y in range(32):
+        for x in range(32):
+            img.putpixel((x, y), noisy(rng, (240, 231, 202), 4))
+    for y in range(4, 29, 3):
+        x = 4
+        while x < 28:
+            length = rng.randint(1, 4)
+            for i in range(length):
+                if x + i < 28:
+                    img.putpixel((x + i, y), (ink if rng.random() < 0.7 else glow) + (255,))
+            if rng.random() < 0.3 and x < 27:  # occasional rune stroke
+                img.putpixel((x, y - 1), ink + (255,))
+            x += length + rng.randint(1, 2)
+    # a small clover sigil at the foot of the page
+    for (dx, dy) in ((15, 28), (16, 28), (14, 29), (17, 29), (15, 29), (16, 29), (15, 30), (16, 30)):
+        img.putpixel((dx, dy), ink + (255,))
+    return img
+
+
+def open_grimoire_model(key):
+    cover = f"{NS}:item/grimoire/{key}_cover"
+    left = {"origin": [8, 7.4, 8], "axis": "z", "angle": -22.5}
+    right = {"origin": [8, 7.4, 8], "axis": "z", "angle": 22.5}
+    turning = {"origin": [8, 9, 8], "axis": "z", "angle": 45}
+    pages_glow = dict(light_emission=7)
+    leather = {"north": face([14, 0, 14.75, 14], "#cover"), "south": face([14, 0, 14.75, 14], "#cover"),
+               "east": face([14, 0, 14.75, 14], "#cover"), "west": face([14, 0, 14.75, 14], "#cover")}
+    def cover_board(x0, x1, rot):
+        faces = dict(leather)
+        faces["down"] = face([0, 0, 10, 14], "#cover")
+        faces["up"] = face([0, 0, 10, 14], "#cover")
+        return box([x0, 7, 2.5], [x1, 7.6, 13.5], faces, rotation=rot)
+    def page_block(x0, x1, rot):
+        side = face([0, 0, 16, 16], "#edge")
+        return box([x0, 7.6, 3], [x1, 8.8, 13], {"up": face([0, 0, 16, 16], "#page"), "north": side, "south": side,
+                                                  "east": side, "west": side}, rotation=rot, **pages_glow)
+    return {
+        "credit": "BlackCloverSMP",
+        "textures": {"cover": cover, "page": f"{NS}:item/grimoire/{key}_page", "edge": f"{NS}:item/grimoire/pages",
+                     "particle": cover},
+        "gui_light": "front",
+        "elements": [
+            cover_board(1, 8, left),
+            cover_board(8, 15, right),
+            page_block(1.6, 7.9, left),
+            page_block(8.1, 14.4, right),
+            box([7.4, 6.6, 2.5], [8.6, 7.4, 13.5], {"down": face([10, 0, 14, 14], "#cover"),
+                                                     "north": face([10, 0, 11, 1], "#cover"), "south": face([10, 0, 11, 1], "#cover")}),
+            box([8.2, 8.8, 3.4], [14, 8.9, 12.6], {"up": face([0, 0, 16, 16], "#page"), "down": face([0, 0, 16, 16], "#page")},
+                rotation=turning, **pages_glow),
+        ],
+        "display": {
+            # the floating ItemDisplay orients the book itself
+            "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]},
+            # first person: the open book hovers off to the side, tilted toward you
+            "firstperson_righthand": {"rotation": [-55, -20, 10], "translation": [3.5, 4.5, -2], "scale": [0.6, 0.6, 0.6]},
+            "firstperson_lefthand": {"rotation": [-55, 20, -10], "translation": [3.5, 4.5, -2], "scale": [0.6, 0.6, 0.6]},
+            "gui": {"rotation": [40, 0, 0], "scale": [0.9, 0.9, 0.9]},
+            "ground": {"translation": [0, 2, 0], "scale": [0.45, 0.45, 0.45]},
+        },
+    }
+
+
 # ----------------------------------------------------------------------------- spell models
 def all_faces(uv, tex):
     return {d: face(uv, tex) for d in ("north", "south", "east", "west", "up", "down")}
@@ -540,9 +609,31 @@ def main():
     book_cases = []
     for key, leather, emblem, metal, rune in GRIMOIRES:
         save(cover_texture(key, leather, metal, rune, emblem == "tattered"), f"item/grimoire/{key}_cover.png")
+        # magic script colour: the leather colour, except pale covers (gold ink) and the two black grimoires
+        ink = {"light": GOLD[2], "lightning": GOLD[2], "time": GOLD[3], "anti_magic": (60, 60, 64),
+               "five_leaf": DEVIL[1]}.get(key, leather)
+        save(open_page_texture(key, ink), f"item/grimoire/{key}_page.png")
         write_json(f"assets/{NS}/models/item/grimoire/{key}.json", grimoire_model(key, emblem, metal))
-        book_cases.append((f"{NS}:{key}", f"{NS}:item/grimoire/{key}"))
-    write_json("assets/minecraft/items/book.json", dispatch("minecraft:item/book", book_cases))
+        write_json(f"assets/{NS}/models/item/grimoire/{key}_open.json", open_grimoire_model(key))
+        closed = {"type": "minecraft:model", "model": f"{NS}:item/grimoire/{key}"}
+        opened = {"type": "minecraft:model", "model": f"{NS}:item/grimoire/{key}_open"}
+        book_cases.append({"when": f"{NS}:{key}", "model": {
+            "type": "minecraft:select",
+            "property": "minecraft:display_context",
+            "cases": [
+                {"when": ["firstperson_righthand", "firstperson_lefthand"], "model": opened},
+                {"when": ["thirdperson_righthand", "thirdperson_lefthand"], "model": {"type": "minecraft:empty"}},
+            ],
+            "fallback": closed,
+        }})
+        book_cases.append({"when": f"{NS}:{key}_open", "model": opened})
+    write_json("assets/minecraft/items/book.json", {"model": {
+        "type": "minecraft:select",
+        "property": "minecraft:custom_model_data",
+        "index": 0,
+        "cases": book_cases,
+        "fallback": {"type": "minecraft:model", "model": "minecraft:item/book"},
+    }})
 
     spells = {
         "light_sword": (light_sword_texture, light_sword_model, "golden_sword", "minecraft:item/golden_sword"),

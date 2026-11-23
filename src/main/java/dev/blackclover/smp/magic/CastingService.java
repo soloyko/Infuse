@@ -40,6 +40,7 @@ public final class CastingService implements Listener {
     private final Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
     private final SpellSelection selection = new SpellSelection();
     private final Map<UUID, Long> hudPausedUntil = new HashMap<>();
+    private java.util.function.BiConsumer<Player, GrimoireType> onCast = (p, t) -> { };
 
     public CastingService(BlackCloverPlugin plugin, SpellRegistry spells, MageService mage, GrimoireService grimoires,
                           StatusService status, Fx fx) {
@@ -49,6 +50,10 @@ public final class CastingService implements Listener {
         this.grimoires = grimoires;
         this.status = status;
         this.fx = fx;
+    }
+
+    public void setOnCast(java.util.function.BiConsumer<Player, GrimoireType> onCast) {
+        this.onCast = onCast;
     }
 
     public void startTasks() {
@@ -228,6 +233,7 @@ public final class CastingService implements Listener {
             double seconds = spell.cooldownSeconds() * (status.hasBuff(id, "devil_union") ? 0.5 : 1.0);
             cooldowns.computeIfAbsent(id, k -> new HashMap<>()).put(spell.id(), now + (long) (seconds * 1000));
         }
+        onCast.accept(p, type);
     }
 
     // ---------------------------------------------------------------- HUD

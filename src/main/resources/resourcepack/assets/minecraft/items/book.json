@@ -7,106 +7,586 @@
       {
         "when": "blackclover:fire",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/fire_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/fire"
+          }
+        }
+      },
+      {
+        "when": "blackclover:fire_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/fire"
+          "model": "blackclover:item/grimoire/fire_open"
         }
       },
       {
         "when": "blackclover:water",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/water_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/water"
+          }
+        }
+      },
+      {
+        "when": "blackclover:water_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/water"
+          "model": "blackclover:item/grimoire/water_open"
         }
       },
       {
         "when": "blackclover:wind",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/wind_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/wind"
+          }
+        }
+      },
+      {
+        "when": "blackclover:wind_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/wind"
+          "model": "blackclover:item/grimoire/wind_open"
         }
       },
       {
         "when": "blackclover:lightning",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/lightning_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/lightning"
+          }
+        }
+      },
+      {
+        "when": "blackclover:lightning_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/lightning"
+          "model": "blackclover:item/grimoire/lightning_open"
         }
       },
       {
         "when": "blackclover:earth",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/earth_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/earth"
+          }
+        }
+      },
+      {
+        "when": "blackclover:earth_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/earth"
+          "model": "blackclover:item/grimoire/earth_open"
         }
       },
       {
         "when": "blackclover:plant",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/plant_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/plant"
+          }
+        }
+      },
+      {
+        "when": "blackclover:plant_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/plant"
+          "model": "blackclover:item/grimoire/plant_open"
         }
       },
       {
         "when": "blackclover:light",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/light_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/light"
+          }
+        }
+      },
+      {
+        "when": "blackclover:light_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/light"
+          "model": "blackclover:item/grimoire/light_open"
         }
       },
       {
         "when": "blackclover:dark",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/dark_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/dark"
+          }
+        }
+      },
+      {
+        "when": "blackclover:dark_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/dark"
+          "model": "blackclover:item/grimoire/dark_open"
         }
       },
       {
         "when": "blackclover:spatial",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/spatial_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/spatial"
+          }
+        }
+      },
+      {
+        "when": "blackclover:spatial_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/spatial"
+          "model": "blackclover:item/grimoire/spatial_open"
         }
       },
       {
         "when": "blackclover:gravity",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/gravity_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/gravity"
+          }
+        }
+      },
+      {
+        "when": "blackclover:gravity_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/gravity"
+          "model": "blackclover:item/grimoire/gravity_open"
         }
       },
       {
         "when": "blackclover:blood",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/blood_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/blood"
+          }
+        }
+      },
+      {
+        "when": "blackclover:blood_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/blood"
+          "model": "blackclover:item/grimoire/blood_open"
         }
       },
       {
         "when": "blackclover:poison",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/poison_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/poison"
+          }
+        }
+      },
+      {
+        "when": "blackclover:poison_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/poison"
+          "model": "blackclover:item/grimoire/poison_open"
         }
       },
       {
         "when": "blackclover:time",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/time_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/time"
+          }
+        }
+      },
+      {
+        "when": "blackclover:time_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/time"
+          "model": "blackclover:item/grimoire/time_open"
         }
       },
       {
         "when": "blackclover:anti_magic",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/anti_magic_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/anti_magic"
+          }
+        }
+      },
+      {
+        "when": "blackclover:anti_magic_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/anti_magic"
+          "model": "blackclover:item/grimoire/anti_magic_open"
         }
       },
       {
         "when": "blackclover:five_leaf",
         "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "blackclover:item/grimoire/five_leaf_open"
+              }
+            },
+            {
+              "when": [
+                "thirdperson_righthand",
+                "thirdperson_lefthand"
+              ],
+              "model": {
+                "type": "minecraft:empty"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "blackclover:item/grimoire/five_leaf"
+          }
+        }
+      },
+      {
+        "when": "blackclover:five_leaf_open",
+        "model": {
           "type": "minecraft:model",
-          "model": "blackclover:item/grimoire/five_leaf"
+          "model": "blackclover:item/grimoire/five_leaf_open"
         }
       }
     ],

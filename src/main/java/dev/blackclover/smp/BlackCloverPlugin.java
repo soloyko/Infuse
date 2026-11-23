@@ -60,6 +60,7 @@ public final class BlackCloverPlugin extends JavaPlugin {
     private CastingService casting;
     private DemonService demonService;
     private ResourcePackService pack;
+    private dev.blackclover.smp.magic.GrimoireHover hover;
 
     @Override
     public void onEnable() {
@@ -113,6 +114,11 @@ public final class BlackCloverPlugin extends JavaPlugin {
         combatListener.setOnDemonDeath(demonService::onDeath);
         demonService.startTasks();
 
+        hover = new dev.blackclover.smp.magic.GrimoireHover(this);
+        getServer().getPluginManager().registerEvents(hover, this);
+        hover.startTasks();
+        casting.setOnCast(hover::onCast);
+
         pack = new ResourcePackService(this);
         pack.enable();
         getServer().getPluginManager().registerEvents(pack, this);
@@ -142,6 +148,9 @@ public final class BlackCloverPlugin extends JavaPlugin {
     public void onDisable() {
         if (pack != null) {
             pack.disable();
+        }
+        if (hover != null) {
+            hover.removeAll();
         }
         if (altars != null) {
             altars.removeAllDisplays();
