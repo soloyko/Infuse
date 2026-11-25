@@ -5,7 +5,7 @@ A Paper 1.21.5+ plugin. The Blade of Lambro is a netherite sword that unlocks a 
 ## Install
 
 1. Put `dist/BladeOfLambro-1.0.0.jar` in `plugins/` and restart the server.
-2. Use `dist/Blades_Of_Majestica_Lambro.zip` as the resource pack. It's your Blades of Majestica pack plus one file, `assets/minecraft/items/blade_of_lambro.json`, which gives the blade the pack's **Storm Bringer** model (a black blade with an animated blue storm layer).
+2. Use `dist/Lambro.zip` as the resource pack. It includes `assets/minecraft/items/blade_of_lambro.json`, which gives the blade the **Storm Bringer** model (a black blade with an animated blue storm layer).
    If you already host the pack, you can add just that one file (`resourcepack-addon/`) instead.
 3. Run `/lambro give` in game.
 
