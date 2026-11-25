@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────
+#  ʙʟᴀᴅᴇ ᴏꜰ ʟᴀᴍʙʀᴏ  ·  config
+#  Everything here can also be edited in-game:  /lambro gui
+# ─────────────────────────────────────────────
+
+general:
+  # A new power awakens every N kills (tier 1 at N, tier 8 at 8*N).
+  kills-per-unlock: 3
+  count-player-kills: true
+  count-mob-kills: false
+  # When false, area abilities only hit players, hostile mobs and mobs targeting you.
+  hit-passive-mobs: false
+  action-bar: true
+  announce-unlocks: true
+  unbreakable: true
+  # MiniMessage name shown on the item.
+  display-name: "<bold><gradient:#9FE8FF:#2F7BFF:#16245C>Blade of Lambro</gradient></bold>"
+  # item_model component. "minecraft:blade_of_lambro" is added by the bundled resource pack
+  # (it renders the pack's Storm Bringer model). Set to "" to use the vanilla netherite sword.
+  item-model: "minecraft:blade_of_lambro"
+
+# Each ability: enabled + its numbers. Cooldowns/durations in seconds, damage in half-hearts (hp).
+abilities:
+  undertow:            # tier 1 · passive
+    enabled: true
+    hits: 3
+    bonus-damage: 4.0
+    slow-seconds: 2.0
+    slow-level: 2
+    mark-expire: 5.0
+  abyssal_dash:        # tier 2 · right click
+    enabled: true
+    cooldown: 10.0
+    power: 1.9
+    damage: 5.0
+    blind-seconds: 1.5
+  tidal_veil:          # tier 3 · passive
+    enabled: true
+    cooldown: 40.0
+    threshold: 40.0
+    absorption-level: 2
+    duration: 6.0
+    speed-level: 2
+  riftbreaker:         # tier 4 · sneak + right click
+    enabled: true
+    cooldown: 18.0
+    radius: 6.0
+    damage: 7.0
+    pull: 0.35
+    launch: 1.0
+  deepwater_hunger:    # tier 5 · passive
+    enabled: true
+    lifesteal: 12.0
+    kill-heal: 4.0
+    cooldown-cut: 3.0
+  phantom_edge:        # tier 6 · swap hands [F]
+    enabled: true
+    cooldown: 14.0
+    range: 16.0
+    damage: 6.0
+    speed: 1.1
+    slow-seconds: 1.5
+  blackwater_aura:     # tier 7 · passive
+    enabled: true
+    radius: 5.0
+    slow-level: 1
+    weakness-level: 1
+    show-ring: 1
+  eclipse_tide:        # tier 8 · sneak + swap [F]  (ultimate)
+    enabled: true
+    cooldown: 90.0
+    duration: 6.0
+    radius: 9.0
+    damage: 4.5
+    interval: 10
+    max-targets: 3

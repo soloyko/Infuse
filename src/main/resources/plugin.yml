@@ -1,0 +1,14 @@
+name: BladeOfLambro
+version: '${project.version}'
+main: dev.lambro.blade.LambroPlugin
+api-version: '1.21'
+description: The Blade of Lambro - a netherite blade that awakens a new power every 3 kills.
+commands:
+  lambro:
+    description: Blade of Lambro admin commands and config GUI.
+    usage: /lambro [gui|give|setkills|reload]
+    aliases: [lambroblade, bol]
+permissions:
+  lambro.admin:
+    description: Open the config GUI, give the blade, set kills, reload.
+    default: op
